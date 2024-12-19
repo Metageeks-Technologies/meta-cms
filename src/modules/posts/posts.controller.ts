@@ -43,7 +43,6 @@ export class PostsController {
 
   @Get('search')
   async searchPosts(@Query() query: SearchPostsQueryDto) {
-    console.log(query)
     const posts = await this.postsService.searchPosts(query);
     return posts;
   }

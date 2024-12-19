@@ -14,8 +14,8 @@ export class MediaService {
   private readonly s3Instance = new S3Client({
     region: `${process.env.AWS_REGION}`,
     credentials: {
-      accessKeyId: `${process.env.AWS_ACCESS_KEY_}`,
-      secretAccessKey: `${process.env.AWS_SECRET_KEY_}`,
+      accessKeyId: `${process.env.AWS_ACCESS_KEY}`,
+      secretAccessKey: `${process.env.AWS_SECRET_KEY}`,
     },
   });
   private readonly signedUrlExpirationTime = 3600; // In seconds
