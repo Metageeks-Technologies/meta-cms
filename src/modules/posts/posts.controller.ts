@@ -2,14 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Quer
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { AllowedRoles } from 'src/decorators/allowed-roles.decorator';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { UserRoleEnum } from '../users/schema/user.schema';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role.guard';
 import { Request } from 'express';
 import { GetPostsQueryDto, PostSortByEnum } from './dto/get-post.dto';
 import { PostStatusEnum } from './schema/post.schema';
-import { ValidateId } from 'src/pipes/validate-id.pipe';
+import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import mongoose from 'mongoose';
 import { SearchPostsQueryDto } from './dto/search-post.dto';
 

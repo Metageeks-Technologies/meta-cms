@@ -3,7 +3,7 @@ import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { GetSubscribersQueryDto } from './dto/get-subscribers.dto';
 import { UserRoleEnum } from '../users/schema/user.schema';
-import { AllowedRoles } from 'src/decorators/allowed-roles.decorator';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role.guard';
 

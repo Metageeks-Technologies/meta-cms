@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Req, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { AllowedRoles } from 'src/decorators/allowed-roles.decorator';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { UserRoleEnum } from './schema/user.schema';
 import { RolesGuard } from '../auth/role.guard';
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { Request, Response } from 'express';
-import { ValidateId } from 'src/pipes/validate-id.pipe';
+import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')

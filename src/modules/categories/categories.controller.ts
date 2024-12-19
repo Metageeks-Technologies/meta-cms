@@ -2,11 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { AllowedRoles } from 'src/decorators/allowed-roles.decorator';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { UserRoleEnum } from '../users/schema/user.schema';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role.guard';
-import { ValidateId } from 'src/pipes/validate-id.pipe';
+import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 
 @Controller('categories')
 export class CategoriesController {

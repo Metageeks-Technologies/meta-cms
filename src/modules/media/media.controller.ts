@@ -4,7 +4,7 @@ import { CreateMediaDto } from './dto/create-media.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { GetMediaQueryDto } from './dto/get-media.dto';
 import { GetSignedUploadUrlDTO } from './dto/get-signed-upload-url.dto';
-import { AllowedRoles } from 'src/decorators/allowed-roles.decorator';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { UserRoleEnum } from '../users/schema/user.schema';
 import { RolesGuard } from '../auth/role.guard';
 
