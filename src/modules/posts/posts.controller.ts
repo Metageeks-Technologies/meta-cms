@@ -10,7 +10,6 @@ import { Request } from 'express';
 import { GetPostsQueryDto, PostSortByEnum } from './dto/get-post.dto';
 import { PostStatusEnum } from './schema/post.schema';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
-import mongoose from 'mongoose';
 import { SearchPostsQueryDto } from './dto/search-post.dto';
 
 @Controller('posts')

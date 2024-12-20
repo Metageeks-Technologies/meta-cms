@@ -13,7 +13,7 @@ import * as cors from 'cors';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
 import { SubscribersModule } from './modules/subscribers/subscribers.module';
-import { LoggerModule } from './common/logger/logger.module';
+import { LoggerModule } from './modules/logger/logger.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 

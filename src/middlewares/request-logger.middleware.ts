@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { LoggerService } from 'src/common/logger/logger.service';
+import { LoggerService } from 'src/modules/logger/logger.service';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 
