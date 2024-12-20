@@ -192,7 +192,6 @@ export class PostsService {
     /////////////////////////////////////////
     pipeline.push(...this.postAggregationFinalSteps);
 
-    console.log(pipeline)
     // Execute the aggregation pipeline
     const posts = await this.Post.aggregate(pipeline).exec();
     return posts;
