@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ICategory } from './schema/category.schema';
@@ -17,7 +17,7 @@ export class CategoriesService {
     } catch(error) {
       if (error.code === 11000) {
         // Duplicate key error
-        throw new HttpException('Category Name already exists', 409);
+        throw new ConflictException('Category Name already exists');
       }
       
       // Re-throw the error if it's not a duplicate key error
@@ -49,7 +49,7 @@ export class CategoriesService {
     } catch(error) {
       if (error.code === 11000) {
         // Duplicate key error
-        throw new NotFoundException('Category Name already exists');
+        throw new ConflictException('Category Name already exists');
       }
       
       // Re-throw the error if it's not a duplicate key error

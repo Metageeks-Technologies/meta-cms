@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { ISubscriber } from './schema/subscriber.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -17,7 +17,7 @@ export class SubscribersService {
     } catch (error) {
       if (error.code === 11000) {
         // Duplicate key error
-        throw new HttpException('Already subscribed', 409);
+        throw new ConflictException('Already subscribed');
       }
 
       // Re-throw the error if it's not a duplicate key error

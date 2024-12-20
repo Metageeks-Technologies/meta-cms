@@ -83,12 +83,28 @@ export class PostsController {
     return { message: 'Unliked successfully' };
   }
 
-  @Get('public/:id/likedByMe')
+  @Get('public/:id/is-liked-and-bookmarked')
   @UseGuards(AuthGuard)
   async isPostLikedByuser(@Param('id', ValidateId) postId: string, @Req() req: Request) {
     const userId = (req as any).user._id;
-    const isPostLikedByUser = await this.postsService.isPostLikedByUser(postId, userId);
-    return { isPostLikedByMe: isPostLikedByUser };
+    const isLikedAndBookmarked = await this.postsService.isPostLikedAndBookmarkedByUser(postId, userId);
+    return isLikedAndBookmarked;
+  }
+
+  @Post('public/:id/bookmark')
+  @UseGuards(AuthGuard)
+  async bookmarkPublicPost(@Param('id', ValidateId) postId: string, @Req() req: Request) {
+    const userId = (req as any).user._id;
+    await this.postsService.bookmarkPublicPost(postId, userId);
+    return { message: 'Bookmarked successfully' };
+  }
+
+  @Delete('public/:id/bookmark')
+  @UseGuards(AuthGuard)
+  async removeBookmarkFromPublicPost(@Param('id', ValidateId) postId: string, @Req() req: Request) {
+    const userId = (req as any).user._id;
+    await this.postsService.removeBookmarkFromPublicPost(postId, userId);
+    return { message: 'Bookmark removed successfully' };
   }
 
   @Get('my/drafts')

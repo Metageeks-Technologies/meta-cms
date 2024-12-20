@@ -21,7 +21,7 @@ export class GetPostsQueryDto {
   isDeleted?: boolean;
 
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   authorId?: string;
 
   @Transform( ({ value }) => ( 

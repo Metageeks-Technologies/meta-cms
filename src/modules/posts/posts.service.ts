@@ -9,6 +9,7 @@ import { UserRoleEnum } from '../users/schema/user.schema';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { LikesService } from '../likes/likes.service';
 import { SearchPostSortByEnum, SearchPostsQueryDto } from './dto/search-post.dto';
+import { BookmarksService } from '../bookmarks/bookmarks.service';
 
 @Injectable()
 export class PostsService {
@@ -47,11 +48,15 @@ export class PostsService {
       $project: {
         'authorId': 0,
         'author.hash': 0,
-        'author.__v': 0,
       },
     }
   ];
-  constructor(@InjectModel('Post') private Post: Model<IPost>, private likesService: LikesService) { }
+
+  constructor(
+    @InjectModel('Post') private Post: Model<IPost>,
+    private likesService: LikesService,
+    private bookmarksService: BookmarksService
+  ) { }
 
   async createUniqueSlugFromTitle(title: string) {
     const noOfPostWithSameTitle = await this.Post.countDocuments({ title: title });
@@ -61,11 +66,11 @@ export class PostsService {
     return `${slugify(title)}-${noOfPostWithSameTitle}`;
   }
 
-  // Assumes authorId is coming from JWT and is verified by RolesGuard.
-  // Hence we are not checking if id is valid or not
-  // Also assuming ids in categories are valid
-  // The request can contain only 3 statuses (See DTO): Published, Scheduled, or Draft. Rest will be maintained internally
   async createPost(newPostData: CreatePostDto, authorId: string, authorRole: UserRoleEnum) {
+    // Assumes authorId is coming from JWT and is verified by RolesGuard.
+    // Hence we are not checking if id is valid or not
+    // Also assuming ids in categories are valid
+    // If they are not valid, they will be filtered out during category lookup
     const newPost = new this.Post(newPostData);
     newPost.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
     newPost.slug = await this.createUniqueSlugFromTitle(newPost.title);
@@ -372,13 +377,36 @@ export class PostsService {
     await post.save();
   }
 
-  async isPostLikedByUser(postId: string, userId: string) {
-    // Not checking existence of post here. 
-    // Since if post does not exists, its corresponding like entries will not be in the likes collection
-    // Just return true if correspoding like is found, otherwise false in all other cases
-    return await this.likesService.isPostLikedByUser(postId, userId);
+  async bookmarkPublicPost(postId: string, userId: string) {
+    // Assuming userId is valid and verified by JWT
+    const post = await this.Post.findOne({ _id: postId }, { _id: 1 }).lean().exec();
+    if(!post) {
+      throw new NotFoundException("Post Id not found");
+    }
+
+    await this.bookmarksService.add(postId, userId);
+  }
+  
+  async removeBookmarkFromPublicPost(postId: string, userId: string) {
+    // No need to validate for postId and userId here
+    // If they are valid and their corresponding bookmark exists, we'll delete it
+    // If their corresponding bookmark deos not exist, or even if they are invalid, a not found exception is thrown
+    await this.bookmarksService.remove(postId, userId);
   }
 
+  async isPostLikedAndBookmarkedByUser(postId: string, userId: string) {
+    // Assuming userId is valid and verified by JWT
+    // Not checking existence of post here. 
+    // Since if post does not exists, its corresponding like & bookmark entries will not be present
+    // Just return true if correspoding entries is found, otherwise false in all other cases
+    const [ isLiked, isBookmarked ] = await Promise.all([
+      this.likesService.isPostLikedByUser(postId, userId),
+      this.bookmarksService.isPostBookmarkedByUser(postId, userId)
+    ]);
+
+    return { isLiked, isBookmarked };
+  }
+  
   async deletePost(_id: string, userId: string, userRole: string) {
     const post = await this.Post.findOne({ _id: _id }, { authorId: 1, isDeleted: 1 }).lean().exec();
     if(!post) {
@@ -397,8 +425,8 @@ export class PostsService {
     const query = await this.Post.updateOne({ _id: _id }, { isDeleted: true }).exec();
   }
 
-  // Can only be done by superadmin
   async recoverPost(_id: string) {
+    // This can only be done by superadmin
     const query = await this.Post.updateOne({ _id: _id }, { isDeleted: true }).exec();
     if(query.matchedCount == 0) {
       throw new NotFoundException('Post ID not found');

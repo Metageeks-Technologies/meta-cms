@@ -1,14 +1,19 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
 import { IUser, UserRoleEnum } from './schema/user.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { BookmarksService } from '../bookmarks/bookmarks.service';
+import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private User: Model<IUser>) {}
+  constructor(
+    @InjectModel('User') private User: Model<IUser>,
+    private bookmarksService: BookmarksService
+  ) {}
   
   async create(newUserDetails: CreateUserDto) {
     const newUser = new this.User(newUserDetails);
@@ -21,7 +26,7 @@ export class UsersService {
     } catch(error) {
       if (error.code === 11000) {
         // Duplicate key error
-        throw new HttpException('Email already exists', 409);
+        throw new ConflictException('Email already exists');
       }
       
       // Re-throw the error if it's not a duplicate key error
@@ -79,4 +84,9 @@ export class UsersService {
     }
   }
 
+  async getUserBookmarks(userId: string, query : GetUserBookmarksQueryDto) {
+    // Assuming userId is valid and verified by JWT
+    const bookmarks = await this.bookmarksService.getUserBookmarks(userId, query);
+    return bookmarks;
+  }
 }

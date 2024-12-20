@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -8,15 +8,15 @@ import { ILike } from './schema/like.schema';
 export class LikesService {
   constructor(@InjectModel('Like') private Like: Model<ILike>) { }
 
-  // Assumes postId & userId exist and already verified by the caller
   async createLike(postId: string, userId: string) {
+    // Assumes postId & userId exist and already verified by the caller
     const newLike = new this.Like({ userId, postId });
     try {
       await newLike.save();
     } catch(error) {
       if (error.code === 11000) {
         // Duplicate key error
-        throw new HttpException('Already Liked', 400);
+        throw new ConflictException('Already Liked');
       }
       
       // Re-throw the error if it's not a duplicate key error
@@ -24,8 +24,10 @@ export class LikesService {
     }
   }
 
-  // Assumes postId & userId exist and already verified by the caller
   async removeLike(postId: string, userId: string) {
+    // No need to validate for postId and userId here
+    // If they are valid and their corresponding like exists, we'll delete it
+    // If their corresponding like does not exist, or even if they are invalid, a not found exception is thrown
     const query = await this.Like.deleteOne({ 
       userId: userId,
       postId: postId
@@ -37,7 +39,10 @@ export class LikesService {
   }
 
   async isPostLikedByUser(postId: string, userId: string) {
-    const like = await this.Like.findOne({ postId: postId, userId: userId }).lean().exec();
+    // No need to validate for postId and userId here
+    // If they are valid and their corresponding like exists, we'll delete it
+    // If their corresponding like does not exist, or even if they are invalid, a not found exception is thrown
+    const like = await this.Like.findOne({ postId: postId, userId: userId }, { _id: 1}).lean().exec();
     if(like)
       return true;
     else

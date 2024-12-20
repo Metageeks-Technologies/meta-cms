@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { IMedia } from './schema/media.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -60,7 +60,7 @@ export class MediaService {
     } catch (error) {
       if (error.code === 11000) {
         // Duplicate key error
-        throw new HttpException('Media key already exists', 400);
+        throw new ConflictException('Media key already exists');
       }
 
       // Re-throw the error if it's not a duplicate key error

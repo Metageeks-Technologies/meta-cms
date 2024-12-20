@@ -5,12 +5,14 @@ import { PostSchema } from './schema/post.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from '../users/users.module';
 import { LikesModule } from '../likes/likes.module';
+import { BookmarksModule } from '../bookmarks/bookmarks.module';
 
 @Module({
   imports: [ 
     MongooseModule.forFeature([{ name: 'Post', schema: PostSchema }]),
     UsersModule,
-    LikesModule
+    LikesModule,
+    BookmarksModule
   ],
   controllers: [PostsController],
   providers: [PostsService],

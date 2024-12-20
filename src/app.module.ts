@@ -16,6 +16,7 @@ import { SubscribersModule } from './modules/subscribers/subscribers.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
+import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { APP_FILTER } from '@nestjs/core';
     LikesModule,
     CategoriesModule,
     SubscribersModule,
+    BookmarksModule,
   ],
   controllers: [AppController],
   providers: [

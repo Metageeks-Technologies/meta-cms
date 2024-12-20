@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Req, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Req, Res, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
@@ -8,6 +8,7 @@ import { ChangeRoleDto } from './dto/change-role.dto';
 import { Request, Response } from 'express';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 
 @Controller('users')
 export class UsersController {
@@ -20,6 +21,13 @@ export class UsersController {
     return user;
   }
 
+  @Get('bookmarks')
+  @UseGuards(AuthGuard)
+  async getUserBookmarks(@Req() req: Request, @Query() query: GetUserBookmarksQueryDto) {
+    const bookmarks = await this.usersService.getUserBookmarks((req as any).user._id, query);
+    return bookmarks;
+  }
+  
   @Patch('profile')
   @UseGuards(AuthGuard)
   async upadteProfile(@Req() req: Request, @Body() updatedUserProfile: UpdateUserDto) {
