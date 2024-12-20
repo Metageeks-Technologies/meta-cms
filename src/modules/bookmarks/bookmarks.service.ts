@@ -101,14 +101,23 @@ export class BookmarksService {
       {
         $project: {
           'postId': 0,
-          'post.authorId': 0,
+          'post.categories.description': 0,
+          'post.categories.bannerImageKey': 0,
+          'post.categories.createdAt': 0,
+          'post.categories.updatedAt': 0,
+          'post.categories.__v': 0,
+          'post.author.createdAt': 0,
+          'post.author.updatedAt': 0,
+          'post.author.__v': 0,
           'post.author.hash': 0,
+          'post.authorId': 0,
+          'post.__v': 0,
+          '__v': 0,
+          'userId': 0
         },
       }
     ]).exec();
     
     return bookmarks;
   }
-
-
 }

@@ -25,21 +25,6 @@ export class PostsController {
     return { message: "Post created successfully " };
   }
 
-  @Get()
-  async getPosts(@Query() query: GetPostsQueryDto) {
-    const posts = await this.postsService.getPosts(
-      query.status,
-      query.isDeleted,
-      query.authorId,
-      query.tags,
-      query.categories,
-      query.sortBy,
-      query.lastId,
-      query.lastLikesCount
-    );
-    return posts;
-  }
-
   @Get('search')
   async searchPosts(@Query() query: SearchPostsQueryDto) {
     const posts = await this.postsService.searchPosts(query);
@@ -348,5 +333,22 @@ export class PostsController {
   async recoverPost(@Param('id', ValidateId) id: string) {
     await this.postsService.recoverPost(id);
     return { message: "Post recovered successfully" };
+  }
+
+  @Get()
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getAllPosts(@Query() query: GetPostsQueryDto) {
+    const posts = await this.postsService.getPosts(
+      query.status,
+      query.isDeleted,
+      query.authorId,
+      query.tags,
+      query.categories,
+      query.sortBy,
+      query.lastId,
+      query.lastLikesCount
+    );
+    return posts;
   }
 }

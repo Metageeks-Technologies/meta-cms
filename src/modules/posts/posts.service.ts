@@ -14,7 +14,7 @@ import { BookmarksService } from '../bookmarks/bookmarks.service';
 @Injectable()
 export class PostsService {
   private readonly POST_BATCH_LIMIT = 10;
-  private readonly postAggregationFinalSteps = [
+  private readonly postAggregationFinalSteps: mongoose.PipelineStage[]= [
     /////////////////////////////////////////
     // Category Lookup stage
     // If a catgory id is not found in the categories collection, it will be ignored and will not be reflected in categoriesDetails
@@ -46,8 +46,17 @@ export class PostsService {
     /////////////////////////////////////////
     {
       $project: {
-        'authorId': 0,
+        'categories.description': 0,
+        'categories.bannerImageKey': 0,
+        'categories.createdAt': 0,
+        'categories.updatedAt': 0,
+        'categories.__v': 0,
+        'author.createdAt': 0,
+        'author.updatedAt': 0,
+        'author.__v': 0,
         'author.hash': 0,
+        'authorId': 0,
+        '__v': 0
       },
     }
   ];
@@ -164,7 +173,7 @@ export class PostsService {
         break;
 
       case PostSortByEnum.POPULAR:
-        // Order of insertion is important here
+        // Order of insertion is important here. Since sorting order will be based on insertion order
         sortStage.likesCount = -1;
         sortStage._id = -1;
         break;
@@ -181,8 +190,9 @@ export class PostsService {
     /////////////////////////////////////////
     // Finals steps (Lookup and projection)
     /////////////////////////////////////////
-    pipeline.concat(this.postAggregationFinalSteps);
+    pipeline.push(...this.postAggregationFinalSteps);
 
+    console.log(pipeline)
     // Execute the aggregation pipeline
     const posts = await this.Post.aggregate(pipeline).exec();
     return posts;
@@ -259,7 +269,7 @@ export class PostsService {
     /////////////////////////////////////////
     // Finals steps (Lookup and projection)
     /////////////////////////////////////////
-    pipeline.concat(this.postAggregationFinalSteps);
+    pipeline.push(...this.postAggregationFinalSteps);
 
     // Execute the aggregation pipeline
     const posts = await this.Post.aggregate(pipeline).exec();

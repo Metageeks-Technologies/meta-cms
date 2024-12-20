@@ -10,7 +10,7 @@ export enum PostSortByEnum {
 };
 
 export class GetPostsQueryDto {
-  // Status query param will be ignored in GET /posts/public route
+  // Status query param and isDeleted query param will be ignored in GET /posts/public route
   @IsOptional()
   @IsEnum(PostStatusEnum)
   status?: PostStatusEnum;
