@@ -17,6 +17,8 @@ export class LoggerService {
 			}
 		);
 
+		const transports : winston.transport[] = [];
+
 		const fileTransport = new winston.transports.DailyRotateFile({
 			dirname: './logs/',
 			filename: '%DATE%.log',
@@ -25,11 +27,11 @@ export class LoggerService {
 			maxSize: '20m',
 			maxFiles: '30d',
 		});
+		transports.push(fileTransport);
 
 		// Only define console logging in non-production environments
-		let consoleTransport = undefined;
 		if (process.env.NODE_ENV !== 'production') {
-			consoleTransport = new winston.transports.Console({
+			const consoleTransport = new winston.transports.Console({
 				level: 'debug',
 				format: winston.format.combine(
 					winston.format.colorize(),
@@ -37,6 +39,7 @@ export class LoggerService {
 					consoleLogFormat,
 				),
 			});
+			transports.push(consoleTransport);
 		}
 
 		// Winston Logger configuration
@@ -49,7 +52,7 @@ export class LoggerService {
 				winston.format.json(),
 			),
 
-			transports: [fileTransport, consoleTransport],
+			transports: transports,
 		});
 	}
 
