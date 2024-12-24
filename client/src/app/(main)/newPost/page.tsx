@@ -5,61 +5,9 @@ import { Editor } from '@tinymce/tinymce-react';
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS for styling the calendar
 import { useAuth } from '@/hooks/useAuth';
+import { NewPostFormData } from '@/types';
+import { categories } from '@/constant/post';
 
-interface FormData {
-  postTitle: string;
-  postDescription: string;
-  postStatus: string;
-  visibility: string;
-  category: string[];
-  tags: string[];
-  publishDate: Date | null;
-  previewImg: File | null;
-}
-
-
-const categories = [
-  {
-    name:"abc 1",
-    selected: false 
-  },
-  {
-    name:"abc 2",
-    selected: false 
-  },
-  {
-    name:"abc 3",
-    selected: false 
-  },
-  {
-    name:"abc 4",
-    selected: false 
-  },
-  {
-    name:"abc 5",
-    selected: false 
-  },
-  {
-    name:"abc 6",
-    selected: false 
-  },
-  {
-    name:"abc 7",
-    selected: false 
-  },
-  {
-    name:"abc 8",
-    selected: false 
-  },
-  {
-    name:"abc 9",
-    selected: false 
-  },
-  {
-    name:"abc 10",
-    selected: false 
-  },
-]
 
 const App: React.FC = () => {
 
@@ -70,7 +18,7 @@ const App: React.FC = () => {
 
   const [categoryArr, setCategoryArr] = useState(categories);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<NewPostFormData>({
     postTitle: "",
     postDescription: '',
     postStatus: '',

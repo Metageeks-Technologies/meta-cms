@@ -1,26 +1,18 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
 import React, { SetStateAction, useEffect, useState } from 'react'
-import { blogPosts } from '@/app/(main)/allPost/data'
 import { ArrowRight } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { PostTypes } from '@/types'
+import { blogPosts } from '@/constant/post'
 
 const page = () => {
 
     useAuth()
 
-    interface Post {
-        id: number;
-        title: string;
-        image: string;
-        author: string;
-        date: string;
-        excerpt: string;
-        content: string;
-        tags: string[];
-    }
 
-    const [post, setPost] = useState<Post | undefined>(undefined);
+
+    const [post, setPost] = useState<PostTypes | null>(null);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -28,7 +20,7 @@ const page = () => {
     useEffect(() => {
         const pathArr = pathname.split('/');
         const id = pathArr[pathArr.length - 1];
-        const postArr = blogPosts.filter((post) => post.id.toString() == id.toString());
+        const postArr = blogPosts.filter((post : any) => post.id.toString() == id.toString());
         setPost(postArr[0]);
     }, [pathname]);
 
@@ -41,12 +33,11 @@ const page = () => {
 
             <div className='max-w-[800px] mx-auto flex flex-col gap-5'>
                 <h1 className='text-2xl sm:text-3xl md:text-5xl mb-2 sm:mb-4 font-bold'>{post?.title}</h1>
-                <p>{post?.excerpt}</p>
-                <img src={post?.image ? post.image : "/blogImg.png"} className='w-full object-contain' />
-                <p>{post?.content}</p>
+                <img src={post?.previewImageKey ? post.previewImageKey : "/blogImg.png"} className='w-full object-contain' />
+                <p>{post?.description}</p>
                 <div className='w-full flex flex-row justify-end gap-2'>
-                    <p>Author : {post?.author}</p> |
-                    <p>Date : {post?.date}</p>
+                    <p>Author : {post?.authorId}</p> |
+                    <p>Date : {post?.publishedDate}</p>
                 </div>
             </div>
         </div>

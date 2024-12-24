@@ -12,19 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from '@/hooks/useAuth';
+import { initialContributors } from '@/constant/user';
 
-const initialContributors = [
-  { id: 1, name: 'Eve Smith', email: 'evesmith@example.com', role: 'contributor' },
-  { id: 2, name: 'John Doe', email: 'johndoe@example.com', role: 'contributor' },
-  { id: 3, name: 'Sarah Lee', email: 'sarahlee@example.com', role: 'contributor' },
-  { id: 4, name: 'Michael Turner', email: 'michaelturner@example.com', role: 'user' },
-  { id: 5, name: 'Jessica Wilson', email: 'jessicawilson@example.com', role: 'user' },
-  { id: 6, name: 'David Brown', email: 'davidbrown@example.com', role: 'contributor' },
-  { id: 7, name: 'Olivia Green', email: 'oliviagreen@example.com', role: 'user' },
-  { id: 8, name: 'Daniel Harris', email: 'danielharris@example.com', role: 'user' },
-  { id: 9, name: 'Emily Adams', email: 'emilyadams@example.com', role: 'contributor' },
-  { id: 10, name: 'Luke Evans', email: 'lukeevans@example.com', role: 'user' },
-];
 
 function Contributor() {
 

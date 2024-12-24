@@ -1,64 +1,10 @@
+import { tagsdata } from '@/constant/tags';
 import { useAuth } from '@/hooks/useAuth'
 import React from 'react'
 
 const page = () => {
 
     useAuth();
-
-    const tagsdata = [
-        "Technology",
-        "Web Development",
-        "Programming",
-        "JavaScript",
-        "ReactJS",
-        "Next.js",
-        "Frontend Development",
-        "Backend Development",
-        "CSS",
-        "HTML",
-        "UI/UX Design",
-        "Node.js",
-        "Python",
-        "Data Science",
-        "Machine Learning",
-        "Artificial Intelligence",
-        "Cloud Computing",
-        "DevOps",
-        "Cybersecurity",
-        "Mobile Development",
-        "iOS Development",
-        "Android Development",
-        "React Native",
-        "Blockchain",
-        "Cryptocurrency",
-        "Digital Marketing",
-        "SEO",
-        "Content Marketing",
-        "Social Media",
-        "E-commerce",
-        "Business",
-        "Entrepreneurship",
-        "Leadership",
-        "Productivity",
-        "Self Improvement",
-        "Motivation",
-        "Health & Wellness",
-        "Fitness",
-        "Nutrition",
-        "Mental Health",
-        "Lifestyle",
-        "Personal Finance",
-        "Investing",
-        "Real Estate",
-        "Travel",
-        "Food & Drink",
-        "Recipes",
-        "Parenting",
-        "Education",
-        "Photography",
-        "Art & Culture"
-    ]
-
 
     return (
         <div className='p-2 sm:p-5 md:p-10'>
