@@ -1,7 +1,8 @@
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/common/Header";
-
+import { useAuth } from "@/hooks/useAuth";
 
 export const metadata = {
   title: "Authentication - My Blogging Website",
@@ -9,6 +10,7 @@ export const metadata = {
 };
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
+
   return (
     <div>
       <div className="w-full bg-[#06040B]">

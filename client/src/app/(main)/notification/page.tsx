@@ -15,6 +15,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { useAuth } from '@/hooks/useAuth';
 
 
 const date = new Date();
@@ -205,6 +206,8 @@ const data = [
 
 
 const Page = () => {
+
+    useAuth();
 
     const [selectedNotification, setSelectedNotification] = useState('all');
 

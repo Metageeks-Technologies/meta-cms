@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuth } from '@/hooks/useAuth';
 
 const initialUsers = [
   { id: 1, name: 'John Doe', email: 'johndoe@example.com', status: 'Active' },
@@ -25,6 +26,9 @@ const initialUsers = [
 ];
 
 function User() {
+
+  useAuth();
+  
   const [users, setUsers] = useState(initialUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState<'block' | 'unblock' | 'delete' | null>(null);

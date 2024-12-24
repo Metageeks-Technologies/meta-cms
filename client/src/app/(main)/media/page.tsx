@@ -1,4 +1,5 @@
 'use client'
+import { useAuth } from '@/hooks/useAuth';
 import { Check } from 'lucide-react';
 import React, { useState } from 'react'
 
@@ -57,6 +58,8 @@ const data = [
 
 
 const page = () => {
+
+    useAuth();
 
     const [filterBy, setFilterBy] = useState('all');
     const [mediaData, setMediaData] = useState(data);

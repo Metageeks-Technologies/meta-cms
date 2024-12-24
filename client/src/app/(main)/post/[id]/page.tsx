@@ -3,8 +3,11 @@ import { usePathname, useRouter } from 'next/navigation'
 import React, { SetStateAction, useEffect, useState } from 'react'
 import { blogPosts } from '@/app/(main)/allPost/data'
 import { ArrowRight } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 const page = () => {
+
+    useAuth()
 
     interface Post {
         id: number;

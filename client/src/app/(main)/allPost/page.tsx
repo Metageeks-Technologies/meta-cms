@@ -12,10 +12,13 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
+import { useAuth } from '@/hooks/useAuth';
 
 
 
 const page = () => {
+
+    useAuth();
 
     const statusArr = ['All', 'Publish', 'Draft', 'Schedule', 'Rejected', 'Await approve', 'Delete'];
 

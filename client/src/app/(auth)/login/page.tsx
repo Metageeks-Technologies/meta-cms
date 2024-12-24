@@ -1,7 +1,11 @@
 'use client'
+import axiosCall from '@/utils/ApiCall';
+import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Stringifier } from 'postcss';
 import React, { useState } from 'react'
+import toast from 'react-hot-toast';
 
 const page = () => {
 
@@ -9,6 +13,62 @@ const page = () => {
 
     const [role, setRole] = useState('user');
     const [showPass, setShowPass] = useState(false);
+
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+
+
+    interface LoginPayload {
+        email: string;
+        password: string
+    }
+
+    const handleLogin = async (e: any) => {
+        e.preventDefault();
+        try {
+            setLoading(true);
+            const payload: LoginPayload = {
+                email,
+                password
+            }
+            const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}auth/login`, payload);
+
+            // console.log(response, "Response")
+            if (response) {
+                toast.success(response.message, {
+                    duration: 2000
+                });
+
+                try {
+                    const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}users/profile`);
+                    if (response) {
+                        localStorage.setItem("user", JSON.stringify(response));
+
+                        router.push('/dashboard')
+                        setLoading(false);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+
+
+            } else {
+                toast.error("Something went wrong", {
+                    duration: 2000,
+                });
+                setLoading(false);
+            }
+
+        } catch (error) {
+            console.log(error);
+            toast.error("Something went wrong", {
+                duration: 200,
+            });
+        }
+    }
+
 
     return (
         <div className='w-full h-screen flex items-center justify-center'>
@@ -27,17 +87,28 @@ const page = () => {
                         <p onClick={() => setRole('admin')} className={`w-full text-center p-4 cursor-pointer text-xl ${role === 'admin' ? " bg-gray-800 rounded-t-lg" : ""}`}>Admin</p>
                     </div>
 
-                    <form className={`p-4 bg-gray-800 flex flex-col gap-5 rounded-b-lg pt-10 ${role === 'user' ? "rounded-tr-lg" : "rounded-tl-lg"}`}>
+                    <form onSubmit={handleLogin} className={`p-4 bg-gray-800 flex flex-col gap-5 rounded-b-lg pt-10 ${role === 'user' ? "rounded-tr-lg" : "rounded-tl-lg"}`}>
                         <label className='flex flex-col gap-2'>
                             <span>Email</span>
-                            <input type="email" required placeholder='Enter email id' className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg' />
+                            <input
+                                type="email"
+                                required
+                                placeholder='Enter email id'
+                                className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg'
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
                         </label>
 
                         <label className='flex flex-col gap-2'>
                             <span>Password</span>
                             <div className='w-full bg-gray-700 rounded-lg flex flex-row items-center'>
-                                <input type={showPass ? "text" : "password"} required placeholder='Enter password' className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg' />
-                                <span onClick={() => setShowPass(!showPass)} className='pr-3'>
+                                <input
+                                    type={showPass ? "text" : "password"}
+                                    required placeholder='Enter password'
+                                    className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg'
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <span onClick={() => setShowPass(!showPass)} className='pr-3 cursor-pointer'>
                                     {
                                         showPass ?
                                             <EyeOff />
@@ -48,7 +119,7 @@ const page = () => {
                             </div>
                         </label>
 
-                        <button type='submit' className='w-full text-center bg-white text-black rounded-lg p-2 text-xl my-2 font-bold'>Login</button>
+                        <button type='submit' disabled={loading && true} className='w-full text-center bg-white text-black rounded-lg p-2 text-xl my-2 font-bold'>{loading ? "loading..." : "Login"}</button>
                         <p className='text-center my-3'>Don’t have an account? <span onClick={() => router.push('/signUp')} className='underline hover:text-blue-500 cursor-pointer'>Sign up</span></p>
                     </form>
                 </div>
