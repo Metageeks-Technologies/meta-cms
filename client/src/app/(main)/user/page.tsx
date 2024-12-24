@@ -11,19 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from '@/hooks/useAuth';
+import { initialUsers } from '@/constant/user';
 
-const initialUsers = [
-  { id: 1, name: 'John Doe', email: 'johndoe@example.com', status: 'Active' },
-  { id: 2, name: 'Jane Smith', email: 'janesmith@example.com', status: 'Inactive' },
-  { id: 3, name: 'Michael Johnson', email: 'michaelj@example.com', status: 'Active' },
-  { id: 4, name: 'Emma Watson', email: 'emmawatson@example.com', status: 'Inactive' },
-  { id: 5, name: 'Olivia Brown', email: 'oliviabrown@example.com', status: 'Active' },
-  { id: 6, name: 'Lucas White', email: 'lucaswhite@example.com', status: 'Inactive' },
-  { id: 7, name: 'Sophia Green', email: 'sophiagreen@example.com', status: 'Active' },
-  { id: 8, name: 'Liam Martin', email: 'liammartin@example.com', status: 'Inactive' },
-  { id: 9, name: 'Charlotte Davis', email: 'charlottedavis@example.com', status: 'Active' },
-  { id: 10, name: 'James Wilson', email: 'jameswilson@example.com', status: 'Inactive' },
-];
+
 
 function User() {
 
@@ -58,8 +48,6 @@ function User() {
                   : actionType === 'unblock'
                   ? 'Inactive'
                   : actionType === 'delete'
-                  ? 'Deleted'
-                  : user.status,
             }
           : user
       );
@@ -90,57 +78,7 @@ function User() {
                 <FaEnvelope size={16} className="text-gray-500" />
                 <span>{user.email}</span>
               </TableCell>
-              <TableCell>
-                <span
-                  className={`px-2 py-1 text-xs font-semibold ${
-                    user.status === 'Active'
-                      ? 'text-green-500'
-                      : user.status === 'Blocked'
-                      ? 'text-yellow-500'
-                      : user.status === 'Deleted'
-                      ? 'text-red-500'
-                      : 'text-gray-500'
-                  }`}
-                >
-                  {user.status}
-                </span>
-              </TableCell>
-              <TableCell className="flex justify-end space-x-4">
-                {/* Show Block and Delete icons */}
-                {user.status !== 'Deleted' && (
-                  <>
-                    {/* Show Block icon only when the user is not blocked */}
-                    {user.status !== 'Blocked' && (
-                      <button
-                        onClick={() => openModal('block', user)}
-                        className="text-yellow-400 hover:text-yellow-800 transition-colors duration-200"
-                      >
-                        <FaBan size={18} />
-                      </button>
-                    )}
-
-                    {/* Show Unblock icon when the user is blocked */}
-                    {user.status === 'Blocked' && (
-                      <button
-                        onClick={() => openModal('unblock', user)}
-                        className="text-green-500 hover:text-green-800 transition-colors duration-200"
-                      >
-                        <FaUndo size={18} />
-                      </button>
-                    )}
-
-                    {/* Show Delete icon for active/inactive/blocked users */}
-                    {user.status !== 'Blocked' && (
-                      <button
-                        onClick={() => openModal('delete', user)}
-                        className="text-red-500 hover:text-red-800 transition-colors duration-200"
-                      >
-                        <FaTrashAlt size={18} />
-                      </button>
-                    )}
-                  </>
-                )}
-              </TableCell>
+              
             </TableRow>
           ))}
         </TableBody>

@@ -1,4 +1,5 @@
 'use client'
+import { SignUpFormData, SignUpPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -17,15 +18,9 @@ const page = () => {
   const [passError, setPassError] = useState<string>('');
 
 
-  interface FormData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-  }
 
-  const [formData, setFormData] = useState<FormData>({
+
+  const [formData, setFormData] = useState<SignUpFormData>({
     firstName: "",
     lastName: "",
     email: "",
@@ -33,11 +28,7 @@ const page = () => {
     confirmPassword: ""
   });
 
-  interface Payload {
-    name: string;
-    email: string;
-    password: string;
-  }
+
 
   const handleSignUp = async(e: any) => {
 
@@ -56,7 +47,7 @@ const page = () => {
     }
 
     try {
-      const paylaod: Payload = {
+      const paylaod: SignUpPayload = {
         name: formData.firstName + " " + formData.lastName,
         email: formData.email,
         password: formData.password,

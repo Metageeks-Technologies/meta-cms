@@ -1,4 +1,5 @@
 'use client'
+import { LoginPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
@@ -19,11 +20,6 @@ const page = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
-
-    interface LoginPayload {
-        email: string;
-        password: string
-    }
 
     const handleLogin = async (e: any) => {
         e.preventDefault();

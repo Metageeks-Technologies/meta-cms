@@ -12,19 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from '@/hooks/useAuth';
+import { initialAdmins } from '@/constant/user';
 
-const initialAdmins = [
-  { id: 2, name: 'Alice Johnson', email: 'alicejohnson@example.com', role: 'moderator' },
-  { id: 3, name: 'Bob Brown', email: 'bobbrown@example.com', role: 'moderator' },
-  { id: 4, name: 'Charlie Williams', email: 'charliewilliams@example.com', role: 'moderator' },
-  { id: 5, name: 'David Lee', email: 'davidlee@example.com', role: 'moderator' },
-  { id: 6, name: 'Emma Davis', email: 'emmadavis@example.com', role: 'user' },
-  { id: 7, name: 'Frank Harris', email: 'frankharris@example.com', role: 'user' },
-  { id: 8, name: 'Grace Clark', email: 'graceclark@example.com', role: 'user' },
-  { id: 9, name: 'Hannah Lewis', email: 'hannahlewis@example.com', role: 'user' },
-  { id: 10, name: 'Ian Young', email: 'ianyoung@example.com', role: 'user' },
-  { id: 11, name: 'Jack Martin', email: 'jackmartin@example.com', role: 'user' },
-];
 
 function Admin() {
   useAuth();

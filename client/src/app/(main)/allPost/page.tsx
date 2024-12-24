@@ -2,7 +2,6 @@
 import { ArrowUpRight, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
-import { blogPosts } from './data';
 import {
     Pagination,
     PaginationContent,
@@ -13,6 +12,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import { useAuth } from '@/hooks/useAuth';
+import { blogPosts } from '@/constant/post';
 
 
 
@@ -76,16 +76,16 @@ const page = () => {
                     postData.map((post, index) => (
                         <div key={index} onClick={() => router.push(`/post/${post.id}`)} className='max-w-72 my-2 md:my-5 group cursor-pointer rounded-lg'>
                             <div className='w-full'>
-                                <img src={post.image ? "" : "/blogImg.png"} alt="Blog Image" className='w-full object-cover rounded-t-lg' />
+                                <img src={post.previewImageKey ? "" : "/blogImg.png"} alt="Blog Image" className='w-full object-cover rounded-t-lg' />
                             </div>
 
                             <div className='text-gray-200 flex flex-col gap-1 md:gap-3 mt-2 text-sm md:text-base'>
                                 <div className='flex flex-row justify-between'>
-                                    <p className='text-[#6941C6] text-sm'>{post.author} | {post.date}</p>
+                                    <p className='text-[#6941C6] text-sm'>{post.authorId} | {post.publishedDate}</p>
                                     <p className=' text-sm'>{post.status.charAt(0).toUpperCase() + post.status.slice(1)}</p>
                                 </div>
                                 <h2 className='text-xl md:text-2xl group-hover:underline'>{post.title} &#8599;</h2>
-                                <p className='text-gray-400'>{post.excerpt}</p>
+                                <p className='text-gray-400'>{post.description}.slice(0, 150)</p>
                                 <div className={`w-full flex flex-row flex-wrap gap-2`}>
                                     {
                                         post.tags.map((tag, index) => (

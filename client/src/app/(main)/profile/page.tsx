@@ -14,97 +14,18 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { useAuth } from '@/hooks/useAuth';
+import { PostTypes, UserProfile } from '@/types';
+import { blogPosts } from '@/constant/post';
 
-// Sample profile and data
-interface Profile {
-  userName: string;
-}
 
-interface Post {
-  id: number;
-  title: string;
-  author: string;
-  category: string;
-  tag: string;
-  status: string;
-  date: string;
-  description: string;
-}
 
-interface Comment {
-  id: number;
-  postId: number;
-  user: string;
-  content: string;
-  date: string;
-}
-
-const postsData: Post[] = [
-  {
-    id: 1,
-    title: 'React 18 New Features',
-    author: 'Alice Johnson',
-    category: 'Tech',
-    tag: 'React',
-    status: 'Published',
-    date: '2024-12-10',
-    description: 'React 18 introduces several exciting new features including automatic batching, concurrent rendering, and new hooks that enhance performance and scalability.',
-  },
-  {
-    id: 2,
-    title: 'Understanding TypeScript',
-    author: 'Bob Brown',
-    category: 'Programming',
-    tag: 'TypeScript',
-    status: 'Draft',
-    date: '2024-11-15',
-    description: 'TypeScript is a superset of JavaScript that adds type checking to the language, making it easier to catch errors early and improve code quality.',
-  },
-  {
-    id: 3,
-    title: 'CSS Grid Layout',
-    author: 'Alice Johnson',
-    category: 'Design',
-    tag: 'CSS',
-    status: 'Published',
-    date: '2024-10-05',
-    description: 'CSS Grid Layout allows you to create complex, responsive grid-based layouts easily. It’s one of the most powerful layout tools in modern web design.',
-  },
-];
-
-const commentsData: Comment[] = [
-  {
-    id: 1,
-    postId: 1,
-    user: 'Alice Johnson',
-    content: 'Great article! Learned a lot about React 18 features.',
-    date: '2024-12-10',
-  },
-  {
-    id: 2,
-    postId: 2,
-    user: 'Alice Johnson',
-    content: 'I found this very informative. Thanks for the insights!',
-    date: '2024-12-11',
-  },
-  {
-    id: 3,
-    postId: 3,
-    user: 'Bob Brown',
-    content: 'TypeScript is a powerful tool. I’ve been using it for a while now.',
-    date: '2024-11-16',
-  },
-];
-
-// Assume user profile data is available
-const userProfile: Profile = {
-  userName: 'Alice Johnson', // The logged-in user
-};
 
 const ProfilePage: React.FC = () => {
   useAuth();
+
   const [isEditing, setIsEditing] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
+
   const [profileData, setProfileData] = useState({
     firstName: 'Mehrab',
     lastName: 'Bozorgi',
@@ -122,6 +43,8 @@ const ProfilePage: React.FC = () => {
     setEditData(profileData);
     setIsEditing(false);
   };
+
+
   const handleSave = () => {
     if (editData.password === editData.confirmPassword) {
       setProfileData(editData);
@@ -130,10 +53,14 @@ const ProfilePage: React.FC = () => {
       alert("Passwords do not match!");
     }
   };
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditData({ ...editData, [name]: value });
   };
+
+  
   const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
 
   // For User Posts and Comments Logic
@@ -142,28 +69,16 @@ const ProfilePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
 
-  const userPostsData = postsData.filter(post => post.author === userProfile.userName);
-  const userCommentsData = commentsData.filter(comment => comment.user === userProfile.userName);
+  // const userPostsData = blogPosts.filter((post: PostTypes) => post.authorId === userProfile.name);
 
-  const filteredPosts = userPostsData.filter(post => post.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  const filteredComments = userCommentsData.filter(comment => comment.content.toLowerCase().includes(searchQuery.toLowerCase()));
+  // const filteredPosts = userPostsData.filter(post => post.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const getShortDescription = (description: string) => {
     const words = description.split(' ');
     return words.slice(0, 10).join(' ') + (words.length > 10 ? '...' : '');
   };
 
-  // Pagination Logic
-  const totalPosts = filteredPosts.length;
-  const totalComments = filteredComments.length;
-  const totalPostPages = Math.ceil(totalPosts / itemsPerPage);
-  const totalCommentPages = Math.ceil(totalComments / itemsPerPage);
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= (activeTab === 'userPosts' ? totalPostPages : totalCommentPages)) {
-      setCurrentPage(page);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16">
@@ -355,7 +270,7 @@ const ProfilePage: React.FC = () => {
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          {/* <TableBody>
             {filteredPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(post => (
               <TableRow key={post.id}>
                 <TableCell>{post.title}</TableCell>
@@ -367,7 +282,7 @@ const ProfilePage: React.FC = () => {
                 </TableCell>
               </TableRow>
             ))}
-          </TableBody>
+          </TableBody> */}
         </Table>
       ) : (
         <Table>
@@ -378,7 +293,7 @@ const ProfilePage: React.FC = () => {
               <TableHead>Date</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          {/* <TableBody>
             {filteredComments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(comment => (
               <TableRow key={comment.id}>
                 <TableCell>{postsData.find(post => post.id === comment.postId)?.title}</TableCell>
@@ -386,22 +301,22 @@ const ProfilePage: React.FC = () => {
                 <TableCell>{comment.date}</TableCell>
               </TableRow>
             ))}
-          </TableBody>
+          </TableBody> */}
         </Table>
       )}
 
       {/* Pagination */}
       <div className="flex justify-center mt-6 space-x-4">
         <button
-          onClick={() => handlePageChange(currentPage - 1)}
+          // onClick={}
           disabled={currentPage === 1}
           className="px-4 py-2 bg-gray-700 text-white rounded-md"
         >
           Prev
         </button>
         <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={(activeTab === 'userPosts' ? currentPage === totalPostPages : currentPage === totalCommentPages)}
+          // onClick={}
+          // disabled={(activeTab === 'userPosts' ? currentPage === totalPostPages : currentPage === totalCommentPages)}
           className="px-4 py-2 bg-gray-700 text-white rounded-md"
         >
           Next
