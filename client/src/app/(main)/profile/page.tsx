@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow 
 } from "@/components/ui/table";
+import { useAuth } from '@/hooks/useAuth';
 
 // Sample profile and data
 interface Profile {
@@ -101,6 +102,7 @@ const userProfile: Profile = {
 };
 
 const ProfilePage: React.FC = () => {
+  useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [profileData, setProfileData] = useState({

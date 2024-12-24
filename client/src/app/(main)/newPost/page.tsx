@@ -4,53 +4,99 @@ import { useRef, useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS for styling the calendar
+import { useAuth } from '@/hooks/useAuth';
+
+interface FormData {
+  postTitle: string;
+  postDescription: string;
+  postStatus: string;
+  visibility: string;
+  category: string[];
+  tags: string[];
+  publishDate: Date | null;
+  previewImg: File | null;
+}
+
+
+const categories = [
+  {
+    name:"abc 1",
+    selected: false 
+  },
+  {
+    name:"abc 2",
+    selected: false 
+  },
+  {
+    name:"abc 3",
+    selected: false 
+  },
+  {
+    name:"abc 4",
+    selected: false 
+  },
+  {
+    name:"abc 5",
+    selected: false 
+  },
+  {
+    name:"abc 6",
+    selected: false 
+  },
+  {
+    name:"abc 7",
+    selected: false 
+  },
+  {
+    name:"abc 8",
+    selected: false 
+  },
+  {
+    name:"abc 9",
+    selected: false 
+  },
+  {
+    name:"abc 10",
+    selected: false 
+  },
+]
 
 const App: React.FC = () => {
-  const editorRef = useRef<any>(null); // Type the editorRef as any since TinyMCE's editor can be dynamic
-  const [isClient, setIsClient] = useState<boolean>(false); // Track client-side rendering
-  const [postTitle, setPostTitle] = useState<string>(''); // State to hold the post title
-  const [postDescription, setPostDescription] = useState<string>(''); // State to hold the post description
-  const [postStatus, setPostStatus] = useState<string>('draft'); // State to hold the post status (draft, published, scheduled)
-  const [visibility, setVisibility] = useState<string>('public'); // State to hold the visibility (public, private)
-  const [category, setCategory] = useState<string>('crypto'); // State to hold the selected category
-  const [tags, setTags] = useState<string[]>([]); // State to hold the tags array
-  const [publishDate, setPublishDate] = useState<Date | null>(null); // State for the publish date
 
-  // UseEffect to ensure the component only renders on the client side
-  useEffect(() => {
-    setIsClient(true); // Set isClient to true after the component mounts
-  }, []);
+  useAuth();
 
-  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPostTitle(event.target.value);
-  };
+  const editorRef = useRef<any>(null);
 
-  const handleDescriptionChange = (content: string) => {
-    setPostDescription(content); // Update the post description when content changes
-  };
 
-  const handlePostStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setPostStatus(event.target.value); // Update post status when selected
-  };
+  const [categoryArr, setCategoryArr] = useState(categories);
 
-  const handleVisibilityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setVisibility(event.target.value); // Update visibility when selected
-  };
+  const [formData, setFormData] = useState<FormData>({
+    postTitle: "",
+    postDescription: '',
+    postStatus: '',
+    visibility: '',
+    category: [],
+    tags: [],
+    publishDate: null,
+    previewImg: null,
+  });
 
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setCategory(event.target.value); // Update category when selected
+
+  const handleCategoryChange = (name: string) => {
+      // const tempArr = categoryArr.map((category) => category.name === name ? category.selected = true : )
+      // setCategoryArr()
   };
 
   const handleTagChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputTags = event.target.value.split(',').map(tag => tag.trim());
-    setTags(inputTags); // Update the tags array when input changes
+    setFormData({ ...formData, tags: inputTags });
   };
 
   const handlePublishDateChange = (date: Date | null) => {
     // Ensure the selected date is not in the past
     const currentDate = new Date();
     if (date && date >= currentDate) {
-      setPublishDate(date); // Set the date if it's valid
+      setFormData({ ...formData, publishDate: date }); // Set the date if it's valid
     } else {
       alert('The publish date cannot be in the past!');
     }
@@ -60,20 +106,12 @@ const App: React.FC = () => {
     if (editorRef.current) {
       const content = editorRef.current.getContent();
       // Log or handle the data (title, description, status, content, publish date)
-      console.log('Post Title:', postTitle);
-      console.log('Post Description:', postDescription);
-      console.log('Post Status:', postStatus);
-      console.log('Visibility:', visibility);
-      console.log('Category:', category);
-      console.log('Tags:', tags.join(', '));
-      console.log('Publish Date:', publishDate);
-      console.log('Post Content:', content);
+
     }
   };
 
-  if (!isClient) {
-    return null; // Prevent rendering the TinyMCE editor on the server
-  }
+
+
 
   return (
     <div className='border-1 border-dashed border-gray-900 p-4'>
@@ -86,8 +124,19 @@ const App: React.FC = () => {
             <input
               type="text"
               id="postTitle"
-              value={postTitle}
-              onChange={handleTitleChange}
+              value={formData.postTitle}
+              onChange={(e) => setFormData({ ...formData, postTitle: e.target.value })}
+              placeholder="Enter post title"
+              className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
+            <input
+              type="file"
+              id=""
+              onChange={(e: any) => setFormData({ ...formData, previewImg: e.target.files[0] })}
               placeholder="Enter post title"
               className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
             />
@@ -105,14 +154,18 @@ const App: React.FC = () => {
                 plugins: [
                   'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                   'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                  'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                  'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount',
                 ],
-                toolbar: 'undo redo | bold italic forecolor | bullist numlist | removeformat',
+                external_plugins: {
+                  // Provide the api route set above
+                  embed: "/api/embed?requestType=plugin",
+                },
+                toolbar: 'undo redo | bold italic forecolor | bullist numlist | removeformat | embed',
                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                 verify_html: false,
               }}
-              value={postDescription}
-              onEditorChange={handleDescriptionChange}
+              value={formData.postDescription}
+              onEditorChange={(content) => setFormData({ ...formData, postDescription: content })}
               onInit={(evt, editor) => editorRef.current = editor}
             />
           </div>
@@ -123,7 +176,7 @@ const App: React.FC = () => {
             <input
               type="text"
               id="tags"
-              value={tags.join(', ')}
+              value={formData.tags.join(', ')}
               onChange={handleTagChange}
               placeholder="Enter tags separated by commas"
               className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
@@ -138,8 +191,8 @@ const App: React.FC = () => {
             <label htmlFor="postStatus" className="text-white">Post Status</label>
             <select
               id="postStatus"
-              value={postStatus}
-              onChange={handlePostStatusChange}
+              value={formData.postStatus}
+              onChange={(e) => setFormData({ ...formData, postStatus: e.target.value })}
               className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white w-full"
             >
               <option value="draft">Draft</option>
@@ -152,7 +205,7 @@ const App: React.FC = () => {
           <div>
             <label htmlFor="publishDate" className="text-white block">Publish Date</label>
             <DatePicker
-              selected={publishDate}
+              selected={formData.publishDate}
               onChange={handlePublishDateChange}
               minDate={new Date()} // Prevent selecting past dates
               className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white w-full"
@@ -166,8 +219,8 @@ const App: React.FC = () => {
             <label htmlFor="visibility" className="text-white block">Visibility</label>
             <select
               id="visibility"
-              value={visibility}
-              onChange={handleVisibilityChange}
+              value={formData.visibility}
+              onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
               className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white w-full"
             >
               <option value="public">Public</option>
@@ -177,18 +230,19 @@ const App: React.FC = () => {
 
           {/* Category Selection */}
           <div>
-            <label htmlFor="category" className="text-white block">Category</label>
-            <select
-              id="category"
-              value={category}
-              onChange={handleCategoryChange}
-              className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white w-full"
-            >
-              <option value="crypto">Crypto</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="technology">Technology</option>
-              <option value="finance">Finance</option>
-            </select>
+            <label htmlFor="visibility" className="text-white block">Category</label>
+            <div className='styledScrollable bg-[#1a1a1a] max-h-80 overflow-y-auto rounded-lg p-2 sm:p-4'>
+              {
+                categoryArr.map((category, index) => (
+                  <div key={index} onClick={() => handleCategoryChange(category.name)} className='p-2 cursor-pointer hover:bg-[#494949] rounded-lg flex items-center justify-between'>
+                    <p>{category.name}</p>
+                    <div className='w-4 h-4 border-[1px] border-gray-500 rounded-sm'>
+
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
           </div>
 
           <div className="flex justify-center">

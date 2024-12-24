@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { FaTrashAlt, FaEdit, FaEllipsisH, FaPlus } from 'react-icons/fa'; // Add the 'plus' icon for the add button
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from '@/components/ui/input'; // Assume you have an input component for search
+import { useAuth } from '@/hooks/useAuth';
 
 const initialCategories = [
   { id: 1, name: 'Technology', description: 'Latest trends and innovations in tech', slug: 'technology' },
@@ -16,6 +17,9 @@ const initialCategories = [
 ];
 
 function Category() {
+
+  useAuth();
+
   const [categories, setCategories] = useState(initialCategories);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);

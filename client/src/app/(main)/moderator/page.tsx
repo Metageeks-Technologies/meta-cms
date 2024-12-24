@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuth } from '@/hooks/useAuth';
 
 const initialAdmins = [
   { id: 2, name: 'Alice Johnson', email: 'alicejohnson@example.com', role: 'moderator' },
@@ -26,6 +27,7 @@ const initialAdmins = [
 ];
 
 function Admin() {
+  useAuth();
   const [admins, setAdmins] = useState(initialAdmins);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);

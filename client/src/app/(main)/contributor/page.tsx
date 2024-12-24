@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuth } from '@/hooks/useAuth';
 
 const initialContributors = [
   { id: 1, name: 'Eve Smith', email: 'evesmith@example.com', role: 'contributor' },
@@ -26,6 +27,9 @@ const initialContributors = [
 ];
 
 function Contributor() {
+
+  useAuth();
+
   const [contributors, setContributors] = useState(initialContributors);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
