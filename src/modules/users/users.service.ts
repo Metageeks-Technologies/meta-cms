@@ -89,4 +89,17 @@ export class UsersService {
     const bookmarks = await this.bookmarksService.getUserBookmarks(userId, query);
     return bookmarks;
   }
+
+  async getAllModerator() : Promise<IUser[]>{
+    // Assuming user verified as super Admin
+    const users = await this.User.find( { role: UserRoleEnum.MODERATOR } ).lean().exec();
+    return users as IUser[];
+  }
+
+  async getAllContributor() : Promise<IUser[]>{
+    // Assuming user verified as super Admin
+    const users = await this.User.find( { role: UserRoleEnum.CONTRIBUTOR } ).lean().exec();
+    return users as IUser[];
+  }
+
 }

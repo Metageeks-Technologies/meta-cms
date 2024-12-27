@@ -32,4 +32,5 @@ export class SubscribersController {
     const subscribers = await this.subscribersService.getAllSubscribers();
     return subscribers;
   }
+
 }
