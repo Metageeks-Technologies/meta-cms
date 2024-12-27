@@ -1,8 +1,6 @@
 'use client';
-import { Home, ScrollText, UsersRound, Bell, Settings, ChevronRight, LucideProps, Image, Plus, } from "lucide-react"
-import { BiCategory } from "react-icons/bi";
-import { MdPostAdd } from "react-icons/md";
-import { IoPricetags } from "react-icons/io5";
+import { ChevronRight, } from "lucide-react";
+
 
 import {
   Sidebar,
@@ -24,88 +22,92 @@ import {
 } from "@/components/ui/collapsible"
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator"
-import { ForwardRefExoticComponent, RefAttributes, useState } from "react";
+import { useEffect, useState } from "react";
+import { items } from "@/constant/sidebar";
+import { MenuItem } from "@/types";
 
 
 
 
-interface MenuItem {
-  title: string; // Title of the menu item
-  url?: string; // URL (optional for items with subMenu)
-  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | any; // Icon component
-  subMenu?: MenuItem[]; // Optional sub-menu items
-}
 
-// Menu items.
-const items: MenuItem[] = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Post",
-    icon: ScrollText,
-    subMenu: [
-      {
-        title: "New Post",
-        url: "/newPost",
-        icon: MdPostAdd,
-      },
-      {
-        title: "All Post",
-        url: "/allPost",
-        icon: ScrollText,
-      },
-      {
-        title: "Category",
-        url: "/category",
-        icon: BiCategory,
-      },
-      {
-        title: "Tags",
-        url: "/tags",
-        icon: IoPricetags,
-      },
-    ]
-  },
-  {
-    title: "User",
-    url: "/user",
-    icon: UsersRound,
-  },
-  {
-    title: "Contributor",
-    url: "/contributor",
-    icon: UsersRound,
-  },
-  {
-    title: "Moderator",
-    url: "/moderator",
-    icon: UsersRound,
-  },
-  {
-    title: "Media",
-    url: "/media",
-    icon: Image,
-  },
-  {
-    title: "Notification",
-    url: "/notification",
-    icon: Bell,
-  },
-  {
-    title: "Settings",
-    url: "/setting",
-    icon: Settings,
-  },
-];
+
 
 export function AppSidebar() {
 
   const router = useRouter();
 
   const [postSubMenu, setPostSubMenu] = useState(false);
+
+
+  const getFilteredMenuItems = (userRole: any): MenuItem[] => {
+    return items
+      .filter((item) => {
+        if (userRole === "superadmin") {
+          // Superadmin sees all menu items
+          return true;
+        }
+
+        if (userRole === "moderator") {
+          // Moderator hides "User", "Contributor", and "Moderator"
+          return !["User", "Contributor", "Moderator"].includes(item.title);
+        }
+
+        if (userRole === "contributor") {
+          // Contributor hides "User", "Contributor", "Moderator", "Category", and "Tags"
+          return !["User", "Contributor", "Moderator", "Category", "Tags"].includes(item.title);
+        }
+
+        // Default: Hide restricted items for other roles
+        return true;
+      })
+      .map((item) => {
+        // Filter subMenu items if applicable
+        if (item.subMenu) {
+          return {
+            ...item,
+            subMenu: item.subMenu.filter((subItem) => {
+              if (userRole === "contributor") {
+                // Contributor hides "Category" and "Tags" in subMenu
+                return !["Category", "Tags"].includes(subItem.title);
+              }
+              return true; // Keep all submenus for other roles
+            }),
+          };
+        }
+        return item;
+      });
+  };
+
+
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+
+    const userString = localStorage.getItem("user");
+    
+    if (userString) {
+        const userRole = JSON.parse(userString).role;
+        setUserRole(userRole);
+        
+    } else {
+        console.log("No user data found in localStorage.");
+    }
+    // Fetch user role from localStorage
+    // const storedRole = localStorage.getItem("userRole");
+    // setUserRole(storedRole);
+  }, []);
+
+
+
+  const filteredItems = getFilteredMenuItems(userRole?.toLowerCase());
+
+
+
+  useEffect(() => {
+    
+  }, [items])
+
+
 
   return (
     <Sidebar className="border-gray-800">
@@ -115,7 +117,7 @@ export function AppSidebar() {
           <Separator className="bg-gray-800" />
           <SidebarGroupContent className="p-2">
             <SidebarMenu>
-              {items.map((item, index) => (
+              {filteredItems.map((item, index) => (
                 <div key={index}>
                   {
                     item.title == "Post" ?
@@ -137,7 +139,7 @@ export function AppSidebar() {
 
                             <CollapsibleContent>
                               {
-                                item.subMenu?.map((subMenu, index) => (
+                                item.subMenu?.map((subMenu: any, index: any) => (
                                   <SidebarMenuSub key={index} onClick={(e) => { e.preventDefault(); router.push(subMenu.url!) }} className="border-none">
                                     <SidebarMenuSubItem className="my-1 p-2 rounded-lg hover:bg-white hover:text-black cursor-pointer flex items-center gap-2">
                                       <subMenu.icon className="w-5 h-5 text-5xl" />
@@ -155,7 +157,10 @@ export function AppSidebar() {
 
                       : <div>
                         <SidebarMenuItem key={item.title}>
-                          <SidebarMenuButton asChild onClick={(e) => { e.preventDefault(); router.push(item.url!) }} className="py-6 cursor-pointer text-base">
+                          <SidebarMenuButton
+                            asChild
+                            onClick={(e) => { e.preventDefault(); router.push(item.url!) }} className="py-6 cursor-pointer text-base"
+                          >
                             <div>
                               <item.icon />
                               <span>{item.title}</span>

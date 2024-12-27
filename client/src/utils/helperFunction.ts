@@ -1,0 +1,5 @@
+
+export const handleDate = (date: any) => {
+    const newDate = new Date(date);
+    return `${newDate.getDate()}/${newDate.getMonth() + 1}/${newDate.getFullYear()}`
+}

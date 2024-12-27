@@ -4,10 +4,10 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/common/Header";
 import { useAuth } from "@/hooks/useAuth";
 
-export const metadata = {
-  title: "Authentication - My Blogging Website",
-  description: "Log in or sign up to access your account.",
-};
+// export const metadata = {
+//   title: "Authentication - My Blogging Website",
+//   description: "Log in or sign up to access your account.",
+// };
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
 
