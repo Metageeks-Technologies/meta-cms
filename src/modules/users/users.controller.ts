@@ -34,6 +34,28 @@ export class UsersController {
     await this.usersService.updateProfile((req as any).user._id, updatedUserProfile);
     return { message: "Profile updated successfully" };
   }
+
+  @Get('all-moderator')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getAllModerators() {
+    const users = await this.usersService.getAllModerator()
+    return { 
+      message: "All moderators fetched successfully", 
+      users
+    };
+  }
+
+  @Get('all-contributor')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getAllContributor() {
+    const users = await this.usersService.getAllContributor()
+    return { 
+      message: "All contributor fetched successfully",
+      users
+    };
+  }
   
   @Get(':id')
   async findById(@Param('id', ValidateId) id: string) {
@@ -46,6 +68,7 @@ export class UsersController {
   async changeRole(@Body() changeRoleDto: ChangeRoleDto) {
     const { _id, newRole } = changeRoleDto;
     await this.usersService.changeRole(_id, newRole);
-    return { message: "User role changed successfully" };
+    return { message: "User role changed successfully" }; 
   }
+
 }

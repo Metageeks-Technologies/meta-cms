@@ -445,4 +445,5 @@ export class PostsService {
       throw new BadRequestException('Post was not deleted');
     }
   }
+
 }
