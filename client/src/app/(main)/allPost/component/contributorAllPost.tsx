@@ -4,34 +4,34 @@ import { Check } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import Card from './card';
 import toast from 'react-hot-toast';
+import { postStatuEnum } from '@/constant/post';
 
 const ContributorAllPost = () => {
-
 
     const statusArr = [
         {
             label: 'Publish',
-            query: "published",
+            query: postStatuEnum.PUBLISHED,
             function: fetchPublishedPost,
         },
         {
             label: 'Draft',
-            query: "draft",
+            query: postStatuEnum.DRAFT,
             function: fetchDraftPosts,
         },
         {
             label: 'Schedule',
-            query: "scheduled",
+            query: postStatuEnum.SCHEDULED,
             function: fetchSchedulePosts,
         },
         {
             label: 'Rejected',
-            query: "rejected",
+            query: postStatuEnum.REJECTED,
             function: fetchRejectedPosts,
         },
         {
             label: 'Await approve',
-            query: "awaiting approval",
+            query: postStatuEnum.AWAITING_APPROVAL,
             function: fetchAwaitApprovePosts,
         },
         {
@@ -44,35 +44,39 @@ const ContributorAllPost = () => {
 
     const [filterBy, setFilterBy] = useState('published');
 
-    console.log(filterBy, "filterBy");
+    // console.log(filterBy, "filterBy");
     const [sortBy, setSortBy] = useState('');
     // console.log(sortBy)
     const [postData, setPostData] = useState<any>(null);
 
 
     const handleSortByChange = (value: any) => {
-
-        switch (filterBy) {
-            case 'published':
-                fetchPublishedPost(value);
-                break;
-            case 'draft':
-                fetchDraftPosts(value);
-                break;
-            case 'scheduled':
-                fetchSchedulePosts(value);
-                break;
-            case 'rejected':
-                fetchRejectedPosts(value);
-                break;
-            case 'awaiting approval':
-                fetchAwaitApprovePosts(value);
-                break;
-            case 'deleted':
-                fetchDeletedPosts(value);
-                break;
-            default:
-                break;
+        try {
+            switch (filterBy) {
+                case postStatuEnum.PUBLISHED:
+                    fetchPublishedPost(value);
+                    break;
+                case postStatuEnum.DRAFT:
+                    fetchDraftPosts(value);
+                    break;
+                case postStatuEnum.SCHEDULED:
+                    fetchSchedulePosts(value);
+                    break;
+                case postStatuEnum.REJECTED:
+                    fetchRejectedPosts(value);
+                    break;
+                case postStatuEnum.AWAITING_APPROVAL:
+                    fetchAwaitApprovePosts(value);
+                    break;
+                case 'deleted':
+                    fetchDeletedPosts(value);
+                    break;
+                default:
+                    break;
+            }
+            
+        } catch (error) {
+            console.log(error);
         }
 
     }
@@ -80,7 +84,7 @@ const ContributorAllPost = () => {
 
 
     async function fetchPublishedPost(query?: string) {
-        setFilterBy('published');
+        setFilterBy(postStatuEnum.PUBLISHED);
         setPostData(null);
         try {
 
@@ -89,9 +93,13 @@ const ContributorAllPost = () => {
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/published?${param.toString()}`);
 
-            if (resp) {
-                setPostData(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setPostData(resp.data);
                 // console.log(resp);
+            }else{
+                toast.error(resp.data.message,{
+                    duration: 2000,
+                });
             }
 
         } catch (error) {
@@ -100,7 +108,7 @@ const ContributorAllPost = () => {
     }
 
     async function fetchDraftPosts(query?: string) {
-        setFilterBy('draft');
+        setFilterBy(postStatuEnum.DRAFT);
         setPostData(null);
         try {
 
@@ -109,9 +117,13 @@ const ContributorAllPost = () => {
             if (query) param.append("sortBy", query);
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/drafts?${param.toString()}`);
 
-            if (resp) {
-                setPostData(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setPostData(resp.data);
                 // console.log(resp);
+            }else{
+                toast.error(resp.data.message,{
+                    duration: 2000,
+                });
             }
 
         } catch (error) {
@@ -120,7 +132,7 @@ const ContributorAllPost = () => {
     }
 
     async function fetchSchedulePosts(query?: string) {
-        setFilterBy('scheduled');
+        setFilterBy(postStatuEnum.SCHEDULED);
         setPostData(null);
         try {
 
@@ -129,9 +141,13 @@ const ContributorAllPost = () => {
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/scheduled?${param.toString()}`);
 
-            if (resp) {
-                setPostData(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setPostData(resp.data);
                 // console.log(resp);
+            }else{
+                toast.error(resp.data.message,{
+                    duration: 2000,
+                });
             }
 
         } catch (error) {
@@ -140,7 +156,7 @@ const ContributorAllPost = () => {
     }
 
     async function fetchRejectedPosts(query?: string) {
-        setFilterBy('rejected');
+        setFilterBy(postStatuEnum.REJECTED);
         setPostData(null);
         try {
             const param = new URLSearchParams();
@@ -148,17 +164,22 @@ const ContributorAllPost = () => {
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/rejected?${param.toString()}`);
 
-            if (resp) {
-                setPostData(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setPostData(resp.data);
                 // console.log(resp);
+            }else{
+                toast.error(resp.data.message,{
+                    duration: 2000,
+                });
             }
+
         } catch (error) {
             console.log(error)
         }
     }
 
     async function fetchAwaitApprovePosts(query?: string) {
-        setFilterBy('awaiting approval');
+        setFilterBy(postStatuEnum.AWAITING_APPROVAL);
         setPostData(null);
         try {
 
@@ -167,9 +188,13 @@ const ContributorAllPost = () => {
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/awaiting-approval?${param.toString()}`);
 
-            if (resp) {
-                setPostData(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setPostData(resp.data);
                 // console.log(resp);
+            }else{
+                toast.error(resp.data.message,{
+                    duration: 2000,
+                });
             }
 
         } catch (error) {
@@ -187,9 +212,13 @@ const ContributorAllPost = () => {
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/deleted?${param.toString()}`);
 
-            if (resp) {
-                setPostData(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setPostData(resp.data);
                 // console.log(resp);
+            }else{
+                toast.error(resp.data.message,{
+                    duration: 2000,
+                });
             }
 
         } catch (error) {
