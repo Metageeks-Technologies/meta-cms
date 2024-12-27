@@ -22,15 +22,18 @@ const page = () => {
             }
             const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, payload);
             // console.log(response, "Response")
-            if (response) {
+            
+            if (response.status === 200 || response.status === 201) {
                 toast.success(response.message, {
                     duration: 2000
                 });
                 try {
                     const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
-                    if (response) {
-                        localStorage.setItem("user", JSON.stringify(response));
+                    if (response.status === 200 || response.status === 201) {
+                        localStorage.setItem("user", JSON.stringify(response.data));
                         router.push('/dashboard')
+                        setLoading(false);
+                    }else{
                         setLoading(false);
                     }
                 } catch (error) {

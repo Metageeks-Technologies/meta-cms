@@ -2,15 +2,15 @@ import { UserProfile } from "@/types";
 
 
 const userProfile: UserProfile = {
-  id: "1",
+    id: "1",
     name: "John Doe",
     email: "john.doe@example.com",
     phoneNo: "+1234567890",
     bio: "Developer, tech enthusiast",
     role: "moderator",
     socialLinks: {
-      linkedIn: "https://linkedin.com/in/johndoe",
-      twitter: "https://twitter.com/johndoe"
+        linkedIn: "https://linkedin.com/in/johndoe",
+        twitter: "https://twitter.com/johndoe"
     }
 };
 
@@ -72,27 +72,34 @@ export const initialUsers: UserProfile[] = [
 ];
 
 export const initialContributors = [
-  { id: 1, name: 'Eve Smith', email: 'evesmith@example.com', role: 'contributor' },
-  { id: 2, name: 'John Doe', email: 'johndoe@example.com', role: 'contributor' },
-  { id: 3, name: 'Sarah Lee', email: 'sarahlee@example.com', role: 'contributor' },
-  { id: 4, name: 'Michael Turner', email: 'michaelturner@example.com', role: 'user' },
-  { id: 5, name: 'Jessica Wilson', email: 'jessicawilson@example.com', role: 'user' },
-  { id: 6, name: 'David Brown', email: 'davidbrown@example.com', role: 'contributor' },
-  { id: 7, name: 'Olivia Green', email: 'oliviagreen@example.com', role: 'user' },
-  { id: 8, name: 'Daniel Harris', email: 'danielharris@example.com', role: 'user' },
-  { id: 9, name: 'Emily Adams', email: 'emilyadams@example.com', role: 'contributor' },
-  { id: 10, name: 'Luke Evans', email: 'lukeevans@example.com', role: 'user' },
+    { id: 1, name: 'Eve Smith', email: 'evesmith@example.com', role: 'contributor' },
+    { id: 2, name: 'John Doe', email: 'johndoe@example.com', role: 'contributor' },
+    { id: 3, name: 'Sarah Lee', email: 'sarahlee@example.com', role: 'contributor' },
+    { id: 4, name: 'Michael Turner', email: 'michaelturner@example.com', role: 'user' },
+    { id: 5, name: 'Jessica Wilson', email: 'jessicawilson@example.com', role: 'user' },
+    { id: 6, name: 'David Brown', email: 'davidbrown@example.com', role: 'contributor' },
+    { id: 7, name: 'Olivia Green', email: 'oliviagreen@example.com', role: 'user' },
+    { id: 8, name: 'Daniel Harris', email: 'danielharris@example.com', role: 'user' },
+    { id: 9, name: 'Emily Adams', email: 'emilyadams@example.com', role: 'contributor' },
+    { id: 10, name: 'Luke Evans', email: 'lukeevans@example.com', role: 'user' },
 ];
 
 export const initialAdmins = [
-  { id: 2, name: 'Alice Johnson', email: 'alicejohnson@example.com', role: 'moderator' },
-  { id: 3, name: 'Bob Brown', email: 'bobbrown@example.com', role: 'moderator' },
-  { id: 4, name: 'Charlie Williams', email: 'charliewilliams@example.com', role: 'moderator' },
-  { id: 5, name: 'David Lee', email: 'davidlee@example.com', role: 'moderator' },
-  { id: 6, name: 'Emma Davis', email: 'emmadavis@example.com', role: 'user' },
-  { id: 7, name: 'Frank Harris', email: 'frankharris@example.com', role: 'user' },
-  { id: 8, name: 'Grace Clark', email: 'graceclark@example.com', role: 'user' },
-  { id: 9, name: 'Hannah Lewis', email: 'hannahlewis@example.com', role: 'user' },
-  { id: 10, name: 'Ian Young', email: 'ianyoung@example.com', role: 'user' },
-  { id: 11, name: 'Jack Martin', email: 'jackmartin@example.com', role: 'user' },
+    { id: 2, name: 'Alice Johnson', email: 'alicejohnson@example.com', role: 'moderator' },
+    { id: 3, name: 'Bob Brown', email: 'bobbrown@example.com', role: 'moderator' },
+    { id: 4, name: 'Charlie Williams', email: 'charliewilliams@example.com', role: 'moderator' },
+    { id: 5, name: 'David Lee', email: 'davidlee@example.com', role: 'moderator' },
+    { id: 6, name: 'Emma Davis', email: 'emmadavis@example.com', role: 'user' },
+    { id: 7, name: 'Frank Harris', email: 'frankharris@example.com', role: 'user' },
+    { id: 8, name: 'Grace Clark', email: 'graceclark@example.com', role: 'user' },
+    { id: 9, name: 'Hannah Lewis', email: 'hannahlewis@example.com', role: 'user' },
+    { id: 10, name: 'Ian Young', email: 'ianyoung@example.com', role: 'user' },
+    { id: 11, name: 'Jack Martin', email: 'jackmartin@example.com', role: 'user' },
 ];
+
+export const userRoles = {
+    SUBSCRIBER: 'subscriber',
+    CONTRIBUTOR: 'contributor',
+    MODERATOR: 'moderator',
+    SUPERADMIN: 'superadmin',
+}

@@ -17,9 +17,6 @@ const page = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [passError, setPassError] = useState<string>('');
 
-
-
-
   const [formData, setFormData] = useState<SignUpFormData>({
     firstName: "",
     lastName: "",
@@ -55,8 +52,8 @@ const page = () => {
 
       const response = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}auth/signUp`, paylaod);
 
-      if(response){
-        toast.success(response.message + ", please login",{
+      if(response.status === 200 || response.status === 201){
+        toast.success(response.data.message + ", please login",{
           duration: 2000,
         })
 

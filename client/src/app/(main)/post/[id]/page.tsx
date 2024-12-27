@@ -4,9 +4,9 @@ import React, { SetStateAction, useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { PostTypes } from '@/types'
-import { blogPosts } from '@/constant/post'
+import { postStatuEnum } from '@/constant/post'
 import axiosCall from '@/utils/ApiCall'
-import { handleDate } from '@/utils/helperFunction'
+import { getUserFromLocalStorage, handleDate } from '@/utils/helperFunction'
 import toast from 'react-hot-toast'
 import {
     AlertDialog,
@@ -20,8 +20,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-
-
+import { userRoles } from '@/constant/user'
 
 
 const page = () => {
@@ -29,22 +28,17 @@ const page = () => {
 
     const [post, setPost] = useState<PostTypes | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+
+    // console.log(post)
+
     const router = useRouter();
     const params = useParams();
     const slug = params.id;
 
-    const [userRole, setUserRole] = useState<any>();
+    const [user, setUser] = useState<any>();
 
     useEffect(() => {
-        const userString = localStorage.getItem("user");
-
-        if (userString) {
-            const role = JSON.parse(userString).role;
-            setUserRole(role);
-
-        } else {
-            console.log("No user data found in localStorage.");
-        }
+        getUserFromLocalStorage(setUser);
     }, [])
 
 
@@ -53,10 +47,15 @@ const page = () => {
         setLoading(true);
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
-            if (resp) {
-                setPost(resp);
+
+            if (resp.status === 200 || resp.status === 201) {
+                setPost(resp?.data);
                 setLoading(false);
                 // console.log(resp);
+            } else {
+                toast.error(resp.data.message, {
+                    duration: 2000,
+                });
             }
 
         } catch (error) {
@@ -73,13 +72,19 @@ const page = () => {
         try {
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/reject`);
 
-            if (resp) {
+            if (resp.status === 200 || resp.status === 201) {
                 toast.success("Post Rejected", {
                     duration: 2000,
                 })
                 fetchPost();
                 setLoading(false);
+            } else {
+                toast.error(resp.data.message, {
+                    duration: 2000,
+                });
             }
+
+
         } catch (error) {
 
         }
@@ -89,15 +94,20 @@ const page = () => {
         try {
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/approve`);
 
-            if (resp) {
+            if (resp.status === 200 || resp.status === 201) {
                 toast.success("Post Approved", {
                     duration: 2000,
                 })
                 fetchPost();
                 setLoading(false);
+            } else {
+                toast.error(resp.data.message, {
+                    duration: 2000,
+                });
             }
-        } catch (error) {
 
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -106,16 +116,17 @@ const page = () => {
         try {
             const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}}`);
 
-            if (resp?.message === "Post deleted successfully") {
+            if (resp.status === 200 || resp.status === 201) {
                 toast.error(resp?.message, {
                     duration: 2000,
                 });
                 router.back();
             } else {
-                toast.error(resp?.message, {
+                toast.error(resp.data.message, {
                     duration: 2000,
                 });
             }
+
         } catch (error) {
             console.log(error)
         }
@@ -123,19 +134,20 @@ const page = () => {
 
     const handleRecovePost = async () => {
         try {
-            
+
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover}`);
 
-            if (resp?.message === "Post recovered successfully") {
+            if (resp.status === 200 || resp.status === 201) {
                 toast.error(resp?.message, {
                     duration: 2000,
                 });
                 fetchPost();
             } else {
-                toast.error(resp?.message, {
+                toast.error(resp.data.message, {
                     duration: 2000,
                 });
             }
+
         } catch (error) {
             console.log(error)
         }
@@ -165,7 +177,7 @@ const page = () => {
                                     </div>
 
                                     {
-                                        ((userRole === "superadmin" || userRole === "moderator") && post.status === "awaiting approval") &&
+                                        ((user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR) && post?.status === postStatuEnum.AWAITING_APPROVAL) &&
                                         <div className='w-full flex flex-row gap-3 mt-5'>
                                             <button onClick={handleRejectPost} className='w-full bg-red-200 border-[2px] border-red-600 text-red-600 font-bold p-2 rounded-lg text-base'>Reject</button>
                                             <button onClick={handleApprovePost} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Approve</button>
@@ -192,7 +204,7 @@ const page = () => {
                                     }
 
                                     {
-                                        post.isDeleted && userRole === 'superadmin' &&
+                                        post.isDeleted && user.role === userRoles.SUPERADMIN &&
 
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -210,7 +222,7 @@ const page = () => {
                                         </AlertDialog>
                                     }
 
-                                   
+
 
                                 </div>
                                 : <p className='text-center text-2xl'>No Data found.</p>

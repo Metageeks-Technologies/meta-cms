@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import axiosCall from '@/utils/ApiCall';
 import AdminAllPost from './component/adminAllPost';
 import ContributorAllPost from './component/contributorAllPost';
+import { getUserFromLocalStorage } from '@/utils/helperFunction';
+import { userRoles } from '@/constant/user';
 
 
 
@@ -13,26 +15,16 @@ const page = () => {
 
     useAuth();
 
-    const [userRole, setUserRole] = useState<any>();
-
-    
+    const [user, setUser] = useState<any>();
 
     useEffect(() => {
-        const userString = localStorage.getItem("user");
-    
-        if (userString) {
-            const userRole = JSON.parse(userString).role;
-            setUserRole(userRole);
-            
-        } else {
-            console.log("No user data found in localStorage.");
-        }
+        getUserFromLocalStorage(setUser);
     }, [])
 
     return (
         <div>
             {
-                userRole === "superadmin" || userRole === "moderator" ?
+                user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR ?
                     <AdminAllPost />
                     :
                     <ContributorAllPost />

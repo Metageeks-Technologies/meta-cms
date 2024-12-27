@@ -6,41 +6,10 @@ import Card from './card';
 import { FaSearch } from "react-icons/fa";
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { statusArrAdminAllPost } from '@/constant/post';
 
 const AdminAllPost = () => {
-
-    const statusArr = [
-        {
-            label: 'All',
-            query: ""
-        },
-        {
-            label: 'Publish',
-            query: "published"
-        },
-        {
-            label: 'Draft',
-            query: "draft"
-        },
-        {
-            label: 'Schedule',
-            query: "scheduled"
-        },
-        {
-            label: 'Rejected',
-            query: "rejected"
-        },
-        {
-            label: 'Await approve',
-            query: "awaiting approval"
-        },
-        {
-            label: 'Deleted',
-            query: "deleted"
-        },
-    ];
-
-
+    
     const [filterBy, setFilterBy] = useState('');
 
     // console.log(filterBy, "filterBy");
@@ -67,9 +36,10 @@ const AdminAllPost = () => {
             if (sortBy) param.append('sortBy', sortBy);
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
+            // console.log(resp)
 
-            if (resp) {
-                setPostData(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setPostData(resp.data);
                 // console.log(resp);
             }
 
@@ -90,7 +60,7 @@ const AdminAllPost = () => {
             <div className='w-full flex flex-row flex-wrap gap-2 sm:gap-4 lg:gap-8  px-2 ms:px-8 mt-6 md:mt-12'>
                 <div className='flex gap-2 flex-row items-center flex-wrap text-xs sm:text-sm'>
                     {
-                        statusArr.map((status, index) => (
+                        statusArrAdminAllPost.map((status, index) => (
                             <div key={index} onClick={() => setFilterBy(status.query)} className={`bg-gray-900 px-2 py-1 sm:px-4 sm:py-2 rounded-lg border-[1px] border-gray-800 flex flex-row items-center gap-2 cursor-pointer ${filterBy == status.query ? "text-blue-800 border-blue-800" : ""}`}>
                                 {
                                     filterBy === status.query ?

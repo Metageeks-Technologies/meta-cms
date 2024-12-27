@@ -21,27 +21,31 @@ const App: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [categoryArr, setCategoryArr] = useState([]);
-  // console.log("categoryArr", categoryArr);
+
 
   const [formData, setFormData] = useState<NewPostFormData>({
     postTitle: "",
     postDescription: '',
-    postStatus: '',
+    postStatus: 'draft',
     category: [],
     tags: [],
     publishDate: null,
     previewImg: null,
   });
-  // console.log(formData)
 
   const fetchCategory = async () => {
     try {
-      
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
-      if(resp) {
-        setCategoryArr(resp);
-        // console.log(resp, "Response")
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
+
+      if (resp.status === 200 || resp.status === 201) {
+        setCategoryArr(resp.data);
+        // console.log(resp);
+      } else {
+        toast.error(resp.data.message, {
+          duration: 2000,
+        });
       }
+      
     } catch (error) {
       console.log(error);
     }
@@ -79,6 +83,8 @@ const App: React.FC = () => {
     }
   };
 
+
+
   const handleCreatePost = async () => {
     if (!formData.postTitle.trim()) {
       toast.error('Post title is required.', {
@@ -92,7 +98,7 @@ const App: React.FC = () => {
       });
       return;
     }
-    
+
     if (!Array.isArray(formData.category) || formData.category.length === 0) {
       toast.error('At least one category must be selected.', {
         duration: 2000
@@ -149,38 +155,43 @@ const App: React.FC = () => {
 
 
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
-      console.log(resp, "Response");
-      if(resp.message === "Post created successfully ") {
-        toast.success('Post created successfully!', {
+      // console.log(resp, "Response");
+
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, {
           duration: 2000
         });
+
         setFormData({
           postTitle: "",
           postDescription: '',
-          postStatus: '',
+          postStatus: 'draft',
           category: [],
           tags: [],
           publishDate: null,
           previewImg: null,
         });
         editorRef.current?.setContent('');
-        fetchCategory(); 
+        fetchCategory();
+        setLoading(false);
+
+      }else{
+        toast.success(resp.data.message, {
+          duration: 2000
+        });
         setLoading(false);
       }
 
-      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.log(error);
     }
-  
+
   };
-
-
 
   useEffect(() => {
     fetchCategory();
-  },[]);
+  }, []);
 
 
   return (
@@ -199,7 +210,7 @@ const App: React.FC = () => {
               placeholder="Enter post title"
               className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
             />
-            
+
           </div>
 
           <div>
@@ -268,7 +279,6 @@ const App: React.FC = () => {
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
-              <option value="scheduled">Scheduled</option>
             </select>
           </div>
 
@@ -310,7 +320,7 @@ const App: React.FC = () => {
                     <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm flex items-center justify-center  ${formData.category.includes(category._id) && "bg-blue-500"}`}>
                       {
                         formData.category.includes(category._id) &&
-                        <TiTick/>
+                        <TiTick />
                       }
                     </div>
                   </div>
@@ -322,11 +332,11 @@ const App: React.FC = () => {
           <div className="flex justify-center">
             <button
               onClick={handleCreatePost}
-              disabled={loading? true : false}
+              disabled={loading ? true : false}
               className={`bg-[#007bff] text-white px-6 py-2 rounded-md hover:bg-[#0056b3] w-full sm:w-auto`}
             >
               {
-                loading? (
+                loading ? (
                   "Loading..."
                 ) : (
                   'Create Post'
