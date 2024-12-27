@@ -7,6 +7,9 @@ import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS for styli
 import { useAuth } from '@/hooks/useAuth';
 import { NewPostFormData } from '@/types';
 import { categories } from '@/constant/post';
+import axiosCall from '@/utils/ApiCall';
+import { TiTick } from "react-icons/ti";
+import toast from 'react-hot-toast';
 
 
 const App: React.FC = () => {
@@ -16,23 +19,50 @@ const App: React.FC = () => {
   const editorRef = useRef<any>(null);
 
 
-  const [categoryArr, setCategoryArr] = useState(categories);
+  const [loading, setLoading] = useState(false);
+  const [categoryArr, setCategoryArr] = useState([]);
+  // console.log("categoryArr", categoryArr);
 
   const [formData, setFormData] = useState<NewPostFormData>({
     postTitle: "",
     postDescription: '',
     postStatus: '',
-    visibility: '',
     category: [],
     tags: [],
     publishDate: null,
     previewImg: null,
   });
+  // console.log(formData)
 
+  const fetchCategory = async () => {
+    try {
+      
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
+      if(resp) {
+        setCategoryArr(resp);
+        // console.log(resp, "Response")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-  const handleCategoryChange = (name: string) => {
-      // const tempArr = categoryArr.map((category) => category.name === name ? category.selected = true : )
-      // setCategoryArr()
+  const toggleCategory = (id: string) => {
+    setFormData((prevData) => {
+      const { category } = prevData;
+
+      if (category.includes(id)) {
+        return {
+          ...prevData,
+          category: category.filter((catId) => catId !== id),
+        };
+      } else {
+        return {
+          ...prevData,
+          category: [...category, id],
+        };
+      }
+    });
   };
 
   const handleTagChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,24 +71,116 @@ const App: React.FC = () => {
   };
 
   const handlePublishDateChange = (date: Date | null) => {
-    // Ensure the selected date is not in the past
     const currentDate = new Date();
     if (date && date >= currentDate) {
-      setFormData({ ...formData, publishDate: date }); // Set the date if it's valid
+      setFormData({ ...formData, publishDate: date });
     } else {
       alert('The publish date cannot be in the past!');
     }
   };
 
-  const handlePublish = () => {
-    if (editorRef.current) {
-      const content = editorRef.current.getContent();
-      // Log or handle the data (title, description, status, content, publish date)
-
+  const handleCreatePost = async () => {
+    if (!formData.postTitle.trim()) {
+      toast.error('Post title is required.', {
+        duration: 2000
+      });
+      return;
     }
+    if (!formData.postDescription.trim()) {
+      toast.error('Post description is required.', {
+        duration: 2000
+      });
+      return;
+    }
+    
+    if (!Array.isArray(formData.category) || formData.category.length === 0) {
+      toast.error('At least one category must be selected.', {
+        duration: 2000
+      });
+      return;
+    }
+    if (!Array.isArray(formData.tags) || formData.tags.length === 0) {
+      toast.error('Add atleast one tag', {
+        duration: 2000
+      });
+      return;
+    }
+    if (!formData.publishDate) {
+      toast.error('Please select published date', {
+        duration: 2000
+      });
+      return;
+    }
+
+    // if (formData.previewImg && !(formData.previewImg instanceof File)) {
+    //   toast.error('Preview image must be a valid file.', {
+    //     duration: 2000
+    //   });
+    //   return;
+    // }
+
+    try {
+
+      // const form = new FormData();
+
+      // form.append('title', formData.postTitle);
+      // form.append('description', formData.postDescription);
+      // form.append('previewImageKey', 'uploads/images/post-preview.jpg');
+      // formData.tags.forEach(tag => {
+      //   form.append('tags', tag);
+      // });
+      // formData.category.forEach(category => {
+      //   form.append("categories", category)
+      // });
+      // form.append('status', formData.postStatus);
+      // form.append('publishedDate', formData.publishDate?.toISOString());
+
+      setLoading(true);
+
+      const payload = {
+        title: formData.postTitle,
+        description: formData.postDescription,
+        previewImageKey: 'uploads/images/post-preview.jpg',
+        tags: formData.tags,
+        categories: formData.category,
+        status: formData.postStatus,
+        publishedDate: formData.publishDate,
+      }
+
+
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
+      console.log(resp, "Response");
+      if(resp.message === "Post created successfully ") {
+        toast.success('Post created successfully!', {
+          duration: 2000
+        });
+        setFormData({
+          postTitle: "",
+          postDescription: '',
+          postStatus: '',
+          category: [],
+          tags: [],
+          publishDate: null,
+          previewImg: null,
+        });
+        editorRef.current?.setContent('');
+        fetchCategory(); 
+        setLoading(false);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  
   };
 
 
+
+  useEffect(() => {
+    fetchCategory();
+  },[]);
 
 
   return (
@@ -77,6 +199,7 @@ const App: React.FC = () => {
               placeholder="Enter post title"
               className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
             />
+            
           </div>
 
           <div>
@@ -162,7 +285,7 @@ const App: React.FC = () => {
             />
           </div>
 
-          {/* Visibility */}
+          {/* Visibility
           <div>
             <label htmlFor="visibility" className="text-white block">Visibility</label>
             <select
@@ -174,18 +297,21 @@ const App: React.FC = () => {
               <option value="public">Public</option>
               <option value="private">Private</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Category Selection */}
           <div>
             <label htmlFor="visibility" className="text-white block">Category</label>
             <div className='styledScrollable bg-[#1a1a1a] max-h-80 overflow-y-auto rounded-lg p-2 sm:p-4'>
               {
-                categoryArr.map((category, index) => (
-                  <div key={index} onClick={() => handleCategoryChange(category.name)} className='p-2 cursor-pointer hover:bg-[#494949] rounded-lg flex items-center justify-between'>
+                categoryArr.map((category: any, index) => (
+                  <div key={index} onClick={() => toggleCategory(category._id)} className='p-2 cursor-pointer hover:bg-[#494949] rounded-lg flex items-center justify-between'>
                     <p>{category.name}</p>
-                    <div className='w-4 h-4 border-[1px] border-gray-500 rounded-sm'>
-
+                    <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm flex items-center justify-center  ${formData.category.includes(category._id) && "bg-blue-500"}`}>
+                      {
+                        formData.category.includes(category._id) &&
+                        <TiTick/>
+                      }
                     </div>
                   </div>
                 ))
@@ -195,10 +321,17 @@ const App: React.FC = () => {
 
           <div className="flex justify-center">
             <button
-              onClick={handlePublish}
-              className="bg-[#007bff] text-white px-6 py-2 rounded-md hover:bg-[#0056b3] w-full sm:w-auto"
+              onClick={handleCreatePost}
+              disabled={loading? true : false}
+              className={`bg-[#007bff] text-white px-6 py-2 rounded-md hover:bg-[#0056b3] w-full sm:w-auto`}
             >
-              Publish
+              {
+                loading? (
+                  "Loading..."
+                ) : (
+                  'Create Post'
+                )
+              }
             </button>
           </div>
         </div>

@@ -13,8 +13,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { usePathname } from 'next/navigation';
-
+import { usePathname, useRouter } from 'next/navigation';
+import axiosCall from '@/utils/ApiCall';
 
 
 
@@ -23,7 +23,24 @@ const Header = () => {
 
     const { toggleSidebar } = useSidebar();
 
+    const router = useRouter()
     const pathname = usePathname();
+
+    const handleLogOut = async () => {
+        try {
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/logout`);
+
+            console.log(resp, "response")
+    
+            if(resp){
+                localStorage.removeItem('user');
+                router.push('/');
+            }
+    
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <div className='w-full h-16 bg-[#06040B] text-gray-200 border-b-[1px] border-gray-800 flex flex-row items-center justify-between sticky top-0 px-2 md:px-8 z-10'>
@@ -49,10 +66,8 @@ const Header = () => {
                 <DropdownMenuContent className='bg-[#06040B] text-gray-200 border-gray-800 -translate-x-2 md:-translate-x-8'>
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator className='bg-gray-800' />
-                    <DropdownMenuItem>
-                        <Link href="/profile">Profile</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>Log out</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/profile')} className='cursor-pointer'>Profile</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogOut} className='cursor-pointer'>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
 

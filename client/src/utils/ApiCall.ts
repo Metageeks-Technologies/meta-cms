@@ -22,9 +22,7 @@ const axiosCall = async (method: Method, url: string, data?: object, headers?: A
         return response.data; // Return the data from the response
     } catch (error: any) {
         console.log('API call failed:', error.message);
-        toast.error('Something went wrong', {
-            duration: 2000,
-        })
+        return error.response.data;
         throw error.response
             ? error.response.data // Return the server's error response
             : { message: 'Network error or server not reachable' };

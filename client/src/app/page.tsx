@@ -8,8 +8,10 @@ export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
-    // router.push('/dashboard');
-  }, [])
+    if(localStorage.getItem('user')){
+      router.push('/dashboard');
+    }
+  }, []);
 
   return (
     <div className="w-full h-full">

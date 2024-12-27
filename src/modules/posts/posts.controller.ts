@@ -336,7 +336,7 @@ export class PostsController {
   }
 
   @Get()
-  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllPosts(@Query() query: GetPostsQueryDto) {
     const posts = await this.postsService.getPosts(

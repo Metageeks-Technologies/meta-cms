@@ -1,3 +1,6 @@
+import { LucideProps } from "lucide-react";
+import { ForwardRefExoticComponent, RefAttributes } from "react";
+
 export interface LoginPayload {
     email: string;
     password: string
@@ -21,16 +24,16 @@ export interface NewPostFormData {
     postTitle: string;
     postDescription: string;
     postStatus: string;
-    visibility: string;
     category: string[];
     tags: string[];
     publishDate: Date | null;
-    previewImg: File | null;
+    previewImg: File | string |null;
 }
 
 
 export interface PostTypes {
-    id: string;
+    author: any;
+    _id: string;
     title: string;
     description: string;
     previewImageKey: string;
@@ -68,3 +71,10 @@ export interface Comment {
     content: string;
     date: string;
 }
+
+export interface MenuItem {
+    title: string; // Title of the menu item
+    url?: string; // URL (optional for items with subMenu)
+    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | any; // Icon component
+    subMenu?: MenuItem[]; // Optional sub-menu items
+  }
