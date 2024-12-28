@@ -37,8 +37,8 @@ export const items: MenuItem[] = [
       ]
     },
     {
-      title: "User",
-      url: "/user",
+      title: "Subscribers",
+      url: "/subscribers",
       icon: UsersRound,
     },
     {
@@ -63,7 +63,7 @@ export const items: MenuItem[] = [
     },
     {
       title: "Settings",
-      url: "/setting",
+      url: "/profile",
       icon: Settings,
     },
   ];

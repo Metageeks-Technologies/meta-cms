@@ -1,176 +1,275 @@
-'use client';
-import React, { useState } from 'react';
-import { FaEnvelope, FaUserMinus, FaUserPlus } from 'react-icons/fa';
-import { MdArrowForward, MdArrowBack } from 'react-icons/md';
+
+"use client"
+import * as React from "react"
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
+
+
+
+export const columns = [
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }: any) => (
+      <div className="capitalize">{row.getValue("name")}</div>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }: any) => (
+      <div className="">{row.getValue("email")}</div>
+    ),
+  },
+  {
+    accessorKey: "phoneNo",
+    header: "Phone",
+    cell: ({ row }: any) => (
+      <div className="capitalize">{row.getValue("phoneNo")}</div>
+    ),
+  },
+  {
+    accessorKey: "role",
+    header: () => <div className="text-right">Role</div>,
+    cell: ({ row }: any) => (
+      <div className="capitalize text-right">{row.getValue("role")}</div>
+    ),
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }: any) => {
+
+      const user = row.original;
+
+      const { fetchAllModerator } : any = useUserContext();
+
+
+      const demoteToContributor = async () => {
+        try {
+          toast.loading('Loading...');
+          const payload = {
+            "_id": user._id,
+            "newRole": userRoles.CONTRIBUTOR
+          }
+          const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, payload);
+
+          if(resp.status === 200 || resp.status === 201) {
+            fetchAllModerator();
+            toast.dismiss();
+            toast.success(resp.data.message, {
+              duration: 2000,
+            });
+          }else{
+            toast.error(resp.data.message, {
+              duration: 2000,
+            });
+          }
+
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-gray-800" />
+            <DropdownMenuItem onClick={demoteToContributor} className="hover:bg-gray-800 cursor-pointer px-3">Demote to Contributor</DropdownMenuItem>
+            {/* <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View customer</DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View payment details</DropdownMenuItem> */}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
+  },
+]
+
 import { useAuth } from '@/hooks/useAuth';
-import { initialAdmins } from '@/constant/user';
+import axiosCall from "@/utils/ApiCall"
+import toast from "react-hot-toast"
+import { userRoles } from "@/constant/user"
+import { useUserContext } from "@/context/userContext"
 
 
-function Admin() {
+
+function User() {
+
   useAuth();
-  const [admins, setAdmins] = useState(initialAdmins);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [actionType, setActionType] = useState<'remove' | 'add' | null>(null);
-  const [selectedAdmin, setSelectedAdmin] = useState<any>(null);
 
-  const itemsPerPage = 8;
-  const totalPages = Math.ceil(admins.length / itemsPerPage);
+  const [sorting, setSorting] = useState<SortingState>([])
+  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
+  // const [rowSelection, setRowSelection] = React.useState({})
 
-  const openModal = (action: 'remove' | 'add', admin: any) => {
-    setActionType(action);
-    setSelectedAdmin(admin);
-    setIsModalOpen(true);
-  };
+  const {moderator, fetchAllModerator} : any = useUserContext()
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setActionType(null);
-    setSelectedAdmin(null);
-  };
 
-  const confirmAction = () => {
-    if (actionType && selectedAdmin) {
-      const updatedAdmins = admins.map((admin) =>
-        admin.id === selectedAdmin.id
-          ? {
-              ...admin,
-              role: actionType === 'remove' ? 'user' : 'moderator',
-            }
-          : admin
-      );
-      setAdmins(updatedAdmins);
-      console.log(`${actionType} action confirmed for ${selectedAdmin.name}!`);
-    }
-    closeModal();
-  };
+  const table = useReactTable({
+    data: moderator,
+    columns,
+    onSortingChange: setSorting,
+    // onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    // onColumnVisibilityChange: setColumnVisibility,
+    // onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      // columnFilters,
+      // columnVisibility,
+      // rowSelection,
+    },
+  });
 
-  const currentAdmins = admins.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  
+  useEffect(() => {
+    fetchAllModerator();
+  }, []);
 
-  const handlePagination = (direction: 'next' | 'prev') => {
-    if (direction === 'next' && currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-    if (direction === 'prev' && currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+
 
   return (
-    <div className="overflow-x-auto bg-black text-white p-7 rounded-lg">
-      <Table className="min-w-full">
-        <TableCaption className="text-3xl text-white">List of Moderators</TableCaption>
-
-        <TableHeader>
-          <TableRow className="text-2xl border-gray-900">
-            <TableHead className="w-[150px] text-white">Name</TableHead>
-            <TableHead className="w-[150px] text-white">Email</TableHead>
-            <TableHead className="w-[150px] text-white">Role</TableHead>
-            <TableHead className="w-[150px] text-white">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="border-gray-900">
-          {currentAdmins.map((admin) => (
-            <TableRow className="border-gray-900" key={admin.id}>
-              <TableCell className="font-medium">{admin.name}</TableCell>
-              <TableCell className="flex items-center space-x-2">
-                <FaEnvelope size={16} className="text-gray-500" />
-                <span>{admin.email}</span>
-              </TableCell>
-              <TableCell>
-                <span
-                  className={`px-2 py-1 text-xs font-semibold ${
-                    admin.role === 'moderator' ? 'text-green-500' : 'text-gray-500'
-                  }`}
-
-                >
-                  {admin.role.charAt(0).toUpperCase() + admin.role.slice(1)}
-                </span>
-              </TableCell>
-              <TableCell className="flex justify-end space-x-4">
-                {/* Show Remove icon only for moderators */}
-                {admin.role === 'moderator' && (
-                  <button
-                    onClick={() => openModal('remove', admin)}
-                    className="text-red-500 hover:text-red-800 transition-colors duration-200"
-                  >
-                    <FaUserMinus size={18} />
-                  </button>
-                )}
-                {/* Show Add icon only for users */}
-                {admin.role === 'user' && (
-                  <button
-                    onClick={() => openModal('add', admin)}
-                    className="text-green-500 hover:text-green-800 transition-colors duration-200"
-                  >
-                    <FaUserPlus size={18} />
-                  </button>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Pagination controls */}
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={() => handlePagination('prev')}
-          className="text-white bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg"
-          disabled={currentPage === 1}
-        >
-          <MdArrowBack size={20} />
-        </button>
-        <span className="text-white">{`Page ${currentPage} of ${totalPages}`}</span>
-        <button
-          onClick={() => handlePagination('next')}
-          className="text-white bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg"
-          disabled={currentPage === totalPages}
-        >
-          <MdArrowForward size={20} />
-        </button>
+    <div className="w-full container mx-auto">
+      <div className="flex flex-col py-4">
+        <h2 className="my-3 text-2xl font-bold">All Moderator</h2>
+        <Input
+          placeholder="Search email..."
+          value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table?.getColumn("email")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm border-[1px] border-gray-800 text-base"
+        />
       </div>
 
-      {/* Modal for Add/Remove Action */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white text-black rounded-lg p-6 w-96 shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">
-              {actionType === 'remove'
-                ? `Are you sure you want to demote ${selectedAdmin?.name} to User?`
-                : `Are you sure you want to promote ${selectedAdmin?.name} to Moderator?`}
-            </h3>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAction}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                {actionType === 'remove' ? 'Demote to User' : 'Promote to Moderator'}
-              </button>
-            </div>
-          </div>
+      <div className="rounded-md border-[1px] border-gray-800">
+        <Table>
+
+          <TableHeader className="border-gray-800">
+            {table?.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="border-gray-800">
+                {headerGroup?.headers?.map((header) => {
+                  return (
+                    <TableHead key={header.id} className="bg-gray-800 hover:none text-white text-lg font-bold">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+
+
+          <TableBody className="">
+            {table?.getRowModel()?.rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className="border-gray-800 hover:bg-transparent"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-      )}
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="text-black font-bold"
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="text-black font-bold"
+          >
+            Next
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default Admin;
+export default User;
+
+

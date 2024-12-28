@@ -74,46 +74,21 @@ export const columns = [
 
       const user = row.original;
 
-      const { fetchAllContributor } : any = useUserContext();
+      const {fetchAllSubscriber} : any = useUserContext();
 
 
-      const demoteToSubscriber = async () => {
+      const promoteToContributor = async () => {
         try {
           toast.loading('Loading...');
           const payload = {
             "_id": user._id,
-            "newRole": userRoles.SUBSCRIBER
+            "newRole": userRoles.CONTRIBUTOR
           }
           const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, payload);
 
-          if(resp.status === 200 || resp.status === 201) {
-            fetchAllContributor();
-            toast.dismiss();
-            toast.success(resp.data.message, {
-              duration: 2000,
-            });
-          }else{
-            toast.error(resp.data.message, {
-              duration: 2000,
-            });
-          }
-
-        } catch (error) {
-          console.log(error);
-        }
-      }
-
-      const promoteToModerator = async () => {
-        try {
-          toast.loading('Loading...');
-          const payload = {
-            "_id": user._id,
-            "newRole": userRoles.MODERATOR
-          }
-          const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, payload);
 
           if(resp.status === 200 || resp.status === 201) {
-            fetchAllContributor();
+            fetchAllSubscriber();
             toast.dismiss();
             toast.success(resp.data.message, {
               duration: 2000,
@@ -142,8 +117,7 @@ export const columns = [
           <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-gray-800" />
-            <DropdownMenuItem onClick={promoteToModerator} className="hover:bg-gray-800 cursor-pointer px-3">Promote to Moderator</DropdownMenuItem>
-            <DropdownMenuItem onClick={demoteToSubscriber} className="hover:bg-gray-800 cursor-pointer px-3">Demote to Subscriber</DropdownMenuItem>
+            <DropdownMenuItem onClick={promoteToContributor} className="hover:bg-gray-800 cursor-pointer px-3">Promote to Contributor</DropdownMenuItem>
             {/* <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View customer</DropdownMenuItem>
             <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View payment details</DropdownMenuItem> */}
           </DropdownMenuContent>
@@ -170,10 +144,11 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const {contributor, fetchAllContributor} : any = useUserContext()
+  const {subscriber, fetchAllSubscriber} : any = useUserContext()
+
 
   const table = useReactTable({
-    data: contributor,
+    data: subscriber,
     columns,
     onSortingChange: setSorting,
     // onColumnFiltersChange: setColumnFilters,
@@ -193,7 +168,7 @@ function User() {
 
   
   useEffect(() => {
-    fetchAllContributor();
+    fetchAllSubscriber();
   }, []);
 
 
@@ -201,7 +176,7 @@ function User() {
   return (
     <div className="w-full container mx-auto">
       <div className="flex flex-col py-4">
-        <h2 className="my-3 text-2xl font-bold">All Contributors</h2>
+        <h2 className="my-3 text-2xl font-bold">All Subscribers</h2>
         <Input
           placeholder="Search email..."
           value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}

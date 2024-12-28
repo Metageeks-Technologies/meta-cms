@@ -34,7 +34,7 @@ const CardsRow = () => {
   const fetchAllSubscriber = async () => {
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-subscribers`)
-      console.log(resp, "response subscriber")
+      // console.log(resp, "response subscriber")
 
       if (resp.status === 200 || resp.status === 201) {
         setTotalSubscriber(resp?.data?.users?.length);
@@ -51,7 +51,7 @@ const CardsRow = () => {
   const fetchAllContributor = async () => {
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-contributor`);
-      console.log(resp, "response contributor")
+      // console.log(resp, "response contributor")
 
       if (resp.status === 200 || resp.status === 201) {
         setTotalContributors(resp?.data?.users?.length);
@@ -68,7 +68,7 @@ const CardsRow = () => {
   const fetchAllModerator = async () => {
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-moderator`)
-      console.log(resp, "response moderator")
+      // console.log(resp, "response moderator")
 
       if (resp.status === 200 || resp.status === 201) {
         setTotalModerators(resp?.data?.users?.length);
