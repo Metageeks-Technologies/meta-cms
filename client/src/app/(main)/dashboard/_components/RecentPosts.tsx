@@ -1,0 +1,102 @@
+'use client'
+import { postSortByEnum, postStatuEnum } from '@/constant/post';
+import axiosCall from '@/utils/ApiCall';
+import { handleDate } from '@/utils/helperFunction';
+import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
+import DOMPurify from 'dompurify';
+import { useRouter } from 'next/navigation';
+
+const RecentPosts = () => {
+
+    const router = useRouter();
+
+    const [posts, setPosts] = useState<any>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+
+
+    function stripHTML(html: any) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        return tempDiv.textContent || tempDiv.innerText || '';
+    }
+
+    function PreviewHTML(description: any,) {
+        const sanitizedHTML = DOMPurify.sanitize(description);
+        const plainText = stripHTML(sanitizedHTML);
+        const previewText = plainText.slice(0, 75) + (plainText.length > 75 ? '...' : '');
+        return previewText;
+    }
+
+    const fetchAllRecentPublishedPosts = async () => {
+        try {
+            setLoading(true);
+            const param = new URLSearchParams();
+            param.append('status', postStatuEnum.PUBLISHED);
+            param.append('sortBy', postSortByEnum.RECENT);
+
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
+            // console.log(resp, "response")
+
+            if (resp.status === 200 || resp.status === 201) {
+                setPosts(resp?.data?.slice(0,10));
+                setLoading(false);
+            } else {
+                toast.error(resp.data.message, {
+                    duration: 2000,
+                });
+                setLoading(false);
+            }
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
+        }
+    }
+
+
+    useEffect(()=> {
+        fetchAllRecentPublishedPosts();
+    }, []);
+
+    return (
+        <div className="text-white p-6 rounded-lg max-w-4xl mx-auto border-[1px] border-gray-800">
+            <h2 className="text-2xl font-bold mb-6 mt-2 text-center">Recent Published Posts</h2>
+            <div className="space-y-2 max-h-[600px] overflow-y-auto styledScrollable">
+                {!loading? (
+
+                    posts.length > 0 ?
+                        posts.map((post: any, index: number) => (
+                            <div
+                                key={index}
+                                className="p-4 shadow-md flex gap-4 items-start border-b-[1px] border-gray-800 group cursor-pointer "
+                                onClick={() => router.push(`/post/${post.slug}`)}
+                            >
+                                <div className="w-[40%]">
+                                    {/* <img src={post.previewImageKey} alt="" className='w-full object-cover rounded-lg'/> */}
+                                    <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' />
+                                </div>
+
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold group-hover:underline">{post.title.length > 25 ? `${post.title.slice(0, 25)}...` : post.title}</h3>
+
+                                    <p className="text-gray-400 mt-1 text-sm">
+                                        {PreviewHTML(post.description)}
+                                    </p>
+
+                                    <p className="text-gray-400 text-sm mt-2">
+                                        By <span className="text-white">{post.author.name}</span> · {handleDate(post.publishedDate)}
+                                    </p>
+                                    <p className="text-green-400 text-sm mt-2">Likes: {post.likesCount}</p>
+                                </div>
+                            </div>
+                        ))
+                        : <p className='text-center'>No Post Found</p>
+                ) : (
+                    <p className='text-center'>Loading...</p>
+                )}
+            </div>
+        </div>
+    )
+}
+
+export default RecentPosts

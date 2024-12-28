@@ -6,16 +6,11 @@ import { AiOutlineUser } from 'react-icons/ai';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { 
   Table,
-  TableBody,
-  TableCaption,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow 
 } from "@/components/ui/table";
 import { useAuth } from '@/hooks/useAuth';
-import { PostTypes, UserProfile } from '@/types';
-import { blogPosts } from '@/constant/post';
 
 
 

@@ -56,6 +56,17 @@ export class UsersController {
       users
     };
   }
+
+  @Get('all-subscribers')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getAllSubscribers() {
+    const users = await this.usersService.getAllSubscribers()
+    return { 
+      message: "All subscribers fetched successfully",
+      users
+    };
+  }
   
   @Get(':id')
   async findById(@Param('id', ValidateId) id: string) {

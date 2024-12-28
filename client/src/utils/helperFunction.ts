@@ -5,15 +5,15 @@ export const handleDate = (date: any) => {
 }
 
 export const getUserFromLocalStorage = (setUser: any) => {
-    const userString = localStorage.getItem("user");
+    const userString = localStorage.getItem('user');
     if (userString) {
         const userData = JSON.parse(userString);
         if (userData && userData._id) {
             setUser(userData);
         } else {
-            console.log("User not found");
+            console.log('User not found');
         }
     } else {
-        console.log("No user data found in localStorage.");
+        console.log('No user data found in localStorage.');
     }
 }
