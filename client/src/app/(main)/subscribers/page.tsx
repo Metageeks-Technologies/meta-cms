@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, ChevronDown, MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -35,6 +35,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 
@@ -73,40 +84,11 @@ export const columns = [
     cell: ({ row }: any) => {
 
       const user = row.original;
-
-      const {fetchAllSubscriber} : any = useUserContext();
-
-
-      const promoteToContributor = async () => {
-        try {
-          toast.loading('Loading...');
-          const payload = {
-            "_id": user._id,
-            "newRole": userRoles.CONTRIBUTOR
-          }
-          const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, payload);
-
-
-          if(resp.status === 200 || resp.status === 201) {
-            fetchAllSubscriber();
-            toast.dismiss();
-            toast.success(resp.data.message, {
-              duration: 2000,
-            });
-          }else{
-            toast.error(resp.data.message, {
-              duration: 2000,
-            });
-          }
-
-        } catch (error) {
-          console.log(error);
-        }
-      }
-
-
+      const [clickedItem, setClickedItem] = useState(0)
+      const {changeUserRole} : any = useUserContext();
 
       return (
+        <AlertDialog>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -117,11 +99,50 @@ export const columns = [
           <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-gray-800" />
-            <DropdownMenuItem onClick={promoteToContributor} className="hover:bg-gray-800 cursor-pointer px-3">Promote to Contributor</DropdownMenuItem>
-            {/* <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View customer</DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View payment details</DropdownMenuItem> */}
+
+            <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+              <AlertDialogTrigger>
+                Promote to Contributor
+              </AlertDialogTrigger>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+              <AlertDialogTrigger>
+                Promote to Moderator
+              </AlertDialogTrigger>
+            </DropdownMenuItem>
+
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <AlertDialogContent className='bg-black border-gray-800'>
+          <AlertDialogHeader>
+            <AlertDialogTitle></AlertDialogTitle>
+            <AlertDialogDescription className='h-24' >
+              <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+            </AlertDialogDescription>
+            <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+              Are you sure ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={
+                clickedItem === 1 ?
+                  () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)
+                  : clickedItem === 2 ?
+                    () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
+                    : () => { }
+              }
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+
+        </AlertDialogContent>
+      </AlertDialog>
       )
     },
   },

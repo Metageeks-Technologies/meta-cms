@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, ChevronDown, MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -40,6 +40,17 @@ import axiosCall from "@/utils/ApiCall"
 import toast from "react-hot-toast"
 import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 
@@ -78,54 +89,65 @@ export const columns = [
     cell: ({ row }: any) => {
 
       const user = row.original;
-
-      const { fetchAllModerator } : any = useUserContext();
-
-
-      const demoteToContributor = async () => {
-        try {
-          toast.loading('Loading...');
-          const payload = {
-            "_id": user._id,
-            "newRole": userRoles.CONTRIBUTOR
-          }
-          const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, payload);
-
-          if(resp.status === 200 || resp.status === 201) {
-            fetchAllModerator();
-            toast.dismiss();
-            toast.success(resp.data.message, {
-              duration: 2000,
-            });
-          }else{
-            toast.error(resp.data.message, {
-              duration: 2000,
-            });
-          }
-
-        } catch (error) {
-          console.log(error);
-        }
-      }
-
-
+      const [clickedItem, setClickedItem] = useState(0);
+      const { changeUserRole }: any = useUserContext();
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-gray-800" />
-            <DropdownMenuItem onClick={demoteToContributor} className="hover:bg-gray-800 cursor-pointer px-3">Demote to Contributor</DropdownMenuItem>
-            {/* <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View customer</DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">View payment details</DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AlertDialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-gray-800" />
+
+              <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                <AlertDialogTrigger>
+                  Demote to Contributor
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                <AlertDialogTrigger>
+                  Demote to Subscriber
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
+
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <AlertDialogContent className='bg-black border-gray-800'>
+            <AlertDialogHeader>
+              <AlertDialogTitle></AlertDialogTitle>
+              <AlertDialogDescription className='h-24' >
+                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+              </AlertDialogDescription>
+              <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+                Are you sure ?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={
+                  clickedItem === 1 ?
+                    () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)
+                    : clickedItem === 2 ?
+                      () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
+                      : () => { }
+                }
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+
+          </AlertDialogContent>
+        </AlertDialog>
       )
     },
   },
@@ -143,7 +165,7 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const {moderator, fetchAllModerator} : any = useUserContext()
+  const { moderator, fetchAllModerator }: any = useUserContext()
 
 
   const table = useReactTable({
@@ -165,7 +187,7 @@ function User() {
     },
   });
 
-  
+
   useEffect(() => {
     fetchAllModerator();
   }, []);
