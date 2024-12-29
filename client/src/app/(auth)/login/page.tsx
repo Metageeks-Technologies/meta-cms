@@ -1,5 +1,6 @@
 'use client'
 import { userRoles } from '@/constant/user';
+import { useUserContext } from '@/context/userContext';
 import { LoginPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { Eye, EyeOff } from 'lucide-react';
@@ -13,6 +14,8 @@ const page = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
+    const { getUser }: any = useUserContext();
+
     const handleLogin = async (e: any) => {
         e.preventDefault();
         try {
@@ -22,7 +25,7 @@ const page = () => {
                 password
             }
             const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, payload);
-            console.log(response, "Response")
+            // console.log(response, "Response")
             
             if (response.status === 200 || response.status === 201) {
                 toast.success(response.data.message, {
@@ -39,6 +42,7 @@ const page = () => {
                         localStorage.setItem("user", JSON.stringify(response.data));
                         router.push('/dashboard')
                         setLoading(false);
+                        getUser();
                     }else{
                         setLoading(false);
                     }

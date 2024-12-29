@@ -31,12 +31,13 @@ export class UsersController {
   @Patch('profile')
   @UseGuards(AuthGuard)
   async upadteProfile(@Req() req: Request, @Body() updatedUserProfile: UpdateUserDto) {
+
     await this.usersService.updateProfile((req as any).user._id, updatedUserProfile);
     return { message: "Profile updated successfully" };
   }
 
   @Get('all-moderator')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.MODERATOR)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllModerators() {
     const users = await this.usersService.getAllModerator()
@@ -47,7 +48,7 @@ export class UsersController {
   }
 
   @Get('all-contributor')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.MODERATOR)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllContributor() {
     const users = await this.usersService.getAllContributor()
@@ -58,7 +59,7 @@ export class UsersController {
   }
 
   @Get('all-subscribers')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.MODERATOR)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllSubscribers() {
     const users = await this.usersService.getAllSubscribers()

@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
 import { userRoles } from "@/constant/user";
+import { getUserFromLocalStorage } from "@/utils/helperFunction";
 
 const UserContext: any = createContext(null);
 
@@ -34,6 +35,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
     ]);
 
+    const [user, setUser] = useState<any>();
+
     const fetchAllSubscriber = async () => {
         try {
             toast.loading("Loading...");
@@ -42,7 +45,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 toast.dismiss();
                 setSubscriber(resp?.data?.users);
             } else {
-                toast.dismiss();    
+                toast.dismiss();
                 toast.error(resp?.data?.message, { duration: 2000 });
             }
         } catch (error) {
@@ -59,7 +62,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 toast.dismiss();
                 setContributor(resp?.data?.users);
             } else {
-                toast.dismiss();    
+                toast.dismiss();
                 toast.error(resp?.data?.message, { duration: 2000 });
             }
         } catch (error) {
@@ -76,7 +79,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 toast.dismiss();
                 setModerator(resp?.data?.users);
             } else {
-                toast.dismiss();    
+                toast.dismiss();
                 toast.error(resp?.data?.message, { duration: 2000 });
             }
         } catch (error) {
@@ -87,46 +90,61 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     const changeUserRole = async (id: string, currentRole: string, newRole: string) => {
         try {
-          toast.loading('Loading...');
-          const payload = {
-            "_id": id,
-            "newRole": newRole
-          }
-          const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, payload);
+            toast.loading('Loading...');
+            const payload = {
+                "_id": id,
+                "newRole": newRole
+            }
+            const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, payload);
 
-          if(resp.status === 200 || resp.status === 201) {
-            if(currentRole === userRoles.MODERATOR){
-                fetchAllModerator();
+            if (resp.status === 200 || resp.status === 201) {
+                if (currentRole === userRoles.MODERATOR) {
+                    fetchAllModerator();
+                }
+                if (currentRole === userRoles.CONTRIBUTOR) {
+                    fetchAllContributor();
+                }
+                if (currentRole === userRoles.SUBSCRIBER) {
+                    fetchAllSubscriber();
+                }
+                toast.dismiss();
+                toast.success(resp.data.message, {
+                    duration: 2000,
+                });
+            } else {
+                toast.error(resp.data.message, {
+                    duration: 2000,
+                });
             }
-            if(currentRole === userRoles.CONTRIBUTOR){
-                fetchAllContributor();
-            }
-            if(currentRole === userRoles.SUBSCRIBER){
-                fetchAllSubscriber();
-            }
-            toast.dismiss();
-            toast.success(resp.data.message, {
-              duration: 2000,
-            });
-          }else{
-            toast.error(resp.data.message, {
-              duration: 2000,
-            });
-          }
 
         } catch (error) {
-          console.log(error);
+            console.log(error);
         }
-      }
+    }
+
+
+    const getUser = () => {
+        getUserFromLocalStorage(setUser);
+    }
 
     useEffect(() => {
-        fetchAllSubscriber();
-        fetchAllContributor();
-        fetchAllModerator();
-    }, []);
+        getUser();
+    },[]);
 
     return (
-        <UserContext.Provider value={{ subscriber, fetchAllSubscriber, contributor, fetchAllContributor, moderator, fetchAllModerator, changeUserRole }}>
+        <UserContext.Provider
+            value={{
+                subscriber,
+                fetchAllSubscriber,
+                contributor,
+                fetchAllContributor,
+                moderator,
+                fetchAllModerator,
+                changeUserRole,
+                user,
+                setUser,
+                getUser,
+            }}>
             {children}
         </UserContext.Provider>
     );

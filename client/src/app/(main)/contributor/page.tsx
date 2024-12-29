@@ -193,8 +193,6 @@ function User() {
     fetchAllContributor();
   }, []);
 
-
-
   return (
     <div className="w-full container mx-auto">
       <div className="flex flex-col py-4">

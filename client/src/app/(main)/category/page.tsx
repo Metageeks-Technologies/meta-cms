@@ -54,6 +54,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import AddCategory from "./component/AddCategory"
+import { getUserFromLocalStorage } from "@/utils/helperFunction"
 
 
 
@@ -100,6 +101,7 @@ export const columns = [
 
       const category = row.original;
       const { deleteCategory } = usePostContext();
+      const { user }: any = useUserContext();
 
       return (
         <AlertDialog>
@@ -114,12 +116,15 @@ export const columns = [
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-800" />
 
-              <AlertDialogTrigger>
-                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                  <RiDeleteBin6Line className="text-red-500" />
-                  Delete category
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
+              {
+                user?.role === userRoles.SUPERADMIN &&
+                <AlertDialogTrigger>
+                  <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                    <RiDeleteBin6Line className="text-red-500" />
+                    Delete category
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              }
 
             </DropdownMenuContent>
           </DropdownMenu>
@@ -161,6 +166,7 @@ function Category() {
   // const [rowSelection, setRowSelection] = React.useState({})
 
   const { categories, fetchCategories }: any = usePostContext()
+  const { user }: any = useUserContext();
 
   // console.log(categories);
 
@@ -203,8 +209,11 @@ function Category() {
             }
             className="max-w-sm border-[1px] border-gray-800 text-base"
           />
-          
-          <AddCategory/>
+
+          {
+            user?.role === userRoles.SUPERADMIN &&
+            <AddCategory />
+          }
 
         </div>
       </div>
