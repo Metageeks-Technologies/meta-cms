@@ -1,4 +1,3 @@
-
 "use client"
 import * as React from "react"
 import {
@@ -35,6 +34,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+import { useAuth } from '@/hooks/useAuth';
+import axiosCall from "@/utils/ApiCall"
+import toast from "react-hot-toast"
+import { userRoles } from "@/constant/user"
+import { useUserContext } from "@/context/userContext"
 
 
 
@@ -126,11 +131,6 @@ export const columns = [
   },
 ]
 
-import { useAuth } from '@/hooks/useAuth';
-import axiosCall from "@/utils/ApiCall"
-import toast from "react-hot-toast"
-import { userRoles } from "@/constant/user"
-import { useUserContext } from "@/context/userContext"
 
 
 
@@ -242,8 +242,7 @@ function User() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          Total {table.getFilteredRowModel().rows.length} rows.
         </div>
         <div className="space-x-2">
           <Button

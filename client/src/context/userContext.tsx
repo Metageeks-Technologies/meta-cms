@@ -39,7 +39,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             const resp = await axiosCall("get", `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-subscribers`);
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.dismiss();
-                setSubscriber(resp?.data?.users);
+                setSubscriber(resp?.data?.users.reverse());
             } else {
                 toast.dismiss();    
                 toast.error(resp?.data?.message, { duration: 2000 });
@@ -56,7 +56,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             const resp = await axiosCall("get", `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-contributor`);
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.dismiss();
-                setContributor(resp?.data?.users);
+                setContributor(resp?.data?.users.reverse());
             } else {
                 toast.dismiss();    
                 toast.error(resp?.data?.message, { duration: 2000 });
@@ -73,7 +73,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             const resp = await axiosCall("get", `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-moderator`);
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.dismiss();
-                setModerator(resp?.data?.users);
+                setModerator(resp?.data?.users.reverse());
             } else {
                 toast.dismiss();    
                 toast.error(resp?.data?.message, { duration: 2000 });
