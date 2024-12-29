@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { getUserFromLocalStorage } from '@/utils/helperFunction';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { SiFacebook } from "react-icons/si";

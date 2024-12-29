@@ -1,10 +1,7 @@
 "use client"
 import * as React from "react"
 import {
-  ColumnDef,
-  ColumnFiltersState,
   SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -12,13 +9,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, Divide, MoreHorizontal, TriangleAlert } from "lucide-react"
+import { MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -36,8 +31,6 @@ import {
 } from "@/components/ui/table"
 
 import { useAuth } from '@/hooks/useAuth';
-import axiosCall from "@/utils/ApiCall"
-import toast from "react-hot-toast"
 import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
 import { usePostContext } from "@/context/postContext"
@@ -54,11 +47,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import AddCategory from "./component/AddCategory"
-import { getUserFromLocalStorage } from "@/utils/helperFunction"
 
 
 
-export const columns = [
+const columns = [
   {
     accessorKey: "name",
     header: "Name",

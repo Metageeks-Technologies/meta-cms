@@ -1,12 +1,10 @@
 'use client';
-
 import { useRef, useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS for styling the calendar
 import { useAuth } from '@/hooks/useAuth';
 import { NewPostFormData } from '@/types';
-import { categories } from '@/constant/post';
 import axiosCall from '@/utils/ApiCall';
 import { TiTick } from "react-icons/ti";
 import toast from 'react-hot-toast';

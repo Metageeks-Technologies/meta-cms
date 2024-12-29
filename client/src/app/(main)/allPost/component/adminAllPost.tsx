@@ -3,9 +3,6 @@ import axiosCall from '@/utils/ApiCall';
 import { Check } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import Card from './card';
-import { FaSearch } from "react-icons/fa";
-import toast from 'react-hot-toast';
-import axios from 'axios';
 import { statusArrAdminAllPost } from '@/constant/post';
 
 const AdminAllPost = () => {

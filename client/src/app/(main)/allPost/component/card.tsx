@@ -3,16 +3,6 @@ import { handleDate } from '@/utils/helperFunction';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify';
-import { TbDotsVertical } from "react-icons/tb";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import axiosCall from '@/utils/ApiCall';
 
 
 const Card = ({ post, index }: any) => {

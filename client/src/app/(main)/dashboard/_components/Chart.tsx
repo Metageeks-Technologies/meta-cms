@@ -10,7 +10,6 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { BiBorderRadius } from 'react-icons/bi';
 
 // Register the required chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
