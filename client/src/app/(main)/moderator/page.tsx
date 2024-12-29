@@ -47,7 +47,7 @@ import {
 
 
 
-export const columns = [
+const columns = [
   {
     accessorKey: "name",
     header: "Name",
