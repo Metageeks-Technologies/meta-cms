@@ -136,3 +136,10 @@ export const postStatuEnum = {
   SCHEDULED : 'scheduled',
   REJECTED : 'rejected',
 }
+
+export const postSortByEnum = {
+  TRENDING : 'trending',
+  POPULAR : 'popular',
+  RECENT : 'recent',
+  OLDEST : 'oldest',
+};

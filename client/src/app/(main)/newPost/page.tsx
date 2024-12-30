@@ -1,12 +1,10 @@
 'use client';
-
 import { useRef, useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS for styling the calendar
 import { useAuth } from '@/hooks/useAuth';
 import { NewPostFormData } from '@/types';
-import { categories } from '@/constant/post';
 import axiosCall from '@/utils/ApiCall';
 import { TiTick } from "react-icons/ti";
 import toast from 'react-hot-toast';
@@ -21,7 +19,8 @@ const App: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [categoryArr, setCategoryArr] = useState([]);
-
+  const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
+  // console.log(filteredCategoryArr);
 
   const [formData, setFormData] = useState<NewPostFormData>({
     postTitle: "",
@@ -38,14 +37,15 @@ const App: React.FC = () => {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
 
       if (resp.status === 200 || resp.status === 201) {
-        setCategoryArr(resp.data);
+        setCategoryArr(resp?.data);
+        setFilteredCategoryArr(resp?.data)
         // console.log(resp);
       } else {
         toast.error(resp.data.message, {
           duration: 2000,
         });
       }
-      
+
     } catch (error) {
       console.log(error);
     }
@@ -68,6 +68,14 @@ const App: React.FC = () => {
       }
     });
   };
+
+  const filterCategory = (query: string) => {
+    setFilteredCategoryArr(categoryArr.filter((category: any) => {
+      if (category.name.toLowerCase().includes(query.toLowerCase())) {
+        return category;
+      }
+    }))
+  }
 
   const handleTagChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputTags = event.target.value.split(',').map(tag => tag.trim());
@@ -118,29 +126,7 @@ const App: React.FC = () => {
       return;
     }
 
-    // if (formData.previewImg && !(formData.previewImg instanceof File)) {
-    //   toast.error('Preview image must be a valid file.', {
-    //     duration: 2000
-    //   });
-    //   return;
-    // }
-
     try {
-
-      // const form = new FormData();
-
-      // form.append('title', formData.postTitle);
-      // form.append('description', formData.postDescription);
-      // form.append('previewImageKey', 'uploads/images/post-preview.jpg');
-      // formData.tags.forEach(tag => {
-      //   form.append('tags', tag);
-      // });
-      // formData.category.forEach(category => {
-      //   form.append("categories", category)
-      // });
-      // form.append('status', formData.postStatus);
-      // form.append('publishedDate', formData.publishDate?.toISOString());
-
       setLoading(true);
 
       const payload = {
@@ -175,7 +161,7 @@ const App: React.FC = () => {
         fetchCategory();
         setLoading(false);
 
-      }else{
+      } else {
         toast.success(resp.data.message, {
           duration: 2000
         });
@@ -312,20 +298,32 @@ const App: React.FC = () => {
           {/* Category Selection */}
           <div>
             <label htmlFor="visibility" className="text-white block">Category</label>
-            <div className='styledScrollable bg-[#1a1a1a] max-h-80 overflow-y-auto rounded-lg p-2 sm:p-4'>
-              {
-                categoryArr.map((category: any, index) => (
-                  <div key={index} onClick={() => toggleCategory(category._id)} className='p-2 cursor-pointer hover:bg-[#494949] rounded-lg flex items-center justify-between'>
-                    <p>{category.name}</p>
-                    <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm flex items-center justify-center  ${formData.category.includes(category._id) && "bg-blue-500"}`}>
-                      {
-                        formData.category.includes(category._id) &&
-                        <TiTick />
-                      }
-                    </div>
-                  </div>
-                ))
-              }
+            <div className='bg-[#1a1a1a] rounded-lg p-2 md:p-4'>
+              <input
+                type="text" onChange={(e) => filterCategory(e.target.value)}
+                className='w-full bg-transparent border-[1px] border-gray-800 rounded-lg p-2 mb-2 outline-none'
+                placeholder='Search...'
+              />
+
+              <div className='styledScrollable  max-h-80 overflow-y-auto rounded-lg'>
+                {
+                  filteredCategoryArr.length <= 0 ? (
+                    <p className='text-white text-sm text-center'>No categories found</p>
+                  ) : (
+                    filteredCategoryArr.map((category: any, index) => (
+                      <div key={index} onClick={() => toggleCategory(category._id)} className='p-2 cursor-pointer hover:bg-[#494949] rounded-lg flex items-center justify-between'>
+                        <p>{category.name}</p>
+                        <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm flex items-center justify-center  ${formData.category.includes(category._id) && "bg-blue-500"}`}>
+                          {
+                            formData.category.includes(category._id) &&
+                            <TiTick />
+                          }
+                        </div>
+                      </div>
+                    ))
+                  )
+                }
+              </div>
             </div>
           </div>
 

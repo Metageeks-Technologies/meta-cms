@@ -93,6 +93,24 @@ export class PostsController {
     return { message: 'Bookmark removed successfully' };
   }
 
+  @Get('my/all')
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getUserAllPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+    const authorId = (req as any).user._id;
+    const myAllPosts = await this.postsService.getPosts(
+      query.status,
+      false,
+      authorId,
+      query.tags,
+      query.categories,
+      query.sortBy,
+      query.lastId,
+      query.lastLikesCount
+    );
+    return myAllPosts;
+  }
+
   @Get('my/drafts')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)

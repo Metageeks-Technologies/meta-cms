@@ -1,3 +1,4 @@
+"use client";
 import { tagsdata } from '@/constant/tags';
 import { useAuth } from '@/hooks/useAuth'
 import React from 'react'

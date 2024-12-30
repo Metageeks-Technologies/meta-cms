@@ -102,4 +102,10 @@ export class UsersService {
     return users as IUser[];
   }
 
+  async getAllSubscribers() : Promise<IUser[]>{
+    // Assuming user verified as super Admin
+    const users = await this.User.find( { role: UserRoleEnum.SUBSCRIBER } ).lean().exec();
+    return users as IUser[];
+  }
+
 }

@@ -1,4 +1,6 @@
 'use client'
+import { userRoles } from '@/constant/user';
+import { useUserContext } from '@/context/userContext';
 import { LoginPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { Eye, EyeOff } from 'lucide-react';
@@ -7,11 +9,13 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 const page = () => {
     const router = useRouter()
-    const [role, setRole] = useState('user');
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+
+    const { getUser }: any = useUserContext();
+
     const handleLogin = async (e: any) => {
         e.preventDefault();
         try {
@@ -24,15 +28,21 @@ const page = () => {
             // console.log(response, "Response")
             
             if (response.status === 200 || response.status === 201) {
-                toast.success(response.message, {
+                toast.success(response.data.message, {
                     duration: 2000
                 });
                 try {
                     const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
                     if (response.status === 200 || response.status === 201) {
+
+                        if(response.data.role === userRoles.SUBSCRIBER){
+                            alert("SUBSCRIBER not allowed on dashboard")
+                            return;
+                        }
                         localStorage.setItem("user", JSON.stringify(response.data));
                         router.push('/dashboard')
                         setLoading(false);
+                        getUser();
                     }else{
                         setLoading(false);
                     }
@@ -40,7 +50,7 @@ const page = () => {
                     console.log(error);
                 }
             } else {
-                toast.error("Something went wrong", {
+                toast.error(response.data.message, {
                     duration: 2000,
                 });
                 setLoading(false);

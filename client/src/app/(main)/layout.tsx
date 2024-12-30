@@ -2,7 +2,6 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/common/Header";
-import { useAuth } from "@/hooks/useAuth";
 
 // export const metadata = {
 //   title: "Authentication - My Blogging Website",

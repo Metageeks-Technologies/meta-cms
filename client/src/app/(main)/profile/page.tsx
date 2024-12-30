@@ -1,21 +1,16 @@
 'use client';
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
-import { AiOutlineUser } from 'react-icons/ai';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { 
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow 
-} from "@/components/ui/table";
 import { useAuth } from '@/hooks/useAuth';
-import { PostTypes, UserProfile } from '@/types';
-import { blogPosts } from '@/constant/post';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import axiosCall from '@/utils/ApiCall';
+import toast from 'react-hot-toast';
+import { SiFacebook } from "react-icons/si";
+import { RiInstagramFill } from "react-icons/ri";
+import { ImLinkedin } from "react-icons/im";
+import { FaSquareXTwitter } from "react-icons/fa6";
+import { useUserContext } from '@/context/userContext';
+
 
 
 
@@ -23,188 +18,313 @@ import { blogPosts } from '@/constant/post';
 const ProfilePage: React.FC = () => {
   useAuth();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  const { getUser }: any = useUserContext();
 
-  const [profileData, setProfileData] = useState({
-    firstName: 'Mehrab',
-    lastName: 'Bozorgi',
-    email: 'mehrabbozorgi.business@gmail.com',
-    role: 'Admin',
-    bio: 'A passionate developer and admin.',
-    password: '********',
-    confirmPassword: '********',
+  const [userProfile, setUserProfile] = useState({
+    name: "",
+    email: "",
+    role: "",
+    phoneNo: "",
+    bio: "",
+    socialLinks: {
+      facebook: "",
+      instagram: "",
+      linkedIn: "",
+      twitter: "",
+    }
   });
 
-  const [editData, setEditData] = useState(profileData);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleEdit = () => setIsEditing(true);
+  const fetchUserFormLocal = () => {
+    const userStr = localStorage.getItem('user');
+    if (typeof userStr === 'string') {
+      const user = JSON.parse(userStr);
+      setUserProfile({
+        name: user?.name,
+        email: user?.email,
+        role: user?.role,
+        phoneNo: user?.phoneNo ? user?.phoneNo : "",
+        bio: user?.bio ? user?.bio : "",
+        socialLinks: {
+          facebook: user?.socialLinks?.facebook ? user?.socialLinks?.facebook : "",
+          instagram: user?.socialLinks?.instagram ? user?.socialLinks?.instagram : "",
+          linkedIn: user?.socialLinks?.linkedIn ? user?.socialLinks?.linkedIn : "",
+          twitter: user?.socialLinks?.twitter ? user?.socialLinks?.twitter : "",
+        }
+      })
+    }
+  }
+
   const handleCancel = () => {
-    setEditData(profileData);
+    fetchUserFormLocal();
     setIsEditing(false);
   };
 
+  const handleSave = async () => {
+    try {
+      toast.loading('Loading...')
+      const payload = { ...userProfile };
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload);
 
-  const handleSave = () => {
-    if (editData.password === editData.confirmPassword) {
-      setProfileData(editData);
-      setIsEditing(false);
-    } else {
-      alert("Passwords do not match!");
+      if (resp.status === 200 || resp.status === 201) {
+        toast.dismiss();
+        toast.success(resp.data.message, {
+          duration: 2000,
+        });
+        try {
+          const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
+          if (response.status === 200 || response.status === 201) {
+            localStorage.setItem("user", JSON.stringify(response.data));
+            getUser();
+            fetchUserFormLocal();
+            setIsEditing(false);
+          } else {
+            toast.error(response.data.message, {
+              duration: 2000,
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        }
+
+      } else {
+        toast.dismiss();
+        toast.error(resp.data.message, {
+          duration: 2000,
+        });
+      }
+
+    } catch (error) {
+      toast.dismiss();
+      console.log(error)
     }
-  };
+  }
 
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditData({ ...editData, [name]: value });
-  };
 
   
-  const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
 
-  // For User Posts and Comments Logic
-  const [activeTab, setActiveTab] = useState<'userPosts' | 'userComments'>('userPosts');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
 
-  // const userPostsData = blogPosts.filter((post: PostTypes) => post.authorId === userProfile.name);
-
-  // const filteredPosts = userPostsData.filter(post => post.title.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  const getShortDescription = (description: string) => {
-    const words = description.split(' ');
-    return words.slice(0, 10).join(' ') + (words.length > 10 ? '...' : '');
-  };
+  useEffect(() => {
+    fetchUserFormLocal();
+  }, []);
 
 
 
   return (
     <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16">
       <div className="mx-auto rounded-lg bg-black shadow-lg p-6 sm:p-8 md:p-10">
-        {/* Header for Profile */}
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-16 h-16 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center">
-            <AiOutlineUser className="text-3xl text-gray-400" />
+
+        <div className="flex items-center justify-between space-x-4 mb-6">
+          <div className="flex flex-row items-center gap-5">
+            <Avatar className='w-20 h-20'>
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">My Profile</h1>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white">My Profile</h1>
+
+          <div className='flex flex-row items-center gap-3'>
+            {
+              userProfile?.socialLinks.facebook &&
+              <a href={userProfile?.socialLinks.facebook} target='_blank'>
+                <SiFacebook className='text-2xl text-blue-500' />
+              </a>
+            }
+            {
+              userProfile?.socialLinks.instagram &&
+              <a href={userProfile?.socialLinks.instagram} target='_blank'>
+                <RiInstagramFill className='text-3xl text-red-500' />
+              </a>
+            }
+            {
+              userProfile?.socialLinks.linkedIn &&
+              <a href={userProfile?.socialLinks.linkedIn} target='_blank'>
+                <ImLinkedin className='text-2xl text-blue-500' />
+              </a>
+            }
+            {
+              userProfile?.socialLinks.twitter &&
+              <a href={userProfile?.socialLinks.twitter} target='_blank'>
+                <FaSquareXTwitter className='text-3xl text-gray-800' />
+              </a>
+            }
+          </div>
+
         </div>
 
-        {/* Form for Profile Editing */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                id="firstName"
-                value={editData.firstName}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                id="lastName"
-                value={editData.lastName}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-              />
-            </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          {/* full name  */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Full Name</label>
+            <input
+              type="text"
+              name="fullname"
+              id="fullname"
+              value={userProfile?.name}
+              onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })}
+              disabled={!isEditing}
+              className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+            />
+          </div>
+
+          {/* phone  */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Phone</label>
+            <input
+              type="text"
+              name="phone"
+              id="phone"
+              value={userProfile?.phoneNo}
+              onChange={(e) => setUserProfile({ ...userProfile, phoneNo: e.target.value })}
+              disabled={!isEditing}
+              className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+            />
+          </div>
+
+          {/* bio  */}
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="bio">Bio</label>
             {isEditing ? (
               <textarea
                 name="bio"
                 id="bio"
-                value={editData.bio}
-                onChange={handleChange}
+                value={userProfile?.bio}
+                onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ring-yellow-500"
                 rows={3}
               />
             ) : (
-              <p className="text-gray-300">{profileData.bio}</p>
+              <p className="text-gray-300">{userProfile?.bio}</p>
             )}
           </div>
 
-          {/* Email and Role */}
+          {/* email  */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="email">Email</label>
             <input
               type="email"
               name="email"
               id="email"
-              value={editData.email}
-              onChange={handleChange}
-              disabled={!isEditing}
+              value={userProfile?.email}
+              disabled
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
 
             />
           </div>
 
+          {/* role  */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Role</label>
             <input
               type="text"
               name="role"
               id="role"
-              value={editData.role}
-              onChange={handleChange}
-              disabled={!isEditing}
+              value={userProfile?.role}
+              disabled
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
             />
           </div>
 
-          {/* Password fields only visible when editing */}
-          {isEditing && (
-            <>
-              <div className="sm:col-span-2 relative">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="password">Password</label>
-                <div className="flex items-center bg-gray-700 rounded-md">
-                  <input
-                    type={passwordVisible ? 'text' : 'password'}
-                    name="password"
-                    id="password"
-                    value={editData.password}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 bg-transparent focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="text-gray-400 px-3"
-                  >
-                    {passwordVisible ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
-                  </button>
-                </div>
+          {
+            isEditing &&
+            <div className='col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6'>
+
+              {/* facebook */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Facebook</label>
+                <input
+                  type="text"
+                  name="role"
+                  id="role"
+                  value={userProfile?.socialLinks?.facebook}
+                  onChange={(e) => {
+                    setUserProfile({
+                      ...userProfile,
+                      socialLinks: {
+                        ...userProfile.socialLinks,
+                        facebook: e.target.value
+                      }
+                    })
+                  }}
+                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+                />
               </div>
 
-              <div className="sm:col-span-2 relative">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="confirmPassword">Confirm Password</label>
-                <div className="flex items-center bg-gray-700 rounded-md">
-                  <input
-                    type={passwordVisible ? 'text' : 'password'}
-                    name="confirmPassword"
-                    id="confirmPassword"
-                    value={editData.confirmPassword}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-2 bg-transparent focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-                  />
-                </div>
+              {/* instagram  */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Instagram</label>
+                <input
+                  type="text"
+                  name="role"
+                  id="role"
+                  value={userProfile?.socialLinks?.instagram}
+                  onChange={(e) => {
+                    setUserProfile({
+                      ...userProfile,
+                      socialLinks: {
+                        ...userProfile.socialLinks,
+                        instagram: e.target.value
+                      }
+                    })
+                  }}
+                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+                />
               </div>
-            </>
-          )}
+
+              {/* linkedIn */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Linked In</label>
+                <input
+                  type="text"
+                  name="role"
+                  id="role"
+                  value={userProfile?.socialLinks?.linkedIn}
+                  onChange={(e) => {
+                    setUserProfile({
+                      ...userProfile,
+                      socialLinks: {
+                        ...userProfile.socialLinks,
+                        linkedIn: e.target.value
+                      }
+                    })
+                  }}
+                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+                />
+              </div>
+
+              {/* twitter */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Twitter</label>
+                <input
+                  type="text"
+                  name="role"
+                  id="role"
+                  value={userProfile?.socialLinks?.twitter}
+                  onChange={(e) => {
+                    setUserProfile({
+                      ...userProfile,
+                      socialLinks: {
+                        ...userProfile.socialLinks,
+                        twitter: e.target.value
+                      }
+                    })
+                  }}
+                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+                />
+              </div>
+
+            </div>
+          }
+
+
         </div>
 
-        {/* Actions to Save or Cancel */}
-        <div className="flex items-center justify-center space-x-4 mt-6">
+
+        {/* action buttons  */}
+        <div className="flex items-center justify-end space-x-4 mt-6">
           {isEditing ? (
             <>
               <button
@@ -222,105 +342,13 @@ const ProfilePage: React.FC = () => {
             </>
           ) : (
             <button
-              onClick={handleEdit}
+              onClick={() => setIsEditing(true)}
               className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md text-sm sm:text-base"
             >
               <FaEdit className="inline mr-2" /> Edit Profile
             </button>
           )}
         </div>
-      </div>
-
-      {/* Tab navigation for Posts and Comments */}
-      <div className="flex space-x-4 mb-2">
-        <div
-          className={`cursor-pointer px-4 py-2 text-center text-lg font-semibold transition-all duration-300 ease-in-out ${activeTab === 'userPosts' ? 'text-blue-500 border-b-4 border-blue-500' : 'text-white hover:text-gray-400'}`}
-          onClick={() => setActiveTab('userPosts')}
-        >
-          User Posts
-        </div>
-        <div
-          className={`cursor-pointer px-4 py-2 text-center text-lg font-semibold transition-all duration-300 ease-in-out ${activeTab === 'userComments' ? 'text-blue-500 border-b-4 border-blue-500' : 'text-white hover:text-gray-400'}`}
-          onClick={() => setActiveTab('userComments')}
-        >
-          User Comments
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="flex justify-end mb-4">
-        <input
-          type="text"
-          placeholder="Search posts/comments"
-          className="w-full sm:w-1/2 lg:w-1/3 p-2 rounded-md bg-gray-700 text-white"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      {/* Display Posts or Comments based on active tab */}
-      {activeTab === 'userPosts' ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Tag</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          {/* <TableBody>
-            {filteredPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(post => (
-              <TableRow key={post.id}>
-                <TableCell>{post.title}</TableCell>
-                <TableCell>{post.category}</TableCell>
-                <TableCell>{post.tag}</TableCell>
-                <TableCell>{post.status}</TableCell>
-                <TableCell>
-                  <button className="text-blue-500">View</button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody> */}
-        </Table>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Post Title</TableHead>
-              <TableHead>Comment</TableHead>
-              <TableHead>Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          {/* <TableBody>
-            {filteredComments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(comment => (
-              <TableRow key={comment.id}>
-                <TableCell>{postsData.find(post => post.id === comment.postId)?.title}</TableCell>
-                <TableCell>{getShortDescription(comment.content)}</TableCell>
-                <TableCell>{comment.date}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody> */}
-        </Table>
-      )}
-
-      {/* Pagination */}
-      <div className="flex justify-center mt-6 space-x-4">
-        <button
-          // onClick={}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-700 text-white rounded-md"
-        >
-          Prev
-        </button>
-        <button
-          // onClick={}
-          // disabled={(activeTab === 'userPosts' ? currentPage === totalPostPages : currentPage === totalCommentPages)}
-          className="px-4 py-2 bg-gray-700 text-white rounded-md"
-        >
-          Next
-        </button>
       </div>
     </div>
   );

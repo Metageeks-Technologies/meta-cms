@@ -3,16 +3,6 @@ import { handleDate } from '@/utils/helperFunction';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify';
-import { TbDotsVertical } from "react-icons/tb";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import axiosCall from '@/utils/ApiCall';
 
 
 const Card = ({ post, index }: any) => {
@@ -43,7 +33,7 @@ const Card = ({ post, index }: any) => {
 
 
     return (
-        <div key={index} className='w-80 my-2 md:my-5 group rounded-lg'>
+        <div key={index} onClick={() => router.push(`/post/${post.slug}`)} className='w-80 my-2 md:my-5 group rounded-lg cursor-pointer'>
             <div className='w-full h-[250px] '>
                 {/* <img src={post.previewImageKey} alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' /> */}
                 <img src="/blogImg.png" alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' />
@@ -59,7 +49,7 @@ const Card = ({ post, index }: any) => {
                     <p className='text-[#6941C6] text-sm'>{post.author.name} | {handleDate(post.publishedDate)}</p>
                     <p className=' text-sm'>{post.status}</p>
                 </div>
-                <h2 className='text-xl md:text-2xl group-hover:underline cursor-pointer' onClick={() => router.push(`/post/${post.slug}`)}>{post.title} &#8599;</h2>
+                <h2 className='text-xl md:text-2xl group-hover:underline cursor-pointer'    >{post.title} &#8599;</h2>
                 <p className='text-gray-400'>{plainText}</p>
                 <div className={`w-full flex flex-row flex-wrap gap-2`}>
                     {

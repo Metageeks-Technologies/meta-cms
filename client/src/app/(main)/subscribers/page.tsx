@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import {
@@ -29,12 +30,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-import { useAuth } from '@/hooks/useAuth';
-import { userRoles } from "@/constant/user"
-import { useUserContext } from "@/context/userContext"
-import { usePostContext } from "@/context/postContext"
-import { RiDeleteBin6Line } from "react-icons/ri";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +41,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import AddCategory from "./component/AddCategory"
+
+import { useAuth } from '@/hooks/useAuth';
+import { userRoles } from "@/constant/user"
+import { useUserContext } from "@/context/userContext"
 
 
 
@@ -59,31 +57,24 @@ const columns = [
     ),
   },
   {
-    accessorKey: "bannerImageKey",
-    header: "Image",
-    cell: ({ row }: any) => {
-      const imageUrl = row.getValue("bannerImageKey");
-      return (
-        <div className="flex items-center justify-start">
-          {imageUrl ? (
-            <img
-              // src={imageUrl}
-              src="/blogImg.png"
-              alt="Category Image"
-              className="h-20 w-32 object-cover rounded-md"
-            />
-          ) : (
-            <span className="text-gray-500">No image</span>
-          )}
-        </div>
-      )
-    }
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }: any) => (
+      <div className="">{row.getValue("email")}</div>
+    ),
   },
   {
-    accessorKey: "description",
-    header: () => <div className="">Description</div>,
+    accessorKey: "phoneNo",
+    header: "Phone",
     cell: ({ row }: any) => (
-      <div className="">{row.getValue("description")}</div>
+      <div className="capitalize">{row.getValue("phoneNo")}</div>
+    ),
+  },
+  {
+    accessorKey: "role",
+    header: () => <div className="text-right">Role</div>,
+    cell: ({ row }: any) => (
+      <div className="capitalize text-right">{row.getValue("role")}</div>
     ),
   },
   {
@@ -91,54 +82,66 @@ const columns = [
     enableHiding: false,
     cell: ({ row }: any) => {
 
-      const category = row.original;
-      const { deleteCategory } = usePostContext();
-      const { user }: any = useUserContext();
+      const user = row.original;
+      const [clickedItem, setClickedItem] = useState(0)
+      const {changeUserRole} : any = useUserContext();
 
       return (
         <AlertDialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-800" />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-gray-800" />
 
-              {
-                user?.role === userRoles.SUPERADMIN &&
-                <AlertDialogTrigger>
-                  <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                    <RiDeleteBin6Line className="text-red-500" />
-                    Delete category
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
+            <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+              <AlertDialogTrigger>
+                Promote to Contributor
+              </AlertDialogTrigger>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+              <AlertDialogTrigger>
+                Promote to Moderator
+              </AlertDialogTrigger>
+            </DropdownMenuItem>
+
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <AlertDialogContent className='bg-black border-gray-800'>
+          <AlertDialogHeader>
+            <AlertDialogTitle></AlertDialogTitle>
+            <AlertDialogDescription className='h-24' >
+              <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+            </AlertDialogDescription>
+            <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+              Are you sure ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={
+                clickedItem === 1 ?
+                  () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)
+                  : clickedItem === 2 ?
+                    () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
+                    : () => { }
               }
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
 
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <AlertDialogContent className='bg-black border-gray-800'>
-            <AlertDialogHeader>
-              <AlertDialogTitle></AlertDialogTitle>
-              <AlertDialogDescription className='h-24' >
-                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
-              </AlertDialogDescription>
-              <AlertDialogDescription className='w-full text-center mb-5 text-lg text-white'>
-                Delete Category
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => deleteCategory(category._id)} className='bg-red-500 hover:bg-red-600'>Delete</AlertDialogAction>
-            </AlertDialogFooter>
-
-          </AlertDialogContent>
-        </AlertDialog>
+        </AlertDialogContent>
+      </AlertDialog>
       )
     },
   },
@@ -147,8 +150,7 @@ const columns = [
 
 
 
-
-function Category() {
+function User() {
 
   useAuth();
 
@@ -157,13 +159,11 @@ function Category() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { categories, fetchCategories }: any = usePostContext()
-  const { user }: any = useUserContext();
+  const {subscriber, fetchAllSubscriber} : any = useUserContext()
 
-  // console.log(categories);
 
   const table = useReactTable({
-    data: categories,
+    data: subscriber,
     columns,
     onSortingChange: setSorting,
     // onColumnFiltersChange: setColumnFilters,
@@ -181,9 +181,9 @@ function Category() {
     },
   });
 
-
+  
   useEffect(() => {
-    fetchCategories();
+    fetchAllSubscriber();
   }, []);
 
 
@@ -191,23 +191,15 @@ function Category() {
   return (
     <div className="w-full container mx-auto">
       <div className="flex flex-col py-4">
-        <h2 className="my-3 text-2xl font-bold">All Categories</h2>
-        <div className="flex flex-row items-center justify-between">
-          <Input
-            placeholder="Search name..."
-            value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table?.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm border-[1px] border-gray-800 text-base"
-          />
-
-          {
-            user?.role === userRoles.SUPERADMIN &&
-            <AddCategory />
+        <h2 className="my-3 text-2xl font-bold">All Subscribers</h2>
+        <Input
+          placeholder="Search email..."
+          value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table?.getColumn("email")?.setFilterValue(event.target.value)
           }
-
-        </div>
+          className="max-w-sm border-[1px] border-gray-800 text-base"
+        />
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">
@@ -292,4 +284,7 @@ function Category() {
     </div>
   );
 }
-export default Category;
+
+export default User;
+
+
