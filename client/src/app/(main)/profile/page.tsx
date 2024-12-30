@@ -10,10 +10,6 @@ import { ImLinkedin } from "react-icons/im";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import { useUserContext } from '@/context/userContext';
 
-
-
-
-
 const ProfilePage: React.FC = () => {
   const { getUser }: any = useUserContext();
 

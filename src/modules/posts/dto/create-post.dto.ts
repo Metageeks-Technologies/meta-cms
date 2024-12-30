@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsDateString, isDateString, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsDateString, isDateString, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
 import { PostStatusEnum } from '../schema/post.schema';
 
 // Enum defining what satatus a new post can have
@@ -33,7 +33,8 @@ export class CreatePostDto {
     @IsNotEmpty()
     status?: PostStatusEnum = PostStatusEnum.DRAFT;
 
-    @IsDateString()
+    @ValidateIf((object, value) => value !== '')
     @IsOptional()
+    @IsDateString()
     publishedDate?: string = (new Date).toISOString();
 }

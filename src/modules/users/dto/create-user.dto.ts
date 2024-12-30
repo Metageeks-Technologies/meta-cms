@@ -1,22 +1,26 @@
 import { Type } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsNumberString, IsOptional, IsString, IsStrongPassword, IsUrl, Length, MaxLength, MinLength, ValidateNested } from "class-validator";
+import { IsEmail, IsEmpty, IsNotEmpty, IsNumberString, IsOptional, IsString, IsStrongPassword, IsUrl, Length, MaxLength, MinLength, ValidateIf, ValidateNested } from "class-validator";
 
 export class SocialLinksDto {
+    @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
     @IsUrl()
     linkedIn?: string;
 
+    @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
     @IsUrl()
     instagram?: string;
 
+    @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
     @IsUrl()
     facebook?: string;
 
+    @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
     @IsUrl()
@@ -43,6 +47,7 @@ export class CreateUserDto {
     }, { message: "Password must contain atleast one lowercase letter, one uppercase letter, one digit and one special character" })
     password: string;
 
+    @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsNumberString()
     @Length(10, 10, { message: 'Phone number must be exactly 10 characters' })
