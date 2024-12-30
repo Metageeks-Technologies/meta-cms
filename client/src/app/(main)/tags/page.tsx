@@ -1,12 +1,8 @@
 "use client";
 import { tagsdata } from '@/constant/tags';
-import { useAuth } from '@/hooks/useAuth'
 import React from 'react'
 
 const page = () => {
-
-    useAuth();
-
     return (
         <div className='p-2 sm:p-5 md:p-10'>
             <h2 className='text-3xl md:text-5xl mt-2 mb-5 font-bold'>Tags</h2>

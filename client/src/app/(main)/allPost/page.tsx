@@ -1,23 +1,15 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { useAuth } from '@/hooks/useAuth';
 import AdminAllPost from './component/adminAllPost';
 import ContributorAllPost from './component/contributorAllPost';
-import { getUserFromLocalStorage } from '@/utils/helperFunction';
 import { userRoles } from '@/constant/user';
+import { useUserContext } from '@/context/userContext';
 
 
 
 const page = () => {
-
-    useAuth();
-
-    const [user, setUser] = useState<any>();
-
-    useEffect(() => {
-        getUserFromLocalStorage(setUser);
-    }, [])
+    const {user} = useUserContext();
 
     return (
         <div>

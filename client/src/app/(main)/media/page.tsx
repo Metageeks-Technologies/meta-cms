@@ -1,14 +1,10 @@
 'use client'
 import { dummyMedia } from '@/constant/post';
-import { useAuth } from '@/hooks/useAuth';
 import { Check } from 'lucide-react';
 import React, { useState } from 'react'
 
 
 const page = () => {
-
-    useAuth();
-
     const [filterBy, setFilterBy] = useState('all');
     const [mediaData, setMediaData] = useState(dummyMedia);
 

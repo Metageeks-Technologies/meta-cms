@@ -1,12 +1,11 @@
 'use client'
 import { useParams, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
 import { PostTypes } from '@/types'
 import { postStatuEnum } from '@/constant/post'
 import axiosCall from '@/utils/ApiCall'
-import { getUserFromLocalStorage, handleDate } from '@/utils/helperFunction'
+import { handleDate } from '@/utils/helperFunction'
 import toast from 'react-hot-toast'
 import {
     AlertDialog,
@@ -20,27 +19,17 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { userRoles } from '@/constant/user'
+import { useUserContext } from '@/context/userContext'
 
 
 const page = () => {
-    useAuth();
-
     const [post, setPost] = useState<PostTypes | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    // console.log(post)
-
+    const {user} = useUserContext();
     const router = useRouter();
     const params = useParams();
     const slug = params.id;
-
-    const [user, setUser] = useState<any>();
-
-    useEffect(() => {
-        getUserFromLocalStorage(setUser);
-    }, [])
-
-
 
     const fetchPost = async () => {
         setLoading(true);

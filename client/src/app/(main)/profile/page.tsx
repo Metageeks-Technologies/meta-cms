@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
-import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
@@ -16,8 +15,6 @@ import { useUserContext } from '@/context/userContext';
 
 
 const ProfilePage: React.FC = () => {
-  useAuth();
-
   const { getUser }: any = useUserContext();
 
   const [userProfile, setUserProfile] = useState({

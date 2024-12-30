@@ -30,7 +30,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { useAuth } from '@/hooks/useAuth';
 import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
 import { usePostContext } from "@/context/postContext"
@@ -149,9 +148,6 @@ const columns = [
 
 
 function Category() {
-
-  useAuth();
-
   const [sorting, setSorting] = useState<SortingState>([])
   // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})

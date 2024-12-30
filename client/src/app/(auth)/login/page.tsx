@@ -1,6 +1,4 @@
 'use client'
-import { userRoles } from '@/constant/user';
-import { useUserContext } from '@/context/userContext';
 import { LoginPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { Eye, EyeOff } from 'lucide-react';
@@ -14,52 +12,24 @@ const page = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
-    const { getUser }: any = useUserContext();
-
     const handleLogin = async (e: any) => {
         e.preventDefault();
         try {
             setLoading(true);
-            const payload: LoginPayload = {
-                email,
-                password
-            }
-            const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, payload);
-            // console.log(response, "Response")
-            
-            if (response.status === 200 || response.status === 201) {
-                toast.success(response.data.message, {
-                    duration: 2000
-                });
-                try {
-                    const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
-                    if (response.status === 200 || response.status === 201) {
 
-                        if(response.data.role === userRoles.SUBSCRIBER){
-                            alert("SUBSCRIBER not allowed on dashboard")
-                            return;
-                        }
-                        localStorage.setItem("user", JSON.stringify(response.data));
-                        router.push('/dashboard')
-                        setLoading(false);
-                        getUser();
-                    }else{
-                        setLoading(false);
-                    }
-                } catch (error) {
-                    console.log(error);
-                }
+            const payload: LoginPayload = { email, password };
+            const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, payload);
+            if (response.status === 200 || response.status === 201) {
+                toast.success(response.data.message, { duration: 2000 });
+                router.push('/dashboard');
             } else {
-                toast.error(response.data.message, {
-                    duration: 2000,
-                });
-                setLoading(false);
+                toast.error(response.data.message, { duration: 2000 });
             }
+
+            setLoading(false);
         } catch (error) {
             console.log(error);
-            toast.error("Something went wrong", {
-                duration: 200,
-            });
+            toast.error("Something went wrong", { duration: 2000 });
         }
     }
     return (
