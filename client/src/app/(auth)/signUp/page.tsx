@@ -88,10 +88,10 @@ const page = () => {
         </div>
 
         <div className=''>
-          <div className='w-full flex'>
+          {/* <div className='w-full flex'>
             <p onClick={() => setRole('user')} className={`w-full text-center p-4 cursor-pointer text-xl ${role === 'user' ? " bg-gray-800 rounded-t-lg" : "    "}`}>User</p>
             <p onClick={() => setRole('admin')} className={`w-full text-center p-4 cursor-pointer text-xl ${role === 'admin' ? " bg-gray-800 rounded-t-lg" : ""}`}>Admin</p>
-          </div>
+          </div> */}
 
           <form onSubmit={handleSignUp} className={`p-4 bg-gray-800 flex flex-col gap-5 rounded-b-lg pt-10 ${role === 'user' ? "rounded-tr-lg" : "rounded-tl-lg"}`}>
 
