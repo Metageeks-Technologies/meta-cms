@@ -28,21 +28,15 @@ export default function RootLayout({
 }) {
   return (
     <>
-      {/* Root HTML tag */}
       <html lang="en">
         <head>
-          {/* Custom metadata (optional) */}
           <meta charSet="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
           <main className="w-full bg-[#06040B] text-gray-200">
-            <UserProvider>
-              <PostProvider>
                 <Toaster />
                 {children}
-              </PostProvider>
-            </UserProvider>
           </main>
         </body>
       </html>

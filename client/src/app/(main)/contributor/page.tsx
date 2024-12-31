@@ -145,7 +145,6 @@ const columns = [
   },
 ]
 
-import { useAuth } from '@/hooks/useAuth';
 import axiosCall from "@/utils/ApiCall"
 import toast from "react-hot-toast"
 import { userRoles } from "@/constant/user"
@@ -154,9 +153,6 @@ import { useUserContext } from "@/context/userContext"
 
 
 function User() {
-
-  useAuth();
-
   const [sorting, setSorting] = useState<SortingState>([])
   // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})

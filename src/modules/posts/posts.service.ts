@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException, ParseBoolPipe } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IPost, PostStatusEnum } from './schema/post.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, mongo } from 'mongoose';
 import { GetPostsQueryDto, PostSortByEnum } from './dto/get-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { slugify } from 'src/utils/slug';
@@ -10,11 +10,12 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { LikesService } from '../likes/likes.service';
 import { SearchPostSortByEnum, SearchPostsQueryDto } from './dto/search-post.dto';
 import { BookmarksService } from '../bookmarks/bookmarks.service';
+import { postStatuEnum } from 'client/src/constant/post';
 
 @Injectable()
 export class PostsService {
   private readonly POST_BATCH_LIMIT = 10;
-  private readonly postAggregationFinalSteps: mongoose.PipelineStage[]= [
+  private readonly postAggregationFinalSteps: mongoose.PipelineStage[] = [
     /////////////////////////////////////////
     // Category Lookup stage
     // If a catgory id is not found in the categories collection, it will be ignored and will not be reflected in categoriesDetails
@@ -304,7 +305,7 @@ export class PostsService {
     const post = await this.getPostBySlug(slug, undefined, undefined);
 
     // If contributor tries to access post of another user
-    if(userRole == UserRoleEnum.CONTRIBUTOR && post.author._id !=userId) {
+    if (userRole == UserRoleEnum.CONTRIBUTOR && post.author._id != userId) {
       throw new ForbiddenException();
     }
 
@@ -389,13 +390,13 @@ export class PostsService {
   async bookmarkPublicPost(postId: string, userId: string) {
     // Assuming userId is valid and verified by JWT
     const post = await this.Post.findOne({ _id: postId }, { _id: 1 }).lean().exec();
-    if(!post) {
+    if (!post) {
       throw new NotFoundException("Post Id not found");
     }
 
     await this.bookmarksService.add(postId, userId);
   }
-  
+
   async removeBookmarkFromPublicPost(postId: string, userId: string) {
     // No need to validate for postId and userId here
     // If they are valid and their corresponding bookmark exists, we'll delete it
@@ -408,26 +409,26 @@ export class PostsService {
     // Not checking existence of post here. 
     // Since if post does not exists, its corresponding like & bookmark entries will not be present
     // Just return true if correspoding entries is found, otherwise false in all other cases
-    const [ isLiked, isBookmarked ] = await Promise.all([
+    const [isLiked, isBookmarked] = await Promise.all([
       this.likesService.isPostLikedByUser(postId, userId),
       this.bookmarksService.isPostBookmarkedByUser(postId, userId)
     ]);
 
     return { isLiked, isBookmarked };
   }
-  
+
   async deletePost(_id: string, userId: string, userRole: string) {
     const post = await this.Post.findOne({ _id: _id }, { authorId: 1, isDeleted: 1 }).lean().exec();
-    if(!post) {
+    if (!post) {
       throw new NotFoundException('Post ID not found');
     }
 
     // If contributor tries to delete other users' post
-    if(userRole == UserRoleEnum.CONTRIBUTOR && post.authorId != mongoose.Types.ObjectId.createFromHexString(userId)) {
+    if (userRole == UserRoleEnum.CONTRIBUTOR && post.authorId != mongoose.Types.ObjectId.createFromHexString(userId)) {
       throw new ForbiddenException();
     }
 
-    if(post.isDeleted) {
+    if (post.isDeleted) {
       throw new BadRequestException("Post already deleted");
     }
 
@@ -437,13 +438,83 @@ export class PostsService {
   async recoverPost(_id: string) {
     // This can only be done by superadmin
     const query = await this.Post.updateOne({ _id: _id }, { isDeleted: true }).exec();
-    if(query.matchedCount == 0) {
+    if (query.matchedCount == 0) {
       throw new NotFoundException('Post ID not found');
     }
 
-    if(query.modifiedCount == 0) {
+    if (query.modifiedCount == 0) {
       throw new BadRequestException('Post was not deleted');
     }
   }
 
+  async getPublisedPostsCount(userId?: string) {
+    // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
+    // Assuming userId exists and is coming from JWT
+    const count = await this.Post.countDocuments({
+      status: postStatuEnum.PUBLISHED,
+      ...(userId && { authorId: mongoose.Types.ObjectId.createFromHexString(userId) })
+    }).exec();
+    return count;
+  }
+
+  async getMonthlyPublishedPostCount(userId?: string) {
+    // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
+    // Assuming userId exists and is coming from JWT
+
+    const currentDate = new Date();
+    const lastYearDate = new Date()
+    lastYearDate.setMonth(currentDate.getMonth() - 12);
+
+    const matchFilter: Record<string, any> = {
+      status: 'published',
+      createdAt: { $gte: lastYearDate }
+    };
+    if (userId) {
+      matchFilter.authorId = mongoose.Types.ObjectId.createFromHexString(userId); // Assuming 'createdBy' is the field storing userId
+    }
+
+    const result = await this.Post.aggregate([
+      {
+        $match: matchFilter
+      },
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" }
+        }
+      },
+      {
+        $group: {
+          _id: { month: "$month", year: "$year" },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { "_id.year": -1, "_id.month": -1 }
+      },
+      {
+        $project: {
+          month: "$_id.month",
+          year: "$_id.year",
+          count: 1,
+          _id: 0
+        }
+      }
+    ]).exec();
+
+    // Create an array for the last 12 months (starting from the current month)
+    const monthlyPostsCount = [];
+    let tempDate = new Date(currentDate);
+    for (let i = 0; i < 12; i++) {
+      const currentMonth = { month: tempDate.getMonth() + 1, year: tempDate.getFullYear() };
+      const currentCount = result.find(r => r.month === currentMonth.month && r.year === currentMonth.year);
+      monthlyPostsCount.push(currentCount ? currentCount : { month: currentMonth.month, year: currentMonth.year, count: 0 });
+      
+      // Construct a new Date object here. Otherwise, the months might repeat(due to different number of days in each month)
+      tempDate = new Date(tempDate.getFullYear(), tempDate.getMonth() - 1); 
+    }
+
+    // Return the array in reverse order (oldest to most recent)
+    return monthlyPostsCount.reverse();
+  }
 }

@@ -1,6 +1,3 @@
-import { PostTypes } from "@/types";
-
-
 export const dummyMedia = [
     { "id": 1, "type": "image", "url": "https://picsum.photos/300/200?random=1" },
     { "id": 2, "type": "video", "url": "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_2mb.mp4", "duration": "3 sec" },

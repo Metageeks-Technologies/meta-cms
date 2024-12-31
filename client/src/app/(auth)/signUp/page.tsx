@@ -5,12 +5,11 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
+import { isValidPassword } from '@/utils/helperFunction';
 
 const page = () => {
 
   const router = useRouter();
-
-  const [role, setRole] = useState('user');
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
 
@@ -68,15 +67,6 @@ const page = () => {
     }
   }
 
-
-  function isValidPassword(password: string) {
-    const hasUppercase = /[A-Z]/.test(password); 
-    const hasLowercase = /[a-z]/.test(password); 
-    const hasDigit = /\d/.test(password);       
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password); 
-    return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
-  }
-
   return (
     <div className='w-full h-screen flex items-center justify-center'>
       <div className='w-full max-w-[600px] h-auto bg-gray-900 p-2 sm:p-6 mx-2 rounded-lg'>
@@ -88,12 +78,8 @@ const page = () => {
         </div>
 
         <div className=''>
-          <div className='w-full flex'>
-            <p onClick={() => setRole('user')} className={`w-full text-center p-4 cursor-pointer text-xl ${role === 'user' ? " bg-gray-800 rounded-t-lg" : "    "}`}>User</p>
-            <p onClick={() => setRole('admin')} className={`w-full text-center p-4 cursor-pointer text-xl ${role === 'admin' ? " bg-gray-800 rounded-t-lg" : ""}`}>Admin</p>
-          </div>
 
-          <form onSubmit={handleSignUp} className={`p-4 bg-gray-800 flex flex-col gap-5 rounded-b-lg pt-10 ${role === 'user' ? "rounded-tr-lg" : "rounded-tl-lg"}`}>
+          <form onSubmit={handleSignUp} className={`p-4 bg-gray-800 flex flex-col gap-5 rounded-b-lg pt-10 `}>
 
             <div className='w-full flex flex-row items-center gap-5'>
 

@@ -17,6 +17,7 @@ import { LoggerModule } from './modules/logger/logger.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
     CategoriesModule,
     SubscribersModule,
     BookmarksModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [
@@ -42,7 +44,7 @@ import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
       // Requires Logger module (LoggerService to be exact) to be available here in AppModule
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
-    },
+    }
   ],
 })
 export class AppModule {

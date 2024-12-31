@@ -4,16 +4,10 @@ export const handleDate = (date: any) => {
     return `${newDate.getDate()}/${newDate.getMonth() + 1}/${newDate.getFullYear()}`
 }
 
-export const getUserFromLocalStorage = (setUser: any) => {
-    const userString = localStorage.getItem('user');
-    if (userString) {
-        const userData = JSON.parse(userString);
-        if (userData && userData._id) {
-            setUser(userData);
-        } else {
-            console.log('User not found');
-        }
-    } else {
-        console.log('No user data found in localStorage.');
-    }
-}
+export function isValidPassword(password: string) {
+    const hasUppercase = /[A-Z]/.test(password); 
+    const hasLowercase = /[a-z]/.test(password); 
+    const hasDigit = /\d/.test(password);       
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password); 
+    return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
+  }

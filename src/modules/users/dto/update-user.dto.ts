@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsNumberString, IsOptional, IsString, IsStrongPassword, Length, MaxLength, MinLength, ValidateNested } from "class-validator";
+import { IsEmail, IsNotEmpty, IsNumberString, IsOptional, IsString, IsStrongPassword, Length, MaxLength, MinLength, ValidateIf, ValidateNested } from "class-validator";
 import { SocialLinksDto } from "./create-user.dto";
 
 export class UpdateUserDto {
@@ -8,6 +8,7 @@ export class UpdateUserDto {
     @IsNotEmpty()
     name?: string;
 
+    @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsNumberString()
     @Length(10, 10, { message: 'Phone number must be exactly 10 characters' })

@@ -2,6 +2,8 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/common/Header";
+import { UserProvider } from "@/context/userContext";
+import { PostProvider } from "@/context/postContext";
 
 // export const metadata = {
 //   title: "Authentication - My Blogging Website",
@@ -11,16 +13,20 @@ import Header from "@/components/common/Header";
 export default function MainLayout({ children }: { children: React.ReactNode }) {
 
   return (
-    <div>
-      <div className="w-full bg-[#06040B]">
-        <SidebarProvider>
-          <AppSidebar />
-          <div className="w-full bg-[#06040B] text-gray-200">
-            <Header />
-            {children}
+    <UserProvider>
+      <PostProvider>
+        <div>
+          <div className="w-full bg-[#06040B]">
+            <SidebarProvider>
+              <AppSidebar />
+              <div className="w-full bg-[#06040B] text-gray-200">
+                <Header />
+                {children}
+              </div>
+            </SidebarProvider>
           </div>
-        </SidebarProvider>
-      </div>
-    </div>
+        </div>
+      </PostProvider >
+    </UserProvider >
   );
 }

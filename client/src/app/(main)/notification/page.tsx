@@ -15,16 +15,12 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useAuth } from '@/hooks/useAuth';
 import { notificationDummyData } from '@/constant/notification';
 
 
 
 
 const Page = () => {
-
-    useAuth();
-
     const [selectedNotification, setSelectedNotification] = useState('all');
 
     const [notificationData, setNotificationData] = useState(notificationDummyData.sort((a: any, b: any) => a.read - b.read));
