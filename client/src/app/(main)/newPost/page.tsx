@@ -7,17 +7,14 @@ import { NewPostFormData } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { TiTick } from "react-icons/ti";
 import toast from 'react-hot-toast';
-
+import { Check } from 'lucide-react'; // Check icon for media selection
+import MediaPage from './mediaPage';
 
 const App: React.FC = () => {
   const editorRef = useRef<any>(null);
-
-
   const [loading, setLoading] = useState(false);
   const [categoryArr, setCategoryArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
-  // console.log(filteredCategoryArr);
-
   const [formData, setFormData] = useState<NewPostFormData>({
     postTitle: "",
     postDescription: '',
@@ -27,30 +24,96 @@ const App: React.FC = () => {
     publishDate: null,
     previewImg: null,
   });
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
+  // Fetch categories
   const fetchCategory = async () => {
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
-
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
-        setFilteredCategoryArr(resp?.data)
-        // console.log(resp);
+        setFilteredCategoryArr(resp?.data);
       } else {
-        toast.error(resp.data.message, {
-          duration: 2000,
-        });
+        toast.error(resp.data.message, { duration: 2000 });
       }
-
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
+  // Handle image selection from MediaPage modal
+  const handlePreviewImageChange = (imageUrl: string) => {
+    setFormData({ ...formData, previewImg: imageUrl });
+    setIsMediaModalOpen(false); // Close modal after selection
+  };
+
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
+  // Handle post creation
+  const handleCreatePost = async () => {
+    if (!formData.postTitle.trim()) {
+      toast.error('Post title is required.', { duration: 2000 });
+      return;
+    }
+    if (!formData.postDescription.trim()) {
+      toast.error('Post description is required.', { duration: 2000 });
+      return;
+    }
+    if (!Array.isArray(formData.category) || formData.category.length === 0) {
+      toast.error('At least one category must be selected.', { duration: 2000 });
+      return;
+    }
+    if (!Array.isArray(formData.tags) || formData.tags.length === 0) {
+      toast.error('Add at least one tag', { duration: 2000 });
+      return;
+    }
+    if (!formData.publishDate) {
+      toast.error('Please select published date', { duration: 2000 });
+      return;
+    }
+    try {
+      setLoading(true);
+      const payload = {
+        title: formData.postTitle,
+        description: formData.postDescription,
+        previewImageKey: 'uploads/images/post-preview.jpg',
+        tags: formData.tags,
+        categories: formData.category,
+        status: formData.postStatus,
+        publishedDate: formData.publishDate,
+      };
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
+        setFormData({
+          postTitle: "",
+          postDescription: '',
+          postStatus: 'draft',
+          category: [],
+          tags: [],
+          publishDate: null,
+          previewImg: null,
+        });
+        editorRef.current?.setContent('');
+        fetchCategory();
+        setLoading(false);
+      } else {
+        toast.error(resp.data.message, { duration: 2000 });
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  // Handle category toggle
   const toggleCategory = (id: string) => {
     setFormData((prevData) => {
       const { category } = prevData;
-
       if (category.includes(id)) {
         return {
           ...prevData,
@@ -65,116 +128,18 @@ const App: React.FC = () => {
     });
   };
 
+  // Filter categories based on search query
   const filterCategory = (query: string) => {
-    setFilteredCategoryArr(categoryArr.filter((category: any) => {
-      if (category.name.toLowerCase().includes(query.toLowerCase())) {
-        return category;
-      }
-    }))
-  }
+    setFilteredCategoryArr(categoryArr.filter((category: any) =>
+      category.name.toLowerCase().includes(query.toLowerCase())
+    ));
+  };
 
+  // Handle tag input change
   const handleTagChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputTags = event.target.value.split(',').map(tag => tag.trim());
     setFormData({ ...formData, tags: inputTags });
   };
-
-  const handlePublishDateChange = (date: Date | null) => {
-    const currentDate = new Date();
-    if (date && date >= currentDate) {
-      setFormData({ ...formData, publishDate: date });
-    } else {
-      alert('The publish date cannot be in the past!');
-    }
-  };
-
-
-
-  const handleCreatePost = async () => {
-    if (!formData.postTitle.trim()) {
-      toast.error('Post title is required.', {
-        duration: 2000
-      });
-      return;
-    }
-    if (!formData.postDescription.trim()) {
-      toast.error('Post description is required.', {
-        duration: 2000
-      });
-      return;
-    }
-
-    if (!Array.isArray(formData.category) || formData.category.length === 0) {
-      toast.error('At least one category must be selected.', {
-        duration: 2000
-      });
-      return;
-    }
-    if (!Array.isArray(formData.tags) || formData.tags.length === 0) {
-      toast.error('Add atleast one tag', {
-        duration: 2000
-      });
-      return;
-    }
-    if (!formData.publishDate) {
-      toast.error('Please select published date', {
-        duration: 2000
-      });
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const payload = {
-        title: formData.postTitle,
-        description: formData.postDescription,
-        previewImageKey: 'uploads/images/post-preview.jpg',
-        tags: formData.tags,
-        categories: formData.category,
-        status: formData.postStatus,
-        publishedDate: formData.publishDate,
-      }
-
-
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
-      // console.log(resp, "Response");
-
-      if (resp.status === 200 || resp.status === 201) {
-        toast.success(resp.data.message, {
-          duration: 2000
-        });
-
-        setFormData({
-          postTitle: "",
-          postDescription: '',
-          postStatus: 'draft',
-          category: [],
-          tags: [],
-          publishDate: null,
-          previewImg: null,
-        });
-        editorRef.current?.setContent('');
-        fetchCategory();
-        setLoading(false);
-
-      } else {
-        toast.success(resp.data.message, {
-          duration: 2000
-        });
-        setLoading(false);
-      }
-
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-
-  };
-
-  useEffect(() => {
-    fetchCategory();
-  }, []);
-
 
   return (
     <div className='border-1 border-dashed border-gray-900 p-4'>
@@ -190,22 +155,28 @@ const App: React.FC = () => {
               value={formData.postTitle}
               onChange={(e) => setFormData({ ...formData, postTitle: e.target.value })}
               placeholder="Enter post title"
-              className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
+              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
             />
-
           </div>
-
+          {/* Preview image input */}
           <div>
             <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
-            <input
-              type="file"
-              id=""
-              onChange={(e: any) => setFormData({ ...formData, previewImg: e.target.files[0] })}
-              placeholder="Enter post title"
-              className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
-            />
-          </div>
+            <div
+              onClick={() => setIsMediaModalOpen(true)}
+              className="cursor-pointer w-full flex justify-center items-center p-4 bg-[#1A1A1A] rounded-md text-white border-collapse"
+            >
+              {formData.previewImg ? (
+                <img
+                  src={typeof formData.previewImg === 'string' ? formData.previewImg : URL.createObjectURL(formData.previewImg)}
+                  alt="Preview"
+                  className="w-20 h-20 object-cover rounded-md"
+                />
+              ) : (
+                <span className="text-xl">+  Upload your preview Image</span> // Placeholder for no image selected
+              )}
 
+            </div>
+          </div>
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
@@ -220,10 +191,6 @@ const App: React.FC = () => {
                   'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
                   'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount',
                 ],
-                external_plugins: {
-                  // Provide the api route set above
-                  embed: "/api/embed?requestType=plugin",
-                },
                 toolbar: 'undo redo | bold italic forecolor | bullist numlist | removeformat | embed',
                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                 verify_html: false,
@@ -233,7 +200,6 @@ const App: React.FC = () => {
               onInit={(evt, editor) => editorRef.current = editor}
             />
           </div>
-
           {/* Tags Input */}
           <div>
             <label htmlFor="tags" className="text-white block mb-2">Tags</label>
@@ -243,7 +209,7 @@ const App: React.FC = () => {
               value={formData.tags.join(', ')}
               onChange={handleTagChange}
               placeholder="Enter tags separated by commas"
-              className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
+              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
             />
           </div>
         </div>
@@ -257,7 +223,7 @@ const App: React.FC = () => {
               id="postStatus"
               value={formData.postStatus}
               onChange={(e) => setFormData({ ...formData, postStatus: e.target.value })}
-              className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white w-full"
+              className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
@@ -269,77 +235,59 @@ const App: React.FC = () => {
             <label htmlFor="publishDate" className="text-white block">Publish Date</label>
             <DatePicker
               selected={formData.publishDate}
-              onChange={handlePublishDateChange}
-              minDate={new Date()} // Prevent selecting past dates
-              className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white w-full"
+              onChange={(date: Date | null) => setFormData({ ...formData, publishDate: date })}
+              minDate={new Date()}
+              className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
               dateFormat="yyyy-MM-dd"
               placeholderText="Select a publish date"
             />
           </div>
 
-          {/* Visibility
-          <div>
-            <label htmlFor="visibility" className="text-white block">Visibility</label>
-            <select
-              id="visibility"
-              value={formData.visibility}
-              onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
-              className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white w-full"
-            >
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </select>
-          </div> */}
-
           {/* Category Selection */}
-          <div>
-            <label htmlFor="visibility" className="text-white block">Category</label>
-            <div className='bg-[#1a1a1a] rounded-lg p-2 md:p-4'>
-              <input
-                type="text" onChange={(e) => filterCategory(e.target.value)}
-                className='w-full bg-transparent border-[1px] border-gray-800 rounded-lg p-2 mb-2 outline-none'
-                placeholder='Search...'
-              />
-
-              <div className='styledScrollable  max-h-80 overflow-y-auto rounded-lg'>
-                {
-                  filteredCategoryArr.length <= 0 ? (
-                    <p className='text-white text-sm text-center'>No categories found</p>
-                  ) : (
-                    filteredCategoryArr.map((category: any, index) => (
-                      <div key={index} onClick={() => toggleCategory(category._id)} className='p-2 cursor-pointer hover:bg-[#494949] rounded-lg flex items-center justify-between'>
-                        <p>{category.name}</p>
-                        <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm flex items-center justify-center  ${formData.category.includes(category._id) && "bg-blue-500"}`}>
-                          {
-                            formData.category.includes(category._id) &&
-                            <TiTick />
-                          }
-                        </div>
-                      </div>
-                    ))
-                  )
-                }
+          <div className="space-y-2">
+            {filteredCategoryArr.map((category: any) => (
+              <div key={category._id || category.id} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.category.includes(category._id)}
+                  onChange={() => toggleCategory(category._id)}
+                  id={`category-${category._id}`}
+                  className="text-white"
+                />
+                <label htmlFor={`category-${category._id}`} className="text-white ml-2">
+                  {category.name}
+                </label>
               </div>
-            </div>
+            ))}
           </div>
 
-          <div className="flex justify-center">
-            <button
-              onClick={handleCreatePost}
-              disabled={loading ? true : false}
-              className={`bg-[#007bff] text-white px-6 py-2 rounded-md hover:bg-[#0056b3] w-full sm:w-auto`}
-            >
-              {
-                loading ? (
-                  "Loading..."
-                ) : (
-                  'Create Post'
-                )
-              }
-            </button>
-          </div>
         </div>
       </div>
+
+      {/* Submit Button */}
+      <div className="flex justify-end mt-6">
+        <button
+          className="px-6 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+          onClick={handleCreatePost}
+        >
+          {loading ? 'Saving...' : 'Create Post'}
+        </button>
+      </div>
+
+      {/* Media Modal */}
+      {isMediaModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-[#1A1A1A] p-8 rounded-md w-full sm:w-3/4 h-[90%] overflow-y-scroll">
+            <button
+              onClick={() => setIsMediaModalOpen(false)}
+              className="text-white absolute top-4 right-4 text-xl"
+            >
+              &times; {/* Close button */}
+            </button>
+            <MediaPage onSelectImage={handlePreviewImageChange} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
