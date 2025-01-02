@@ -6,14 +6,15 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 import { isValidPassword } from '@/utils/helperFunction';
+import { useUserContext } from '@/context/userContext';
 
 const page = () => {
+  const { setLoading } = useUserContext();
 
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
 
-  const [loading, setLoading] = useState<boolean>(false);
   const [passError, setPassError] = useState<string>('');
 
   const [formData, setFormData] = useState<SignUpFormData>({
@@ -29,7 +30,6 @@ const page = () => {
   const handleSignUp = async(e: any) => {
 
     e.preventDefault();
-
     if(formData.password !== formData.confirmPassword){
       toast.error("Password must be same", {
         duration: 2000,
@@ -168,7 +168,7 @@ const page = () => {
                 <p className='text-xs text-red-500 -mt-3'>{passError}</p>
             }
 
-            <button type='submit' disabled={loading && true} className='w-full text-center bg-white text-black rounded-lg p-2 text-xl my-2 font-bold'>{loading? "Loading..." : "Sign Up"}</button>
+            <button type='submit' className='w-full text-center bg-white text-black rounded-lg p-2 text-xl my-2 font-bold'>Sign Up</button>
             <p className='text-center my-3'>Already have an account? <span onClick={() => router.push('/login')} className='underline hover:text-blue-500 cursor-pointer'>Log in</span></p>
           </form>
 

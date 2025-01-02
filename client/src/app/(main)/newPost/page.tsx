@@ -8,11 +8,16 @@ import axiosCall from '@/utils/ApiCall';
 import { TiTick } from "react-icons/ti";
 import toast from 'react-hot-toast';
 import { Check } from 'lucide-react'; // Check icon for media selection
-import MediaPage from './mediaPage';
+import MediaPage from './component/mediaModal';
+import MediaModal from './component/mediaModal';
+import { useUserContext } from '@/context/userContext';
+import { s3 } from '@/utils/AWS_Config';
 
 const App: React.FC = () => {
+
+  const {setLoading} = useUserContext();
+
   const editorRef = useRef<any>(null);
-  const [loading, setLoading] = useState(false);
   const [categoryArr, setCategoryArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
   const [formData, setFormData] = useState<NewPostFormData>({
@@ -22,28 +27,32 @@ const App: React.FC = () => {
     category: [],
     tags: [],
     publishDate: null,
-    previewImg: null,
+    previewImg: '',
   });
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
   // Fetch categories
   const fetchCategory = async () => {
     try {
+      setLoading(true);
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
+        setLoading(false);
       } else {
         toast.error(resp.data.message, { duration: 2000 });
+        setLoading(false);
       }
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
 
   // Handle image selection from MediaPage modal
-  const handlePreviewImageChange = (imageUrl: string) => {
-    setFormData({ ...formData, previewImg: imageUrl });
+  const handlePreviewImageChange = (imageKey: string) => {
+    setFormData({ ...formData, previewImg: imageKey });
     setIsMediaModalOpen(false); // Close modal after selection
   };
 
@@ -79,7 +88,7 @@ const App: React.FC = () => {
       const payload = {
         title: formData.postTitle,
         description: formData.postDescription,
-        previewImageKey: 'uploads/images/post-preview.jpg',
+        previewImageKey: formData.previewImg,
         tags: formData.tags,
         categories: formData.category,
         status: formData.postStatus,
@@ -141,8 +150,19 @@ const App: React.FC = () => {
     setFormData({ ...formData, tags: inputTags });
   };
 
+    const getURL = (key: string) => {
+      const params = {
+        Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
+        Key: key
+      }
+      const url = s3.getSignedUrl('getObject', params);
+      console.log(url, "Url")
+      return url;
+    }
+  
+
   return (
-    <div className='border-1 border-dashed border-gray-900 p-4'>
+    <div className='border-1 border-dashed border-gray-900 p-4 relative'>
       <div className="bg-[#0A090F] border-[#414141] p-6 space-y-6 flex flex-col sm:flex-row gap-8 mx-auto">
         {/* Left side (Post title, description, and tags) */}
         <div className="w-full sm:w-[70%] flex flex-col space-y-9">
@@ -167,7 +187,7 @@ const App: React.FC = () => {
             >
               {formData.previewImg ? (
                 <img
-                  src={typeof formData.previewImg === 'string' ? formData.previewImg : URL.createObjectURL(formData.previewImg)}
+                  src={typeof formData.previewImg === 'string' ? getURL(formData.previewImg) : URL.createObjectURL(formData.previewImg)}
                   alt="Preview"
                   className="w-20 h-20 object-cover rounded-md"
                 />
@@ -245,20 +265,22 @@ const App: React.FC = () => {
 
           {/* Category Selection */}
           <div className="space-y-2">
-            {filteredCategoryArr.map((category: any) => (
-              <div key={category._id || category.id} className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.category.includes(category._id)}
-                  onChange={() => toggleCategory(category._id)}
-                  id={`category-${category._id}`}
-                  className="text-white"
-                />
-                <label htmlFor={`category-${category._id}`} className="text-white ml-2">
-                  {category.name}
-                </label>
-              </div>
-            ))}
+            <p>Category</p>
+            <input type="text" onChange={(e) => filterCategory(e.target.value)} className='w-full bg-gray-800 p-2 rounded-lg border-gray-950 outline-none' placeholder='Search...' />
+
+            <div className='h-[300px] flex flex-col overflow-y-auto'>
+              {filteredCategoryArr.map((category: any) => (
+                <div key={category._id} onClick={() => toggleCategory(category._id)} className="flex items-center justify-between cursor-pointer hover:bg-gray-800 rounded-lg p-2">
+                  <p>{category.name}</p>
+                  <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm ${formData.category.includes(category._id) && "bg-blue-500"}`}>
+                    {
+                      formData.category.includes(category._id) &&
+                      <Check className='w-full h-full object-cover' />
+                    }
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
@@ -270,24 +292,19 @@ const App: React.FC = () => {
           className="px-6 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700"
           onClick={handleCreatePost}
         >
-          {loading ? 'Saving...' : 'Create Post'}
+          Create Post
         </button>
       </div>
 
+
       {/* Media Modal */}
       {isMediaModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-[#1A1A1A] p-8 rounded-md w-full sm:w-3/4 h-[90%] overflow-y-scroll">
-            <button
-              onClick={() => setIsMediaModalOpen(false)}
-              className="text-white absolute top-4 right-4 text-xl"
-            >
-              &times; {/* Close button */}
-            </button>
-            <MediaPage onSelectImage={handlePreviewImageChange} />
-          </div>
-        </div>
+        <MediaModal
+          onSelectImage={handlePreviewImageChange}
+          setIsMediaModalOpen={setIsMediaModalOpen}
+        />
       )}
+
     </div>
   );
 };

@@ -1,7 +1,5 @@
 'use client';
 import { ChevronRight, } from "lucide-react";
-
-
 import {
   Sidebar,
   SidebarContent,
@@ -25,10 +23,8 @@ import { Separator } from "@/components/ui/separator"
 import { useEffect, useState } from "react";
 import { items } from "@/constant/sidebar";
 import { MenuItem } from "@/types";
-
-
-
-
+import { useUserContext } from "@/context/userContext";
+import { userRoles } from "@/constant/user";
 
 
 
@@ -38,27 +34,28 @@ export function AppSidebar() {
 
   const [postSubMenu, setPostSubMenu] = useState(false);
 
+  const {user} = useUserContext();
 
-  const getFilteredMenuItems = (userRole: any): MenuItem[] => {
+  const getFilteredMenuItems = (userRole: string): MenuItem[] => {
     return items
       .filter((item) => {
-        if (userRole === "superadmin") {
+        if (userRole === userRoles.SUPERADMIN) {
           // Superadmin sees all menu items
           return true;
         }
 
-        if (userRole === "moderator") {
+        if (userRole === userRoles.MODERATOR) {
           // Moderator hides "User", "Contributor", and "Moderator"
-          return !["User", "Contributor", "Moderator"].includes(item.title);
+          return !["Subscribers", "Contributor", "Moderator"].includes(item.title);
         }
 
-        if (userRole === "contributor") {
+        if (userRole === userRoles.CONTRIBUTOR) {
           // Contributor hides "User", "Contributor", "Moderator", "Category", and "Tags"
-          return !["User", "Contributor", "Moderator", "Category", "Tags"].includes(item.title);
+          return !["Subscribers", "Contributor", "Moderator", "Category", "Tags"].includes(item.title);
         }
 
         // Default: Hide restricted items for other roles
-        return true;
+        return false;
       })
       .map((item) => {
         // Filter subMenu items if applicable
@@ -66,7 +63,7 @@ export function AppSidebar() {
           return {
             ...item,
             subMenu: item.subMenu.filter((subItem) => {
-              if (userRole === "contributor") {
+              if (userRole === userRoles.CONTRIBUTOR) {
                 // Contributor hides "Category" and "Tags" in subMenu
                 return !["Category", "Tags"].includes(subItem.title);
               }
@@ -79,33 +76,8 @@ export function AppSidebar() {
   };
 
 
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const filteredItems = getFilteredMenuItems(user.role);
 
-  useEffect(() => {
-
-    const userString = localStorage.getItem("user");
-    
-    if (userString) {
-        const userRole = JSON.parse(userString).role;
-        setUserRole(userRole);
-        
-    } else {
-        console.log("No user data found in localStorage.");
-    }
-    // Fetch user role from localStorage
-    // const storedRole = localStorage.getItem("userRole");
-    // setUserRole(storedRole);
-  }, []);
-
-
-
-  const filteredItems = getFilteredMenuItems(userRole?.toLowerCase());
-
-
-
-  useEffect(() => {
-    
-  }, [items])
 
 
 

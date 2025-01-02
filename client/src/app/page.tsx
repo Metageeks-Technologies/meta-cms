@@ -1,17 +1,20 @@
 'use client'
+import { useUserContext } from "@/context/userContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
 
+  const {user, getUserProfile} = useUserContext();
   const router = useRouter()
 
   useEffect(() => {
-    if(localStorage.getItem('user')){
+    getUserProfile();
+    if(user.name){
       router.push('/dashboard');
     }
-  }, []);
+  }, [user]);
 
   return (
     <div className="w-full h-full">

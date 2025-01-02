@@ -5,8 +5,11 @@ import React, { useEffect, useState } from 'react'
 import Card from './card';
 import toast from 'react-hot-toast';
 import { postStatuEnum } from '@/constant/post';
+import { useUserContext } from '@/context/userContext';
 
 const ContributorAllPost = () => {
+
+    const {setLoading} = useUserContext();
 
     const statusArr = [
         {
@@ -84,10 +87,10 @@ const ContributorAllPost = () => {
 
 
     async function fetchPublishedPost(query?: string) {
+        setLoading(true);
         setFilterBy(postStatuEnum.PUBLISHED);
         setPostData(null);
         try {
-
             const param = new URLSearchParams();
             if (query) param.append("sortBy", query);
 
@@ -95,23 +98,26 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPostData(resp.data);
+                setLoading(false);
                 // console.log(resp);
             }else{
                 toast.error(resp.data.message,{
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error)
         }
     }
 
     async function fetchDraftPosts(query?: string) {
+        setLoading(true);
         setFilterBy(postStatuEnum.DRAFT);
         setPostData(null);
         try {
-
             const param = new URLSearchParams();
 
             if (query) param.append("sortBy", query);
@@ -119,19 +125,23 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPostData(resp.data);
+                setLoading(false);
                 // console.log(resp);
             }else{
                 toast.error(resp.data.message,{
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error)
         }
     }
 
     async function fetchSchedulePosts(query?: string) {
+        setLoading(true);
         setFilterBy(postStatuEnum.SCHEDULED);
         setPostData(null);
         try {
@@ -143,19 +153,23 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPostData(resp.data);
+                setLoading(false);
                 // console.log(resp);
             }else{
                 toast.error(resp.data.message,{
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error)
         }
     }
 
     async function fetchRejectedPosts(query?: string) {
+        setLoading(true);
         setFilterBy(postStatuEnum.REJECTED);
         setPostData(null);
         try {
@@ -166,23 +180,26 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPostData(resp.data);
+                setLoading(false);
                 // console.log(resp);
             }else{
                 toast.error(resp.data.message,{
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error)
         }
     }
 
     async function fetchAwaitApprovePosts(query?: string) {
+        setLoading(true);
         setFilterBy(postStatuEnum.AWAITING_APPROVAL);
         setPostData(null);
         try {
-
             const param = new URLSearchParams();
             if (query) param.append("sortBy", query);
 
@@ -190,19 +207,23 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPostData(resp.data);
+                setLoading(false);
                 // console.log(resp);
             }else{
                 toast.error(resp.data.message,{
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error)
         }
     }
 
     async function fetchDeletedPosts(query?: string) {
+        setLoading(true);
         setFilterBy('deleted');
         setPostData(null);
         try {
@@ -214,15 +235,18 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPostData(resp.data);
+                setLoading(false);
                 // console.log(resp);
             }else{
                 toast.error(resp.data.message,{
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
             console.log(error)
+            setLoading(false);
         }
     }
 

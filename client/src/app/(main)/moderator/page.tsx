@@ -82,7 +82,7 @@ const columns = [
 
       const user = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const { changeUserRole }: any = useUserContext();
+      const { changeUserRole }  = useUserContext();
 
       return (
         <AlertDialog>
@@ -154,11 +154,13 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { moderator, fetchAllModerator }: any = useUserContext()
+  const { moderators, fetchUsers } = useUserContext()
+
+  console.log(moderators);
 
 
   const table = useReactTable({
-    data: moderator,
+    data: moderators,
     columns,
     onSortingChange: setSorting,
     // onColumnFiltersChange: setColumnFilters,
@@ -178,7 +180,7 @@ function User() {
 
 
   useEffect(() => {
-    fetchAllModerator();
+    fetchUsers(userRoles.MODERATOR);
   }, []);
 
 

@@ -5,6 +5,7 @@ import AdminAllPost from './component/adminAllPost';
 import ContributorAllPost from './component/contributorAllPost';
 import { userRoles } from '@/constant/user';
 import { useUserContext } from '@/context/userContext';
+import Loader from '@/components/common/Loader';
 
 
 

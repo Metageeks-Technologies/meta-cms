@@ -6,13 +6,16 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import DOMPurify from 'dompurify';
 import { useRouter } from 'next/navigation';
+import { useUserContext } from '@/context/userContext';
 
 const RecentPosts = () => {
 
     const router = useRouter();
 
+    const {setLoading} = useUserContext();
+
     const [posts, setPosts] = useState<any>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
     function stripHTML(html: any) {
@@ -24,30 +27,35 @@ const RecentPosts = () => {
     function PreviewHTML(description: any,) {
         const sanitizedHTML = DOMPurify.sanitize(description);
         const plainText = stripHTML(sanitizedHTML);
-        const previewText = plainText.slice(0, 75) + (plainText.length > 75 ? '...' : '');
+        const previewText = plainText.slice(0, 250) + (plainText.length > 250 ? '...' : '');
         return previewText;
     }
 
     const fetchAllRecentPublishedPosts = async () => {
+
         try {
             setLoading(true);
+            setIsLoading(true)
             const param = new URLSearchParams();
             param.append('status', postStatuEnum.PUBLISHED);
             param.append('sortBy', postSortByEnum.RECENT);
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public`);
             // console.log(resp, "response")
 
             if (resp.status === 200 || resp.status === 201) {
                 setPosts(resp?.data?.slice(0,10));
+                setIsLoading(false);
                 setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
+                setIsLoading(false);
                 setLoading(false);
             }
         } catch (error) {
+            setIsLoading(false);
             setLoading(false);
             console.log(error);
         }
@@ -59,10 +67,10 @@ const RecentPosts = () => {
     }, []);
 
     return (
-        <div className="text-white p-6 rounded-lg max-w-4xl mx-auto border-[1px] border-gray-800">
-            <h2 className="text-2xl font-bold mb-6 mt-2 text-center">Recent Published Posts</h2>
-            <div className="space-y-2 max-h-[600px] overflow-y-auto styledScrollable">
-                {!loading? (
+        <div className="w-[97%] text-white p-6 rounded-lg mx-auto border-[1px] border-gray-800 mt-5">
+            <h2 className="text-2xl font-bold mb-6 mt-2 text-center">Global Recent Published Posts</h2>
+            <div className="space-y-2 max-h-[500px] overflow-y-auto styledScrollable">
+                {!isLoading? (
 
                     posts.length > 0 ?
                         posts.map((post: any, index: number) => (
@@ -71,13 +79,13 @@ const RecentPosts = () => {
                                 className="p-4 shadow-md flex gap-4 items-start border-b-[1px] border-gray-800 group cursor-pointer "
                                 onClick={() => router.push(`/post/${post.slug}`)}
                             >
-                                <div className="w-[40%]">
+                                <div className="w-[250px]">
                                     {/* <img src={post.previewImageKey} alt="" className='w-full object-cover rounded-lg'/> */}
                                     <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' />
                                 </div>
 
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-semibold group-hover:underline">{post.title.length > 25 ? `${post.title.slice(0, 25)}...` : post.title}</h3>
+                                    <h3 className="text-lg font-semibold group-hover:underline">{post.title.length > 75 ? `${post.title.slice(0, 75)}...` : post.title}</h3>
 
                                     <p className="text-gray-400 mt-1 text-sm">
                                         {PreviewHTML(post.description)}

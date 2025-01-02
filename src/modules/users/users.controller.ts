@@ -58,7 +58,7 @@ export class UsersController {
     };
   }
 
-  @Get('all-subscribers')
+  @Get('all-subscriber')
   @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.MODERATOR)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllSubscribers() {

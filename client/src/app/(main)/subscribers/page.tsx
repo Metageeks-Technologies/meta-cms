@@ -83,64 +83,64 @@ const columns = [
 
       const user = row.original;
       const [clickedItem, setClickedItem] = useState(0)
-      const {changeUserRole} : any = useUserContext();
+      const { changeUserRole } = useUserContext();
 
       return (
         <AlertDialog>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-gray-800" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-gray-800" />
 
-            <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-              <AlertDialogTrigger>
-                Promote to Contributor
-              </AlertDialogTrigger>
-            </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                <AlertDialogTrigger>
+                  Promote to Contributor
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-              <AlertDialogTrigger>
-                Promote to Moderator
-              </AlertDialogTrigger>
-            </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                <AlertDialogTrigger>
+                  Promote to Moderator
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
 
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-        <AlertDialogContent className='bg-black border-gray-800'>
-          <AlertDialogHeader>
-            <AlertDialogTitle></AlertDialogTitle>
-            <AlertDialogDescription className='h-24' >
-              <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
-            </AlertDialogDescription>
-            <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
-              Are you sure ?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+          <AlertDialogContent className='bg-black border-gray-800'>
+            <AlertDialogHeader>
+              <AlertDialogTitle></AlertDialogTitle>
+              <AlertDialogDescription className='h-24' >
+                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+              </AlertDialogDescription>
+              <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+                Are you sure ?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={
-                clickedItem === 1 ?
-                  () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)
-                  : clickedItem === 2 ?
-                    () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
-                    : () => { }
-              }
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={
+                  clickedItem === 1 ?
+                    () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)
+                    : clickedItem === 2 ?
+                      () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
+                      : () => { }
+                }
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
 
-        </AlertDialogContent>
-      </AlertDialog>
+          </AlertDialogContent>
+        </AlertDialog>
       )
     },
   },
@@ -150,16 +150,17 @@ const columns = [
 
 
 function User() {
+
   const [sorting, setSorting] = useState<SortingState>([])
   // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const {subscriber, fetchAllSubscriber} : any = useUserContext()
-
+  const { subscribers, fetchUsers, isLoading } = useUserContext()
+  // console.log(subscribers);
 
   const table = useReactTable({
-    data: subscriber,
+    data: subscribers,
     columns,
     onSortingChange: setSorting,
     // onColumnFiltersChange: setColumnFilters,
@@ -177,15 +178,15 @@ function User() {
     },
   });
 
-  
+
   useEffect(() => {
-    fetchAllSubscriber();
+    fetchUsers(userRoles.SUBSCRIBER);
   }, []);
 
 
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full container mx-auto ">
       <div className="flex flex-col py-4">
         <h2 className="my-3 text-2xl font-bold">All Subscribers</h2>
         <Input
@@ -222,46 +223,49 @@ function User() {
 
 
           <TableBody className="">
-            {table?.getRowModel()?.rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="border-gray-800 hover:bg-transparent"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+            {
+              !isLoading &&
+                table?.getRowModel()?.rows?.length > 0 ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="border-gray-800 hover:bg-transparent"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    {isLoading ? "Loading..." : "No results."}
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
+              )
+            }
           </TableBody>
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Total {table.getFilteredRowModel().rows.length} rows.
+          Total { !isLoading ? table.getFilteredRowModel().rows.length : 0} rows.
         </div>
         <div className="space-x-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!isLoading && !table.getCanPreviousPage()}
             className="text-black font-bold"
           >
             Previous
@@ -270,7 +274,7 @@ function User() {
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={!isLoading && !table.getCanNextPage()}
             className="text-black font-bold"
           >
             Next

@@ -46,6 +46,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import AddCategory from "./component/AddCategory"
+import { s3 } from "@/utils/AWS_Config"
 
 
 
@@ -61,13 +62,28 @@ const columns = [
     accessorKey: "bannerImageKey",
     header: "Image",
     cell: ({ row }: any) => {
-      const imageUrl = row.getValue("bannerImageKey");
+      const imagekey = row.getValue("bannerImageKey");
+
+      if (!imagekey) {
+        return <span className="text-gray-500">No image</span>;
+      }
+
+      const getURL = (key: string) => {
+        const params = {
+          Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
+          Key: key
+        }
+        const url = s3.getSignedUrl('getObject', params);
+        console.log(url, "Url")
+        return url;
+      }
+
       return (
         <div className="flex items-center justify-start">
-          {imageUrl ? (
+          {imagekey ? (
             <img
-              // src={imageUrl}
-              src="/blogImg.png"
+              src={getURL(imagekey)}
+              // src="/blogImg.png"
               alt="Category Image"
               className="h-20 w-32 object-cover rounded-md"
             />

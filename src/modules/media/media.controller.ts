@@ -12,7 +12,7 @@ import { RolesGuard } from '../auth/role.guard';
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
-  @Get('signed-upload-url')
+  @Post('signed-upload-url')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getSignedUploadUrl(@Body() mediaData: GetSignedUploadUrlDTO) {

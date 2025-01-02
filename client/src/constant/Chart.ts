@@ -15,3 +15,9 @@ export const chartData = {
         },
     ],
 };
+
+export const monthsArr = [
+    'January', 'February', 'March', 'April', 'May',
+    'June', 'July', 'August', 'September', 'October',
+    'November', 'December',
+]

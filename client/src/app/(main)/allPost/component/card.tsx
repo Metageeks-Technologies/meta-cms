@@ -3,6 +3,7 @@ import { handleDate } from '@/utils/helperFunction';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify';
+import { s3 } from '@/utils/AWS_Config';
 
 
 const Card = ({ post, index }: any) => {
@@ -24,6 +25,18 @@ const Card = ({ post, index }: any) => {
         setPlainText(previewText);
     }
 
+      const getURL = (key: string) => {
+        console.log(key)
+        const params = {
+          Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
+          Key: key
+        }
+        const url = s3.getSignedUrl('getObject', params);
+        console.log(url, "Url")
+        return url;
+      }
+    
+
 
 
     useEffect(() => {
@@ -35,8 +48,8 @@ const Card = ({ post, index }: any) => {
     return (
         <div key={index} onClick={() => router.push(`/post/${post.slug}`)} className='w-80 my-2 md:my-5 group rounded-lg cursor-pointer'>
             <div className='w-full h-[250px] '>
-                {/* <img src={post.previewImageKey} alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' /> */}
-                <img src="/blogImg.png" alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' />
+                <img src={getURL(post.previewImageKey)} alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' />
+                {/* <img src="/blogImg.png" alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' /> */}
 
             </div>
 
