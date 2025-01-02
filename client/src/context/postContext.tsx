@@ -17,6 +17,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const [media, setMedia] = useState<any>([]);
 
     const fetchCategories = async () => {
+        setLoading(true);
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
             if (resp?.status === 200 || resp?.status === 201) {
@@ -28,50 +29,51 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             }
         } catch (error) {
             console.log(error);
+        }finally{
+            setLoading(false);
         }
     }
 
     const deleteCategory = async (id: string) => {
+        setLoading(true);
         try {
-            toast.loading('Loading...');
             const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${id}`);
 
             if (resp.status === 200 || resp?.status === 201) {
-                toast.dismiss();
                 toast.success(resp?.data?.message, {
                     duration: 2000,
                 });
                 fetchCategories();
             } else {
-                toast.dismiss();
                 toast.error(resp?.data?.message, {
                     duration: 2000,
                 });
             }
         } catch (error) {
-            toast.dismiss();
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
     const fetchMedia = async (lastId: string) => {
+        setLoading(true);
         try {
-            setLoading(true);
             const param = new URLSearchParams();
             if (lastId) param.append('lastId', lastId);
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/media?${param.toString()}`);
 
-            console.log(resp, "Response");
+            // console.log(resp, "Response");
 
             if (resp.status === 200 || resp.status === 201) {
                 setMedia(resp.data);
             } else {
                 toast.error(resp.data.message, { duration: 2000 });
             }
-            setLoading(false);
         } catch (error) {
-            setLoading(false);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 

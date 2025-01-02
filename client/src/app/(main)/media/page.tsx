@@ -2,7 +2,7 @@
 import { dummyMedia } from '@/constant/post';
 import { usePostContext } from '@/context/postContext';
 import { MediaType } from '@/types';
-import { s3 } from '@/utils/AWS_Config';
+import { getURL } from '@/utils/AWS_Config';
 import { Check } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 
@@ -26,15 +26,15 @@ const page = () => {
         setFilterBy(value);
     }
 
-    const getURL = (key : string) => {
-        const params = {
-            Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET, 
-            Key: key
-        }
-        const url = s3.getSignedUrl('getObject', params);
-        console.log(url, "Url")
-        return url;
-    }
+    // const getURL = (key : string) => {
+    //     const params = {
+    //         Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET, 
+    //         Key: key
+    //     }
+    //     const url = s3.getSignedUrl('getObject', params);
+    //     console.log(url, "Url")
+    //     return url;
+    // }
 
 
     useEffect(() => {

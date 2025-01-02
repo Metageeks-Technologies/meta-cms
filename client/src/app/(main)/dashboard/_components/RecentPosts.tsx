@@ -32,10 +32,9 @@ const RecentPosts = () => {
     }
 
     const fetchAllRecentPublishedPosts = async () => {
-
+        setLoading(true);
+        setIsLoading(true);
         try {
-            setLoading(true);
-            setIsLoading(true)
             const param = new URLSearchParams();
             param.append('status', postStatuEnum.PUBLISHED);
             param.append('sortBy', postSortByEnum.RECENT);
@@ -45,19 +44,14 @@ const RecentPosts = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPosts(resp?.data?.slice(0,10));
-                setIsLoading(false);
-                setLoading(false);
             } else {
-                toast.error(resp.data.message, {
-                    duration: 2000,
-                });
-                setIsLoading(false);
-                setLoading(false);
+                toast.error(resp.data.message, { duration: 2000 });
             }
         } catch (error) {
+            console.log(error);
+        } finally {
             setIsLoading(false);
             setLoading(false);
-            console.log(error);
         }
     }
 

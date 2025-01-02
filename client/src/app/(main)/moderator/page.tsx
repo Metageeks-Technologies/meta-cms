@@ -154,9 +154,7 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { moderators, fetchUsers } = useUserContext()
-
-  console.log(moderators);
+  const { moderators, fetchUsers } = useUserContext();
 
 
   const table = useReactTable({

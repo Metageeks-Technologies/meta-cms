@@ -17,11 +17,11 @@ const page = () => {
 
     const handleLogin = async (e: any) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            setLoading(true);
-
             const payload: LoginPayload = { email, password };
             const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, payload);
+
             if (response.status === 200 || response.status === 201) {
                 toast.success(response.data.message, { duration: 2000 });
                 getUserProfile();
@@ -29,11 +29,11 @@ const page = () => {
             } else {
                 toast.error(response.data.message, { duration: 2000 });
             }
-            setLoading(false);
         } catch (error) {
-            setLoading(false);
             console.log(error);
             toast.error("Something went wrong", { duration: 2000 });
+        } finally {
+            setLoading(false);
         }
     }
     return (

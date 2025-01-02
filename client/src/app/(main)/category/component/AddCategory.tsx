@@ -16,7 +16,7 @@ import axiosCall from '@/utils/ApiCall'
 import { usePostContext } from '@/context/postContext'
 import { useUserContext } from '@/context/userContext'
 import { uploadToS3 } from '@/utils/helperFunction'
-import { s3 } from '@/utils/AWS_Config'
+import { getURL } from '@/utils/AWS_Config'
 
 
 const AddCategory = () => {
@@ -59,8 +59,8 @@ const AddCategory = () => {
             return
         }
 
+        setLoading(true);
         try {
-            setLoading(true);
             const payload = {
                 name: createForm.name,
                 description: createForm.description,
@@ -80,60 +80,42 @@ const AddCategory = () => {
                 });
                 fetchCategories();
                 setIsOpen(false);
-                setLoading(false);
             } else {
                 toast.error(resp?.data?.message, {
                     duration: 2000,
                 });
-                setLoading(false);
             }
 
         } catch (error) {
-            setLoading(false);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
     const uploadNewFile = async (fileList: FileList | null) => {
+        setLoading(true);
         try {
-            setLoading(true);
-            // console.log(fileList?.[0], "file deatils");
             const payload = {
                 folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY,
                 fileName: fileList?.[0].name,
                 contentType: fileList?.[0].type
             }
 
-            // console.log(payload)
-
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-
-            //   console.log(resp, "generate upload url")
 
             if (resp.status === 200 || resp.status === 201) {
                 uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY, null, setImageKey);
-                setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000
                 })
-                setLoading(false);
             }
-
         } catch (error) {
-            setLoading(false);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
-    }
-
-    const getURL = (key: string) => {
-        const params = {
-            Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
-            Key: key
-        }
-        const url = s3.getSignedUrl('getObject', params);
-        // console.log(url, "Url")
-        return url;
     }
 
 

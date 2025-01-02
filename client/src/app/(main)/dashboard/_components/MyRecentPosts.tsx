@@ -32,7 +32,7 @@ const MyRecentPosts = () => {
 
     const fetchUserAllRecentPublishedPosts = async () => {
         setLoading(true);
-        setIsLoading(true)
+        setIsLoading(true);
         try {
             const param = new URLSearchParams();
             param.append('status', postStatuEnum.PUBLISHED);
@@ -42,19 +42,17 @@ const MyRecentPosts = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPosts(resp?.data?.slice(0,10));
-                setIsLoading(false);
-                setLoading(false);
+                
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
-                setIsLoading(false);
-                setLoading(false);
             }
         } catch (error) {
+            console.log(error);
+        } finally {
             setIsLoading(false);
             setLoading(false);
-            console.log(error);
         }
     }
 
