@@ -11,7 +11,7 @@ import { FaSquareXTwitter } from "react-icons/fa6";
 import { useUserContext } from '@/context/userContext';
 
 const ProfilePage: React.FC = () => {
-  const { user,getUserProfile, setLoading }: any = useUserContext();
+  const { user, getUserProfile, setLoading }: any = useUserContext();
 
   const [userProfile, setUserProfile] = useState({
     name: "",
@@ -52,8 +52,8 @@ const ProfilePage: React.FC = () => {
     
 
   const handleSave = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const payload = { ...userProfile };
       const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload);
 
@@ -63,17 +63,16 @@ const ProfilePage: React.FC = () => {
         });
         setIsEditing(false);
         getUserProfile();
-        setLoading(false);
       } else {
         toast.error(resp.data.message, {
           duration: 2000,
         });
-        setLoading(false);
       }
 
     } catch (error) {
-      setLoading(false);
       console.log(error)
+    } finally {
+      setLoading(false);
     }
   }
 

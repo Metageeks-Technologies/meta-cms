@@ -42,6 +42,7 @@ const page = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const paylaod: SignUpPayload = {
         name: formData.firstName + " " + formData.lastName,
@@ -64,6 +65,8 @@ const page = () => {
       toast.error("Something went wrong", {
         duration: 200,
     });
+    } finally {
+      setLoading(false);
     }
   }
 

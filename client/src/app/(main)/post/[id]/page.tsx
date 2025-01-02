@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { userRoles } from '@/constant/user'
 import { useUserContext } from '@/context/userContext'
-import { s3 } from '@/utils/AWS_Config'
+import { getURL } from '@/utils/AWS_Config'
 
 
 const page = () => {
@@ -41,21 +41,18 @@ const page = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPost(resp?.data);
-                setIsLoading(false);
-                setLoading(false);
                 // console.log(resp);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
-                setIsLoading(false);
-                setLoading(false);
             }
 
         } catch (error) {
+            console.log(error);
+        } finally {
             setIsLoading(false);
             setLoading(false);
-            console.log(error);
         }
     }
 
@@ -73,17 +70,15 @@ const page = () => {
                     duration: 2000,
                 })
                 fetchPost();
-                setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
-                setLoading(false);
             }
-
         } catch (error) {
-            setLoading(false);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -97,17 +92,16 @@ const page = () => {
                     duration: 2000,
                 })
                 fetchPost();
-                setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
-                setLoading(false);
             }
 
         } catch (error) {
-            setLoading(false);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -122,17 +116,16 @@ const page = () => {
                     duration: 2000,
                 });
                 router.back();
-                setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
-                setLoading(false);
             }
 
         } catch (error) {
-            setLoading(false);
             console.log(error)
+        } finally { 
+            setLoading(false);
         }
     }
 
@@ -146,40 +139,29 @@ const page = () => {
                     duration: 2000,
                 });
                 fetchPost();
-                setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
-                setLoading(false);
             }
 
         } catch (error) {
-            setLoading(false);
             console.log(error)
+        } finally {
+            setLoading(false);
         }
     }
 
     const handlePublished = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
             
         } catch (error) {
-            setLoading(false);
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
-
-    const getURL = (key: string) => {
-        const params = {
-          Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
-          Key: key
-        }
-        const url = s3.getSignedUrl('getObject', params);
-        console.log(url, "Url")
-        return url;
-      }
-
 
 
     return (

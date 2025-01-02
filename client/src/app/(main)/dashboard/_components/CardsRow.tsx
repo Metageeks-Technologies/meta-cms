@@ -1,18 +1,15 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { FaRegNewspaper } from "react-icons/fa6";
 import { FaUsers } from "react-icons/fa";
 import { FaPenNib } from "react-icons/fa";
 import { MdSecurity } from "react-icons/md";
-import axiosCall from '@/utils/ApiCall';
-import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
 import { userRoles } from '@/constant/user';
 
 const CardsRow = ({ data }: any) => {
 
   const { user } = useUserContext();
-
 
   return (
     <div className="mx-auto p-4 flex flex-wrap">

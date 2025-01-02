@@ -16,6 +16,7 @@ export function isValidPassword(password: string) {
 }
 
 export const uploadToS3 = async (uploadUrl: string, file: File | undefined, key: string, setLoaing: any, folderName: any, fetchMedia?: any, setKey?: any) => {
+    setLoaing(true);
     try {
         const response = await axios.put(uploadUrl, file);
         // console.log(response, "upload to s3");
@@ -41,14 +42,15 @@ export const uploadToS3 = async (uploadUrl: string, file: File | undefined, key:
             }else{
                 toast.error(resp.data.message, { duration: 2000 });
             }
-            setLoaing(false)
         } else {
             toast.error("File not uploaded", { duration: 2000 })
-            setLoaing(false);
         }
 
     } catch (error) {
-        setLoaing(false);
         console.log(error);
+    } finally {
+        setLoaing(false)
     }
 }
+
+

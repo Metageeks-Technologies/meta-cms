@@ -11,7 +11,7 @@ import { Check } from 'lucide-react'; // Check icon for media selection
 import MediaPage from './component/mediaModal';
 import MediaModal from './component/mediaModal';
 import { useUserContext } from '@/context/userContext';
-import { s3 } from '@/utils/AWS_Config';
+import { getURL } from '@/utils/AWS_Config';
 
 const App: React.FC = () => {
 
@@ -33,20 +33,19 @@ const App: React.FC = () => {
 
   // Fetch categories
   const fetchCategory = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
-        setLoading(false);
       } else {
         toast.error(resp.data.message, { duration: 2000 });
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
       console.log(error);
+    } finally { 
+      setLoading(false);
     }
   };
 
@@ -83,8 +82,8 @@ const App: React.FC = () => {
       toast.error('Please select published date', { duration: 2000 });
       return;
     }
+    setLoading(true);
     try {
-      setLoading(true);
       const payload = {
         title: formData.postTitle,
         description: formData.postDescription,
@@ -94,7 +93,9 @@ const App: React.FC = () => {
         status: formData.postStatus,
         publishedDate: formData.publishDate,
       };
+
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
+      
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         setFormData({
@@ -108,14 +109,13 @@ const App: React.FC = () => {
         });
         editorRef.current?.setContent('');
         fetchCategory();
-        setLoading(false);
       } else {
         toast.error(resp.data.message, { duration: 2000 });
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -149,16 +149,6 @@ const App: React.FC = () => {
     const inputTags = event.target.value.split(',').map(tag => tag.trim());
     setFormData({ ...formData, tags: inputTags });
   };
-
-    const getURL = (key: string) => {
-      const params = {
-        Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
-        Key: key
-      }
-      const url = s3.getSignedUrl('getObject', params);
-      console.log(url, "Url")
-      return url;
-    }
   
 
   return (

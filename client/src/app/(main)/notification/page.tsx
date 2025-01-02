@@ -18,13 +18,10 @@ import {
 import { notificationDummyData } from '@/constant/notification';
 
 
-
-
 const Page = () => {
     const [selectedNotification, setSelectedNotification] = useState('all');
 
     const [notificationData, setNotificationData] = useState(notificationDummyData.sort((a: any, b: any) => a.read - b.read));
-
 
     const handleFilter = (value: string) => {
 

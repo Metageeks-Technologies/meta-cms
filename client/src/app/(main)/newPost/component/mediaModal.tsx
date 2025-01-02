@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { uploadToS3 } from '@/utils/helperFunction';
 import { useUserContext } from '@/context/userContext';
 import { usePostContext } from '@/context/postContext';
-import { s3 } from '@/utils/AWS_Config';
+import { getURL } from '@/utils/AWS_Config';
 
 interface MediaPageProps {
   onSelectImage: (imageUrl: string) => void;
@@ -33,28 +33,18 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
 
       if (resp.status === 200 || resp.status === 201) {
         uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS, fetchMedia);
-        setLoading(false);
+        
       } else {
         toast.error(resp.data.message, {
           duration: 2000
-        })
-        setLoading(false);
+        });
       }
 
     } catch (error) {
-      setLoading(false);
       console.log(error);
+    } finally {
+      setLoading(false);
     }
-  }
-
-  const getURL = (key: string) => {
-    const params = {
-      Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
-      Key: key
-    }
-    const url = s3.getSignedUrl('getObject', params);
-    // console.log(url, "Url")
-    return url;
   }
 
   useEffect(() => {

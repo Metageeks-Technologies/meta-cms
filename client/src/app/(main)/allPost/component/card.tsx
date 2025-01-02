@@ -3,7 +3,7 @@ import { handleDate } from '@/utils/helperFunction';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify';
-import { s3 } from '@/utils/AWS_Config';
+import { getURL } from '@/utils/AWS_Config';
 
 
 const Card = ({ post, index }: any) => {
@@ -24,20 +24,6 @@ const Card = ({ post, index }: any) => {
         const previewText = plainText.slice(0, 80) + (plainText.length > 80 ? '...' : '');
         setPlainText(previewText);
     }
-
-      const getURL = (key: string) => {
-        console.log(key)
-        const params = {
-          Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
-          Key: key
-        }
-        const url = s3.getSignedUrl('getObject', params);
-        console.log(url, "Url")
-        return url;
-      }
-    
-
-
 
     useEffect(() => {
         PreviewHTML(post.description);

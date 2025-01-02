@@ -19,20 +19,19 @@ const AdminDashboard = () => {
   const dashboardGlobal = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/global`)
-      console.log(resp, "response admin global")
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/global`);
+
       if (resp.status === 200 || resp.status === 201) {
         setGlobalDashboardData(resp?.data);
-        setLoading(false);
       } else {
         toast.error(resp.data.message, {
           duration: 2000,
         });
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -40,19 +39,18 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/personal`)
-      console.log(resp, "response admin personal")
+      
       if (resp.status === 200 || resp.status === 201) {
         setPersonalDashboardData(resp?.data);
-        setLoading(false);
       } else {
         toast.error(resp.data.message, {
           duration: 2000,
         });
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
 

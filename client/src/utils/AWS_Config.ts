@@ -8,4 +8,13 @@ AWS.config.update({
 });
 
 // Create an S3 instance
-export const s3 = new AWS.S3();
+const s3 = new AWS.S3();
+
+export const getURL = (key: string) => {
+    const params = {
+        Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
+        Key: key
+    }
+    const url = s3.getSignedUrl('getObject', params);
+    return url;
+}

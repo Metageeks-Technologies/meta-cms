@@ -10,20 +10,15 @@ import toast from 'react-hot-toast';
 const AdminAllPost = () => {
 
     const [filterBy, setFilterBy] = useState('');
-
-
     const [sortBy, setSortBy] = useState('');
-
     const [postData, setPostData] = useState<any>(null);
-
     const {setLoading} = useUserContext();
-
 
 
     async function fetchAllPosts() {
         setPostData(null);
+        setLoading(true);
         try {
-            setLoading(true);
             if (filterBy === postStatuEnum.DRAFT) {
                 const param = new URLSearchParams();
                 if (sortBy) param.append('sortBy', sortBy);
@@ -32,13 +27,16 @@ const AdminAllPost = () => {
                 if (resp.status === 200 || resp.status === 201) {
                     setPostData(resp.data);
                     // console.log(resp);
+                }else{
+                    toast.error(resp.data.message, {
+                        duration: 2000,
+                    });
                 }
 
             } else {
                 const param = new URLSearchParams();
                 if (filterBy) {
                     if (filterBy === '') {
-
                     } else if (filterBy === "deleted") {
                         param.append('isDeleted', 'true');
                     } else {
@@ -53,19 +51,17 @@ const AdminAllPost = () => {
 
                 if (resp.status === 200 || resp.status === 201) {
                     setPostData(resp.data);
-                    setLoading(false);
                     // console.log(resp);
                 }else{
                     toast.error(resp.data.message, {
                         duration: 2000,
                     });
-                    setLoading(false);
                 }
             }
-
         } catch (error) {
-            setLoading(false);
             console.log(error)
+        }finally{
+            setLoading(false);
         }
     }
 

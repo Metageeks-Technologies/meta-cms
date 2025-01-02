@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { usePathname, useRouter } from 'next/navigation';
 import axiosCall from '@/utils/ApiCall';
+import toast from 'react-hot-toast';
+import { useUserContext } from '@/context/userContext';
 
 
 
@@ -25,20 +27,25 @@ const Header = () => {
 
     const router = useRouter()
     const pathname = usePathname();
+    const {setLoading} = useUserContext();
 
     const handleLogOut = async () => {
+        setLoading(true);
         try {
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/logout`);
-
-            console.log(resp, "response")
+            // console.log(resp, "response")
     
-            if(resp){
-                localStorage.removeItem('user');
+            if(resp.status === 200 || resp.status === 201){
+                toast.success(resp.data.message, { duration: 2000 });
                 router.push('/');
+            }else{
+                toast.error(resp.data.message, { duration: 2000});
             }
     
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 

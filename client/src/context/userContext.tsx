@@ -46,11 +46,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // API Calls
     const fetchUsers = async (role: string) => {
-
-        console.log(role,"User role");
+        // console.log(role,"User role");
+        setIsLoading(true);
         try {
-            setIsLoading(true);
-            toast.loading('Fetching users...');
             const response = await axiosCall(
                 'GET',
                 `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-${role}`
@@ -68,24 +66,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if(role === userRoles.MODERATOR){
                     setModerators(response?.data?.users);
                 }
-                toast.dismiss();
-                setIsLoading(false);
             } else {
-                toast.dismiss();
-                setIsLoading(false);
                 throw new Error(response?.data?.message || `Failed to fetch ${role}s`);
             }
         } catch (error) {
-            toast.dismiss();
             console.error(`Error fetching ${role}s:`, error);
             toast.error(`Failed to fetch ${role}s!`);
+        }finally{
             setIsLoading(false);
         }
     };
 
     const changeUserRole = async (userId: string, currentRole: string, newRole: string) => {
+        setLoading(true);
         try {
-            toast.loading('Updating role...');
             const response = await axiosCall('PUT', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, {
                 _id: userId,
                 newRole
@@ -102,11 +96,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error changing user role:', error);
             toast.error('Failed to update user role');
         } finally {
-            toast.dismiss();
+            setLoading(false);
         }
     };
 
     const getUserProfile = async () => {
+        setLoading(true);
         try {
             const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
             if (response.status !== 200) {
@@ -121,7 +116,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(INITIAL_USER);
             setIsAuthenticated(false);
             router.push('/');
-        } 
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Initial load
