@@ -6,14 +6,15 @@ import { postSortByEnum, postStatuEnum } from '@/constant/post';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { handleDate } from '@/utils/helperFunction';
+import { useUserContext } from '@/context/userContext';
 
 
-const ContributorRecentPosts = () => {
+const MyRecentPosts = () => {
 
     const router = useRouter();
-
+    const {setLoading} = useUserContext();
     const [posts, setPosts] = useState<any>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     function stripHTML(html: any) {
         const tempDiv = document.createElement('div');
@@ -30,8 +31,9 @@ const ContributorRecentPosts = () => {
 
 
     const fetchUserAllRecentPublishedPosts = async () => {
+        setLoading(true);
+        setIsLoading(true)
         try {
-            setLoading(true);
             const param = new URLSearchParams();
             param.append('status', postStatuEnum.PUBLISHED);
             param.append('sortBy', postSortByEnum.RECENT);
@@ -40,14 +42,17 @@ const ContributorRecentPosts = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPosts(resp?.data?.slice(0,10));
+                setIsLoading(false);
                 setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
+                setIsLoading(false);
                 setLoading(false);
             }
         } catch (error) {
+            setIsLoading(false);
             setLoading(false);
             console.log(error);
         }
@@ -59,10 +64,10 @@ const ContributorRecentPosts = () => {
 
 
     return (
-        <div className="w-[97%] text-white p-6 rounded-lg mx-auto border-[1px] border-gray-800">
-            <h2 className="text-2xl font-bold mb-6 mt-2 text-center">Recent Published Posts</h2>
-            <div className="space-y-2 max-h-[600px] overflow-y-auto styledScrollable">
-                {!loading ? (
+        <div className="w-[97%] text-white p-6 rounded-lg mx-auto border-[1px] border-gray-800 mt-5">
+            <h2 className="text-2xl font-bold mb-6 mt-2 text-center">My Recent Published Posts</h2>
+            <div className="space-y-2 max-h-[500px] overflow-y-auto styledScrollable">
+                {!isLoading ? (
 
                     posts.length > 0 ?
                         posts.map((post: any, index: number) => (
@@ -99,4 +104,4 @@ const ContributorRecentPosts = () => {
     )
 }
 
-export default ContributorRecentPosts
+export default MyRecentPosts

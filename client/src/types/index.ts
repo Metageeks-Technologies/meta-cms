@@ -49,7 +49,7 @@ export interface PostTypes {
 
 
 export interface UserProfile {
-    id: string; 
+    id?: string; 
     name: string;
     email: string;
     phoneNo?: string;

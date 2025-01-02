@@ -34,10 +34,12 @@ export default function RootLayout({
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          <main className="w-full bg-[#06040B] text-gray-200">
-                <Toaster />
-                {children}
-          </main>
+          <UserProvider>
+            <main className="w-full bg-[#06040B] text-gray-200">
+              <Toaster />
+              {children}
+            </main>
+          </UserProvider>
         </body>
       </html>
     </>

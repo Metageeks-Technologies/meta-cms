@@ -1,20 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import CardsRow from './CardsRow';
 import Chart from './Chart';
 import RecentPosts from './RecentPosts';
+import axiosCall from '@/utils/ApiCall';
+import toast from 'react-hot-toast';
+import { useUserContext } from '@/context/userContext';
+import { userRoles } from '@/constant/user';
+import MyRecentPosts from './MyRecentPosts';
 
 const AdminDashboard = () => {
+
+  const { user, setLoading } = useUserContext();
+
+  const [personalDashboardData, setPersonalDashboardData] = useState();
+  const [globalDashboardData, setGlobalDashboardData] = useState();
+
+
+  const dashboardGlobal = async () => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/global`)
+      console.log(resp, "response admin global")
+      if (resp.status === 200 || resp.status === 201) {
+        setGlobalDashboardData(resp?.data);
+        setLoading(false);
+      } else {
+        toast.error(resp.data.message, {
+          duration: 2000,
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  }
+
+  const dashboardPersonal = async () => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/personal`)
+      console.log(resp, "response admin personal")
+      if (resp.status === 200 || resp.status === 201) {
+        setPersonalDashboardData(resp?.data);
+        setLoading(false);
+      } else {
+        toast.error(resp.data.message, {
+          duration: 2000,
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    dashboardPersonal();
+    dashboardGlobal();
+  }, [])
+
+
+
   return (
     <div className="container mx-auto">
-      <CardsRow />
+      {
+        (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ?
+        <CardsRow data={globalDashboardData} />
+        :<CardsRow data={personalDashboardData} />
+      }
+      {
+        (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
+        <RecentPosts />
+      }
+      <MyRecentPosts />
 
-      <div className="w-[97%] mx-auto flex flex-row items-start justify-between">
-        <div className="w-[59%]">
-          <Chart />
-        </div>
-        <div className="w-[40%]">
-          <RecentPosts />
-        </div>
+      <div className={`
+        ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" :"w-[50%]"}
+        mx-auto flex flex-row items-center gap-5 mt-20`}>
+        {
+          (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
+          <Chart heading="Global Monthly Posts" data={globalDashboardData} />
+        }
+        <Chart heading="My Monthly Posts" data={personalDashboardData} />
       </div>
     </div>
   );

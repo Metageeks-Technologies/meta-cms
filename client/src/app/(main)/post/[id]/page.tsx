@@ -23,8 +23,9 @@ import { useUserContext } from '@/context/userContext'
 
 
 const page = () => {
+    const {setLoading} = useUserContext();
     const [post, setPost] = useState<PostTypes | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const {user} = useUserContext();
     const router = useRouter();
@@ -33,20 +34,26 @@ const page = () => {
 
     const fetchPost = async () => {
         setLoading(true);
+        setIsLoading(true);
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
 
             if (resp.status === 200 || resp.status === 201) {
                 setPost(resp?.data);
+                setIsLoading(false);
                 setLoading(false);
                 // console.log(resp);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
+                setIsLoading(false);
+                setLoading(false);
             }
 
         } catch (error) {
+            setIsLoading(false);
+            setLoading(false);
             console.log(error);
         }
     }
@@ -70,15 +77,17 @@ const page = () => {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
-
         } catch (error) {
-
+            setLoading(false);
+            console.log(error);
         }
     }
 
     const handleApprovePost = async () => {
+        setLoading(true);
         try {
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/approve`);
 
@@ -92,15 +101,18 @@ const page = () => {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error);
         }
     }
 
 
     const handleDeletePost = async () => {
+        setLoading(true);
         try {
             const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}}`);
 
@@ -109,20 +121,23 @@ const page = () => {
                     duration: 2000,
                 });
                 router.back();
+                setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error)
         }
     }
 
     const handleRecovePost = async () => {
+        setLoading(true);
         try {
-
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover}`);
 
             if (resp.status === 200 || resp.status === 201) {
@@ -130,14 +145,27 @@ const page = () => {
                     duration: 2000,
                 });
                 fetchPost();
+                setLoading(false);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error)
+        }
+    }
+
+    const handlePublished = async () => {
+        try {
+            setLoading(true);
+            
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
         }
     }
 
@@ -150,7 +178,7 @@ const page = () => {
             </div>
 
             {
-                !loading ?
+                !isLoading ?
                     <div className='w-full md:w-[800px] mx-auto '>
                         {
                             post?.title ?
@@ -208,6 +236,13 @@ const page = () => {
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>
+                                    }
+
+                                    {
+                                        post.status === postStatuEnum.DRAFT &&
+                                        <div className='w-full flex flex-row gap-3 mt-5'>
+                                            <button onClick={handlePublished} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Published</button>
+                                        </div>
                                     }
 
 

@@ -11,7 +11,7 @@ import { FaSquareXTwitter } from "react-icons/fa6";
 import { useUserContext } from '@/context/userContext';
 
 const ProfilePage: React.FC = () => {
-  const { getUser }: any = useUserContext();
+  const { user,getUserProfile, setLoading }: any = useUserContext();
 
   const [userProfile, setUserProfile] = useState({
     name: "",
@@ -29,10 +29,7 @@ const ProfilePage: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const fetchUserFormLocal = () => {
-    const userStr = localStorage.getItem('user');
-    if (typeof userStr === 'string') {
-      const user = JSON.parse(userStr);
+  const fetchUser = () => {
       setUserProfile({
         name: user?.name,
         email: user?.email,
@@ -46,61 +43,43 @@ const ProfilePage: React.FC = () => {
           twitter: user?.socialLinks?.twitter ? user?.socialLinks?.twitter : "",
         }
       })
-    }
   }
 
   const handleCancel = () => {
-    fetchUserFormLocal();
+    fetchUser();
     setIsEditing(false);
   };
+    
 
   const handleSave = async () => {
     try {
-      toast.loading('Loading...')
+      setLoading(true);
       const payload = { ...userProfile };
       const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload);
 
       if (resp.status === 200 || resp.status === 201) {
-        toast.dismiss();
         toast.success(resp.data.message, {
           duration: 2000,
         });
-        try {
-          const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
-          if (response.status === 200 || response.status === 201) {
-            localStorage.setItem("user", JSON.stringify(response.data));
-            getUser();
-            fetchUserFormLocal();
-            setIsEditing(false);
-          } else {
-            toast.error(response.data.message, {
-              duration: 2000,
-            });
-          }
-        } catch (error) {
-          console.log(error);
-        }
-
+        setIsEditing(false);
+        getUserProfile();
+        setLoading(false);
       } else {
-        toast.dismiss();
         toast.error(resp.data.message, {
           duration: 2000,
         });
+        setLoading(false);
       }
 
     } catch (error) {
-      toast.dismiss();
+      setLoading(false);
       console.log(error)
     }
   }
 
-
-  
-
-
   useEffect(() => {
-    fetchUserFormLocal();
-  }, []);
+      fetchUser();
+  }, [user]);
 
 
 

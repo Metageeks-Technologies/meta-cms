@@ -1,5 +1,4 @@
 "use client";
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -18,6 +17,8 @@ interface UserContextType {
     changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
     getUserProfile: () => Promise<void>;
     setUser: (user: UserProfile) => void;
+    loading: boolean;
+    setLoading : (loading: boolean) => void;
 };
 
 const INITIAL_USER: UserProfile = {
@@ -33,36 +34,52 @@ const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const router = useRouter();
 
+    const [loading, setLoading] = useState(false);
+
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState<UserProfile>(INITIAL_USER);
-    const [subscribers, setSubscribers] = useState<UserProfile[]>([]);
-    const [contributors, setContributors] = useState<UserProfile[]>([]);
-    const [moderators, setModerators] = useState<UserProfile[]>([]);
+    const [subscribers, setSubscribers] = useState([]);
+    const [contributors, setContributors] = useState([]);
+    const [moderators, setModerators] = useState([]);
+
 
     // API Calls
     const fetchUsers = async (role: string) => {
+
+        console.log(role,"User role");
         try {
+            setIsLoading(true);
             toast.loading('Fetching users...');
             const response = await axiosCall(
                 'GET',
                 `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-${role}`
             );
 
+            // console.log(response, "userfetch res")
+
             if (response?.status === 200 || response?.status === 201) {
-                const setterMap = {
-                    [userRoles.SUBSCRIBER]: setSubscribers,
-                    [userRoles.CONTRIBUTOR]: setContributors,
-                    [userRoles.MODERATOR]: setModerators
-                };
-                setterMap[role](response.data.users);
+                if(role === userRoles.SUBSCRIBER){
+                    setSubscribers(response?.data?.users);
+                }
+                if(role === userRoles.CONTRIBUTOR){
+                    setContributors(response?.data?.users);
+                }
+                if(role === userRoles.MODERATOR){
+                    setModerators(response?.data?.users);
+                }
                 toast.dismiss();
+                setIsLoading(false);
             } else {
+                toast.dismiss();
+                setIsLoading(false);
                 throw new Error(response?.data?.message || `Failed to fetch ${role}s`);
             }
         } catch (error) {
+            toast.dismiss();
             console.error(`Error fetching ${role}s:`, error);
             toast.error(`Failed to fetch ${role}s!`);
+            setIsLoading(false);
         }
     };
 
@@ -90,7 +107,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const getUserProfile = async () => {
         try {
-            setIsLoading(true);
             const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
             if (response.status !== 200) {
                 throw new Error('Failed to fetch user profile');
@@ -104,15 +120,25 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(INITIAL_USER);
             setIsAuthenticated(false);
             router.push('/login');
-        } finally {
-            setIsLoading(false);
-        }
+        } 
     };
 
     // Initial load
     useEffect(() => {
         getUserProfile();
     }, []);
+
+    useEffect(() => {
+        if(loading){
+            document.body.style.overflow = 'hidden';
+        }else{
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        }
+    },[loading]);
 
     const contextValue: UserContextType = {
         user,
@@ -124,7 +150,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchUsers,
         changeUserRole,
         getUserProfile,
-        setUser
+        setUser,
+        loading,
+        setLoading,
     };
 
     return (

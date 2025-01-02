@@ -1,9 +1,10 @@
-
+'use client'
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/common/Header";
-import { UserProvider } from "@/context/userContext";
+import { UserProvider, useUserContext } from "@/context/userContext";
 import { PostProvider } from "@/context/postContext";
+import Loader from "@/components/common/Loader";
 
 // export const metadata = {
 //   title: "Authentication - My Blogging Website",
@@ -12,10 +13,16 @@ import { PostProvider } from "@/context/postContext";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
 
+  const {loading} = useUserContext();
+
   return (
-    <UserProvider>
+    // <UserProvider>
       <PostProvider>
-        <div>
+        <div className="relative">
+          {
+            loading &&
+            <Loader/>
+          }
           <div className="w-full bg-[#06040B]">
             <SidebarProvider>
               <AppSidebar />
@@ -27,6 +34,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           </div>
         </div>
       </PostProvider >
-    </UserProvider >
+    // </UserProvider >
   );
 }

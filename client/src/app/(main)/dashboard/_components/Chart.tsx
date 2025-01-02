@@ -10,12 +10,29 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { chartData } from '@/constant/Chart';
 
 // Register the required chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const Chart = () => {
+const Chart = ({heading, data}: any) => {
+
+    const chartData = {
+        labels: [
+            'January', 'February', 'March', 'April', 'May',
+            'June', 'July', 'August', 'September', 'October',
+            'November', 'December',
+        ],
+        datasets: [
+            {
+                label: 'Posts',
+                data: data?.monthlyPublishedPostsCount?.map((data: any) => data.count),
+                backgroundColor: 'rgba(0, 255, 128, 0.8)',
+                borderColor: 'rgba(0, 255, 128, 1)',
+                borderWidth: 1,
+                borderRadius: 10
+            },
+        ],
+    };
 
     const options = {
         responsive: true,
@@ -25,7 +42,7 @@ const Chart = () => {
             },
             title: {
                 display: true,
-                text: 'Monthly Posts',
+                text: heading,
                 color: '#fff',
                 font: {
                     size: 20,
@@ -54,8 +71,8 @@ const Chart = () => {
 
 
     return (
-        <div style={{ padding: '20px', borderRadius: '30px', height: "100%" }}>
-            <Bar data={chartData} options={options} />
+        <div style={{ height: "100%", width: "100%" }} className='mx-auto'>
+            <Bar data={chartData} options={options} className='w-full h-full'/>
         </div>
     )
 }

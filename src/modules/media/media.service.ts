@@ -41,12 +41,14 @@ export class MediaService {
     const command = new PutObjectCommand({
       Bucket: `${process.env.AWS_BUCKET}`,
       Key: key,
+      ContentType: contentType,
     });
 
     let uploadUrl: string;
     try {
       uploadUrl = await getSignedUrl(this.s3Instance, command, { expiresIn: this.signedUrlExpirationTime });
     } catch (err) {
+      console.log(err)
       throw new InternalServerErrorException('Error creating upload url');
     }
 

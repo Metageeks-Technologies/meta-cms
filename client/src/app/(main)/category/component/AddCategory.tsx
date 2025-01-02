@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
 import { usePostContext } from '@/context/postContext'
+import { useUserContext } from '@/context/userContext'
 
 
 const AddCategory = () => {
@@ -27,6 +28,7 @@ const AddCategory = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const {fetchCategories} = usePostContext();
+    const {setLoading} = useUserContext();
 
     const handleCreateCategory = async (e: any) => {
         e.preventDefault();
@@ -45,7 +47,7 @@ const AddCategory = () => {
         }
 
         try {
-            toast.loading('Loading...');
+            setLoading(true);
             const payload = {
                 name: createForm.name,
                 description: createForm.description,
@@ -55,7 +57,6 @@ const AddCategory = () => {
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, payload);
 
             if (resp?.status === 200 || resp?.status === 201) {
-                toast.dismiss();
                 toast.success(resp?.data?.message, {
                     duration: 2000,
                 });
@@ -66,14 +67,16 @@ const AddCategory = () => {
                 });
                 fetchCategories();
                 setIsOpen(false);
+                setLoading(false);
             } else {
-                toast.dismiss();
                 toast.error(resp?.data?.message, {
                     duration: 2000,
                 });
+                setLoading(false);
             }
 
         } catch (error) {
+            setLoading(false);
             console.log(error);
         }
     }

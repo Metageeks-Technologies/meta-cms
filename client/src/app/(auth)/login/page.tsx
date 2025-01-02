@@ -1,4 +1,5 @@
 'use client'
+import { useUserContext } from '@/context/userContext';
 import { LoginPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { Eye, EyeOff } from 'lucide-react';
@@ -6,9 +7,11 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 const page = () => {
+
+    const {setLoading} = useUserContext();
+
     const router = useRouter()
     const [showPass, setShowPass] = useState(false);
-    const [loading, setLoading] = useState<boolean>(false);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
@@ -25,9 +28,9 @@ const page = () => {
             } else {
                 toast.error(response.data.message, { duration: 2000 });
             }
-
             setLoading(false);
         } catch (error) {
+            setLoading(false);
             console.log(error);
             toast.error("Something went wrong", { duration: 2000 });
         }
@@ -70,7 +73,7 @@ const page = () => {
                                 </span>
                             </div>
                         </label>
-                        <button type='submit' disabled={loading && true} className='w-full text-center bg-white text-black rounded-lg p-2 text-xl my-2 font-bold'>{loading ? "loading..." : "Login"}</button>
+                        <button type='submit' className='w-full text-center bg-white text-black rounded-lg p-2 text-xl my-2 font-bold'>Login</button>
                         <p className='text-center my-3'>Don’t have an account? <span onClick={() => router.push('/signUp')} className='underline hover:text-blue-500 cursor-pointer'>Sign up</span></p>
                     </form>
                 </div>

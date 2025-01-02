@@ -3,44 +3,68 @@ import axiosCall from '@/utils/ApiCall';
 import { Check } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import Card from './card';
-import { statusArrAdminAllPost } from '@/constant/post';
+import { postStatuEnum, statusArrAdminAllPost } from '@/constant/post';
+import { useUserContext } from '@/context/userContext';
+import toast from 'react-hot-toast';
 
 const AdminAllPost = () => {
-    
+
     const [filterBy, setFilterBy] = useState('');
 
-    // console.log(filterBy, "filterBy");
+
     const [sortBy, setSortBy] = useState('');
-    // console.log(sortBy)
+
     const [postData, setPostData] = useState<any>(null);
+
+    const {setLoading} = useUserContext();
 
 
 
     async function fetchAllPosts() {
         setPostData(null);
         try {
-            const param = new URLSearchParams();
-            if (filterBy) {
-                if (filterBy === '') {
+            setLoading(true);
+            if (filterBy === postStatuEnum.DRAFT) {
+                const param = new URLSearchParams();
+                if (sortBy) param.append('sortBy', sortBy);
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/drafts?${param.toString()}`);
 
-                } else if (filterBy === "deleted") {
-                    param.append('isDeleted', 'true');
-                } else {
-                    param.append('status', filterBy.toLowerCase());
+                if (resp.status === 200 || resp.status === 201) {
+                    setPostData(resp.data);
+                    // console.log(resp);
+                }
+
+            } else {
+                const param = new URLSearchParams();
+                if (filterBy) {
+                    if (filterBy === '') {
+
+                    } else if (filterBy === "deleted") {
+                        param.append('isDeleted', 'true');
+                    } else {
+                        param.append('status', filterBy.toLowerCase());
+                    }
+                }
+
+                if (sortBy) param.append('sortBy', sortBy);
+
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
+                // console.log(resp)
+
+                if (resp.status === 200 || resp.status === 201) {
+                    setPostData(resp.data);
+                    setLoading(false);
+                    // console.log(resp);
+                }else{
+                    toast.error(resp.data.message, {
+                        duration: 2000,
+                    });
+                    setLoading(false);
                 }
             }
 
-            if (sortBy) param.append('sortBy', sortBy);
-
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
-            // console.log(resp)
-
-            if (resp.status === 200 || resp.status === 201) {
-                setPostData(resp.data);
-                // console.log(resp);
-            }
-
         } catch (error) {
+            setLoading(false);
             console.log(error)
         }
     }
@@ -91,7 +115,7 @@ const AdminAllPost = () => {
                                 {
                                     postData.length > 0 ?
                                         postData.map((post: any, index: number) => (
-                                            <Card key={index} index={index} post={post}/>
+                                            <Card key={index} index={index} post={post} />
                                         ))
                                         : <p className='mt-10 text-3xl '>No posts found.</p>
                                 }
