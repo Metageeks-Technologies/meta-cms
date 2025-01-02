@@ -8,7 +8,7 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 const page = () => {
 
-    const {setLoading} = useUserContext();
+    const {setLoading, getUserProfile} = useUserContext();
 
     const router = useRouter()
     const [showPass, setShowPass] = useState(false);
@@ -24,6 +24,7 @@ const page = () => {
             const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, payload);
             if (response.status === 200 || response.status === 201) {
                 toast.success(response.data.message, { duration: 2000 });
+                getUserProfile();
                 router.push('/dashboard');
             } else {
                 toast.error(response.data.message, { duration: 2000 });

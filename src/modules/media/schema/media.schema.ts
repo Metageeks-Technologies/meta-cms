@@ -8,9 +8,9 @@ export interface IMedia extends mongoose.Document {
 }
 
 export const MediaSchema = new mongoose.Schema({
-  folderName: { type: String, required: true, unique: true },
+  folderName: { type: String, required: true},
   fileName: { type: String, required: true },
   key: { type: String, required: true },
 }, { timestamps: true });
 
-MediaSchema.index( { key: 1 }, { unique: true } );
+MediaSchema.index({ key: 1 }, { unique: true });

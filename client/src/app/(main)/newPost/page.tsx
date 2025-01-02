@@ -11,6 +11,7 @@ import { Check } from 'lucide-react'; // Check icon for media selection
 import MediaPage from './component/mediaModal';
 import MediaModal from './component/mediaModal';
 import { useUserContext } from '@/context/userContext';
+import { s3 } from '@/utils/AWS_Config';
 
 const App: React.FC = () => {
 
@@ -26,7 +27,7 @@ const App: React.FC = () => {
     category: [],
     tags: [],
     publishDate: null,
-    previewImg: null,
+    previewImg: '',
   });
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
@@ -50,8 +51,8 @@ const App: React.FC = () => {
   };
 
   // Handle image selection from MediaPage modal
-  const handlePreviewImageChange = (imageUrl: string) => {
-    setFormData({ ...formData, previewImg: imageUrl });
+  const handlePreviewImageChange = (imageKey: string) => {
+    setFormData({ ...formData, previewImg: imageKey });
     setIsMediaModalOpen(false); // Close modal after selection
   };
 
@@ -87,7 +88,7 @@ const App: React.FC = () => {
       const payload = {
         title: formData.postTitle,
         description: formData.postDescription,
-        previewImageKey: 'uploads/images/post-preview.jpg',
+        previewImageKey: formData.previewImg,
         tags: formData.tags,
         categories: formData.category,
         status: formData.postStatus,
@@ -149,6 +150,17 @@ const App: React.FC = () => {
     setFormData({ ...formData, tags: inputTags });
   };
 
+    const getURL = (key: string) => {
+      const params = {
+        Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
+        Key: key
+      }
+      const url = s3.getSignedUrl('getObject', params);
+      console.log(url, "Url")
+      return url;
+    }
+  
+
   return (
     <div className='border-1 border-dashed border-gray-900 p-4 relative'>
       <div className="bg-[#0A090F] border-[#414141] p-6 space-y-6 flex flex-col sm:flex-row gap-8 mx-auto">
@@ -175,7 +187,7 @@ const App: React.FC = () => {
             >
               {formData.previewImg ? (
                 <img
-                  src={typeof formData.previewImg === 'string' ? formData.previewImg : URL.createObjectURL(formData.previewImg)}
+                  src={typeof formData.previewImg === 'string' ? getURL(formData.previewImg) : URL.createObjectURL(formData.previewImg)}
                   alt="Preview"
                   className="w-20 h-20 object-cover rounded-md"
                 />

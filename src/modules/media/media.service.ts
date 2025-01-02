@@ -60,6 +60,7 @@ export class MediaService {
     try {
       await newMedia.save();
     } catch (error) {
+      console.log(error)
       if (error.code === 11000) {
         // Duplicate key error
         throw new ConflictException('Media key already exists');

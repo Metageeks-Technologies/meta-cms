@@ -78,3 +78,25 @@ export interface MenuItem {
     icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | any; // Icon component
     subMenu?: MenuItem[]; // Optional sub-menu items
   }
+
+
+export interface MediaType {
+    _id: string;
+    fileName: string;
+    folderName: string;
+    key: string;
+    createdAt?: string;
+    updatedAt?: string;
+    __v?: string;
+}
+
+
+export interface PostContextType {
+    categories: any[];
+    fetchCategories: () => Promise<void>;
+    deleteCategory: (id: string) => Promise<void>;
+    fetchMedia: (lastId: string) => Promise<void>;
+    media: MediaType[];
+}
+
+

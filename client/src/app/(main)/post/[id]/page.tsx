@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { userRoles } from '@/constant/user'
 import { useUserContext } from '@/context/userContext'
+import { s3 } from '@/utils/AWS_Config'
 
 
 const page = () => {
@@ -169,6 +170,16 @@ const page = () => {
         }
     }
 
+    const getURL = (key: string) => {
+        const params = {
+          Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
+          Key: key
+        }
+        const url = s3.getSignedUrl('getObject', params);
+        console.log(url, "Url")
+        return url;
+      }
+
 
 
     return (
@@ -184,8 +195,8 @@ const page = () => {
                             post?.title ?
                                 <div className='flex flex-col gap-5'>
                                     <h1 className='text-2xl sm:text-3xl md:text-5xl mb-2 sm:mb-4 font-bold'>{post?.title}</h1>
-                                    {/* <img src={post?.previewImageKey ? post.previewImageKey : "/blogImg.png"} className='w-full object-contain' /> */}
-                                    <img src={"/blogImg.png"} className='w-full object-contain' />
+                                    <img src={getURL(post?.previewImageKey)} className='w-full object-contain' />
+                                    {/* <img src={"/blogImg.png"} className='w-full object-contain' /> */}
                                     <div dangerouslySetInnerHTML={{ __html: post?.description }}></div>
                                     <div className='w-full flex flex-row justify-end gap-2'>
                                         <p>Author : {post?.author.name}</p> |

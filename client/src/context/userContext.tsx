@@ -97,6 +97,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
                 throw new Error(response.data.message);
             }
+            
         } catch (error) {
             console.error('Error changing user role:', error);
             toast.error('Failed to update user role');
@@ -119,7 +120,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error fetching user profile:', error);
             setUser(INITIAL_USER);
             setIsAuthenticated(false);
-            router.push('/login');
+            router.push('/');
         } 
     };
 

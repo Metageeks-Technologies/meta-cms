@@ -15,6 +15,8 @@ import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
 import { usePostContext } from '@/context/postContext'
 import { useUserContext } from '@/context/userContext'
+import { uploadToS3 } from '@/utils/helperFunction'
+import { s3 } from '@/utils/AWS_Config'
 
 
 const AddCategory = () => {
@@ -22,13 +24,17 @@ const AddCategory = () => {
     const [createForm, setCreateForm] = useState<any>({
         name: '',
         description: '',
-        bannerImageKey: null,
+        bannerImageKey: '',
     });
+
+    const setImageKey = (key: string) => {
+        setCreateForm({ ...createForm, bannerImageKey: key });
+    }
 
     const [isOpen, setIsOpen] = useState(false);
 
-    const {fetchCategories} = usePostContext();
-    const {setLoading} = useUserContext();
+    const { fetchCategories } = usePostContext();
+    const { setLoading } = useUserContext();
 
     const handleCreateCategory = async (e: any) => {
         e.preventDefault();
@@ -36,11 +42,18 @@ const AddCategory = () => {
             toast.error('Name is required', {
                 duration: 2000,
             });
-            return
+            return;
         }
 
         if (!createForm.description) {
             toast.error('Description is required', {
+                duration: 2000,
+            });
+            return
+        }
+
+        if (!createForm.bannerImageKey) {
+            toast.error('Image is required', {
                 duration: 2000,
             });
             return
@@ -51,7 +64,7 @@ const AddCategory = () => {
             const payload = {
                 name: createForm.name,
                 description: createForm.description,
-                bannerImageKey: "/banner/key"
+                bannerImageKey: createForm.bannerImageKey
             }
 
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, payload);
@@ -79,6 +92,48 @@ const AddCategory = () => {
             setLoading(false);
             console.log(error);
         }
+    }
+
+    const uploadNewFile = async (fileList: FileList | null) => {
+        try {
+            setLoading(true);
+            // console.log(fileList?.[0], "file deatils");
+            const payload = {
+                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY,
+                fileName: fileList?.[0].name,
+                contentType: fileList?.[0].type
+            }
+
+            // console.log(payload)
+
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+
+            //   console.log(resp, "generate upload url")
+
+            if (resp.status === 200 || resp.status === 201) {
+                uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY, null, setImageKey);
+                setLoading(false);
+            } else {
+                toast.error(resp.data.message, {
+                    duration: 2000
+                })
+                setLoading(false);
+            }
+
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
+        }
+    }
+
+    const getURL = (key: string) => {
+        const params = {
+            Bucket: process.env.NEXT_PUBLIC_AWS_BUCKET,
+            Key: key
+        }
+        const url = s3.getSignedUrl('getObject', params);
+        // console.log(url, "Url")
+        return url;
     }
 
 
@@ -121,20 +176,25 @@ const AddCategory = () => {
                             />
                         </div>
 
-                        <div className="mb-4">
-                            <Label htmlFor="img" className="text-right">
-                                Image
+                        <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
+                            <Label htmlFor="img" className="text-right w-full ">
+                                Select Image
                             </Label>
-                            <Input
-                                type='file'
+                            <input
+                                type="file"
                                 id="img"
                                 // value={createForm.bannerImageKey}
-                                placeholder='Enter description'
-                                className="text-white"
-                            // onChange={(e) => setCreateForm({ ...createForm, bannerImageKey: e.target.files[0] })}
-                            // required
+                                onChange={(e: any) => uploadNewFile(e.target.files)}
+                                className='hidden'
                             />
                         </div>
+
+                        {
+                            createForm.bannerImageKey &&
+                            <div className='w-[100px] h-[70px]'>
+                                <img src={getURL(createForm.bannerImageKey)} alt="" className='w-full h-full object-cover' />
+                            </div>
+                        }
                         <DialogFooter>
                             <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Create</Button>
                         </DialogFooter>
