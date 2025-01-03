@@ -16,7 +16,7 @@ export class CreatePostDto {
     description: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: "Image key should not be empty"})
     previewImageKey?: string;
 
     @IsArray()

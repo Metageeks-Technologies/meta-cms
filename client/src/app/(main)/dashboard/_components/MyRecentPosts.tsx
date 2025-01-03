@@ -75,8 +75,8 @@ const MyRecentPosts = () => {
                                 className="p-4 shadow-md flex gap-4 items-start border-b-[1px] border-gray-800 group cursor-pointer "
                                 onClick={() => router.push(`/post/${post.slug}`)}
                             >
-                                <div className="w-[200px]">
-                                    <img src={getURL(post.previewImageKey)} alt="" className='w-full object-cover rounded-lg'/>
+                                <div className="w-[200px] h-[130px]">
+                                    <img src={getURL(post.previewImageKey)} alt="" className='w-full h-full object-cover rounded-lg'/>
                                     {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
                                 </div>
 

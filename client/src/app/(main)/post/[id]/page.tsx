@@ -112,12 +112,12 @@ const page = () => {
             const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`);
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.error(resp?.message, {
+                toast.success(resp?.data?.message, {
                     duration: 2000,
                 });
                 router.back();
             } else {
-                toast.error(resp.data.message, {
+                toast.error(resp?.data?.message, {
                     duration: 2000,
                 });
             }
@@ -151,10 +151,20 @@ const page = () => {
         }
     }
 
-    const handlePublished = async () => {
+    const handlePublished = async (id: string) => {
         setLoading(true);
         try {
-            
+            const payload = {
+                status : postStatuEnum.PUBLISHED
+            }
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${id}`, payload);
+
+            if(resp.status === 200 || resp.status === 201){
+                toast.success(resp?.data?.message, { duration: 2000 });
+                fetchPost();
+            }else{
+                toast.error(resp?.data?.message, { duration: 2000 });
+            }
         } catch (error) {
             console.log(error);
         } finally {
@@ -233,7 +243,7 @@ const page = () => {
                                     {
                                         post.status === postStatuEnum.DRAFT &&
                                         <div className='w-full flex flex-row gap-3 mt-5'>
-                                            <button onClick={handlePublished} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Published</button>
+                                            <button onClick={() => handlePublished(post?._id)} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Published</button>
                                         </div>
                                     }
 
