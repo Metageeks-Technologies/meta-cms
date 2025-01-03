@@ -7,6 +7,7 @@ import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { handleDate } from '@/utils/helperFunction';
 import { useUserContext } from '@/context/userContext';
+import { getURL } from '@/utils/AWS_Config';
 
 
 const MyRecentPosts = () => {
@@ -74,9 +75,9 @@ const MyRecentPosts = () => {
                                 className="p-4 shadow-md flex gap-4 items-start border-b-[1px] border-gray-800 group cursor-pointer "
                                 onClick={() => router.push(`/post/${post.slug}`)}
                             >
-                                <div className="w-[250px]">
-                                    {/* <img src={post.previewImageKey} alt="" className='w-full object-cover rounded-lg'/> */}
-                                    <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' />
+                                <div className="w-[200px]">
+                                    <img src={getURL(post.previewImageKey)} alt="" className='w-full object-cover rounded-lg'/>
+                                    {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
                                 </div>
 
                                 <div className="flex-1">

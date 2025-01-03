@@ -112,7 +112,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userData);
             setIsAuthenticated(true);
         } catch (error) {
-            console.error('Error fetching user profile:', error);
+            console.log('Error fetching user profile:', error);
             setUser(INITIAL_USER);
             setIsAuthenticated(false);
             router.push('/');

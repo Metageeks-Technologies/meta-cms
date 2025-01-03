@@ -109,7 +109,7 @@ const page = () => {
     const handleDeletePost = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}}`);
+            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`);
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.error(resp?.message, {
@@ -132,10 +132,10 @@ const page = () => {
     const handleRecovePost = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover}`);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover`);
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.error(resp?.message, {
+                toast.success(resp?.data.message, {
                     duration: 2000,
                 });
                 fetchPost();
@@ -144,7 +144,6 @@ const page = () => {
                     duration: 2000,
                 });
             }
-
         } catch (error) {
             console.log(error)
         } finally {

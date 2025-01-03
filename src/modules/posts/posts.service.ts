@@ -437,7 +437,7 @@ export class PostsService {
 
   async recoverPost(_id: string) {
     // This can only be done by superadmin
-    const query = await this.Post.updateOne({ _id: _id }, { isDeleted: true }).exec();
+    const query = await this.Post.updateOne({ _id: _id }, { isDeleted: false }).exec();
     if (query.matchedCount == 0) {
       throw new NotFoundException('Post ID not found');
     }

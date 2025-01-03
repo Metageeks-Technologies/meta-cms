@@ -12,7 +12,13 @@ export function isValidPassword(password: string) {
     const hasLowercase = /[a-z]/.test(password);
     const hasDigit = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
+    const hasMinLength = password.length >= 8;
+    return hasUppercase && hasLowercase && hasDigit && hasSpecialChar && hasMinLength;
+}
+
+export function isValidString(string: string): boolean {
+    const hasValidChars = /^[a-zA-Z\s]+$/.test(string); 
+    return hasValidChars;
 }
 
 export const uploadToS3 = async (uploadUrl: string, file: File | undefined, key: string, setLoaing: any, folderName: any, fetchMedia?: any, setKey?: any) => {
