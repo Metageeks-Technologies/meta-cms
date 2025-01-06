@@ -98,29 +98,35 @@ const columns = [
 
       return (
         <AlertDialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-800" />
+ {
+  user?.role === userRoles.SUPERADMIN ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-gray-800" />
 
-              {
-                user?.role === userRoles.SUPERADMIN &&
-                <AlertDialogTrigger>
-                  <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                    <RiDeleteBin6Line className="text-red-500" />
-                    Delete category
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-              }
+        <AlertDialogTrigger>
+          <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+            <RiDeleteBin6Line className="text-red-500" />
+            Delete category
+          </DropdownMenuItem>
+        </AlertDialogTrigger>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    // for the non superadmin role
+    <div className="text-gray-500"> 
+    <MoreHorizontal />
+  </div>
+  )
+}
 
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           <AlertDialogContent className='bg-black border-gray-800'>
             <AlertDialogHeader>
@@ -187,7 +193,7 @@ function Category() {
 
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full container mx-auto px-4">
       <div className="flex flex-col py-4">
         <h2 className="my-3 text-2xl font-bold">All Categories</h2>
         <div className="flex flex-row items-center justify-between">
