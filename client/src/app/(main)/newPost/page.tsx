@@ -12,6 +12,8 @@ import MediaPage from './component/mediaModal';
 import MediaModal from './component/mediaModal';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
+import { postStatuEnum } from '@/constant/post';
+import moment from "moment";
 
 const App: React.FC = () => {
 
@@ -61,6 +63,17 @@ const App: React.FC = () => {
     fetchCategory();
   }, []);
 
+
+  interface PayloadType {
+    title: string,
+    description: string,
+    previewImageKey: string | File | null,
+    tags: string[],
+    categories: string[],
+    status: string,
+    publishedDate?: string,
+  }
+
   // Handle post creation
   const handleCreatePost = async () => {
     if (!formData.postTitle.trim()) {
@@ -79,21 +92,20 @@ const App: React.FC = () => {
       toast.error('Add at least one tag', { duration: 2000 });
       return;
     }
-    if (!formData.publishDate) {
-      toast.error('Please select published date', { duration: 2000 });
-      return;
-    }
     setLoading(true);
     try {
-      const payload = {
+      const payload: PayloadType = {
         title: formData.postTitle,
         description: formData.postDescription,
         previewImageKey: formData.previewImg,
         tags: formData.tags,
         categories: formData.category,
         status: formData.postStatus,
-        publishedDate: formData.publishDate,
       };
+      
+      if(formData.publishDate){
+        payload.publishedDate = moment(formData.publishDate).format("dddd, MMMM Do YYYY");
+      }
 
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
 
@@ -258,23 +270,27 @@ const App: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, postStatus: e.target.value })}
               className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
             >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
+              <option value={postStatuEnum.DRAFT}>Draft</option>
+              <option value={postStatuEnum.PUBLISHED}>Published</option>
+              <option value={postStatuEnum.SCHEDULED}>Scheduled</option>
             </select>
           </div>
 
           {/* Publish Date */}
-          <div>
-            <label htmlFor="publishDate" className="text-white block">Publish Date</label>
-            <DatePicker
-              selected={formData.publishDate}
-              onChange={(date: Date | null) => setFormData({ ...formData, publishDate: date })}
-              minDate={new Date()}
-              className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
-              dateFormat="yyyy-MM-dd"
-              placeholderText="Select a publish date"
-            />
-          </div>
+          {
+            formData.postStatus === postStatuEnum.SCHEDULED &&
+            <div>
+              <label htmlFor="publishDate" className="text-white block">Publish Date</label>
+              <DatePicker
+                selected={formData.publishDate}
+                onChange={(date: Date | null) => setFormData({ ...formData, publishDate: date })}
+                minDate={new Date()}
+                className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select a publish date"
+              />
+            </div>
+          }
 
           {/* Category Selection */}
           <div className="space-y-2">

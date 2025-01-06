@@ -24,7 +24,6 @@ const page = () => {
     confirmPassword: ""
   });
 
-  console.log(formData);
 
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -20,7 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -47,6 +46,21 @@ import {
 } from "@/components/ui/alert-dialog"
 import AddCategory from "./component/AddCategory"
 import { getURL } from "@/utils/AWS_Config"
+import toast from "react-hot-toast"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import axiosCall from "@/utils/ApiCall"
+import { uploadToS3 } from "@/utils/helperFunction"
+import { MdOutlineUpdate } from "react-icons/md";
+
 
 
 
@@ -92,60 +106,207 @@ const columns = [
     enableHiding: false,
     cell: ({ row }: any) => {
 
-      const category = row.original;
-      const { deleteCategory } = usePostContext();
-      const { user }: any = useUserContext();
+      const [isOpen, setIsOpen] = useState(false);
+      const [category, setCategory] = useState(row.original);
+      const { deleteCategory, fetchCategories } = usePostContext();
+      const { user, setLoading }: any = useUserContext();
+
+
+      const handleNonSuperAdminClick = () => {
+        toast.error("Only superadmin has permission for this");
+      };
+
+      const setImageKey = (key: string) => {
+        setCategory({ ...category, bannerImageKey: key });
+      }
+
+      const uploadNewFile = async (fileList: FileList | null) => {
+        setLoading(true);
+        console.log(fileList, "file list");
+        try {
+          const payload = {
+            folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY,
+            fileName: fileList?.[0].name,
+            contentType: fileList?.[0].type
+          }
+
+          console.log(payload, "payload");
+
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+
+          if (resp.status === 200 || resp.status === 201) {
+            uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY, null, setImageKey);
+          } else {
+            toast.error(resp.data.message, {
+              duration: 2000
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      const updateCategory = async (e: any) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+          const payload = {
+            name: category.name,
+            description: category.description,
+            bannerImageKey: category.bannerImageKey
+          }
+          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${category._id}`, payload);
+
+          if(resp.status === 200 || resp.status === 201){
+            toast.success(resp.data.message, {
+              duration: 2000,
+            });
+            fetchCategories();
+            setIsOpen(false);
+          }else{
+            toast.error(resp.data.message, {
+              duration: 2000,
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        }finally{
+          setLoading(false);
+        }
+      }
+
+      const handleCancel = () => {
+        setCategory(row.original);
+        setIsOpen(false);
+      }
 
       return (
-        <AlertDialog>
- {
-  user?.role === userRoles.SUPERADMIN ? (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-gray-800" />
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <AlertDialog>
+            {
+              user?.role === userRoles.SUPERADMIN ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-gray-800" />
 
-        <AlertDialogTrigger>
-          <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-            <RiDeleteBin6Line className="text-red-500" />
-            Delete category
-          </DropdownMenuItem>
-        </AlertDialogTrigger>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  ) : (
-    // for the non superadmin role
-    <div className="text-gray-500"> 
-    <MoreHorizontal />
-  </div>
-  )
-}
+                    <AlertDialogTrigger>
+                      <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                        <RiDeleteBin6Line className="text-red-500" />
+                        Delete category
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
 
 
-          <AlertDialogContent className='bg-black border-gray-800'>
-            <AlertDialogHeader>
-              <AlertDialogTitle></AlertDialogTitle>
-              <AlertDialogDescription className='h-24' >
-                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
-              </AlertDialogDescription>
-              <AlertDialogDescription className='w-full text-center mb-5 text-lg text-white'>
-                Delete Category
-              </AlertDialogDescription>
-            </AlertDialogHeader>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => deleteCategory(category._id)} className='bg-red-500 hover:bg-red-600'>Delete</AlertDialogAction>
-            </AlertDialogFooter>
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                        <MdOutlineUpdate />
+                        Update category
+                      </DropdownMenuItem>
+                    </DialogTrigger>
 
-          </AlertDialogContent>
-        </AlertDialog>
+
+
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                // for the non superadmin role
+                <div className="text-gray-500">
+                  <MoreHorizontal onClick={handleNonSuperAdminClick} />
+                </div>
+              )
+            }
+
+
+            <AlertDialogContent className='bg-black border-gray-800'>
+              <AlertDialogHeader>
+                <AlertDialogTitle></AlertDialogTitle>
+                <AlertDialogDescription className='h-24' >
+                  <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+                </AlertDialogDescription>
+                <AlertDialogDescription className='w-full text-center mb-5 text-lg text-white'>
+                  Delete Category
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => deleteCategory(category._id)} className='bg-red-500 hover:bg-red-600'>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+
+            </AlertDialogContent>
+          </AlertDialog>
+
+
+
+
+          <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">
+            <DialogHeader>
+              <DialogTitle className='text-2xl'>Create Category</DialogTitle>
+            </DialogHeader>
+            <form className="py-4" onSubmit={updateCategory}>
+              <div className="mb-4">
+                <Label htmlFor="name" className="text-right">
+                  Category name
+                </Label>
+                <Input
+                  id="name"
+                  value={category.name}
+                  placeholder='Enter Name'
+                  className=""
+                  onChange={(e) => setCategory({ ...category, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  value={category.description}
+                  placeholder='Enter description'
+                  className=""
+                  onChange={(e) => setCategory({ ...category, description: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
+                <Label htmlFor="img" className="text-right w-full ">
+                  Select Image
+                </Label>
+                <input
+                  type="file"
+                  id="img"
+                  // value={createForm.bannerImageKey}
+                  onChange={(e: any) => uploadNewFile(e.target.files)}
+                  className='hidden'
+                />
+              </div>
+
+              {
+                category.bannerImageKey &&
+                <div className='w-[100px] h-[70px]'>
+                  <img src={getURL(category.bannerImageKey)} alt="" className='w-full h-full object-cover' />
+                </div>
+              }
+              <DialogFooter>
+                <Button type="button" onClick={handleCancel}>Cancel</Button>
+                <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Update</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       )
     },
   },

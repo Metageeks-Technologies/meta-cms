@@ -1,4 +1,4 @@
-import { NewPostFormData } from '@/types';
+import { NewPostFormData } from '../types';
 
 
 export const dummyMedia = [

@@ -6,18 +6,28 @@ import Card from './card';
 import { postStatuEnum, statusArrAdminAllPost } from '@/constant/post';
 import { useUserContext } from '@/context/userContext';
 import toast from 'react-hot-toast';
+import debounce from 'lodash/debounce';
+
 
 const AdminAllPost = () => {
 
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [postData, setPostData] = useState<any>(null);
-    const {setLoading} = useUserContext();
+    const { setLoading } = useUserContext();
+    const [lastId, setLastId] = useState('');
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
 
 
-    async function fetchAllPosts() {
-        setPostData(null);
-        setLoading(true);
+
+
+    async function fetchAllPosts(lastId?: string) {
+        if (isFetching) return;
+        setIsFetching(true);
+        page === 1 && setLoading(true);
+
         try {
             if (filterBy === postStatuEnum.DRAFT) {
                 const param = new URLSearchParams();
@@ -25,18 +35,21 @@ const AdminAllPost = () => {
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/drafts?${param.toString()}`);
 
                 if (resp.status === 200 || resp.status === 201) {
-                    setPostData(resp.data);
-                    // console.log(resp);
-                }else{
+                    const newPost = resp?.data;
+                    if(newPost.length < 10) setHasMore(false);
+                    setPostData((prevData: any) => [...(prevData || []), ...newPost]);
+                } else {
                     toast.error(resp.data.message, {
                         duration: 2000,
                     });
+                    setHasMore(false);
                 }
 
             } else {
                 const param = new URLSearchParams();
                 if (filterBy) {
                     if (filterBy === '') {
+
                     } else if (filterBy === "deleted") {
                         param.append('isDeleted', 'true');
                     } else {
@@ -46,29 +59,63 @@ const AdminAllPost = () => {
 
                 if (sortBy) param.append('sortBy', sortBy);
 
+                if (lastId) param.append('lastId', lastId);
+
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
                 // console.log(resp)
 
                 if (resp.status === 200 || resp.status === 201) {
-                    setPostData(resp.data);
-                    // console.log(resp);
-                }else{
+                    const newPost = resp?.data;
+                    if(newPost.length < 10) setHasMore(false)
+                    // setHasMore(newPost.length < 10 && false);
+                    setPostData((prevData: any) => [...(prevData || []), ...newPost]);
+                } else {
                     toast.error(resp.data.message, {
                         duration: 2000,
                     });
+                    setHasMore(false);
                 }
             }
         } catch (error) {
             console.log(error)
-        }finally{
+        } finally {
             setLoading(false);
+            setIsFetching(false);
         }
     }
 
+
+    const handleScroll = () => {
+        if (
+            window.innerHeight + document.documentElement.scrollTop >=
+            document.documentElement.offsetHeight - 100 // Trigger 100px before the bottom
+        ) {
+            setPage((prevPage) => prevPage + 1);
+        }
+    };
+
     useEffect(() => {
+        const debouncedHandleScroll = debounce(handleScroll, 200);
+        window.addEventListener('scroll', debouncedHandleScroll);
+        return () => window.removeEventListener('scroll', handleScroll); // Cleanup listener
+    }, []);
+
+
+    useEffect(() => {
+        if (hasMore) fetchAllPosts(lastId);
+    }, [page]);
+
+    useEffect(() => {
+        setPostData([]);
+        setPage(1);
+        setLastId('');
+        setHasMore(true);
         fetchAllPosts();
     }, [filterBy, sortBy]);
 
+    useEffect(() => {
+        setLastId(postData?.[postData.length - 1]?._id || null);
+    }, [postData]);
 
 
 
@@ -121,6 +168,30 @@ const AdminAllPost = () => {
                 }
 
             </div>
+
+
+            {
+                hasMore &&
+                <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
+                    <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
+                        <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                        <line x1="195.9" y1="60.1" x2="173.3" y2="82.7" strokeLinecap="round" strokeLinejoin="round"
+                            strokeWidth="24"></line>
+                        <line x1="224" y1="128" x2="192" y2="128" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
+                        </line>
+                        <line x1="195.9" y1="195.9" x2="173.3" y2="173.3" strokeLinecap="round" strokeLinejoin="round"
+                            strokeWidth="24"></line>
+                        <line x1="128" y1="224" x2="128" y2="192" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
+                        </line>
+                        <line x1="60.1" y1="195.9" x2="82.7" y2="173.3" strokeLinecap="round" strokeLinejoin="round"
+                            stroke-Width="24"></line>
+                        <line x1="32" y1="128" x2="64" y2="128" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                        <line x1="60.1" y1="60.1" x2="82.7" y2="82.7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
+                        </line>
+                    </svg>
+                    <span className="text-xl font-medium text-gray-500">Loading...</span>
+                </div>
+            }
         </div>
     )
 }
