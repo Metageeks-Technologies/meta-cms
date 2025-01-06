@@ -85,6 +85,7 @@ export class PostsService {
     newPost.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
     newPost.slug = await this.createUniqueSlugFromTitle(newPost.title);
 
+
     // If contributor creates a post to be published/scheduled, change its status to 'awaiting approval'
     if (authorRole === UserRoleEnum.CONTRIBUTOR && (newPost.status === PostStatusEnum.PUBLISHED || newPost.status === PostStatusEnum.SCHEDULED)) {
       newPost.status = PostStatusEnum.AWAITING_APPROVAL;
@@ -437,7 +438,7 @@ export class PostsService {
 
   async recoverPost(_id: string) {
     // This can only be done by superadmin
-    const query = await this.Post.updateOne({ _id: _id }, { isDeleted: true }).exec();
+    const query = await this.Post.updateOne({ _id: _id }, { isDeleted: false }).exec();
     if (query.matchedCount == 0) {
       throw new NotFoundException('Post ID not found');
     }
@@ -517,4 +518,31 @@ export class PostsService {
     // Return the array in reverse order (oldest to most recent)
     return monthlyPostsCount.reverse();
   }
+
+
+  async getAllTags(authorId?: string){
+    // get user all unique tags 
+    // assume user login for this service
+    try {
+      const result = await this.Post.aggregate([
+        { $match: { authorId: new mongoose.Types.ObjectId(authorId), isDeleted: false } },
+        {$match: {tags : {$ne: "" }}},
+
+        { $unwind: '$tags' },
+
+        {
+          $group: {
+            _id: null,
+            uniqueTags: { $addToSet: '$tags' },
+          },
+        },
+
+        { $project: { _id: 0, tags: { $sortArray: { input: '$uniqueTags', sortBy: 1 } } } },
+      ]).exec();
+      return result.length > 0 ? result[0].tags : [];
+    } catch (error) {
+      return { message: 'Error fetching tags', error: error.message };
+    }
+  }
+
 }

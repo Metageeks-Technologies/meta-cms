@@ -7,8 +7,7 @@ export interface LoginPayload {
 }
 
 export interface SignUpFormData {
-    firstName: string;
-    lastName: string;
+    fullName: string;
     email: string;
     password: string;
     confirmPassword: string;

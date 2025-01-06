@@ -12,14 +12,17 @@ import MediaPage from './component/mediaModal';
 import MediaModal from './component/mediaModal';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
+import { postStatuEnum } from '@/constant/post';
+import moment from "moment";
 
 const App: React.FC = () => {
 
-  const {setLoading} = useUserContext();
+  const { setLoading } = useUserContext();
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
+  const [tagInput, setTagInput] = useState('');
   const [formData, setFormData] = useState<NewPostFormData>({
     postTitle: "",
     postDescription: '',
@@ -44,7 +47,7 @@ const App: React.FC = () => {
       }
     } catch (error) {
       console.log(error);
-    } finally { 
+    } finally {
       setLoading(false);
     }
   };
@@ -59,6 +62,17 @@ const App: React.FC = () => {
   useEffect(() => {
     fetchCategory();
   }, []);
+
+
+  interface PayloadType {
+    title: string,
+    description: string,
+    previewImageKey: string | File | null,
+    tags: string[],
+    categories: string[],
+    status: string,
+    publishedDate?: string,
+  }
 
   // Handle post creation
   const handleCreatePost = async () => {
@@ -78,24 +92,23 @@ const App: React.FC = () => {
       toast.error('Add at least one tag', { duration: 2000 });
       return;
     }
-    if (!formData.publishDate) {
-      toast.error('Please select published date', { duration: 2000 });
-      return;
-    }
     setLoading(true);
     try {
-      const payload = {
+      const payload: PayloadType = {
         title: formData.postTitle,
         description: formData.postDescription,
         previewImageKey: formData.previewImg,
         tags: formData.tags,
         categories: formData.category,
         status: formData.postStatus,
-        publishedDate: formData.publishDate,
       };
+      
+      if(formData.publishDate){
+        payload.publishedDate = moment(formData.publishDate).format("dddd, MMMM Do YYYY");
+      }
 
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
-      
+
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         setFormData({
@@ -107,7 +120,8 @@ const App: React.FC = () => {
           publishDate: null,
           previewImg: null,
         });
-        editorRef.current?.setContent('');
+        setTagInput('');
+        // editorRef.current?.setContent('');
         fetchCategory();
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -145,11 +159,17 @@ const App: React.FC = () => {
   };
 
   // Handle tag input change
-  const handleTagChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const inputTags = event.target.value.split(',').map(tag => tag.trim());
-    setFormData({ ...formData, tags: inputTags });
+  const handleTagAdd = () => {
+    setFormData({ ...formData, tags: [...formData.tags, tagInput.trim()] });
+    setTagInput('');
   };
-  
+
+  const removeTag = (tagName: string) => {
+    const filteredTags = formData.tags.filter(tag => tag != tagName)
+    setFormData({ ...formData, tags: filteredTags });
+  }
+
+
 
   return (
     <div className='border-1 border-dashed border-gray-900 p-4 relative'>
@@ -211,16 +231,31 @@ const App: React.FC = () => {
             />
           </div>
           {/* Tags Input */}
+
           <div>
-            <label htmlFor="tags" className="text-white block mb-2">Tags</label>
-            <input
-              type="text"
-              id="tags"
-              value={formData.tags.join(', ')}
-              onChange={handleTagChange}
-              placeholder="Enter tags separated by commas"
-              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-            />
+            <div className='flex flex-row items-center flex-wrap gap-2'>
+              {
+                formData.tags.map((tag, index) => (
+                  <p key={index} className='bg-gray-900 px-2 py-1 rounded-full'>
+                    {tag}
+                    <span className='bg-gray-800 rounded-full cursor-pointer px-2 py-1' onClick={() => removeTag(tag)}>x</span>
+                  </p>
+                ))
+              }
+            </div>
+
+            <label htmlFor="tags" className="text-white block my-2">Tags</label>
+            <div className='flex flex-row items-center gap-2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white'>
+              <input
+                type="text"
+                id="tags"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="Enter tag"
+                className="w-full h-full outline-none border-none bg-transparent"
+              />
+              <button onClick={handleTagAdd} className='bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-md'>ADD</button>
+            </div>
           </div>
         </div>
 
@@ -235,23 +270,27 @@ const App: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, postStatus: e.target.value })}
               className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
             >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
+              <option value={postStatuEnum.DRAFT}>Draft</option>
+              <option value={postStatuEnum.PUBLISHED}>Published</option>
+              <option value={postStatuEnum.SCHEDULED}>Scheduled</option>
             </select>
           </div>
 
           {/* Publish Date */}
-          <div>
-            <label htmlFor="publishDate" className="text-white block">Publish Date</label>
-            <DatePicker
-              selected={formData.publishDate}
-              onChange={(date: Date | null) => setFormData({ ...formData, publishDate: date })}
-              minDate={new Date()}
-              className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
-              dateFormat="yyyy-MM-dd"
-              placeholderText="Select a publish date"
-            />
-          </div>
+          {
+            formData.postStatus === postStatuEnum.SCHEDULED &&
+            <div>
+              <label htmlFor="publishDate" className="text-white block">Publish Date</label>
+              <DatePicker
+                selected={formData.publishDate}
+                onChange={(date: Date | null) => setFormData({ ...formData, publishDate: date })}
+                minDate={new Date()}
+                className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select a publish date"
+              />
+            </div>
+          }
 
           {/* Category Selection */}
           <div className="space-y-2">
