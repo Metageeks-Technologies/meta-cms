@@ -7,6 +7,13 @@ export enum UserRoleEnum {
   SUPERADMIN = 'superadmin',
 };
 
+interface ISocialLinks {
+  linkedIn: string;
+  instagram: string;
+  facebook: string;
+  twitter: string;
+}
+
 export interface IUser extends mongoose.Document {
   _id: string;
   name: string;
@@ -14,7 +21,8 @@ export interface IUser extends mongoose.Document {
   hash: string;
   phoneNo?: string;
   bio?: string;
-  role: UserRoleEnum
+  role: UserRoleEnum;
+  socialLinks?: ISocialLinks;
 };
 
 export const UserSchema = new mongoose.Schema({
@@ -23,7 +31,7 @@ export const UserSchema = new mongoose.Schema({
   hash: { type: String, required: true },
   phoneNo: { type: String, required: false },
   bio: { type: String, required: false },
-  role: { 
+  role: {
     type: String,
     enum: Object.values(UserRoleEnum),
     default: UserRoleEnum.SUBSCRIBER,

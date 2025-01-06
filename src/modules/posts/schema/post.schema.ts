@@ -52,3 +52,6 @@ export const PostSchema = new mongoose.Schema({
     slug: { type: String, required: true, unique: true },
     publishedDate: { type: Date, required: true, default: Date.now },
 }, { timestamps: true });
+
+// Create a text index for title, description, and tags
+PostSchema.index({ title: 'text', description: 'text', tags: 'text' });

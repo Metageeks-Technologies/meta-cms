@@ -1,4 +1,5 @@
 'use client'
+import { userRoles } from '@/constant/user';
 import { useUserContext } from '@/context/userContext';
 import { LoginPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
@@ -23,9 +24,18 @@ const page = () => {
             const response = await axiosCall('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`, payload);
 
             if (response.status === 200 || response.status === 201) {
+                const resp = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
+                if(resp.status !== 200){
+                    toast.error(resp.data.message, {duration: 2000});
+                    return;
+                }
+                if(resp.data.role === userRoles.SUBSCRIBER){
+                    toast.error("Subscriber not allowed", {duration: 2000});
+                    return;
+                }
                 toast.success(response.data.message, { duration: 2000 });
-                getUserProfile();
                 router.push('/dashboard');
+                getUserProfile();
             } else {
                 toast.error(response.data.message, { duration: 2000 });
             }
@@ -47,7 +57,7 @@ const page = () => {
                 <div className=''>
                     <form onSubmit={handleLogin} className="p-4 bg-gray-800 flex flex-col gap-5 rounded-b-lg pt-10 rounded-tl-lg">
                         <label className='flex flex-col gap-2'>
-                            <span>Email</span>
+                            <span>Email<sup className='text-red-500'>*</sup></span>
                             <input
                                 type="email"
                                 required
@@ -57,7 +67,7 @@ const page = () => {
                             />
                         </label>
                         <label className='flex flex-col gap-2'>
-                            <span>Password</span>
+                            <span>Password<sup className='text-red-500'>*</sup></span>
                             <div className='w-full bg-gray-700 rounded-lg flex flex-row items-center'>
                                 <input
                                     type={showPass ? "text" : "password"}
@@ -74,7 +84,7 @@ const page = () => {
                                 </span>
                             </div>
                         </label>
-                        <button type='submit' className='w-full text-center bg-white text-black rounded-lg p-2 text-xl my-2 font-bold'>Login</button>
+                        <button type='submit' className='w-full text-center bg-gray-200 text-black rounded-lg p-2 text-xl my-2 font-bold hover:bg-white'>Login</button>
                         <p className='text-center my-3'>Don’t have an account? <span onClick={() => router.push('/signUp')} className='underline hover:text-blue-500 cursor-pointer'>Sign up</span></p>
                     </form>
                 </div>

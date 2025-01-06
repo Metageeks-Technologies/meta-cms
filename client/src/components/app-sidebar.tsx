@@ -51,7 +51,7 @@ export function AppSidebar() {
 
         if (userRole === userRoles.CONTRIBUTOR) {
           // Contributor hides "User", "Contributor", "Moderator", "Category", and "Tags"
-          return !["Subscribers", "Contributor", "Moderator", "Category", "Tags"].includes(item.title);
+          return !["Subscribers", "Contributor", "Moderator", "Category"].includes(item.title);
         }
 
         // Default: Hide restricted items for other roles
@@ -65,7 +65,7 @@ export function AppSidebar() {
             subMenu: item.subMenu.filter((subItem) => {
               if (userRole === userRoles.CONTRIBUTOR) {
                 // Contributor hides "Category" and "Tags" in subMenu
-                return !["Category", "Tags"].includes(subItem.title);
+                return !["Category"].includes(subItem.title);
               }
               return true; // Keep all submenus for other roles
             }),

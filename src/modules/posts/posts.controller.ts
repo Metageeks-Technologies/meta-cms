@@ -219,6 +219,16 @@ export class PostsController {
     return deletedPosts;
   }
 
+  @Get('my/all-tags')
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getUserAllTags(@Req() req:Request){
+    const authorId = (req as any).user._id;
+    const allTags = await this.postsService.getAllTags(authorId);
+    return allTags;
+  }
+
+
   @Get('all-published')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)

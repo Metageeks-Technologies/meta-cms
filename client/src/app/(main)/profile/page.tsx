@@ -132,11 +132,18 @@ const ProfilePage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Full Name</label>
             <input
               type="text"
+              placeholder='Edit your name here...'
               name="fullname"
               id="fullname"
+              required
               value={userProfile?.name}
-              onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })}
-              disabled={!isEditing}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                // Use a regular expression to allow only letters and spaces
+                if (/^[a-zA-Z\s]*$/.test(inputValue)) {
+                  setUserProfile({ ...userProfile, name: inputValue });
+                }
+              }}              disabled={!isEditing}
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
             />
           </div>
@@ -145,13 +152,19 @@ const ProfilePage: React.FC = () => {
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Phone</label>
             <input
-              type="text"
+              type="tel"
               name="phone"
               id="phone"
+              maxLength={10} 
+              placeholder='Edit your phoneNo here...'
               value={userProfile?.phoneNo}
-              onChange={(e) => setUserProfile({ ...userProfile, phoneNo: e.target.value })}
-              disabled={!isEditing}
+              onChange={(e) => {
+                // Ensure that only digits are allowed (no characters, no special symbols)
+                const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                setUserProfile({ ...userProfile, phoneNo: numericValue });
+              }}              disabled={!isEditing}
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+           
             />
           </div>
 
@@ -164,6 +177,7 @@ const ProfilePage: React.FC = () => {
                 id="bio"
                 value={userProfile?.bio}
                 onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
+                placeholder='Edit your bio here...'
                 className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ring-yellow-500"
                 rows={3}
               />
@@ -181,6 +195,7 @@ const ProfilePage: React.FC = () => {
               id="email"
               value={userProfile?.email}
               disabled
+            
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
 
             />
@@ -205,11 +220,12 @@ const ProfilePage: React.FC = () => {
 
               {/* facebook */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Facebook</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="facebook">Facebook</label>
                 <input
-                  type="text"
+                  type="url"
                   name="role"
-                  id="role"
+                  id="facebook"
+                  placeholder='Edit Facebook URL...'
                   value={userProfile?.socialLinks?.facebook}
                   onChange={(e) => {
                     setUserProfile({
@@ -226,11 +242,12 @@ const ProfilePage: React.FC = () => {
 
               {/* instagram  */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Instagram</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="instagram">Instagram</label>
                 <input
-                  type="text"
+                  type="url"
                   name="role"
-                  id="role"
+                  id="instagram"
+                  placeholder='Edit Instagram URL...'
                   value={userProfile?.socialLinks?.instagram}
                   onChange={(e) => {
                     setUserProfile({
@@ -247,11 +264,12 @@ const ProfilePage: React.FC = () => {
 
               {/* linkedIn */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Linked In</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="linkedin">Linked In</label>
                 <input
-                  type="text"
+                  type="url"
                   name="role"
-                  id="role"
+                  id="linkedin"
+                  placeholder='Edit LinkedIn URL...'
                   value={userProfile?.socialLinks?.linkedIn}
                   onChange={(e) => {
                     setUserProfile({
@@ -268,11 +286,12 @@ const ProfilePage: React.FC = () => {
 
               {/* twitter */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Twitter</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="twitter">Twitter</label>
                 <input
-                  type="text"
+                  type="url"
                   name="role"
-                  id="role"
+                  id="twitter"
+                  placeholder='Edit Twitter URL...'
                   value={userProfile?.socialLinks?.twitter}
                   onChange={(e) => {
                     setUserProfile({
