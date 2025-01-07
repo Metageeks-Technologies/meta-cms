@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { dummyMedia } from '@/constant/post'; // Assuming dummyMedia is an array of media objects
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { uploadToS3 } from '@/utils/helperFunction';

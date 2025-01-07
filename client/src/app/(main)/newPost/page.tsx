@@ -1,6 +1,6 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
-import { Editor } from '@tinymce/tinymce-react';
+// import { Editor } from '@tinymce/tinymce-react';
 import DatePicker from 'react-datepicker'; // Import react-datepicker
 import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS for styling the calendar
 import { NewPostFormData } from '@/types';
@@ -8,18 +8,32 @@ import axiosCall from '@/utils/ApiCall';
 import { TiTick } from "react-icons/ti";
 import toast from 'react-hot-toast';
 import { Check } from 'lucide-react'; // Check icon for media selection
-import MediaPage from './component/mediaModal';
 import MediaModal from './component/mediaModal';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum } from '@/constant/post';
 import moment from "moment";
 
+
+
+import { useQuill } from 'react-quilljs';
+import 'quill/dist/quill.snow.css';
+
+
 const App: React.FC = () => {
 
   const { setLoading } = useUserContext();
 
-  const editorRef = useRef<any>(null);
+
+
+  const { quill, quillRef } = useQuill({placeholder:'enter your description here'});
+
+
+
+
+  // const editorRef = useRef<any>(null);
+
+
   const [categoryArr, setCategoryArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
   const [tagInput, setTagInput] = useState('');
@@ -62,7 +76,7 @@ const App: React.FC = () => {
   useEffect(() => {
     fetchCategory();
   }, []);
-
+  
 
   interface PayloadType {
     title: string,
@@ -80,10 +94,16 @@ const App: React.FC = () => {
       toast.error('Post title is required.', { duration: 2000 });
       return;
     }
-    if (!formData.postDescription.trim()) {
+
+    if (!quill?.root.innerHTML.trim()) {
       toast.error('Post description is required.', { duration: 2000 });
       return;
-    }
+  }
+
+    // if (!formData.postDescription.trim()) {
+    //   toast.error('Post description is required.', { duration: 2000 });
+    //   return;
+    // }
     if (!Array.isArray(formData.category) || formData.category.length === 0) {
       toast.error('At least one category must be selected.', { duration: 2000 });
       return;
@@ -96,7 +116,9 @@ const App: React.FC = () => {
     try {
       const payload: PayloadType = {
         title: formData.postTitle,
-        description: formData.postDescription,
+        description: quill.root.innerHTML, // Get content from Quill
+
+        // description: formData.postDescription,
         previewImageKey: formData.previewImg,
         tags: formData.tags,
         categories: formData.category,
@@ -121,6 +143,7 @@ const App: React.FC = () => {
           previewImg: null,
         });
         setTagInput('');
+        quill.setContents([]);// empty the description after submit
         // editorRef.current?.setContent('');
         fetchCategory();
       } else {
@@ -175,6 +198,7 @@ const App: React.FC = () => {
     <div className='border-1 border-dashed border-gray-900 p-4 relative'>
       <div className="bg-[#0A090F] border-[#414141] p-6 space-y-6 flex flex-col sm:flex-row gap-8 mx-auto">
         {/* Left side (Post title, description, and tags) */}
+
         <div className="w-full sm:w-[70%] flex flex-col space-y-9">
           {/* Post Title */}
           <div>
@@ -188,6 +212,7 @@ const App: React.FC = () => {
               className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
             />
           </div>
+
           {/* Preview image input */}
           <div>
             <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
@@ -207,10 +232,11 @@ const App: React.FC = () => {
 
             </div>
           </div>
+          
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
-            <Editor
+            {/* <Editor
               apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
               init={{
                 height: 400,
@@ -228,7 +254,15 @@ const App: React.FC = () => {
               value={formData.postDescription}
               onEditorChange={(content) => setFormData({ ...formData, postDescription: content })}
               onInit={(evt, editor) => editorRef.current = editor}
-            />
+            /> */}
+
+
+
+<div className='h-[400px] mb-8 '>
+      <div ref={quillRef} 
+      />
+    </div>
+
           </div>
           {/* Tags Input */}
 
