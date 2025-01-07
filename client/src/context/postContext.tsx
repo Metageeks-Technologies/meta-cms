@@ -15,6 +15,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [categories, setCategeories] = useState([]);
     const [media, setMedia] = useState<any>([]);
+    const [hasMoreMedia, setHasMoreMedia] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
 
     const fetchCategories = async () => {
         setLoading(true);
@@ -57,7 +59,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const fetchMedia = async (lastId: string) => {
-        setLoading(true);
+        if(isFetching) return;
+        setIsFetching(true);
         try {
             const param = new URLSearchParams();
             if (lastId) param.append('lastId', lastId);
@@ -66,14 +69,16 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             // console.log(resp, "Response");
 
             if (resp.status === 200 || resp.status === 201) {
-                setMedia(resp.data);
+                const newMedia = resp?.data;
+                if (newMedia.length < 10) setHasMoreMedia(false);
+                setMedia([...media, ...newMedia]);
             } else {
                 toast.error(resp.data.message, { duration: 2000 });
             }
         } catch (error) {
             console.log(error);
         } finally {
-            setLoading(false);
+            setIsFetching(false);
         }
     }
 
@@ -82,7 +87,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         fetchCategories,
         deleteCategory,
         fetchMedia,
-        media
+        media,
+        hasMoreMedia,
+        isFetching
+        
     }
 
     return (

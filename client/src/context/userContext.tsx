@@ -104,9 +104,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
             const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
-            if (response.status !== 200) {
-                throw new Error('Failed to fetch user profile');
+            if (response.status !== 200 ) {
+                if(response.status !== 401){
+                    throw new Error('Failed to fetch user profile');
+                }
+                router.push('/');
             }
+
             
             const userData: UserProfile = response.data;
             setUser(userData);
@@ -121,10 +125,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    // Initial load
-    useEffect(() => {
-        getUserProfile();
-    }, []);
 
     useEffect(() => {
         if(loading){

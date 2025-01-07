@@ -15,7 +15,13 @@ export class GetPostsQueryDto {
   @IsEnum(PostStatusEnum)
   status?: PostStatusEnum;
 
-  @Type(() => Boolean)
+  // use transform for convert string isDeleted query to right boolean value
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return value;
+  })
   @IsOptional()
   @IsBoolean()
   isDeleted?: boolean;

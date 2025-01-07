@@ -5,25 +5,25 @@ export class SocialLinksDto {
     @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
-    @IsUrl()
+    @IsUrl(undefined, { message: "Linked In must be a valid URL" })
     linkedIn?: string;
 
     @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
-    @IsUrl()
+    @IsUrl(undefined, { message: "Instagram must be a valid URL" })
     instagram?: string;
 
     @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
-    @IsUrl()
+    @IsUrl(undefined, { message: "Facebook must be a valid URL" })
     facebook?: string;
 
     @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsString()
-    @IsUrl()
+    @IsUrl(undefined, { message: "Twitter must be a valid URL" })
     twitter?: string;
 }
 

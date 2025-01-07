@@ -5,6 +5,7 @@ import Header from "@/components/common/Header";
 import { UserProvider, useUserContext } from "@/context/userContext";
 import { PostProvider } from "@/context/postContext";
 import Loader from "@/components/common/Loader";
+import { useEffect } from "react";
 
 // export const metadata = {
 //   title: "Authentication - My Blogging Website",
@@ -13,7 +14,12 @@ import Loader from "@/components/common/Loader";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
 
-  const {loading} = useUserContext();
+  const {loading, getUserProfile} = useUserContext();
+
+  // Initial load
+      useEffect(() => {
+          getUserProfile();
+      }, []);
 
   return (
     // <UserProvider>

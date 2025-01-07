@@ -21,7 +21,7 @@ export class DashboardController {
   }
 
   @Get('admin/global')
-  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getGlobalAdminDashboard() {
     const dashboardData = await this.dashboardService.getGlobalData();

@@ -9,12 +9,6 @@ export default function Home() {
   const {user, getUserProfile} = useUserContext();
   const router = useRouter()
 
-  useEffect(() => {
-    getUserProfile();
-    if(user.name){
-      router.push('/dashboard');
-    }
-  }, [user]);
 
   return (
     <div className="w-full h-full">

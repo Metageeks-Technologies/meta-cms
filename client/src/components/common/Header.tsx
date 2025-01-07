@@ -27,7 +27,7 @@ const Header = () => {
 
     const router = useRouter()
     const pathname = usePathname();
-    const {setLoading} = useUserContext();
+    const { setLoading, getUserProfile} = useUserContext();
 
     const handleLogOut = async () => {
         setLoading(true);
@@ -37,6 +37,7 @@ const Header = () => {
     
             if(resp.status === 200 || resp.status === 201){
                 toast.success(resp.data.message, { duration: 2000 });
+                getUserProfile();
                 router.push('/');
             }else{
                 toast.error(resp.data.message, { duration: 2000});

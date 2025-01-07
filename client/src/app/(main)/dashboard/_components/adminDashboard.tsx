@@ -55,8 +55,8 @@ const AdminDashboard = () => {
   }
 
   useEffect(() => {
-    dashboardPersonal();
-    if(user.role && user.role !== userRoles.CONTRIBUTOR){
+    if(user.role){
+      dashboardPersonal();
       dashboardGlobal();
     }
   }, [user]);

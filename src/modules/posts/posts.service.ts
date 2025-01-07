@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException, ParseBoolPipe } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, Injectable, NotFoundException, ParseBoolPipe } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IPost, PostStatusEnum } from './schema/post.schema';
 import mongoose, { Model, mongo } from 'mongoose';
@@ -83,7 +83,7 @@ export class PostsService {
     // If they are not valid, they will be filtered out during category lookup
     const newPost = new this.Post(newPostData);
     newPost.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
-    newPost.slug = await this.createUniqueSlugFromTitle(newPost.title);
+    // newPost.slug = await this.createUniqueSlugFromTitle(newPost.title);
 
 
     // If contributor creates a post to be published/scheduled, change its status to 'awaiting approval'
@@ -91,7 +91,17 @@ export class PostsService {
       newPost.status = PostStatusEnum.AWAITING_APPROVAL;
     }
 
-    await newPost.save();
+    try {
+      await newPost.save();
+
+    } catch (error) {
+      if (error.code === 11000) {
+        // Duplicate key error
+        throw new ConflictException('Slug already exists');
+      }
+      // Re-throw the error if it's not a duplicate key error
+      throw error;
+    }
   }
 
   async getPosts(
@@ -193,6 +203,7 @@ export class PostsService {
     // Finals steps (Lookup and projection)
     /////////////////////////////////////////
     pipeline.push(...this.postAggregationFinalSteps);
+
 
     // Execute the aggregation pipeline
     const posts = await this.Post.aggregate(pipeline).exec();
@@ -344,7 +355,7 @@ export class PostsService {
 
     if (authorRole == UserRoleEnum.CONTRIBUTOR) {
       // If a contributor tries to update post of someone else
-      if (mongoose.Types.ObjectId.createFromHexString(authorId) != post.authorId) {
+      if (authorId != post.authorId.toString()) {
         throw new ForbiddenException();
       }
 
@@ -352,6 +363,8 @@ export class PostsService {
       if (updatedPost.status == PostStatusEnum.PUBLISHED || updatedPost.status == PostStatusEnum.SCHEDULED) {
         updatedPost.status = PostStatusEnum.AWAITING_APPROVAL;
       }
+
+
     }
 
     const query = await this.Post.updateOne({ _id: _id }, { $set: updatedPost }).exec();
@@ -425,7 +438,7 @@ export class PostsService {
     }
 
     // If contributor tries to delete other users' post
-    if (userRole == UserRoleEnum.CONTRIBUTOR && post.authorId != mongoose.Types.ObjectId.createFromHexString(userId)) {
+    if (userRole == UserRoleEnum.CONTRIBUTOR && post.authorId.toString() != userId) {
       throw new ForbiddenException();
     }
 
@@ -453,6 +466,7 @@ export class PostsService {
     // Assuming userId exists and is coming from JWT
     const count = await this.Post.countDocuments({
       status: postStatuEnum.PUBLISHED,
+      isDeleted: false,
       ...(userId && { authorId: mongoose.Types.ObjectId.createFromHexString(userId) })
     }).exec();
     return count;
@@ -510,9 +524,9 @@ export class PostsService {
       const currentMonth = { month: tempDate.getMonth() + 1, year: tempDate.getFullYear() };
       const currentCount = result.find(r => r.month === currentMonth.month && r.year === currentMonth.year);
       monthlyPostsCount.push(currentCount ? currentCount : { month: currentMonth.month, year: currentMonth.year, count: 0 });
-      
+
       // Construct a new Date object here. Otherwise, the months might repeat(due to different number of days in each month)
-      tempDate = new Date(tempDate.getFullYear(), tempDate.getMonth() - 1); 
+      tempDate = new Date(tempDate.getFullYear(), tempDate.getMonth() - 1);
     }
 
     // Return the array in reverse order (oldest to most recent)
@@ -520,13 +534,13 @@ export class PostsService {
   }
 
 
-  async getAllTags(authorId?: string){
+  async getAllTags(authorId?: string) {
     // get user all unique tags 
     // assume user login for this service
     try {
       const result = await this.Post.aggregate([
         { $match: { authorId: new mongoose.Types.ObjectId(authorId), isDeleted: false } },
-        {$match: {tags : {$ne: "" }}},
+        { $match: { tags: { $ne: "" } } },
 
         { $unwind: '$tags' },
 

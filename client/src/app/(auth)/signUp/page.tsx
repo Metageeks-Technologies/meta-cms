@@ -3,7 +3,7 @@ import { SignUpFormData, SignUpPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { isValidPassword, isValidString } from '@/utils/helperFunction';
 import { useUserContext } from '@/context/userContext';
@@ -89,6 +89,8 @@ const page = () => {
       setLoading(false);
     }
   }
+
+
 
   return (
     <div className='w-full h-screen flex items-center justify-center'>
@@ -183,7 +185,7 @@ const page = () => {
               <p className='text-xs text-red-500 -mt-3'>{passError}</p>
             }
 
-            <button type='submit' className='w-full text-center bg-gray-200 text-black rounded-lg p-2 text-xl my-2 font-bold hover:bg-white'>Sign Up</button>
+            <button type='submit' className='w-full text-center bg-gray-200 text-black hover:text-white rounded-lg p-2 text-xl my-2 font-bold hover:bg-transparent border-white border-2 duration-300'>Sign Up</button>
             <p className='text-center my-3'>Already have an account? <span onClick={() => router.push('/login')} className='underline hover:text-blue-500 cursor-pointer'>Log in</span></p>
           </form>
 
