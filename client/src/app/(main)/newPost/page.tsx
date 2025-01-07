@@ -15,11 +15,16 @@ import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum } from '@/constant/post';
 import moment from "moment";
 
+import { useQuill } from 'react-quilljs';
+import 'quill/dist/quill.snow.css';
+
 const App: React.FC = () => {
 
   const { setLoading } = useUserContext();
 
-  const editorRef = useRef<any>(null);
+  const { quill, quillRef } = useQuill({ placeholder: 'enter your description here' });
+
+  // const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
   const [tagInput, setTagInput] = useState('');
@@ -82,7 +87,11 @@ const App: React.FC = () => {
       toast.error('Post title is required.', { duration: 2000 });
       return;
     }
-    if (!formData.postDescription.trim()) {
+    // if (!formData.postDescription.trim()) {
+    //   toast.error('Post description is required.', { duration: 2000 });
+    //   return;
+    // }
+    if (!quill?.root.innerHTML.trim()) {
       toast.error('Post description is required.', { duration: 2000 });
       return;
     }
@@ -106,7 +115,8 @@ const App: React.FC = () => {
     try {
       const payload: PayloadType = {
         title: formData.postTitle,
-        description: formData.postDescription,
+        // description: formData.postDescription,
+        description: quill.root.innerHTML,
         previewImageKey: formData.previewImg,
         slug: formData.slug,
         tags: formData.tags,
@@ -135,6 +145,7 @@ const App: React.FC = () => {
         });
         setTagInput('');
         // editorRef.current?.setContent('');
+        quill.setContents([]);
         fetchCategory();
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -173,7 +184,7 @@ const App: React.FC = () => {
 
   // Handle tag input change
   const handleTagAdd = () => {
-    if(!tagInput.length) return;
+    if (!tagInput.length) return;
     setFormData({ ...formData, tags: [...formData.tags, tagInput.trim()] });
     setTagInput('');
   };
@@ -224,7 +235,7 @@ const App: React.FC = () => {
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
-            <Editor
+            {/* <Editor
               apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
               init={{
                 height: 400,
@@ -242,7 +253,13 @@ const App: React.FC = () => {
               value={formData.postDescription}
               onEditorChange={(content) => setFormData({ ...formData, postDescription: content })}
               onInit={(evt, editor) => editorRef.current = editor}
-            />
+            /> */}
+
+            <div className='h-[400px] mb-8 '>
+              <div ref={quillRef}
+              />
+            </div>
+
           </div>
           {/* Tags Input */}
 

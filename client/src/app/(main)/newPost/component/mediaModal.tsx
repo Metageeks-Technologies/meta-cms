@@ -18,7 +18,7 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const { setLoading } = useUserContext();
+  const { loading, setLoading } = useUserContext();
   const { media, fetchMedia, hasMoreMedia, isFetching } = usePostContext();
 
 
@@ -125,7 +125,7 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
       </div>
 
       {
-        hasMoreMedia &&
+        (hasMoreMedia && !loading) &&
         <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
           <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
             <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>

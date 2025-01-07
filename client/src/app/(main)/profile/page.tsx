@@ -127,12 +127,13 @@ const ProfilePage: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
+
           {/* full name  */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Full Name</label>
             <input
               type="text"
-              placeholder='Edit your name here...'
+              placeholder='Enter your full name...'
               name="fullname"
               id="fullname"
               required
@@ -149,6 +150,7 @@ const ProfilePage: React.FC = () => {
             />
           </div>
 
+
           {/* phone  */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Phone</label>
@@ -157,7 +159,7 @@ const ProfilePage: React.FC = () => {
               name="phone"
               id="phone"
               maxLength={10} 
-              placeholder='Edit your phoneNo here...'
+              placeholder='Enter your phone number...'
               value={userProfile?.phoneNo}
               onChange={(e) => {
                 // Ensure that only digits are allowed (no characters, no special symbols)
@@ -169,6 +171,7 @@ const ProfilePage: React.FC = () => {
             />
           </div>
 
+
           {/* bio  */}
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="bio">Bio</label>
@@ -178,7 +181,7 @@ const ProfilePage: React.FC = () => {
                 id="bio"
                 value={userProfile?.bio}
                 onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
-                placeholder='Edit your bio here...'
+                placeholder='Tell us about yourself...'
                 className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ring-yellow-500"
                 rows={3}
               />
@@ -186,6 +189,7 @@ const ProfilePage: React.FC = () => {
               <p className="text-gray-300">{userProfile?.bio}</p>
             )}
           </div>
+
 
           {/* email  */}
           <div className="flex-1">
@@ -201,6 +205,7 @@ const ProfilePage: React.FC = () => {
 
             />
           </div>
+
 
           {/* role  */}
           <div className="flex-1">
@@ -219,6 +224,7 @@ const ProfilePage: React.FC = () => {
             isEditing &&
             <div className='col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6'>
 
+
               {/* facebook */}
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="facebook">Facebook</label>
@@ -226,7 +232,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="facebook"
-                  placeholder='Edit Facebook URL...'
+                  placeholder='Add your link here...'
                   value={userProfile?.socialLinks?.facebook}
                   onChange={(e) => {
                     setUserProfile({
@@ -248,7 +254,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="instagram"
-                  placeholder='Edit Instagram URL...'
+                  placeholder='Add your link here...'
                   value={userProfile?.socialLinks?.instagram}
                   onChange={(e) => {
                     setUserProfile({
@@ -270,7 +276,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="linkedin"
-                  placeholder='Edit LinkedIn URL...'
+                  placeholder='Add your link here...'
                   value={userProfile?.socialLinks?.linkedIn}
                   onChange={(e) => {
                     setUserProfile({
@@ -292,7 +298,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="twitter"
-                  placeholder='Edit Twitter URL...'
+                  placeholder='Add your link here...'
                   value={userProfile?.socialLinks?.twitter}
                   onChange={(e) => {
                     setUserProfile({

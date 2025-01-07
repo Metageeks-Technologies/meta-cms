@@ -14,7 +14,7 @@ const AdminAllPost = () => {
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [postData, setPostData] = useState<any>(null);
-    const { setLoading } = useUserContext();
+    const { loading, setLoading } = useUserContext();
     const [lastId, setLastId] = useState('');
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -173,7 +173,7 @@ const AdminAllPost = () => {
 
 
             {
-                hasMore &&
+                (hasMore && !loading ) &&
                 <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
                     <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
                         <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
