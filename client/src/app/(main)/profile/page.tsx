@@ -143,7 +143,8 @@ const ProfilePage: React.FC = () => {
                 if (/^[a-zA-Z\s]*$/.test(inputValue)) {
                   setUserProfile({ ...userProfile, name: inputValue });
                 }
-              }}              disabled={!isEditing}
+              }}              
+              disabled={!isEditing}
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
             />
           </div>
