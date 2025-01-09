@@ -1,7 +1,7 @@
 'use client'
 import axiosCall from '@/utils/ApiCall';
 import { Check } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Card from './card';
 import toast from 'react-hot-toast';
 import { postStatuEnum } from '@/constant/post';
@@ -13,9 +13,27 @@ const ContributorAllPost = () => {
     const { loading, setLoading } = useUserContext();
 
     const [lastId, setLastId] = useState('');
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
+    const [page, setPage] = useState({
+        published: 1,
+        draft: 1,
+        scheduled: 1,
+        rejected: 1,
+        awaitApprove: 1,
+        deleted: 1
+    });
+    const [hasMore, setHasMore] = useState({
+        published: true,
+        draft: true,
+        scheduled: true,
+        rejected: true,
+        awaitApprove: true,
+        deleted: true
+    });
+
+    // const [publishedHasMore, setPublishedHasMore]
     const [isFetching, setIsFetching] = useState(false);
+
+    console.log(hasMore);
 
 
     const statusArr = [
@@ -59,7 +77,7 @@ const ContributorAllPost = () => {
     // console.log(sortBy)
     const [postData, setPostData] = useState<any>(null);
 
-    
+
 
     const handleSortByChange = (value: any) => {
         try {
@@ -95,9 +113,9 @@ const ContributorAllPost = () => {
 
 
     async function fetchPublishedPost(query?: string, lastId?: string) {
-        if (isFetching) return;
+        if (isFetching || filterBy === postStatuEnum.PUBLISHED) return;
         setIsFetching(true);
-        page === 1 && setLoading(true);
+        page.published === 1 && setLoading(true);
         if (filterBy !== postStatuEnum.PUBLISHED) setFilterBy(postStatuEnum.PUBLISHED);
         try {
             const param = new URLSearchParams();
@@ -109,7 +127,7 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
-                if (newPost.length < 10) setHasMore(false);
+                if (newPost.length < 8) setHasMore({ ...hasMore, published: false });
                 setPostData((prevData: any) => [...(prevData || []), ...newPost]);
             } else {
                 toast.error(resp.data.message, {
@@ -126,9 +144,10 @@ const ContributorAllPost = () => {
     }
 
     async function fetchDraftPosts(query?: string, lastId?: string) {
-        if (isFetching) return;
+        if (isFetching || filterBy === postStatuEnum.DRAFT) return;
+
         setIsFetching(true);
-        page === 1 && setLoading(true);
+        page.draft === 1 && setLoading(true);
         if (filterBy !== postStatuEnum.DRAFT) setFilterBy(postStatuEnum.DRAFT);
         try {
             const param = new URLSearchParams();
@@ -141,7 +160,7 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
-                if (newPost.length < 10) setHasMore(false);
+                if (newPost.length < 8) setHasMore({ ...hasMore, draft: false });
                 setPostData((prevData: any) => [...(prevData || []), ...newPost]);
             } else {
                 toast.error(resp.data.message, {
@@ -158,9 +177,9 @@ const ContributorAllPost = () => {
     }
 
     async function fetchSchedulePosts(query?: string, lastId?: string) {
-        if (isFetching) return;
+        if (isFetching || filterBy === postStatuEnum.SCHEDULED) return;
         setIsFetching(true);
-        page === 1 && setLoading(true);
+        page.scheduled === 1 && setLoading(true);
         if (filterBy !== postStatuEnum.SCHEDULED) setFilterBy(postStatuEnum.SCHEDULED);
         try {
 
@@ -173,7 +192,7 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
-                if (newPost.length < 10) setHasMore(false);
+                if (newPost.length < 8) setHasMore({ ...hasMore, scheduled: false });
                 setPostData((prevData: any) => [...(prevData || []), ...newPost]);
             } else {
                 toast.error(resp.data.message, {
@@ -190,9 +209,9 @@ const ContributorAllPost = () => {
     }
 
     async function fetchRejectedPosts(query?: string, lastId?: string) {
-        if (isFetching) return;
+        if (isFetching || filterBy === postStatuEnum.REJECTED) return;
         setIsFetching(true);
-        page === 1 && setLoading(true);
+        page.rejected === 1 && setLoading(true);
         if (filterBy !== postStatuEnum.REJECTED) setFilterBy(postStatuEnum.REJECTED);
         try {
             const param = new URLSearchParams();
@@ -204,7 +223,7 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
-                if (newPost.length < 10) setHasMore(false);
+                if (newPost.length < 8) setHasMore({ ...hasMore, rejected: false });
                 setPostData((prevData: any) => [...(prevData || []), ...newPost]);
 
             } else {
@@ -222,9 +241,9 @@ const ContributorAllPost = () => {
     }
 
     async function fetchAwaitApprovePosts(query?: string, lastId?: string) {
-        if (isFetching) return;
+        if (isFetching || filterBy === postStatuEnum.AWAITING_APPROVAL) return;
         setIsFetching(true);
-        page === 1 && setLoading(true);
+        page.awaitApprove === 1 && setLoading(true);
         if (filterBy !== postStatuEnum.AWAITING_APPROVAL) setFilterBy(postStatuEnum.AWAITING_APPROVAL);
         try {
             const param = new URLSearchParams();
@@ -236,7 +255,7 @@ const ContributorAllPost = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
-                if (newPost.length < 10) setHasMore(false);
+                if (newPost.length < 8) setHasMore({ ...hasMore, awaitApprove: false });
                 setPostData((prevData: any) => [...(prevData || []), ...newPost]);
             } else {
                 toast.error(resp.data.message, {
@@ -253,22 +272,22 @@ const ContributorAllPost = () => {
     }
 
     async function fetchDeletedPosts(query?: string, lastId?: string) {
-        if (isFetching) return;
+        if (isFetching || filterBy === 'deleted') return;
         setIsFetching(true);
-        page === 1 && setLoading(true);
+        page.deleted === 1 && setLoading(true);
         if (filterBy !== 'deleted') setFilterBy('deleted');
         try {
 
             const param = new URLSearchParams();
             if (query) param.append("sortBy", query);
             if (lastId) param.append("lastId", lastId);
-            param.append('isDeleted', 'false');
+            // param.append('isDeleted', 'false');
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/deleted?${param.toString()}`);
 
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
-                if (newPost.length < 10) setHasMore(false);
+                if (newPost.length < 8) setHasMore({ ...hasMore, deleted: false });
                 setPostData((prevData: any) => [...(prevData || []), ...newPost]);
             } else {
                 toast.error(resp.data.message, {
@@ -293,13 +312,27 @@ const ContributorAllPost = () => {
             if (filterBy === postStatuEnum.SCHEDULED) fetchSchedulePosts(undefined, lastId);
             if (filterBy === 'deleted') fetchDeletedPosts(undefined, lastId);
         }
-    }, [page]);
+    }, [page.published, page.awaitApprove, page.deleted, page.draft, page.rejected, page.scheduled]);
 
     useEffect(() => {
         setPostData([]);
-        setPage(1);
+        // setPage({
+        //     published: 1,
+        //     draft: 1,
+        //     scheduled: 1,
+        //     rejected: 1,
+        //     awaitApprove: 1,
+        //     deleted: 1
+        // });
         setLastId('');
-        setHasMore(true);
+        // setHasMore({
+        //     published: true,
+        //     draft: true,
+        //     scheduled: true,
+        //     rejected: true,
+        //     awaitApprove: true,
+        //     deleted: true
+        // });
         if (filterBy === postStatuEnum.PUBLISHED) fetchPublishedPost();
         if (filterBy === postStatuEnum.DRAFT) fetchDraftPosts();
         if (filterBy === postStatuEnum.REJECTED) fetchPublishedPost();
@@ -312,19 +345,24 @@ const ContributorAllPost = () => {
         setLastId(postData?.[postData.length - 1]?._id || null);
     }, [postData]);
 
-    const handleScroll = () => {
+    const handleScroll = useCallback(() => {
         if (
             window.innerHeight + document.documentElement.scrollTop >=
             document.documentElement.offsetHeight - 100 // Trigger 100px before the bottom
         ) {
-            setPage((prevPage) => prevPage + 1);
+            if (filterBy === postStatuEnum.PUBLISHED) setPage({ ...page, published: page.published + 1 });
+            if (filterBy === postStatuEnum.DRAFT) setPage({ ...page, draft: page.draft + 1 });
+            if (filterBy === postStatuEnum.REJECTED) setPage({ ...page, rejected: page.rejected + 1 });
+            if (filterBy === postStatuEnum.AWAITING_APPROVAL) setPage({ ...page, awaitApprove: page.awaitApprove + 1 });
+            if (filterBy === postStatuEnum.SCHEDULED) setPage({ ...page, scheduled: page.scheduled + 1 });
+            if (filterBy === 'deleted') setPage({ ...page, deleted: page.deleted + 1 });
         }
-    };
+    },[filterBy, hasMore, isFetching, page]);
 
     useEffect(() => {
         const debouncedHandleScroll = debounce(handleScroll, 200);
         window.addEventListener('scroll', debouncedHandleScroll);
-        return () => window.removeEventListener('scroll', handleScroll); // Cleanup listener
+        return () => window.removeEventListener('scroll', debouncedHandleScroll); // Cleanup listener
     }, []);
 
 
@@ -381,28 +419,29 @@ const ContributorAllPost = () => {
 
 
             {
-                (hasMore || !loading) &&
-                <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
-                    <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
-                        <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
-                        <line x1="195.9" y1="60.1" x2="173.3" y2="82.7" strokeLinecap="round" strokeLinejoin="round"
-                            strokeWidth="24"></line>
-                        <line x1="224" y1="128" x2="192" y2="128" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
-                        </line>
-                        <line x1="195.9" y1="195.9" x2="173.3" y2="173.3" strokeLinecap="round" strokeLinejoin="round"
-                            strokeWidth="24"></line>
-                        <line x1="128" y1="224" x2="128" y2="192" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
-                        </line>
-                        <line x1="60.1" y1="195.9" x2="82.7" y2="173.3" strokeLinecap="round" strokeLinejoin="round"
-                            strokeWidth="24"></line>
-                        <line x1="32" y1="128" x2="64" y2="128" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
-                        <line x1="60.1" y1="60.1" x2="82.7" y2="82.7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
-                        </line>
-                    </svg>
-                    <span className="text-xl font-medium text-gray-500">Loading...</span>
-                </div>
+                    (filterBy === postStatuEnum.PUBLISHED && hasMore.published) ||
+                    (filterBy === postStatuEnum.DRAFT && hasMore.draft) ||
+                    (filterBy === postStatuEnum.AWAITING_APPROVAL && hasMore.awaitApprove) ||
+                    (filterBy === postStatuEnum.REJECTED && hasMore.rejected) ||
+                    (filterBy === postStatuEnum.SCHEDULED && hasMore.scheduled) ||
+                    (filterBy === 'deleted' && hasMore.deleted) ||
+                    loading ? (
+                    <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
+                        <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
+                            <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                            <line x1="195.9" y1="60.1" x2="173.3" y2="82.7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                            <line x1="224" y1="128" x2="192" y2="128" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                            <line x1="195.9" y1="195.9" x2="173.3" y2="173.3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                            <line x1="128" y1="224" x2="128" y2="192" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                            <line x1="60.1" y1="195.9" x2="82.7" y2="173.3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                            <line x1="32" y1="128" x2="64" y2="128" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                            <line x1="60.1" y1="60.1" x2="82.7" y2="82.7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
+                        </svg>
+                        <span className="text-xl font-medium text-gray-500">Loading...</span>
+                    </div>
+                ) : null
             }
-            
+
         </div>
     )
 }
