@@ -38,7 +38,7 @@ export class CreatePostDto {
     @IsDateString()
     publishedDate?: string = (new Date).toISOString();
 
-    @IsString()
+    @IsNotEmpty()
     @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
     slug: string;
 }

@@ -18,6 +18,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { PagesModule } from './modules/pages/pages.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     SubscribersModule,
     BookmarksModule,
     DashboardModule,
+    PagesModule,
   ],
   controllers: [AppController],
   providers: [
