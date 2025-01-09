@@ -1,20 +1,32 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { NewPostFormData } from '@/types';
+import DatePicker from 'react-datepicker'; // Import react-datepicker
+import 'react-datepicker/dist/react-datepicker.css'; // Import the CSS for styling the calendar
+import { NewPostFormData, PostTypes } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { TiTick } from "react-icons/ti";
 import toast from 'react-hot-toast';
-import { Check } from 'lucide-react';
-import MediaModal from './component/mediaModal';
+import { Check } from 'lucide-react'; // Check icon for media selection
+import MediaModal from '@/app/(main)/newPost/component/mediaModal';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum } from '@/constant/post';
+import moment from "moment";
+import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+
+
 
 const App: React.FC = () => {
+
   const { setLoading } = useUserContext();
+  const params = useParams();
+  const slug = params.id;
+  const router = useRouter();
+
+
+ const [post, setPost] = useState<PostTypes | null>(null);
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
@@ -50,119 +62,128 @@ const App: React.FC = () => {
     }
   };
 
-  // Fetch categories on mount
-  useEffect(() => {
-    fetchCategory();
-  }, []);
-
   // Handle image selection from MediaPage modal
   const handlePreviewImageChange = (imageKey: string) => {
     setFormData({ ...formData, previewImg: imageKey });
     setIsMediaModalOpen(false); // Close modal after selection
   };
 
+
+
+
+  const fetchPost = async () => {
+    setLoading(true);
+    try {
+        const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
+        if (resp.status === 200 ||resp.status===201) {
+            setPost(resp.data); // Store the fetched post
+            setFormData({
+                postTitle: resp.data.title,
+                postDescription: resp.data.description,
+                postStatus: resp.data.status,
+                slug: resp.data.slug,
+                category: resp.data.categories ? resp.data.categories.map((cat: { _id: any; }) => cat._id) : [], // Ensure this gets the correct IDs
+                tags: resp.data.tags || [],
+                publishDate: resp.data.publishedDate ? new Date(resp.data.publishedDate) : null,
+                previewImg: resp.data.previewImageKey,
+            });
+        } else {
+            toast.error(resp.data.message, { duration: 2000 });
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setLoading(false);
+    }
+};
+
+
+
   interface PayloadType {
-    title: string;
-    description: string;
-    previewImageKey: string | File | null;
-    slug: string;
-    tags: string[];
-    categories: string[];
-    status: string;
-    publishedDate?: Date;
+    title: string,
+    description: string,
+    previewImageKey: string | File | null,
+    slug: string,
+    tags: string[],
+    categories: string[],
+    status: string,
+    publishedDate?: Date,
   }
 
-  // Handle post creation
-  const handleCreatePost = async () => {
+  // Handle post update
+  const handleUpdatePost = async () => {
     if (!formData.postTitle.trim()) {
       toast.error('Post title is required.', { duration: 2000 });
       return;
     }
-
     if (!formData.postDescription.trim()) {
       toast.error('Post description is required.', { duration: 2000 });
       return;
     }
-
     if (!formData.slug.trim()) {
       toast.error('Post slug is required.', { duration: 2000 });
       return;
     }
-
-    if (!Array.isArray(formData.category) || formData.category.length === 0) {
+    if (!formData.category.length) {
       toast.error('At least one category must be selected.', { duration: 2000 });
       return;
     }
-
-    if (!Array.isArray(formData.tags) || formData.tags.length === 0) {
-      toast.error('Add at least one tag', { duration: 2000 });
+    if (!formData.tags.length) {
+      toast.error('Add at least one tag.', { duration: 2000 });
       return;
     }
-
     if (formData.postStatus === postStatuEnum.SCHEDULED && !formData.publishDate) {
-      toast.error('Please select a Date', { duration: 2000 });
+      toast.error('Please select a publish date.', { duration: 2000 });
       return;
     }
 
     setLoading(true);
     try {
-      const payload: PayloadType = {
-        title: formData.postTitle,
-        description: formData.postDescription,
-        previewImageKey: formData.previewImg,
-        slug: formData.slug,
-        tags: formData.tags,
-        categories: formData.category,
-        status: formData.postStatus,
-        ...(formData.publishDate && { publishedDate: formData.publishDate }),
-      };
+        const payload: PayloadType = {
+            title: formData.postTitle,
+            description: formData.postDescription,
+            previewImageKey: formData.previewImg,
+            slug: formData.slug,
+            tags: formData.tags,
+            categories: formData.category,
+            status: formData.postStatus,
+          };
 
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
-
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload);
       if (resp.status === 200 || resp.status === 201) {
-        toast.success(resp.data.message, { duration: 2000 });
-
-        // Reset form data
-        setFormData({
-          postTitle: "",
-          postDescription: '',
-          postStatus: 'draft',
-          slug: '',
-          category: [],
-          tags: [],
-          publishDate: null,
-          previewImg: '',
-        });
-        setTagInput('');
-        editorRef.current?.setContent(''); // Reset TinyMCE editor content
-        fetchCategory(); // Re-fetch categories
+        toast.success('Post updated successfully!', { duration: 2000 });
+        router.back();
+        
       } else {
         toast.error(resp.data.message, { duration: 2000 });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle category toggle
-  const toggleCategory = (id: string) => {
-    setFormData((prevData) => {
-      const { category } = prevData;
-      if (category.includes(id)) {
-        return {
-          ...prevData,
-          category: category.filter((catId) => catId !== id),
-        };
-      } else {
-        return {
-          ...prevData,
-          category: [...category, id],
-        };
-      }
-    });
-  };
+
+
+// Handle category toggle
+const toggleCategory = (id: string) => {
+  setFormData((prevData) => {
+    const { category } = prevData;
+    if (category.includes(id)) {
+      return {
+        ...prevData,
+        category: category.filter((catId) => catId !== id), // Remove the ID if already included
+      };
+    } else {
+      return {
+        ...prevData,
+        category: [...category, id], // Add the ID if not included
+      };
+    }
+  });
+};
+
 
   // Filter categories based on search query
   const filterCategory = (query: string) => {
@@ -173,15 +194,22 @@ const App: React.FC = () => {
 
   // Handle tag input change
   const handleTagAdd = () => {
-    if (!tagInput.trim().length) return;
+    if (!tagInput.length) return;
     setFormData({ ...formData, tags: [...formData.tags, tagInput.trim()] });
     setTagInput('');
   };
 
   const removeTag = (tagName: string) => {
-    const filteredTags = formData.tags.filter(tag => tag !== tagName);
+    const filteredTags = formData.tags.filter(tag => tag != tagName)
     setFormData({ ...formData, tags: filteredTags });
-  };
+  }
+
+
+  useEffect(() => {
+    fetchCategory();
+    fetchPost();
+
+  }, []);
 
 
   return (
@@ -366,6 +394,7 @@ const App: React.FC = () => {
             </div>
           </div>
 
+
         </div>
       </div>
 
@@ -373,9 +402,9 @@ const App: React.FC = () => {
       <div className="flex justify-end mt-6">
         <button
           className="px-6 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-          onClick={handleCreatePost}
+          onClick={handleUpdatePost}
         >
-          Create Post
+          Update Post
         </button>
       </div>
 
@@ -395,3 +424,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
