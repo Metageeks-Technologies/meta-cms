@@ -58,14 +58,14 @@ export class AppModule {
         if (allowedOrigins.includes(origin) || !origin) {
           callback(null, true); // Allow the request
         } else {
-          callback(new Error('Not allowed by CORS')); // Reject the request
+          callback(null, false); // Reject the request
         }
       },
       credentials: true, // Allow credentials (cookies/authorization headers)
     };
 
     // Use CORS middleware
-    consumer.apply(cors(corsOptions));
+    consumer.apply(cors(corsOptions)).forRoutes('*');
 
     // Cookie Parser middleware
     consumer.apply(cookieParser()).forRoutes('*');
