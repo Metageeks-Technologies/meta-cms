@@ -30,26 +30,26 @@ const ProfilePage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const fetchUser = () => {
-      setUserProfile({
-        name: user?.name,
-        email: user?.email,
-        role: user?.role,
-        phoneNo: user?.phoneNo ? user?.phoneNo : "",
-        bio: user?.bio ? user?.bio : "",
-        socialLinks: {
-          facebook: user?.socialLinks?.facebook ? user?.socialLinks?.facebook : "",
-          instagram: user?.socialLinks?.instagram ? user?.socialLinks?.instagram : "",
-          linkedIn: user?.socialLinks?.linkedIn ? user?.socialLinks?.linkedIn : "",
-          twitter: user?.socialLinks?.twitter ? user?.socialLinks?.twitter : "",
-        }
-      })
+    setUserProfile({
+      name: user?.name,
+      email: user?.email,
+      role: user?.role,
+      phoneNo: user?.phoneNo ? user?.phoneNo : "",
+      bio: user?.bio ? user?.bio : "",
+      socialLinks: {
+        facebook: user?.socialLinks?.facebook ? user?.socialLinks?.facebook : "",
+        instagram: user?.socialLinks?.instagram ? user?.socialLinks?.instagram : "",
+        linkedIn: user?.socialLinks?.linkedIn ? user?.socialLinks?.linkedIn : "",
+        twitter: user?.socialLinks?.twitter ? user?.socialLinks?.twitter : "",
+      }
+    })
   }
 
   const handleCancel = () => {
     fetchUser();
     setIsEditing(false);
   };
-    
+
 
   const handleSave = async () => {
     setLoading(true);
@@ -77,7 +77,7 @@ const ProfilePage: React.FC = () => {
   }
 
   useEffect(() => {
-      fetchUser();
+    fetchUser();
   }, [user]);
 
 
@@ -133,7 +133,7 @@ const ProfilePage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Full Name</label>
             <input
               type="text"
-              placeholder='Enter your full name...'
+              placeholder='Enter full name...'
               name="fullname"
               id="fullname"
               required
@@ -144,7 +144,7 @@ const ProfilePage: React.FC = () => {
                 if (/^[a-zA-Z\s]*$/.test(inputValue)) {
                   setUserProfile({ ...userProfile, name: inputValue });
                 }
-              }}              
+              }}
               disabled={!isEditing}
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
             />
@@ -158,24 +158,37 @@ const ProfilePage: React.FC = () => {
               type="tel"
               name="phone"
               id="phone"
-              maxLength={10} 
-              placeholder='Enter your phone number...'
+              maxLength={10}
+              placeholder='Enter  phone number...'
               value={userProfile?.phoneNo}
               onChange={(e) => {
                 // Ensure that only digits are allowed (no characters, no special symbols)
                 const numericValue = e.target.value.replace(/[^0-9]/g, '');
                 setUserProfile({ ...userProfile, phoneNo: numericValue });
-              }}              disabled={!isEditing}
+              }} disabled={!isEditing}
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-           
+
             />
           </div>
 
 
-          {/* bio  */}
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="bio">Bio</label>
-            {isEditing ? (
+          {/* bio */}
+          {!isEditing && userProfile?.bio && (
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="bio">Bio</label>
+              <textarea
+                disabled={!isEditing}
+                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`} rows={3}
+                value={userProfile.bio}
+                readOnly
+              />
+            </div>
+
+          )}
+
+          {isEditing && (
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="bio">Bio</label>
               <textarea
                 name="bio"
                 id="bio"
@@ -185,10 +198,13 @@ const ProfilePage: React.FC = () => {
                 className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ring-yellow-500"
                 rows={3}
               />
-            ) : (
-              <p className="text-gray-300">{userProfile?.bio}</p>
-            )}
-          </div>
+            </div>
+          )}
+
+
+
+
+
 
 
           {/* email  */}
@@ -200,7 +216,7 @@ const ProfilePage: React.FC = () => {
               id="email"
               value={userProfile?.email}
               disabled
-            
+
               className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
 
             />
@@ -232,7 +248,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="facebook"
-                  placeholder='Add your link here...'
+                  placeholder='Add link here...'
                   value={userProfile?.socialLinks?.facebook}
                   onChange={(e) => {
                     setUserProfile({
@@ -254,7 +270,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="instagram"
-                  placeholder='Add your link here...'
+                  placeholder='Add link here...'
                   value={userProfile?.socialLinks?.instagram}
                   onChange={(e) => {
                     setUserProfile({
@@ -276,7 +292,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="linkedin"
-                  placeholder='Add your link here...'
+                  placeholder='Add link here...'
                   value={userProfile?.socialLinks?.linkedIn}
                   onChange={(e) => {
                     setUserProfile({
@@ -298,7 +314,7 @@ const ProfilePage: React.FC = () => {
                   type="url"
                   name="role"
                   id="twitter"
-                  placeholder='Add your link here...'
+                  placeholder='Add  link here...'
                   value={userProfile?.socialLinks?.twitter}
                   onChange={(e) => {
                     setUserProfile({

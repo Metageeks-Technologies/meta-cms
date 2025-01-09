@@ -23,7 +23,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
             if (resp?.status === 200 || resp?.status === 201) {
-                setCategeories(resp?.data.reverse());
+                setCategeories(resp?.data);
             } else {
                 toast.error(resp?.data?.message, {
                     duration: 2000,
