@@ -20,9 +20,7 @@ import moment from "moment";
 const App: React.FC = () => {
 
   const { setLoading } = useUserContext();
-
-
-
+  
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
@@ -91,7 +89,7 @@ const App: React.FC = () => {
       toast.error('Post description is required.', { duration: 2000 });
       return;
     }
- 
+
     if (!formData.slug.trim()) {
       toast.error('Post slug is required.', { duration: 2000 });
       return;
@@ -230,7 +228,7 @@ const App: React.FC = () => {
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
-             <Editor
+            <Editor
               // apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
               licenseKey='gpl'
               tinymceScriptSrc='/tinymce/tinymce.min.js'
@@ -272,9 +270,9 @@ const App: React.FC = () => {
               value={formData.postDescription}
               onEditorChange={(content) => setFormData({ ...formData, postDescription: content })}
               onInit={(evt, editor) => editorRef.current = editor}
-            /> 
+            />
 
-           
+
 
           </div>
           {/* Tags Input */}

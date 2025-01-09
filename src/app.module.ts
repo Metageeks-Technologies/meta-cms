@@ -50,15 +50,26 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
 
+    const allowedOrigins = process.env.CLIENT_URLS.split(',');
+
     // CORS middleware
-    consumer.apply(cors({ 
-      origin: process.env.CLIENT_URL,
-      credentials: true 
-    })).forRoutes('*');
-    
+    const corsOptions = {
+      origin: (origin: any, callback: any) => {
+        if (allowedOrigins.includes(origin) || !origin) {
+          callback(null, true); // Allow the request
+        } else {
+          callback(new Error('Not allowed by CORS')); // Reject the request
+        }
+      },
+      credentials: true, // Allow credentials (cookies/authorization headers)
+    };
+
+    // Use CORS middleware
+    consumer.apply(cors(corsOptions));
+
     // Cookie Parser middleware
     consumer.apply(cookieParser()).forRoutes('*');
-    
+
     // Request Logger middleware
     consumer.apply(RequestLoggerMiddleware).forRoutes('*');
   }
