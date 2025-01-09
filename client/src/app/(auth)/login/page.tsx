@@ -5,11 +5,11 @@ import { LoginPayload } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 const page = () => {
 
-    const {setLoading, getUserProfile} = useUserContext();
+    const {setLoading, getUserProfile } = useUserContext();
 
     const router = useRouter()
     const [showPass, setShowPass] = useState(false);
@@ -25,12 +25,12 @@ const page = () => {
 
             if (response.status === 200 || response.status === 201) {
                 const resp = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
-                if(resp.status !== 200){
-                    toast.error(resp.data.message, {duration: 2000});
+                if (resp.status !== 200) {
+                    toast.error(resp.data.message, { duration: 2000 });
                     return;
                 }
-                if(resp.data.role === userRoles.SUBSCRIBER){
-                    toast.error("Subscriber not allowed", {duration: 2000});
+                if (resp.data.role === userRoles.SUBSCRIBER) {
+                    toast.error("Subscriber not allowed", { duration: 2000 });
                     return;
                 }
                 toast.success(response.data.message, { duration: 2000 });
@@ -46,6 +46,8 @@ const page = () => {
             setLoading(false);
         }
     }
+
+
     return (
         <div className='w-full h-screen flex items-center justify-center'>
             <div className='w-full max-w-[600px] mx-2 h-auto bg-gray-900 p-2 sm:p-6 rounded-lg'>
@@ -84,7 +86,7 @@ const page = () => {
                                 </span>
                             </div>
                         </label>
-                        <button type='submit' className='w-full text-center bg-gray-200 text-black rounded-lg p-2 text-xl my-2 font-bold hover:bg-white'>Login</button>
+                        <button type='submit' className='w-full text-center bg-gray-200 text-black hover:text-white rounded-lg p-2 text-xl my-2 font-bold hover:bg-transparent border-white border-2 duration-300'>Login</button>
                         <p className='text-center my-3'>Don’t have an account? <span onClick={() => router.push('/signUp')} className='underline hover:text-blue-500 cursor-pointer'>Sign up</span></p>
                     </form>
                 </div>

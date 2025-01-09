@@ -14,7 +14,7 @@ const AdminAllPost = () => {
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [postData, setPostData] = useState<any>(null);
-    const { setLoading } = useUserContext();
+    const { loading, setLoading } = useUserContext();
     const [lastId, setLastId] = useState('');
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -27,11 +27,12 @@ const AdminAllPost = () => {
         if (isFetching) return;
         setIsFetching(true);
         page === 1 && setLoading(true);
-
+        
         try {
             if (filterBy === postStatuEnum.DRAFT) {
                 const param = new URLSearchParams();
                 if (sortBy) param.append('sortBy', sortBy);
+                param.append('isDeleted', 'false');
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/drafts?${param.toString()}`);
 
                 if (resp.status === 200 || resp.status === 201) {
@@ -49,11 +50,12 @@ const AdminAllPost = () => {
                 const param = new URLSearchParams();
                 if (filterBy) {
                     if (filterBy === '') {
-
+                        param.append('isDeleted', 'false');
                     } else if (filterBy === "deleted") {
                         param.append('isDeleted', 'true');
                     } else {
                         param.append('status', filterBy.toLowerCase());
+                        param.append('isDeleted', 'false');
                     }
                 }
 
@@ -171,7 +173,7 @@ const AdminAllPost = () => {
 
 
             {
-                hasMore &&
+                (hasMore && !loading ) &&
                 <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
                     <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
                         <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
@@ -184,7 +186,7 @@ const AdminAllPost = () => {
                         <line x1="128" y1="224" x2="128" y2="192" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
                         </line>
                         <line x1="60.1" y1="195.9" x2="82.7" y2="173.3" strokeLinecap="round" strokeLinejoin="round"
-                            stroke-Width="24"></line>
+                            strokeWidth="24"></line>
                         <line x1="32" y1="128" x2="64" y2="128" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
                         <line x1="60.1" y1="60.1" x2="82.7" y2="82.7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24">
                         </line>

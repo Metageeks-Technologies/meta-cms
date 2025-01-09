@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsDateString, isDateString, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsDateString, isDateString, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
 import { PostStatusEnum } from '../schema/post.schema';
 
 // Enum defining what satatus a new post can have
@@ -37,4 +37,8 @@ export class CreatePostDto {
     @IsOptional()
     @IsDateString()
     publishedDate?: string = (new Date).toISOString();
+
+    @IsString()
+    @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
+    slug: string;
 }

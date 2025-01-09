@@ -148,6 +148,7 @@ export const defaultNewPostData: NewPostFormData = {
   postTitle: "",
   postDescription: '',
   postStatus: 'draft',
+  slug: '',
   category: [],
   tags: [],
   publishDate: null,

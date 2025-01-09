@@ -15,9 +15,13 @@ import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum } from '@/constant/post';
 import moment from "moment";
 
+
+
 const App: React.FC = () => {
 
   const { setLoading } = useUserContext();
+
+
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
@@ -27,6 +31,7 @@ const App: React.FC = () => {
     postTitle: "",
     postDescription: '',
     postStatus: 'draft',
+    slug: '',
     category: [],
     tags: [],
     publishDate: null,
@@ -68,10 +73,11 @@ const App: React.FC = () => {
     title: string,
     description: string,
     previewImageKey: string | File | null,
+    slug: string,
     tags: string[],
     categories: string[],
     status: string,
-    publishedDate?: string,
+    publishedDate?: Date,
   }
 
   // Handle post creation
@@ -80,8 +86,14 @@ const App: React.FC = () => {
       toast.error('Post title is required.', { duration: 2000 });
       return;
     }
+
     if (!formData.postDescription.trim()) {
       toast.error('Post description is required.', { duration: 2000 });
+      return;
+    }
+ 
+    if (!formData.slug.trim()) {
+      toast.error('Post slug is required.', { duration: 2000 });
       return;
     }
     if (!Array.isArray(formData.category) || formData.category.length === 0) {
@@ -92,19 +104,25 @@ const App: React.FC = () => {
       toast.error('Add at least one tag', { duration: 2000 });
       return;
     }
+    if (formData.postStatus === postStatuEnum.SCHEDULED && !formData.publishDate) {
+      toast.error('Please select a Date', { duration: 2000 });
+      return;
+    }
     setLoading(true);
     try {
       const payload: PayloadType = {
         title: formData.postTitle,
         description: formData.postDescription,
         previewImageKey: formData.previewImg,
+        slug: formData.slug,
         tags: formData.tags,
         categories: formData.category,
         status: formData.postStatus,
       };
-      
-      if(formData.publishDate){
-        payload.publishedDate = moment(formData.publishDate).format("dddd, MMMM Do YYYY");
+
+      if (formData.publishDate && formData.postStatus === postStatuEnum.SCHEDULED) {
+        // payload.publishedDate = moment(formData.publishDate).format("dddd, MMMM Do YYYY");
+        payload.publishedDate = formData.publishDate
       }
 
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
@@ -115,13 +133,14 @@ const App: React.FC = () => {
           postTitle: "",
           postDescription: '',
           postStatus: 'draft',
+          slug: '',
           category: [],
           tags: [],
           publishDate: null,
           previewImg: null,
         });
         setTagInput('');
-        // editorRef.current?.setContent('');
+        editorRef.current?.setContent('');
         fetchCategory();
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -160,6 +179,7 @@ const App: React.FC = () => {
 
   // Handle tag input change
   const handleTagAdd = () => {
+    if (!tagInput.length) return;
     setFormData({ ...formData, tags: [...formData.tags, tagInput.trim()] });
     setTagInput('');
   };
@@ -210,25 +230,52 @@ const App: React.FC = () => {
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
-            <Editor
-              apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+             <Editor
+              // apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+              licenseKey='gpl'
+              tinymceScriptSrc='/tinymce/tinymce.min.js'
               init={{
+                promotion: false,
                 height: 400,
                 skin: "oxide-dark",
                 content_css: "dark",
+                external_plugins: {
+                  embed: "/api/embed?requestType=plugin",
+                },
                 plugins: [
-                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                  'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount',
+                  'advlist',
+                  'autolink',
+                  'lists',
+                  'link',
+                  'image',
+                  'charmap',
+                  'anchor',
+                  'searchreplace',
+                  'visualblocks',
+                  'code',
+                  'fullscreen',
+                  'insertdatetime',
+                  'media',
+                  'table',
+                  'preview',
+                  'help',
+                  'wordcount',
                 ],
-                toolbar: 'undo redo | bold italic forecolor | bullist numlist | removeformat | embed',
+                toolbar:
+                  'undo redo | blocks | ' +
+                  'bold italic forecolor | alignleft aligncenter ' +
+                  'alignright alignjustify | bullist numlist outdent indent | ' +
+                  'removeformat | help | embed',
                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                 verify_html: false,
               }}
               value={formData.postDescription}
               onEditorChange={(content) => setFormData({ ...formData, postDescription: content })}
               onInit={(evt, editor) => editorRef.current = editor}
-            />
+            /> 
+
+           
+
           </div>
           {/* Tags Input */}
 
@@ -238,7 +285,7 @@ const App: React.FC = () => {
                 formData.tags.map((tag, index) => (
                   <p key={index} className='bg-gray-900 px-2 py-1 rounded-full'>
                     {tag}
-                    <span className='bg-gray-800 rounded-full cursor-pointer px-2 py-1' onClick={() => removeTag(tag)}>x</span>
+                    <span className='bg-gray-800 rounded-full cursor-pointer px-2 py-1 ml-2' onClick={() => removeTag(tag)}>x</span>
                   </p>
                 ))
               }
@@ -292,6 +339,20 @@ const App: React.FC = () => {
             </div>
           }
 
+
+          {/* Slug */}
+          <label className='w-full flex flex-col gap-2'>
+            <span>Create Slug</span>
+            <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+            <input
+              type="text"
+              className='w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none'
+              placeholder='Enter slug'
+              value={formData.slug}
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+            />
+          </label>
+
           {/* Category Selection */}
           <div className="space-y-2">
             <p>Category</p>
@@ -327,14 +388,16 @@ const App: React.FC = () => {
 
 
       {/* Media Modal */}
-      {isMediaModalOpen && (
-        <MediaModal
-          onSelectImage={handlePreviewImageChange}
-          setIsMediaModalOpen={setIsMediaModalOpen}
-        />
-      )}
+      {
+        isMediaModalOpen && (
+          <MediaModal
+            onSelectImage={handlePreviewImageChange}
+            setIsMediaModalOpen={setIsMediaModalOpen}
+          />
+        )
+      }
 
-    </div>
+    </div >
   );
 };
 

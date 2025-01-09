@@ -23,6 +23,7 @@ export interface NewPostFormData {
     postTitle: string;
     postDescription: string;
     postStatus: string;
+    slug: string;
     category: string[];
     tags: string[];
     publishDate: Date | null;
@@ -96,6 +97,8 @@ export interface PostContextType {
     deleteCategory: (id: string) => Promise<void>;
     fetchMedia: (lastId: string) => Promise<void>;
     media: MediaType[];
+    hasMoreMedia: boolean;
+    isFetching: boolean;
 }
 
 
