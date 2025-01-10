@@ -24,11 +24,11 @@ import { getURL } from '@/utils/AWS_Config'
 
 
 const page = () => {
-    const {setLoading} = useUserContext();
+    const { setLoading } = useUserContext();
     const [post, setPost] = useState<PostTypes | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const {user} = useUserContext();
+    const { user } = useUserContext();
     const router = useRouter();
     const params = useParams();
     const slug = params.id;
@@ -124,7 +124,7 @@ const page = () => {
 
         } catch (error) {
             console.log(error)
-        } finally { 
+        } finally {
             setLoading(false);
         }
     }
@@ -155,14 +155,14 @@ const page = () => {
         setLoading(true);
         try {
             const payload = {
-                status : postStatuEnum.PUBLISHED,
+                status: postStatuEnum.PUBLISHED,
             }
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${id}`, payload);
 
-            if(resp.status === 200 || resp.status === 201){
+            if (resp.status === 200 || resp.status === 201) {
                 toast.success("Post Published", { duration: 2000 });
                 fetchPost();
-            }else{
+            } else {
                 toast.error(resp?.data?.message, { duration: 2000 });
             }
         } catch (error) {
@@ -203,22 +203,35 @@ const page = () => {
                                     }
 
                                     {
-                                        !post.isDeleted &&
+                                        !post.isDeleted && (
+                                            <div className='flex justify-between'>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Post</Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent className="bg-black text-white border-none">
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={handleDeletePost} className="text-white bg-red-500 hover:bg-red-700">Delete</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                                {user?.id === post?.authorId && post?.status === postStatuEnum.DRAFT && (
+                                                    <button
+                                                        onClick={() => router.push(`/editpost/${post.slug}`)}
 
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Post</Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent className="bg-black text-white border-none">
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleDeletePost} className="text-white bg-red-500 hover:bg-red-700">Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+
+                                                        
+                                                        className=' bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'
+                                                    >
+                                                        Edit Post
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )
                                     }
 
                                     {
