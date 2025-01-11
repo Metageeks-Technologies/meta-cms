@@ -1,5 +1,4 @@
 'use client'
-import { dummyMedia } from '@/constant/post';
 import { usePostContext } from '@/context/postContext';
 import { useUserContext } from '@/context/userContext';
 import { MediaType } from '@/types';
@@ -10,7 +9,7 @@ import React, { useEffect, useState } from 'react'
 
 const page = () => {
     const [filterBy, setFilterBy] = useState('all');
-    const [mediaData, setMediaData] = useState(dummyMedia);
+    // const [mediaData, setMediaData] = useState(dummyMedia);
 
     const {user} = useUserContext();
     const { media, fetchMedia } = usePostContext();
@@ -18,12 +17,12 @@ const page = () => {
     const handleFilter = (value: string) => {
         if (value === 'all') {
             setFilterBy('all');
-            setMediaData(dummyMedia);
+            // setMediaData(dummyMedia);
             return;
         }
 
-        const filteredData = dummyMedia.filter((data) => data.type === value);
-        setMediaData(filteredData);
+        // const filteredData = dummyMedia?.filter((data) => data.type === value);
+        // setMediaData(filteredData);
         setFilterBy(value);
     }
 

@@ -37,6 +37,22 @@ export const items: MenuItem[] = [
       ]
     },
     {
+      title: "Page",
+      icon: ScrollText,
+      subMenu: [
+        {
+          title: "New Page",
+          url: "/newPage",
+          icon: MdPostAdd,
+        },
+        {
+          title: "All Page",
+          url: "/allPage",
+          icon: ScrollText,
+        },
+      ]
+    },
+    {
       title: "Subscribers",
       url: "/subscribers",
       icon: UsersRound,

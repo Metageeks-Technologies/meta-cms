@@ -33,7 +33,7 @@ const AdminAllPost = () => {
                 if (sortBy) param.append('sortBy', sortBy);
                 if (lastId) param.append('lastId', lastId);
                 param.append('isDeleted', 'false');
-                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/drafts?${param.toString()}`);
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/draft?${param.toString()}`);
 
                 if (resp.status === 200 || resp.status === 201) {
                     const newPost = resp?.data;

@@ -15,6 +15,7 @@ import { postStatuEnum } from '@/constant/post';
 import moment from "moment";
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { FaArrowLeft } from 'react-icons/fa6';
 
 
 
@@ -26,7 +27,7 @@ const App: React.FC = () => {
   const router = useRouter();
 
 
- const [post, setPost] = useState<PostTypes | null>(null);
+  const [post, setPost] = useState<PostTypes | null>(null);
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
@@ -71,28 +72,28 @@ const App: React.FC = () => {
   const fetchPost = async () => {
     setLoading(true);
     try {
-        const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
-        if (resp.status === 200 ||resp.status===201) {
-            setPost(resp.data); // Store the fetched post
-            setFormData({
-                postTitle: resp.data.title,
-                postDescription: resp.data.description,
-                postStatus: resp.data.status,
-                slug: resp.data.slug,
-                category: resp.data.categories ? resp.data.categories.map((cat: { _id: any; }) => cat._id) : [], // Ensure this gets the correct IDs
-                tags: resp.data.tags || [],
-                publishDate: resp.data.publishedDate ? new Date(resp.data.publishedDate) : null,
-                previewImg: resp.data.previewImageKey,
-            });
-        } else {
-            toast.error(resp.data.message, { duration: 2000 });
-        }
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
+      if (resp.status === 200 || resp.status === 201) {
+        setPost(resp.data); // Store the fetched post
+        setFormData({
+          postTitle: resp.data.title,
+          postDescription: resp.data.description,
+          postStatus: resp.data.status,
+          slug: resp.data.slug,
+          category: resp.data.categories ? resp.data.categories.map((cat: { _id: any; }) => cat._id) : [], // Ensure this gets the correct IDs
+          tags: resp.data.tags || [],
+          publishDate: resp.data.publishedDate ? new Date(resp.data.publishedDate) : null,
+          previewImg: resp.data.previewImageKey,
+        });
+      } else {
+        toast.error(resp.data.message, { duration: 2000 });
+      }
     } catch (error) {
-        console.error(error);
+      console.error(error);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
 
 
@@ -136,21 +137,21 @@ const App: React.FC = () => {
 
     setLoading(true);
     try {
-        const payload: PayloadType = {
-            title: formData.postTitle,
-            description: formData.postDescription,
-            previewImageKey: formData.previewImg,
-            slug: formData.slug,
-            tags: formData.tags,
-            categories: formData.category,
-            status: formData.postStatus,
-          };
+      const payload: PayloadType = {
+        title: formData.postTitle,
+        description: formData.postDescription,
+        previewImageKey: formData.previewImg,
+        slug: formData.slug,
+        tags: formData.tags,
+        categories: formData.category,
+        status: formData.postStatus,
+      };
 
       const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload);
       if (resp.status === 200 || resp.status === 201) {
         toast.success('Post updated successfully!', { duration: 2000 });
         router.back();
-        
+
       } else {
         toast.error(resp.data.message, { duration: 2000 });
       }
@@ -163,23 +164,23 @@ const App: React.FC = () => {
 
 
 
-// Handle category toggle
-const toggleCategory = (id: string) => {
-  setFormData((prevData) => {
-    const { category } = prevData;
-    if (category.includes(id)) {
-      return {
-        ...prevData,
-        category: category.filter((catId) => catId !== id), // Remove the ID if already included
-      };
-    } else {
-      return {
-        ...prevData,
-        category: [...category, id], // Add the ID if not included
-      };
-    }
-  });
-};
+  // Handle category toggle
+  const toggleCategory = (id: string) => {
+    setFormData((prevData) => {
+      const { category } = prevData;
+      if (category.includes(id)) {
+        return {
+          ...prevData,
+          category: category.filter((catId) => catId !== id), // Remove the ID if already included
+        };
+      } else {
+        return {
+          ...prevData,
+          category: [...category, id], // Add the ID if not included
+        };
+      }
+    });
+  };
 
 
   // Filter categories based on search query
@@ -211,7 +212,13 @@ const toggleCategory = (id: string) => {
 
   return (
     <div className='border-1 border-dashed border-gray-900 p-4 relative'>
+
       <div className="bg-[#0A090F] border-[#414141] p-6 space-y-6 flex flex-col sm:flex-row gap-8 mx-auto">
+
+        <div className='text-2xl cursor-pointer text-white -mt-2 mb-5' onClick={() => router.back()}>
+          <FaArrowLeft />
+        </div>
+
         {/* Left side (Post title, description, and tags) */}
         <div className="w-full sm:w-[70%] flex flex-col space-y-9">
           {/* Post Title */}
@@ -248,7 +255,7 @@ const toggleCategory = (id: string) => {
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
-             <Editor
+            <Editor
               // apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
               licenseKey='gpl'
               tinymceScriptSrc='/tinymce/tinymce.min.js'
@@ -290,9 +297,9 @@ const toggleCategory = (id: string) => {
               value={formData.postDescription}
               onEditorChange={(content) => setFormData({ ...formData, postDescription: content })}
               onInit={(evt, editor) => editorRef.current = editor}
-            /> 
+            />
 
-           
+
 
           </div>
           {/* Tags Input */}
