@@ -17,6 +17,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
+import { INITIAL_USER } from '@/constant/user';
 
 
 
@@ -27,7 +28,7 @@ const Header = () => {
 
     const router = useRouter()
     const pathname = usePathname();
-    const { setLoading, getUserProfile} = useUserContext();
+    const {setLoading, setUser} = useUserContext();
 
     const handleLogOut = async () => {
         setLoading(true);
@@ -37,7 +38,7 @@ const Header = () => {
     
             if(resp.status === 200 || resp.status === 201){
                 toast.success(resp.data.message, { duration: 2000 });
-                getUserProfile();
+                setUser(INITIAL_USER);
                 router.push('/');
             }else{
                 toast.error(resp.data.message, { duration: 2000});

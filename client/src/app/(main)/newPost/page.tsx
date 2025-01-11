@@ -14,7 +14,7 @@ import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum } from '@/constant/post';
 
 const App: React.FC = () => {
-  const { setLoading } = useUserContext();
+  const { setLoading, user } = useUserContext();
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
@@ -52,8 +52,8 @@ const App: React.FC = () => {
 
   // Fetch categories on mount
   useEffect(() => {
-    fetchCategory();
-  }, []);
+    if(user.role) fetchCategory();
+  }, [user]);
 
   // Handle image selection from MediaPage modal
   const handlePreviewImageChange = (imageKey: string) => {

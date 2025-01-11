@@ -156,7 +156,7 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { subscribers, fetchUsers, isLoading } = useUserContext()
+  const { user, subscribers, fetchUsers, isLoading } = useUserContext()
   // console.log(subscribers);
 
   const table = useReactTable({
@@ -180,8 +180,8 @@ function User() {
 
 
   useEffect(() => {
-    fetchUsers(userRoles.SUBSCRIBER);
-  }, []);
+    if(user.role) fetchUsers(userRoles.SUBSCRIBER);
+  }, [user]);
 
 
 

@@ -68,9 +68,6 @@ const App: React.FC = () => {
     setIsMediaModalOpen(false); // Close modal after selection
   };
 
-
-
-
   const fetchPost = async () => {
     setLoading(true);
     try {

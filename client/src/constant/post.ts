@@ -98,6 +98,15 @@ export const categories = [
   },
 ]
 
+export const postStatuEnum = {
+  DRAFT: 'draft',
+  AWAITING_APPROVAL: 'awaiting approval',
+  PUBLISHED: 'published',
+  SCHEDULED: 'scheduled',
+  REJECTED: 'rejected',
+  DELETED: 'deleted'
+}
+
 export const statusArrAdminAllPost = [
   {
     label: 'All',
@@ -105,37 +114,30 @@ export const statusArrAdminAllPost = [
   },
   {
     label: 'Publish',
-    query: "published"
+    query: postStatuEnum.PUBLISHED
   },
   {
     label: 'Draft',
-    query: "draft"
+    query: postStatuEnum.DRAFT
   },
   {
     label: 'Schedule',
-    query: "scheduled"
+    query: postStatuEnum.SCHEDULED
   },
   {
     label: 'Rejected',
-    query: "rejected"
+    query: postStatuEnum.REJECTED
   },
   {
     label: 'Await approve',
-    query: "awaiting approval"
+    query: postStatuEnum.AWAITING_APPROVAL
   },
   {
     label: 'Deleted',
-    query: "deleted"
+    query: postStatuEnum.DELETED
   },
 ];
 
-export const postStatuEnum = {
-  DRAFT: 'draft',
-  AWAITING_APPROVAL: 'awaiting approval',
-  PUBLISHED: 'published',
-  SCHEDULED: 'scheduled',
-  REJECTED: 'rejected',
-}
 
 export const postSortByEnum = {
   TRENDING: 'trending',

@@ -11,6 +11,8 @@ import debounce from 'lodash/debounce';
 
 const AdminAllPost = () => {
 
+    const { user } = useUserContext();
+
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [postData, setPostData] = useState<any>(null);
@@ -19,9 +21,6 @@ const AdminAllPost = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
-
-
-
 
     async function fetchAllPosts(lastId?: string) {
         if (isFetching) return;
@@ -32,6 +31,7 @@ const AdminAllPost = () => {
             if (filterBy === postStatuEnum.DRAFT) {
                 const param = new URLSearchParams();
                 if (sortBy) param.append('sortBy', sortBy);
+                if (lastId) param.append('lastId', lastId);
                 param.append('isDeleted', 'false');
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/drafts?${param.toString()}`);
 
@@ -104,15 +104,17 @@ const AdminAllPost = () => {
 
 
     useEffect(() => {
-        if (hasMore) fetchAllPosts(lastId);
+        if (hasMore && user.role) fetchAllPosts(lastId);
     }, [page]);
 
     useEffect(() => {
-        setPostData([]);
-        setPage(1);
-        setLastId('');
-        setHasMore(true);
-        fetchAllPosts();
+        if(user.role){
+            setPostData([]);
+            setPage(1);
+            setLastId('');
+            setHasMore(true);
+            fetchAllPosts();
+        }
     }, [filterBy, sortBy]);
 
     useEffect(() => {

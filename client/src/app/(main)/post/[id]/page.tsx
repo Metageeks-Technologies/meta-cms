@@ -24,11 +24,10 @@ import { getURL } from '@/utils/AWS_Config'
 
 
 const page = () => {
-    const { setLoading } = useUserContext();
+    const { setLoading, user } = useUserContext();
     const [post, setPost] = useState<PostTypes | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const { user } = useUserContext();
     const router = useRouter();
     const params = useParams();
     const slug = params.id;
@@ -57,8 +56,8 @@ const page = () => {
     }
 
     useEffect(() => {
-        fetchPost();
-    }, []);
+        if(user.role) fetchPost();
+    }, [user]);
 
     const handleRejectPost = async () => {
         setLoading(true);

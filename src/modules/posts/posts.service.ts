@@ -120,8 +120,10 @@ export class PostsService {
     // Match stage
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
-    if (status && status !== PostStatusEnum.DRAFT) {
+    if (status) {
       matchStage.status = status;
+    } else {
+      matchStage.status = { $ne: postStatuEnum.DRAFT }
     }
 
     if (typeof isDeleted !== 'undefined') {

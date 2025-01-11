@@ -13,7 +13,7 @@ import { getURL } from '@/utils/AWS_Config';
 const MyRecentPosts = () => {
 
     const router = useRouter();
-    const {setLoading} = useUserContext();
+    const {setLoading, user} = useUserContext();
     const [posts, setPosts] = useState<any>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -58,8 +58,8 @@ const MyRecentPosts = () => {
     }
 
     useEffect(() => {
-        fetchUserAllRecentPublishedPosts();
-    }, [])
+        if(user.role) fetchUserAllRecentPublishedPosts();
+    }, [user])
 
 
     return (
