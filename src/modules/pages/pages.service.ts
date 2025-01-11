@@ -94,7 +94,7 @@ export class PagesService {
     }
 
     async getAllPage() {
-        const allPage = await this.Page.find().sort({ createdAt: -1 });
+        const allPage = await this.Page.find().sort({ createdAt: -1 }).lean().exec();
 
         if (!allPage.length) throw new NotFoundException('No page found')
 

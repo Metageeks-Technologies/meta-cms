@@ -108,7 +108,7 @@ const columns = [
 
       const [isOpen, setIsOpen] = useState(false);
       const [category, setCategory] = useState(row.original);
-      const { deleteCategory, fetchCategories } = usePostContext();
+      const { categories, deleteCategory, fetchCategories } = usePostContext();
       const { user, setLoading }: any = useUserContext();
 
 
@@ -181,6 +181,10 @@ const columns = [
         setCategory(row.original);
         setIsOpen(false);
       }
+
+      useEffect(() => {
+        setCategory(row.original);
+      }, [row.original]);
 
       return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

@@ -88,6 +88,11 @@ const App: React.FC = () => {
       toast.error('Post slug is required.', { duration: 2000 });
       return;
     }
+    
+    if (formData.slug.trim().length < 3) {
+      toast.error('Add atleast 3 character in slug.', { duration: 2000 });
+      return;
+    }
 
     if (!Array.isArray(formData.category) || formData.category.length === 0) {
       toast.error('At least one category must be selected.', { duration: 2000 });
@@ -134,7 +139,7 @@ const App: React.FC = () => {
           previewImg: '',
         });
         setTagInput('');
-        editorRef.current?.setContent(''); // Reset TinyMCE editor content
+        // editorRef.current?.setContent(''); // Reset TinyMCE editor content
         fetchCategory(); // Re-fetch categories
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -182,6 +187,12 @@ const App: React.FC = () => {
     const filteredTags = formData.tags.filter(tag => tag !== tagName);
     setFormData({ ...formData, tags: filteredTags });
   };
+
+  const handleEditSlug = (value:string) => {
+    if(value.length <= 128){
+      setFormData({...formData, slug: value})
+    }
+  }
 
 
   return (
@@ -342,7 +353,7 @@ const App: React.FC = () => {
               className='w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none'
               placeholder='Enter slug'
               value={formData.slug}
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              onChange={(e) => handleEditSlug(e.target.value)}
             />
           </label>
 
