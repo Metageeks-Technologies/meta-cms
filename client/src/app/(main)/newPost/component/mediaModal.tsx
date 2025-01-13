@@ -1,6 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react';
-import { dummyMedia } from '@/constant/post'; // Assuming dummyMedia is an array of media objects
+import React, { useEffect, useRef, useState } from 'react'
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { uploadToS3 } from '@/utils/helperFunction';
