@@ -108,7 +108,7 @@ const columns = [
 
       const [isOpen, setIsOpen] = useState(false);
       const [category, setCategory] = useState(row.original);
-      const { categories, deleteCategory, fetchCategories } = usePostContext();
+      const { deleteCategory, fetchCategories } = usePostContext();
       const { user, setLoading }: any = useUserContext();
 
 
