@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, ForbiddenException, All } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -11,6 +11,9 @@ import { GetPostsQueryDto, PostSortByEnum } from './dto/get-post.dto';
 import { PostStatusEnum } from './schema/post.schema';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { SearchPostsQueryDto } from './dto/search-post.dto';
+import { CreateCommentDto } from '../comment/dto/create-comment-dto';
+import { userRoles } from 'client/src/constant/user';
+import { commentQueryDto } from '../comment/dto/comment-query-dto';
 
 @Controller('posts')
 export class PostsController {
@@ -92,6 +95,54 @@ export class PostsController {
     await this.postsService.removeBookmarkFromPublicPost(postId, userId);
     return { message: 'Bookmark removed successfully' };
   }
+
+  @Post('public/comment/:postId')
+  @UseGuards(AuthGuard)
+  async commentPublishedPost(@Param('postId', ValidateId) postId: string, @Req() req: Request, @Body() newCommentDetails: CreateCommentDto ){
+    const userId = (req as any).user._id;
+    await this.postsService.commentPublishedPost(postId, userId, newCommentDetails.message);
+    return { message: "Comment add successfully" }
+  }
+
+  @Patch('comment/:postId/approve/:commentId')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async approveUsersComment(@Param('postId', ValidateId) postId: string, @Param('commentId', ValidateId) commentId: string){
+    await this.postsService.approveComment(postId, commentId);
+    return { message: "Comment approved" }
+  }
+
+  @Patch('comment/reject/:commentId')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async rejectUsersComment(@Param('commentId', ValidateId) commentId: string){
+    await this.postsService.rejectComment(commentId);
+    return { message: "Comment rejected" }
+  }
+
+  @Get('comment/awating-approval')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.CONTRIBUTOR)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getAwatingApproval () {
+    const comments = await this.postsService.getAwaitingApproveComment();
+    return comments;
+  }
+
+  @Delete('comment/delete/:commentId')
+  @AllowedRoles(UserRoleEnum.SUBSCRIBER, UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async deleteComment (@Req() req: Request, @Param('commentId', ValidateId) commentId: string) {
+    const user = (req as any).user;
+    await this.postsService.deleteComment(user._id, user.role, commentId);
+    return { message: "Comment deleted succesfully" }
+  }
+
+  @Get('public/comment/:postId')
+  async publicComments (@Param('postId', ValidateId) postId: string, @Query() query: commentQueryDto){
+    const comments = await this.postsService.getPublishedComment(postId, query.lastId);
+    return comments;
+  }
+
 
   @Get('my/all')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)

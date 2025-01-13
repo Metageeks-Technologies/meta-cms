@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -43,4 +44,17 @@ export class AuthController {
     });
     res.status(200).json({ message: 'Login successful' });
   }
+
+  @Post('generate-reset-password-token')
+  async generateResetPasswordToken (@Body() userDetails: generateResetPasswordDto) {
+    await this.authService.createResetPassToken(userDetails);
+    return { message: "Token send on your email" }
+  }
+
+  @Post('reset-password')
+  async resestPassword(@Body() userDetails: resetPasswordDto){
+    await this.authService.resetUserPassword(userDetails)
+    return { message: "Password reset succesfully" }
+  }
+
 }
