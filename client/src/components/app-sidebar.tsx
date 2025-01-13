@@ -45,13 +45,13 @@ export function AppSidebar() {
         }
 
         if (userRole === userRoles.MODERATOR) {
-          // Moderator hides "User", "Contributor", and "Moderator"
-          return !["Subscribers", "Contributor", "Moderator"].includes(item.title);
+          // Moderator hides these items
+          return !["Subscribers", "Contributor", "Moderator", "Page"].includes(item.title);
         }
 
         if (userRole === userRoles.CONTRIBUTOR) {
-          // Contributor hides "User", "Contributor", "Moderator", "Category", and "Tags"
-          return !["Subscribers", "Contributor", "Moderator", "Category"].includes(item.title);
+          // Contributor hides thses items
+          return !["Subscribers", "Contributor", "Moderator", "Category", "Page"].includes(item.title);
         }
 
         // Default: Hide restricted items for other roles
@@ -64,8 +64,8 @@ export function AppSidebar() {
             ...item,
             subMenu: item.subMenu.filter((subItem) => {
               if (userRole === userRoles.CONTRIBUTOR) {
-                // Contributor hides "Category" and "Tags" in subMenu
-                return !["Category"].includes(subItem.title);
+                // Contributor hides thses sub items
+                return !["Category", "New Page", "All Page"].includes(subItem.title);
               }
               return true; // Keep all submenus for other roles
             }),
@@ -92,7 +92,7 @@ export function AppSidebar() {
               {filteredItems.map((item, index) => (
                 <div key={index}>
                   {
-                    item.title == "Post" ?
+                    item.title == "Post" || item.title == "Page"?
                       <div>
 
                         <Collapsible className="group/collapsible">

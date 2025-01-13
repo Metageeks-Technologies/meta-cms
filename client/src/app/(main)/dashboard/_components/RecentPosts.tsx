@@ -13,7 +13,7 @@ const RecentPosts = () => {
 
     const router = useRouter();
 
-    const {setLoading} = useUserContext();
+    const {setLoading, user} = useUserContext();
 
     const [posts, setPosts] = useState<any>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -58,8 +58,8 @@ const RecentPosts = () => {
 
 
     useEffect(()=> {
-        fetchAllRecentPublishedPosts();
-    }, []);
+        if(user.role) fetchAllRecentPublishedPosts();
+    }, [user]);
 
     return (
         <div className="w-[97%] text-white p-6 rounded-lg mx-auto border-[1px] border-gray-800 mt-5">

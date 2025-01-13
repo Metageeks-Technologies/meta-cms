@@ -15,15 +15,15 @@ export class PagesService {
     ) { }
 
 
-    async createPage (newPageDetails: CreatePageDto, authorId: string) {
-        
+    async createPage(newPageDetails: CreatePageDto, authorId: string) {
+
         const newPage = new this.Page(newPageDetails);
         newPage.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
 
         try {
             await newPage.save();
         } catch (error) {
-            if(error.code === 11000){
+            if (error.code === 11000) {
                 //Duplicate key error
                 throw new ConflictException('Slug already exists');
             }
@@ -32,18 +32,24 @@ export class PagesService {
         }
     }
 
-    async getPageBySlug (slug: string){
+    async getPageBySlug(slug: string, isDeleted?: boolean) {
+
+        const matchCondition: any = {
+            slug: slug
+        };
+    
+        if (isDeleted !== undefined) {
+            matchCondition.isDeleted = isDeleted;
+        }
+
         const result = await this.Page.aggregate([
             {
-                $match: {
-                    slug: slug,
-                    isDeleted: false,
-                }
+                $match: matchCondition
             }
         ]).exec();
 
         const page = result[0];
-        if(!page){
+        if (!page) {
             throw new NotFoundException('Page Not Found')
         }
         return page;
@@ -53,38 +59,46 @@ export class PagesService {
     async deletePageById(id: string) {
         const page = await this.Page.findOne({ _id: id }, { isDeleted: 1 }).lean().exec();
 
-        if(!page){
+        if (!page) {
             throw new NotFoundException('Page not found');
         }
 
-        if(page.isDeleted){
+        if (page.isDeleted) {
             throw new BadRequestException('Page already deleted');
         }
-        await this.Page.updateOne({ _id: id }, {isDeleted: true}).exec();
+        await this.Page.updateOne({ _id: id }, { isDeleted: true }).exec();
     }
 
 
-    async recoverPage(id: string){
+    async recoverPage(id: string) {
         const page = await this.Page.findOne({ _id: id }, { isDeleted: 1 }).lean().exec();
 
-        if(!page){
+        if (!page) {
             throw new NotFoundException('Page not found');
         }
-        
-        if(!page.isDeleted){
+
+        if (!page.isDeleted) {
             throw new BadRequestException('Page not deleted yet');
         }
-        await this.Page.updateOne({ _id: id }, {isDeleted: false}).exec();
+        await this.Page.updateOne({ _id: id }, { isDeleted: false }).exec();
     }
 
-    async updatePage(id: string, updatePageDetails: UpdatePageDto){
+    async updatePage(id: string, updatePageDetails: UpdatePageDto) {
         const page = await this.Page.findOne({ _id: id }, { title: 1 });
 
-        if(!page){
+        if (!page) {
             throw new NotFoundException('Page not found');
         }
 
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
+    }
+
+    async getAllPage() {
+        const allPage = await this.Page.find().sort({ createdAt: -1 }).lean().exec();
+
+        if (!allPage.length) throw new NotFoundException('No page found')
+
+        return allPage
     }
 
 }

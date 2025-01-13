@@ -43,46 +43,50 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import axiosCall from "@/utils/ApiCall"
+import toast from "react-hot-toast"
+import { useRouter } from "next/navigation"
+import { RiDeleteBinLine } from "react-icons/ri";
+import { FaClockRotateLeft } from "react-icons/fa6";
+import { VscPreview } from "react-icons/vsc";
+import { usePageContext } from "@/context/pageContext"
+
 
 
 
 const columns = [
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: "title",
+    header: "Title",
     cell: ({ row }: any) => (
-      <div className="capitalize">{row.getValue("name")}</div>
+      <div className="">{row.getValue("title")}</div>
     ),
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "slug",
+    header: "Slug",
     cell: ({ row }: any) => (
-      <div className="">{row.getValue("email")}</div>
+      <div>{row.getValue("slug")}</div>
     ),
   },
   {
-    accessorKey: "phoneNo",
-    header: "Phone",
-    cell: ({ row }: any) => (
-      <div className="capitalize">{row.getValue("phoneNo")}</div>
-    ),
-  },
-  {
-    accessorKey: "role",
-    header: () => <div className="text-right">Role</div>,
-    cell: ({ row }: any) => (
-      <div className="capitalize text-right">{row.getValue("role")}</div>
-    ),
+    accessorKey: "isDeleted",
+    header: "Deleted",
+    cell: ({ row }: any) => {
+      const isDeleted = row.getValue("isDeleted")
+      return <div>{isDeleted? <span className="text-red-500">True</span> : <span className="text-green-500">False</span>}</div>
+    },
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
-      const user = row.original;
+      const page = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const { changeUserRole }  = useUserContext();
+      const router = useRouter();
+      const {recoverPage, deletePage} = usePageContext();
+      
 
       return (
         <AlertDialog>
@@ -97,17 +101,24 @@ const columns = [
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-800" />
 
-              <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger>
-                  Demote to Contributor
-                </AlertDialogTrigger>
+              <DropdownMenuItem onClick={() => router.push(`page/${page.slug}`)} className="cursor-pointer px-3">
+                <VscPreview /> Preview Page
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger>
-                  Demote to Subscriber
-                </AlertDialogTrigger>
-              </DropdownMenuItem>
+              {
+                page.isDeleted ?
+                  <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                    <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
+                      <FaClockRotateLeft className="scale-x-[-1]" /> Recover Page
+                    </AlertDialogTrigger>
+                  </DropdownMenuItem>
+
+                  : <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3 text-red-500">
+                    <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
+                      <RiDeleteBinLine /> Delete Page
+                    </AlertDialogTrigger>
+                  </DropdownMenuItem>
+              }
 
             </DropdownMenuContent>
           </DropdownMenu>
@@ -128,9 +139,9 @@ const columns = [
               <AlertDialogAction
                 onClick={
                   clickedItem === 1 ?
-                    () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)
+                    () => recoverPage(page._id)
                     : clickedItem === 2 ?
-                      () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
+                      () => deletePage(page._id)
                       : () => { }
                 }
               >
@@ -145,20 +156,22 @@ const columns = [
   },
 ]
 
+const page = () => {
 
-
-
-function User() {
   const [sorting, setSorting] = useState<SortingState>([])
   // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { user, moderators, fetchUsers } = useUserContext();
+  const { pageData, fetchPageData } = usePageContext();
+
+  useEffect(() => {
+    fetchPageData();
+  }, [])
 
 
   const table = useReactTable({
-    data: moderators,
+    data: pageData,
     columns,
     onSortingChange: setSorting,
     // onColumnFiltersChange: setColumnFilters,
@@ -177,21 +190,17 @@ function User() {
   });
 
 
-  useEffect(() => {
-    if(user.role) fetchUsers(userRoles.MODERATOR);
-  }, [user]);
-
 
 
   return (
     <div className="w-full container mx-auto px-4">
       <div className="flex flex-col py-4">
-        <h2 className="my-3 text-2xl font-bold">All Moderator</h2>
+        <h2 className="my-3 text-2xl font-bold">All Pages</h2>
         <Input
-          placeholder="Search email..."
-          value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Search title..."
+          value={(table?.getColumn("title")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table?.getColumn("email")?.setFilterValue(event.target.value)
+            table?.getColumn("title")?.setFilterValue(event.target.value)
           }
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
@@ -277,9 +286,7 @@ function User() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default User;
-
-
+export default page

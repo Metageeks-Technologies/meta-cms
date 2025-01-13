@@ -23,6 +23,14 @@ export class PagesController {
     }
 
     @Get('public/:slug')
+    async getPublicPageBySlug(@Param('slug') slug: string){
+        const page = await this.pagesService.getPageBySlug(slug, false);
+        return page;
+    }
+
+    @Get('private/:slug')
+    @AllowedRoles(UserRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
     async getPageBySlug(@Param('slug') slug: string){
         const page = await this.pagesService.getPageBySlug(slug);
         return page;
@@ -50,6 +58,14 @@ export class PagesController {
     async updatePage (@Param('id', ValidateId) id: string, @Body() updateContent: UpdatePageDto) {
         await this.pagesService.updatePage(id, updateContent);
         return { message: "Page updated succesfully" }
+    }
+
+    @Get('all')
+    @AllowedRoles(UserRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
+    async getAllPage () {
+        const allPage = this.pagesService.getAllPage()
+        return allPage
     }
 
 }

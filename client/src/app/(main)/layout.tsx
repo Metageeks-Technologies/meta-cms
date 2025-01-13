@@ -6,6 +6,7 @@ import { UserProvider, useUserContext } from "@/context/userContext";
 import { PostProvider } from "@/context/postContext";
 import Loader from "@/components/common/Loader";
 import { useEffect } from "react";
+import { PageProvider } from "@/context/pageContext";
 
 // export const metadata = {
 //   title: "Authentication - My Blogging Website",
@@ -14,20 +15,21 @@ import { useEffect } from "react";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
 
-  const {loading, getUserProfile} = useUserContext();
+  const { loading, getUserProfile } = useUserContext();
 
   // Initial load
-      useEffect(() => {
-          getUserProfile();
-      }, []);
+  useEffect(() => {
+    getUserProfile();
+  }, []);
 
   return (
     // <UserProvider>
+    <PageProvider>
       <PostProvider>
         <div className="relative">
           {
             loading &&
-            <Loader/>
+            <Loader />
           }
           <div className="w-full bg-[#06040B]">
             <SidebarProvider>
@@ -40,6 +42,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           </div>
         </div>
       </PostProvider >
+    </PageProvider>
     // </UserProvider >
   );
 }

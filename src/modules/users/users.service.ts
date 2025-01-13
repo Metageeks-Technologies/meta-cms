@@ -92,19 +92,19 @@ export class UsersService {
 
   async getAllModerator(): Promise<IUser[]> {
     // Assuming user verified as super Admin
-    const users = await this.User.find({ role: UserRoleEnum.MODERATOR }).lean().exec();
+    const users = await this.User.find({ role: UserRoleEnum.MODERATOR }).sort({ createdAt: -1 }).lean().exec();
     return users as IUser[];
   }
 
   async getAllContributor(): Promise<IUser[]> {
     // Assuming user verified as super Admin
-    const users = await this.User.find({ role: UserRoleEnum.CONTRIBUTOR }).lean().exec();
+    const users = await this.User.find({ role: UserRoleEnum.CONTRIBUTOR }).sort({ createdAt: -1 }).lean().exec();
     return users as IUser[];
   }
 
   async getAllSubscribers(): Promise<IUser[]> {
     // Assuming user verified as super Admin
-    const users = await this.User.find({ role: UserRoleEnum.SUBSCRIBER }).lean().exec();
+    const users = await this.User.find({ role: UserRoleEnum.SUBSCRIBER }).sort({ createdAt: -1 }).lean().exec();
     return users as IUser[];
   }
 

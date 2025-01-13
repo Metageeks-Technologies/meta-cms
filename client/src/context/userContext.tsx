@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import axiosCall from '@/utils/ApiCall';
 import { UserProfile } from '@/types';
-import { userRoles } from '@/constant/user';
+import { INITIAL_USER, userRoles } from '@/constant/user';
 
 interface UserContextType {
     user: UserProfile;
@@ -19,13 +19,6 @@ interface UserContextType {
     setUser: (user: UserProfile) => void;
     loading: boolean;
     setLoading : (loading: boolean) => void;
-};
-
-const INITIAL_USER: UserProfile = {
-    id: '',
-    name: '',
-    email: '',
-    role: ''
 };
 
 // Context Creation

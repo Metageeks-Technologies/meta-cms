@@ -28,7 +28,7 @@ export class CategoriesService {
   async findAll() {
     // Using lean for efficiency
     // since categories will be fetched quite often
-    const categories = await this.Category.find().lean().exec();
+    const categories = await this.Category.find().sort({ createdAt: -1 }).lean().exec();
     return categories as ICategory[];
   }
 

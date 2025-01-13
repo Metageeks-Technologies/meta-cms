@@ -111,7 +111,7 @@ export class PostsController {
     return myAllPosts;
   }
 
-  @Get('my/drafts')
+  @Get('my/draft')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getUserDraftPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
