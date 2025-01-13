@@ -122,6 +122,12 @@ const App: React.FC = () => {
       toast.error('Post slug is required.', { duration: 2000 });
       return;
     }
+
+    if (formData.slug.trim().length < 3) {
+      toast.error('Add atleast 3 character in slug.', { duration: 2000 });
+      return;
+    }
+
     if (!formData.category.length) {
       toast.error('At least one category must be selected.', { duration: 2000 });
       return;

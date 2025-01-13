@@ -1,5 +1,10 @@
 'use client'
 import { useParams, useRouter } from 'next/navigation'
+
+
+import { dummyComments } from '@/constant/comments'
+
+
 import React, { useContext, useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { PostTypes } from '@/types'
@@ -27,6 +32,15 @@ const page = () => {
     const { setLoading, user } = useUserContext();
     const [post, setPost] = useState<PostTypes | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+
+    const [comments, setComments] = useState(dummyComments);
+    const [visibleComments, setVisibleComments] = useState(5); // Initially show 5 comments
+    const loadMoreComments = () => {
+        setVisibleComments((prev) => Math.min(prev + 5, comments.length));
+    };
+
+
 
     const router = useRouter();
     const params = useParams();
@@ -56,7 +70,7 @@ const page = () => {
     }
 
     useEffect(() => {
-        if(user.role) fetchPost();
+        if (user.role) fetchPost();
     }, [user]);
 
     const handleRejectPost = async () => {
@@ -193,6 +207,11 @@ const page = () => {
                                         <p>Date : {handleDate(post?.publishedDate)}</p>
                                     </div>
 
+
+
+
+
+
                                     {
                                         ((user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR) && post?.status === postStatuEnum.AWAITING_APPROVAL) &&
                                         <div className='w-full flex flex-row gap-3 mt-5'>
@@ -218,13 +237,13 @@ const page = () => {
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
-                                                {user?.id === post?.authorId && post?.status === postStatuEnum.DRAFT && (
+                                                {user?.id === post?.authorId &&( post?.status === postStatuEnum.DRAFT || post?.status === postStatuEnum.REJECTED || post?.status === postStatuEnum.SCHEDULED) && (
                                                     <button
                                                         onClick={() => router.push(`/editpost/${post.slug}`)}
 
 
-                                                        
-                                                        className=' bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'
+
+                                                        className=' bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
                                                     >
                                                         Edit Post
                                                     </button>
@@ -259,7 +278,31 @@ const page = () => {
                                         </div>
                                     }
 
-
+                                    {/* Render Comments */}
+                                    {/* Scrollable Comments Section */}
+                                    <h2 className='text-xl font-semibold '>Comments ({comments.length})</h2>
+                                    <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
+                                        {comments.slice(0, visibleComments).map((comment) => (
+                                            <div key={comment.id} className='flex  items-start mb-4 border-b pb-2'>
+                                                <img
+                                                    src={`https://ui-avatars.com/api/?name=${comment.author}&size=40`} // Placeholder for user who comment
+                                                    alt={comment.author}
+                                                    className='w-10 h-10 rounded-full mr-3'
+                                                />
+                                                <div className='flex-1'>
+                                                    <p className='font-semibold'>{comment.author} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span></p>
+                                                    <p className='text-gray-200'>{comment.message}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {visibleComments < comments.length && (
+                                            <div className='flex justify-center'>
+                                                <button onClick={loadMoreComments} className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'>
+                                                    Load More...
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
 
                                 </div>
                                 : <p className='text-center text-2xl'>No Data found.</p>

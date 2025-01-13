@@ -93,7 +93,7 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
-    async getAllPage() {
+    async getAllPage(): Promise<any> {
         const allPage = await this.Page.find().sort({ createdAt: -1 }).lean().exec();
 
         if (!allPage.length) throw new NotFoundException('No page found')

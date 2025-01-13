@@ -309,11 +309,11 @@ const ProfilePage: React.FC = () => {
 
               {/* twitter */}
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="twitter">Twitter</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="x">X</label>
                 <input
                   type="url"
                   name="role"
-                  id="twitter"
+                  id="x"
                   placeholder='Add  link here...'
                   value={userProfile?.socialLinks?.twitter}
                   onChange={(e) => {
