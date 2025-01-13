@@ -63,7 +63,7 @@ export class PagesController {
     @Get('all')
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async getAllPage () {
+    async getAllPage (): Promise<any> {
         const allPage = this.pagesService.getAllPage()
         return allPage
     }

@@ -49,6 +49,11 @@ const EditPage = () => {
             return
         }
 
+        if (formData.slug.trim().length < 3) {
+            toast.error('Add atleast 3 character in slug.', { duration: 2000 });
+            return;
+        }
+
         if (!formData.content) {
             toast.error("content is required", { duration: 2000 });
             return
@@ -113,7 +118,7 @@ const EditPage = () => {
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
 
             <div className='text-2xl cursor-pointer text-white -mt-2 mb-5' onClick={() => router.back()}>
-                <FaArrowLeft/>
+                <FaArrowLeft />
             </div>
 
             <form onSubmit={handleSubmit}>

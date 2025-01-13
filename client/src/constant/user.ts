@@ -1,4 +1,5 @@
-import { UserProfile } from "@/types";
+// import { UserProfile } from "@/types";
+
 
 
 export const userRoles = {
@@ -8,7 +9,7 @@ export const userRoles = {
     SUPERADMIN: 'superadmin',
 }
 
-export const INITIAL_USER: UserProfile = {
+export const INITIAL_USER = {
     id: '',
     name: '',
     email: '',
