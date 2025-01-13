@@ -11,6 +11,7 @@ import { LikesService } from '../likes/likes.service';
 import { SearchPostSortByEnum, SearchPostsQueryDto } from './dto/search-post.dto';
 import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { postStatuEnum } from 'client/src/constant/post';
+import { CommentService } from '../comment/comment.service';
 
 @Injectable()
 export class PostsService {
@@ -65,7 +66,8 @@ export class PostsService {
   constructor(
     @InjectModel('Post') private Post: Model<IPost>,
     private likesService: LikesService,
-    private bookmarksService: BookmarksService
+    private bookmarksService: BookmarksService,
+    private commentService: CommentService,
   ) { }
 
   async createUniqueSlugFromTitle(title: string) {
@@ -559,6 +561,48 @@ export class PostsService {
     } catch (error) {
       return { message: 'Error fetching tags', error: error.message };
     }
+  }
+
+
+  async commentPublishedPost(postId: string, userId: string, message: string) {
+    // TODO: add check here to check if post is public
+    const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
+    if (!post) {
+      throw new NotFoundException("Post Id not found");
+    }
+
+    await this.commentService.createNewComment(postId, userId, message);
+  }
+
+  async approveComment(postId: string, commentId: string) {
+    // TODO: add check here to check if post is public
+    const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
+    if (!post) {
+      throw new NotFoundException("Post Id not found");
+    }
+
+    await this.commentService.approveComment(commentId);
+
+    post.commentCount++;
+    post.save();
+  }
+
+  async rejectComment(commentId: string) {
+    await this.commentService.rejectComment(commentId);
+  }
+
+  async getAwaitingApproveComment () {
+    const comments = await this.commentService.awaitingApproveComment();
+    return comments;
+  }
+
+  async deleteComment (userId: string, userRole: string, commentId: string) {
+    await this.commentService.deleteComment(userId, userRole, commentId);
+  } 
+
+  async getPublishedComment(postId: string, lastId?: string){
+    const comments = await this.commentService.allPublishedComments(postId, lastId);
+    return comments;
   }
 
 }

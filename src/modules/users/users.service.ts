@@ -127,4 +127,12 @@ export class UsersService {
     }
     return counts;
   }
+
+  async changePassword(email: string, password: string) {
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    const updatedUser = await this.User.findOneAndUpdate({ email: email }, { hash: hashPassword });
+  }
+
 }

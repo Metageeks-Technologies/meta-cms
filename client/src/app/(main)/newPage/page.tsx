@@ -37,9 +37,14 @@ const CreatePage = () => {
             return
         }
 
-        if (!formData.slug) {
+        if (!formData.slug.trim()) {
             toast.error("slug is required", { duration: 2000 });
             return
+        }
+
+        if (formData.slug.trim().length < 3) {
+            toast.error('Add atleast 3 character in slug.', { duration: 2000 });
+            return;
         }
 
         if (!formData.content) {

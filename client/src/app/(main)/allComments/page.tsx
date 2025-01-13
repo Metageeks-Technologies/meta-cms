@@ -1,12 +1,50 @@
 'use client';
-import React, { useState } from 'react';
-import { dummyComments } from '@/constant/comments';
+import React, { useState, useEffect } from 'react';
+import axiosCall from "@/utils/ApiCall";
+
+// Define comment interface
+interface IComment {
+    id: string;
+    userId: string;
+    postId: string;
+    message: string;
+    status: 'awaiting approval' | 'published' | 'rejected';
+    createdAt: string;
+}
 
 const CommentsPage: React.FC = () => {
-    const [comments, setComments] = useState(dummyComments);
+    const [comments, setComments] = useState<IComment[]>([]); // Ensure this is initialized as an array
+    const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'awaiting' | 'published' | 'rejected'>('all');
 
-    const changeStatus = (id: number, newStatus: string) => {
+
+    const fetchComments = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/awating-approval`);
+            console.log(resp.data); // Inspect the whole response structure
+    
+            // Check the response structure
+            if (Array.isArray(resp.data.comments)) {
+                setComments(resp.data.comments); 
+            } else {
+                console.error('Expected an array of comments but got:', resp.data.comments);
+            }
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+
+    useEffect(() => {
+       
+
+        fetchComments();
+    }, []);
+
+    const changeStatus = (id: string, newStatus: 'published' | 'rejected') => {
         setComments(prevComments =>
             prevComments.map(comment => {
                 if (comment.id === id) {
@@ -17,7 +55,6 @@ const CommentsPage: React.FC = () => {
         );
     };
 
-    // Filter comments based on selected filter
     const filteredComments = comments.filter(comment => {
         if (filter === 'all') return true;
         if (filter === 'awaiting') return comment.status === 'awaiting approval';
@@ -25,6 +62,10 @@ const CommentsPage: React.FC = () => {
         if (filter === 'rejected') return comment.status === 'rejected';
         return false;
     });
+
+    if (loading) {
+        return <p className="text-center">Loading comments...</p>;
+    }
 
     return (
         <div className="p-6 mx-auto bg-black text-white">
@@ -41,7 +82,7 @@ const CommentsPage: React.FC = () => {
                 <ul className="space-y-4">
                     {filteredComments.map(comment => (
                         <li key={comment.id} className={`border border-gray-700 p-4 rounded-lg shadow bg-gray-800`}>
-                            <p><strong>User Name:</strong> {comment.author}</p>
+                            <p><strong>User Name:</strong> {comment.userId}</p>
                             <p><strong>Post Title:</strong> {comment.postId}</p>
                             <p><strong>Message:</strong> {comment.message}</p>
                             <p><strong>Status:</strong> <span className="font-semibold text-orange-300">{comment.status}</span></p>
