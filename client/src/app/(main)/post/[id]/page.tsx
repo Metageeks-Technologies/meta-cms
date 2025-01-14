@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button"
 import { userRoles } from '@/constant/user'
 import { useUserContext } from '@/context/userContext'
 import { getURL } from '@/utils/AWS_Config'
+import { IComment } from '@/types'
 
 
 const page = () => {
@@ -34,7 +35,9 @@ const page = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
-    const [comments, setComments] = useState(dummyComments);
+    const [comments, setComments] = useState<IComment[]>([]);
+
+
     const [visibleComments, setVisibleComments] = useState(5); // Initially show 5 comments
     const loadMoreComments = () => {
         setVisibleComments((prev) => Math.min(prev + 5, comments.length));
@@ -46,32 +49,76 @@ const page = () => {
     const params = useParams();
     const slug = params.id;
 
+
+
+    useEffect(() => {
+        const fetchPostData = async () => {
+            if (user.role) {
+                await fetchPost();
+            }
+        };
+
+        fetchPostData();
+    }, [user]);
+
     const fetchPost = async () => {
         setLoading(true);
         setIsLoading(true);
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
-
             if (resp.status === 200 || resp.status === 201) {
-                setPost(resp?.data);
-                // console.log(resp);
+                setPost(resp.data);
+                if (resp.data?._id) {
+                    await fetchComments(resp.data._id);
+                }
             } else {
-                toast.error(resp.data.message, {
-                    duration: 2000,
-                });
+                toast.error(resp.data.message, { duration: 2000 });
             }
-
         } catch (error) {
-            console.log(error);
+            toast.error("Failed to fetch post.", { duration: 2000 });
         } finally {
             setIsLoading(false);
             setLoading(false);
         }
-    }
+    };
 
-    useEffect(() => {
-        if (user.role) fetchPost();
-    }, [user]);
+    const fetchComments = async (postId: any) => {
+        if (!postId) {
+            return;
+        }
+
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public/comment/${postId}`);
+            if (resp.status === 200 || resp.status === 201) {
+                setComments(resp.data);
+            } else {
+                toast.error(resp.data.message, { duration: 2000 });
+            }
+        } catch (error) {
+            toast.error("Failed to fetch comments.", { duration: 2000 });
+        }
+    };
+
+
+    const handleDeleteComment = async (commentId: string) => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/delete/${commentId}`);
+    
+            if (resp.status === 200 || resp.status === 201) {
+                toast.success("Comment Deleted", { duration: 2000 });
+                //re fetch comment
+                await fetchComments(post?._id);
+            } else {
+                toast.error(resp.data.message, { duration: 2000 });
+            }
+        } catch (error) {
+            toast.error("Failed to delete comment.", { duration: 2000 });
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const handleRejectPost = async () => {
         setLoading(true);
@@ -237,7 +284,7 @@ const page = () => {
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
-                                                {user?.id === post?.authorId &&( post?.status === postStatuEnum.DRAFT || post?.status === postStatuEnum.REJECTED || post?.status === postStatuEnum.SCHEDULED) && (
+                                                {user?.id === post?.authorId && (post?.status === postStatuEnum.DRAFT || post?.status === postStatuEnum.REJECTED || post?.status === postStatuEnum.SCHEDULED) && (
                                                     <button
                                                         onClick={() => router.push(`/editpost/${post.slug}`)}
 
@@ -278,31 +325,55 @@ const page = () => {
                                         </div>
                                     }
 
+
+                                    {
+
+                                    }
                                     {/* Render Comments */}
-                                    {/* Scrollable Comments Section */}
-                                    <h2 className='text-xl font-semibold '>Comments ({comments.length})</h2>
-                                    <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
-                                        {comments.slice(0, visibleComments).map((comment) => (
-                                            <div key={comment.id} className='flex  items-start mb-4 border-b pb-2'>
-                                                <img
-                                                    src={`https://ui-avatars.com/api/?name=${comment.author}&size=40`} // Placeholder for user who comment
-                                                    alt={comment.author}
-                                                    className='w-10 h-10 rounded-full mr-3'
-                                                />
-                                                <div className='flex-1'>
-                                                    <p className='font-semibold'>{comment.author} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span></p>
-                                                    <p className='text-gray-200'>{comment.message}</p>
-                                                </div>
+                                    {/* Render Comments only if the post status is not DRAFT or SCHEDULED */}
+                                    {post.status !== postStatuEnum.DRAFT && post.status !== postStatuEnum.SCHEDULED && post.status !== postStatuEnum.AWAITING_APPROVAL && post.status !== postStatuEnum.REJECTED && (
+                                        <div>
+                                            <h2 className='text-xl font-semibold'>Comments ({comments.length})</h2>
+                                            <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
+                                                {comments.slice(0, visibleComments).map((comment: IComment) => (
+                                                    <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
+                                                        <img
+                                                            src={`https://ui-avatars.com/api/?name=${comment.userId.name}&size=40`} // Placeholder for user who commented
+                                                            alt={comment.postId.authorId}
+                                                            className='w-10 h-10 rounded-full mr-3'
+                                                        />
+                                                        <div className='flex-1'>
+                                                            <p className='font-semibold'>
+                                                                {comment.userId.name} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span>
+                                                            </p>
+                                                            <p className='text-gray-200'>{comment.message}</p>
+                                                              {/* Conditionally render delete button */}
+                            {(user?.id === comment.userId.id || user.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) && (
+                                <div className='flex justify-end'>
+                                     <button
+                                    onClick={() => handleDeleteComment(comment._id)}
+                                    className='bg-red-500 text-white px-2 py-1 text-semibold rounded-lg mt-1'
+                                >
+                                    Delete
+                                </button>
+                                </div>
+                               
+                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {visibleComments < comments.length && (
+                                                    <div className='flex justify-center'>
+                                                        <button onClick={loadMoreComments} className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'>
+                                                            Load More...
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
-                                        ))}
-                                        {visibleComments < comments.length && (
-                                            <div className='flex justify-center'>
-                                                <button onClick={loadMoreComments} className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'>
-                                                    Load More...
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
+
+
 
                                 </div>
                                 : <p className='text-center text-2xl'>No Data found.</p>

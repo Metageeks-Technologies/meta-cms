@@ -64,6 +64,15 @@ export interface UserProfile {
 }
   
 
+export interface IComment {
+    _id: string; 
+    userId: UserProfile; 
+    postId: PostTypes; 
+    message: string;
+    status: 'awaiting approval' | 'published' | 'rejected';
+    createdAt: string;
+}
+
 export interface Comment {
     id: number;
     postId: number;
@@ -71,6 +80,8 @@ export interface Comment {
     content: string;
     date: string;
 }
+
+
 
 export interface MenuItem {
     title: string; // Title of the menu item
