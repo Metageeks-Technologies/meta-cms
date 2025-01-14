@@ -8,6 +8,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 
+
+const revokedTokens = new Set<string>();
 @Injectable()
 export class UsersService {
   constructor(
@@ -23,6 +25,7 @@ export class UsersService {
 
     try {
       await newUser.save();
+      return newUser;
     } catch (error) {
       if (error.code === 11000) {
         // Duplicate key error
@@ -133,6 +136,27 @@ export class UsersService {
     const hashPassword = await bcrypt.hash(password, 10);
 
     const updatedUser = await this.User.findOneAndUpdate({ email: email }, { hash: hashPassword });
+  }
+
+  async emailVerification(email: string) {
+    await this.User.findOneAndUpdate({ email: email }, { verify: true });
+  }
+
+
+  async blockUser(userId: string) {
+    const user = await this.User.findByIdAndUpdate(userId, { block: true }, { new: true })
+
+    if (!user.name) {
+      throw new NotFoundException('User not found')
+    }
+  }
+
+  async unBlockUser(userId: string) {
+    const user = await this.User.findByIdAndUpdate(userId, { block: false }, { new: true })
+
+    if (!user.name) {
+      throw new NotFoundException('User not found')
+    }
   }
 
 }

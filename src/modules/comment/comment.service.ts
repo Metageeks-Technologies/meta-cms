@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { CommentStatusEnum, IComment } from "./schema/comment.schema";
 import { UserRoleEnum } from "../users/schema/user.schema";
+import path from "path";
 
 
 @Injectable()
@@ -101,6 +102,17 @@ export class CommentService {
     const LIMIT = 10; // Fetch 10 comments per batch
     pipeline.push({ $limit: LIMIT });
 
+
+    pipeline.push({
+      $lookup: {
+        from: 'users', // The collection you want to join (users)
+        localField: 'userId', // The field in your comment collection
+        foreignField: '_id', // The field in the users collection
+        as: 'userDetails', // The name of the new field to store the populated data
+      },
+    });
+
+    pipeline.push({ $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } });
 
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();

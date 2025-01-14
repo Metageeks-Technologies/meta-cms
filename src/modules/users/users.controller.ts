@@ -83,4 +83,20 @@ export class UsersController {
     return { message: "User role changed successfully" }; 
   }
 
+  @Patch('block/:id')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async blockUser(@Param('id', ValidateId) userId: string){
+    await this.usersService.blockUser(userId)
+    return { message: "User block succesfully" }
+  }
+
+  @Patch('unBlock/:id')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async unBlockUser(@Param('id', ValidateId) userId: string){
+    await this.usersService.unBlockUser(userId)
+    return { message: "User unblock succesfully" }
+  }
+
 }

@@ -7,17 +7,52 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserRoleEnum } from '../users/schema/user.schema';
 import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.dto';
 import { sendEmail } from 'src/utils/emailService';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
+
+const revokedTokens = new Set<string>();
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) { }
 
   async login(loginDetails: LoginDto, isAdminLogin: boolean) {
     const { email, password } = loginDetails;
     const user = await this.usersService.findByEmail(email);
+
+    if (!user.verify) {
+      const payload = {
+        email: email
+      }
+      const token = await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_SECRET_KEY_EMAIL_VERIFY,
+        expiresIn: '10m'
+      });
+      const link = `http://localhost:3000/verifyEmail/${token}`
+
+      console.log(link);
+
+      const emailBody = `
+      <h1>Hello</h1>
+      <p>Please verify your email: ${email}</p>
+      <p>Email vrification link :- ${link}</p>
+    `;
+
+      await sendEmail(
+        email,
+        "Email verification - MetaCMS",
+        emailBody
+      )
+
+      throw new ForbiddenException("First verify account - Email sent")
+    }
+
+    if(user.block){
+      throw new ForbiddenException('Account blocked contact to Admin');
+    }
 
     if (isAdminLogin && user.role === UserRoleEnum.SUBSCRIBER) {
       throw new ForbiddenException("You cannot login on this route");
@@ -37,13 +72,39 @@ export class AuthService {
   }
 
   async signup(newUserDetails: CreateUserDto) {
-    await this.usersService.create(newUserDetails);
+    const newUser = await this.usersService.create(newUserDetails);
+    if (newUser) {
+      const payload = {
+        name: newUser.name,
+        email: newUser.email
+      }
+      const token = await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_SECRET_KEY_EMAIL_VERIFY,
+        expiresIn: '10m'
+      });
+      const link = `http://localhost:3000/verifyEmail/${token}`
+
+      console.log(link);
+
+      const emailBody = `
+      <h1>Hello ${newUser.name},</h1>
+      <p>Please verify your email: ${newUser.email}</p>
+      <p>Email vrification link :- ${link}</p>
+    `;
+
+      await sendEmail(
+        newUser.email,
+        "Email verification - MetaCMS",
+        emailBody
+      )
+
+    }
   }
 
   async createResetPassToken(userDetails: generateResetPasswordDto) {
     const { email } = userDetails;
 
-    const user = this.usersService.findByEmail(email)
+    const user = await this.usersService.findByEmail(email)
     if (!user) {
       throw new NotFoundException("User not found");
     }
@@ -60,17 +121,43 @@ export class AuthService {
     )
   }
 
-
   async resetUserPassword(userDetails: resetPasswordDto) {
     const { token, password } = userDetails;
     try {
-      const payload = await this.jwtService.decode(token);
+
+      if (revokedTokens.has(token)) {
+        throw new Error('Token has already been used or expired');
+      }
+
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET_KEY_RESET_PASS,
+      });
       const email = payload.email;
-      
+
       await this.usersService.changePassword(email, password);
 
-    } catch {
-      throw new UnauthorizedException();
+      revokedTokens.add(token);
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
+  }
+
+  async verifyEmailId(token: string) {
+    try {
+      if (revokedTokens.has(token)) {
+        throw new Error('Token has already been used or expired');
+      }
+
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET_KEY_EMAIL_VERIFY,
+      });
+      const email = payload.email;
+
+      await this.usersService.emailVerification(email);
+      revokedTokens.add(token);
+
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
     }
   }
 

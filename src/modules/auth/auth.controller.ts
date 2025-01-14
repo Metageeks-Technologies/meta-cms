@@ -57,4 +57,10 @@ export class AuthController {
     return { message: "Password reset succesfully" }
   }
 
+  @Post('verifyEmail/:token')
+  async verifyEmailId(@Param('token') token: string){ 
+    await this.authService.verifyEmailId(token)
+    return { message: "User verified - Now Login" }
+  }
+
 }

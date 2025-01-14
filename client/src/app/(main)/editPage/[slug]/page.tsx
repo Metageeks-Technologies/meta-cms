@@ -111,7 +111,7 @@ const EditPage = () => {
 
     useEffect(() => {
         if (user.role) fetchPage();
-    }, [user]);
+    }, []);
 
 
     return (
