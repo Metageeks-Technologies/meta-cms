@@ -3,7 +3,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { CommentStatusEnum, IComment } from "./schema/comment.schema";
 import { UserRoleEnum } from "../users/schema/user.schema";
-import path from "path";
 
 
 @Injectable()
