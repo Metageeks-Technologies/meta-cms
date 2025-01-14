@@ -43,7 +43,7 @@ export class AuthService {
   async createResetPassToken(userDetails: generateResetPasswordDto) {
     const { email } = userDetails;
 
-    const user = this.usersService.findByEmail(email)
+    const user = await this.usersService.findByEmail(email)
     if (!user) {
       throw new NotFoundException("User not found");
     }
