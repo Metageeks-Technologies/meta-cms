@@ -75,7 +75,7 @@ const EditPage = () => {
                     slug: "",
                     content: ""
                 });
-                router.back();
+                router.push(`/page/${payload.slug}`);
             } else {
                 toast.error(resp?.data?.message, { duration: 2000 })
             }

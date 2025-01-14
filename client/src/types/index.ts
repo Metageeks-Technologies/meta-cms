@@ -55,6 +55,7 @@ export interface UserProfile {
     phoneNo?: string;
     bio?: string;
     role: string;
+    block?: boolean;
     socialLinks?: {
       linkedIn?: string;
       instagram?: string;

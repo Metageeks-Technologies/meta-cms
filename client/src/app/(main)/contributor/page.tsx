@@ -49,6 +49,7 @@ import { useUserContext } from "@/context/userContext"
 
 
 
+
 const columns = [
   {
     accessorKey: "name",
@@ -84,8 +85,10 @@ const columns = [
     cell: ({ row }: any) => {
 
       const user = row.original;
+     // console.log(user)
       const [clickedItem, setClickedItem] = useState(0);
-      const { changeUserRole }: any = useUserContext();
+      const { changeUserRole, blockUser, unblockUser }: any = useUserContext();
+
 
 
       return (
@@ -101,17 +104,34 @@ const columns = [
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-800" />
 
-              <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger>
-                  Promote to Moderator
+                {/* Show options based on user's block status */}
+                {user.block ? (
+              <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                <AlertDialogTrigger onClick={() => setClickedItem(3)}>
+                  Unblock User
                 </AlertDialogTrigger>
               </DropdownMenuItem>
+            ) : (
+              <>
+                <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger>
+                    Promote to Moderator
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger>
-                  Demote to Subscriber
-                </AlertDialogTrigger>
-              </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger>
+                    Demote to Subscriber
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger>
+                    Block User
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
+              </>
+            )}
 
             </DropdownMenuContent>
           </DropdownMenu>
@@ -130,19 +150,25 @@ const columns = [
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                onClick={
-                  clickedItem === 1 ?
-                    () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
-                    : clickedItem === 2 ?
-                      () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
-                      : () => { }
-                }
-              >
-                Continue
-              </AlertDialogAction>
+  onClick={
+    clickedItem === 1
+      ? () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
+      : clickedItem === 2
+      ? () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
+      : clickedItem === 3
+      ? () => unblockUser(user._id)
+      : clickedItem === 4
+      ? () => blockUser(user._id)
+      : () => {}
+  }
+>
+  Continue
+</AlertDialogAction>
+
             </AlertDialogFooter>
 
           </AlertDialogContent>
+          
         </AlertDialog>
       )
     },
@@ -221,7 +247,7 @@ function User() {
           <TableBody className="">
             {
               !isLoading &&
-              table?.getRowModel()?.rows?.length ? (
+                table?.getRowModel()?.rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
@@ -244,7 +270,7 @@ function User() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    {isLoading? "Loading...": "No results."}
+                    {isLoading ? "Loading..." : "No results."}
                   </TableCell>
                 </TableRow>
               )
@@ -254,7 +280,7 @@ function User() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Total {!isLoading? table.getFilteredRowModel().rows.length : 0} rows.
+          Total {!isLoading ? table.getFilteredRowModel().rows.length : 0} rows.
         </div>
         <div className="space-x-2">
           <Button
