@@ -1,4 +1,4 @@
-import { ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
 import { IUser, UserRoleEnum } from './schema/user.schema';
 import { Model } from 'mongoose';
@@ -7,17 +7,32 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
+import { IOtp } from './schema/otp.schema';
+import { sendEmail } from 'src/utils/emailService';
+const otpGenerator = require('otp-generator');
 
 
-const revokedTokens = new Set<string>();
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel('User') private User: Model<IUser>,
+    @InjectModel('Otp') private Otp: Model<IOtp>,
     private bookmarksService: BookmarksService
   ) { }
 
   async create(newUserDetails: CreateUserDto) {
+    const { email, otp } = newUserDetails;
+
+    const storedOtp = await this.Otp.findOne({ email: email }).sort({ createdAt: -1 });
+
+    if (!storedOtp.otp) {
+      throw new BadRequestException('OTP not found or has expired.')
+    }
+
+    if (storedOtp.otp !== otp) {
+      throw new BadRequestException('Invalid Otp')
+    }
+
     const newUser = new this.User(newUserDetails);
 
     // Hash the password
@@ -131,15 +146,80 @@ export class UsersService {
     return counts;
   }
 
-  async changePassword(email: string, password: string) {
+  async sendResetPasswordOtp(email: string) {
+    const user = await this.User.findOne({ email: email }, { name: 1 }).exec();
+    if (!user.name) {
+      throw new NotFoundException('User not found');
+    }
+
+    const otp = otpGenerator.generate(6, {
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    console.log(otp, "Otp ")
+
+    await this.Otp.create({
+      email: email,
+      otp: otp
+    });
+
+    await sendEmail(
+      email,
+      "Resest password email - Meta-CMS",
+      `Otp - ${otp}`
+    )
+  }
+
+  async changePassword(email: string, otp: string, password: string) {
+
+    const user = await this.User.findOne({ email: email }, { name: 1 }).exec();
+
+    if (!user.name) {
+      throw new NotFoundException('User not found');
+    }
+
+    const storedOtp = await this.Otp.findOne({ email: email }).sort({ createdAt: -1 });
+
+    if (!storedOtp.otp) {
+      throw new BadRequestException('OTP not found or has expired.')
+    }
+
+    if (storedOtp.otp !== otp) {
+      throw new BadRequestException('Invalid Otp')
+    }
 
     const hashPassword = await bcrypt.hash(password, 10);
 
     const updatedUser = await this.User.findOneAndUpdate({ email: email }, { hash: hashPassword });
   }
 
-  async emailVerification(email: string) {
-    await this.User.findOneAndUpdate({ email: email }, { verify: true });
+
+  async emailVerificationOtp(email: string) {
+    const user = await this.User.findOne({ email: email }, { name: 1 });
+
+    if (user.name) {
+      throw new BadRequestException('User already registered')
+    }
+
+    const otp = otpGenerator.generate(6, {
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    await this.Otp.create({
+      email: email,
+      otp: otp
+    });
+
+    await sendEmail(
+      email,
+      "Email verification - Meta-CMS",
+      `Otp - ${otp}`
+    )
+
   }
 
 

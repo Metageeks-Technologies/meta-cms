@@ -9,6 +9,7 @@ import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.
 import { sendEmail } from 'src/utils/emailService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { emailVerificationDto } from './dto/signup.dto';
 
 
 const revokedTokens = new Set<string>();
@@ -50,7 +51,7 @@ export class AuthService {
       throw new ForbiddenException("First verify account - Email sent")
     }
 
-    if(user.block){
+    if (user.block) {
       throw new ForbiddenException('Account blocked contact to Admin');
     }
 
@@ -72,93 +73,22 @@ export class AuthService {
   }
 
   async signup(newUserDetails: CreateUserDto) {
-    const newUser = await this.usersService.create(newUserDetails);
-    if (newUser) {
-      const payload = {
-        name: newUser.name,
-        email: newUser.email
-      }
-      const token = await this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_SECRET_KEY_EMAIL_VERIFY,
-        expiresIn: '10m'
-      });
-      const link = `http://localhost:3000/verifyEmail/${token}`
-
-      console.log(link);
-
-      const emailBody = `
-      <h1>Hello ${newUser.name},</h1>
-      <p>Please verify your email: ${newUser.email}</p>
-      <p>Email vrification link :- ${link}</p>
-    `;
-
-      await sendEmail(
-        newUser.email,
-        "Email verification - MetaCMS",
-        emailBody
-      )
-
-    }
+    await this.usersService.create(newUserDetails);
   }
 
-  async createResetPassToken(userDetails: generateResetPasswordDto) {
+  async resetPasswordOtp(userDetails: generateResetPasswordDto) {
     const { email } = userDetails;
-
-    const user = await this.usersService.findByEmail(email)
-    if (!user) {
-      throw new NotFoundException("User not found");
-    }
-
-    const token = await this.jwtService.signAsync({ email }, {
-      secret: process.env.JWT_SECRET_KEY_RESET_PASS,
-      expiresIn: '10m',
-    });
-
-    await sendEmail(
-      email,
-      "Resest password email - Meta-CMS",
-      `Reset password token - ${token}`
-    )
+    await this.usersService.sendResetPasswordOtp(email)
   }
 
   async resetUserPassword(userDetails: resetPasswordDto) {
-    const { token, password } = userDetails;
-    try {
-
-      if (revokedTokens.has(token)) {
-        throw new Error('Token has already been used or expired');
-      }
-
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET_KEY_RESET_PASS,
-      });
-      const email = payload.email;
-
-      await this.usersService.changePassword(email, password);
-
-      revokedTokens.add(token);
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    const { email, otp, password } = userDetails;
+    await this.usersService.changePassword(email, otp, password)
   }
 
-  async verifyEmailId(token: string) {
-    try {
-      if (revokedTokens.has(token)) {
-        throw new Error('Token has already been used or expired');
-      }
-
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET_KEY_EMAIL_VERIFY,
-      });
-      const email = payload.email;
-
-      await this.usersService.emailVerification(email);
-      revokedTokens.add(token);
-
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+  async verifyEmailId(userDetails: emailVerificationDto) {
+    const { email } = userDetails;
+    await this.usersService.emailVerificationOtp(email);
   }
 
 }

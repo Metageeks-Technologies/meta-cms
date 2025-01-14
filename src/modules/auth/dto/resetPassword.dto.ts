@@ -9,8 +9,12 @@ export class generateResetPasswordDto {
 
 export class resetPasswordDto {
     @IsNotEmpty()
+    @IsEmail()
+    email: string
+
+    @IsNotEmpty()
     @IsString()
-    token: string
+    otp: string
 
     @IsNotEmpty()
     @IsString()
