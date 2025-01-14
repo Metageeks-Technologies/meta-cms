@@ -24,33 +24,6 @@ export class AuthService {
     const { email, password } = loginDetails;
     const user = await this.usersService.findByEmail(email);
 
-    if (!user.verify) {
-      const payload = {
-        email: email
-      }
-      const token = await this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_SECRET_KEY_EMAIL_VERIFY,
-        expiresIn: '10m'
-      });
-      const link = `http://localhost:3000/verifyEmail/${token}`
-
-      console.log(link);
-
-      const emailBody = `
-      <h1>Hello</h1>
-      <p>Please verify your email: ${email}</p>
-      <p>Email vrification link :- ${link}</p>
-    `;
-
-      await sendEmail(
-        email,
-        "Email verification - MetaCMS",
-        emailBody
-      )
-
-      throw new ForbiddenException("First verify account - Email sent")
-    }
-
     if (user.block) {
       throw new ForbiddenException('Account blocked contact to Admin');
     }

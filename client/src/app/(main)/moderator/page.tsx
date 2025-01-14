@@ -82,7 +82,7 @@ const columns = [
 
       const user = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const { changeUserRole }  = useUserContext();
+      const { changeUserRole, blockUser, unblockUser }: any = useUserContext();
 
       return (
         <AlertDialog>
@@ -109,6 +109,20 @@ const columns = [
                 </AlertDialogTrigger>
               </DropdownMenuItem>
 
+              {user.block ? (
+                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger onClick={() => setClickedItem(3)}>
+                    Unblock User
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger onClick={() => setClickedItem(4)}>
+                    Block User
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
+              )}
+
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -131,7 +145,11 @@ const columns = [
                     () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)
                     : clickedItem === 2 ?
                       () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
-                      : () => { }
+                      : clickedItem === 3
+                        ? () => unblockUser(user._id)
+                        : clickedItem === 4
+                          ? () => blockUser(user._id)
+                          : () => { }
                 }
               >
                 Continue
@@ -178,7 +196,7 @@ function User() {
 
 
   useEffect(() => {
-    if(user.role) fetchUsers(userRoles.MODERATOR);
+    if (user.role) fetchUsers(userRoles.MODERATOR);
   }, [user]);
 
 
