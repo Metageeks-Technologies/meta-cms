@@ -199,9 +199,9 @@ export class UsersService {
   async emailVerificationOtp(email: string) {
     const user = await this.User.findOne({ email: email }, { name: 1 });
 
-    if (user.name) {
+    if (user?.name) {
       throw new BadRequestException('User already registered')
-    }
+    }   
 
     const otp = otpGenerator.generate(6, {
       lowerCaseAlphabets: false,

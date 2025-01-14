@@ -10,11 +10,16 @@ import { Eye, EyeOff } from 'lucide-react';
 const ForgotPasswordPage = () => {
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [email, setEmail] = useState('');
-    const [token, setToken] = useState('');
+    const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword , setShowConfirmPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
+    // const [newPassword, setNewPassword] = useState('');
+    //   const [confirmPassword, setConfirmPassword] = useState('');
+    //   const [showNewPassword, setShowNewPassword] = useState(false);
+    //   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [passwordMatch, setPasswordMatch] = useState(false);
     const router = useRouter();
     const { setLoading } = useUserContext();
 
@@ -23,7 +28,7 @@ const ForgotPasswordPage = () => {
         try {
             const response = await axiosCall(
                 'POST',
-                `${process.env.NEXT_PUBLIC_BASE_URL}/auth/generate-reset-password-token`,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/auth/send-reset-password-otp`,
                 { email },
             );
             //   console.log(response)
@@ -40,17 +45,25 @@ const ForgotPasswordPage = () => {
         }
     };
 
-    const handleResetPassword = async () => {
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+
         if (newPassword !== confirmPassword) {
-            toast.error('Passwords do not match');
+            // Show error message inline if passwords don't match
+            setPasswordMatch(false);
             return;
         }
+
+        // if (newPassword !== confirmPassword) {
+        //     toast.error('Passwords do not match');
+        //     return;
+        // }
         setLoading(true);
         try {
             const response = await axiosCall(
                 'POST',
                 `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
-                { token, password: newPassword },
+                { email, otp , password: newPassword },
             );
             //   console.log(response)
             if (response?.status === 200 || response?.status === 201) {
@@ -59,11 +72,21 @@ const ForgotPasswordPage = () => {
             } else {
                 toast.error(response?.data?.message || 'An error occurred');
             }
+            // setPasswordMatch(true)
         } catch (err) {
             toast.error('Failed to reset password. Please try again.');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmPasswordChange = (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const confirmPwd = e.target.value;
+        setConfirmPassword(confirmPwd);
+        // Check if the passwords match
+        setPasswordMatch(newPassword === confirmPwd);
     };
 
     return (
@@ -85,13 +108,13 @@ const ForgotPasswordPage = () => {
                         >
                             <label className="flex flex-col gap-2">
                                 <span className="text-gray-300">
-                                    Enter your email
+                                    Enter Email
                                     <sup className="text-red-500">*</sup>
                                 </span>
                                 <input
                                     type="email"
                                     required
-                                    placeholder="Enter your email address"
+                                    placeholder="Email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-gray-700 px-4 py-3 outline-none rounded-lg text-gray-300"
@@ -101,28 +124,25 @@ const ForgotPasswordPage = () => {
                                 type="submit"
                                 className="w-full bg-gray-200 text-black hover:text-white rounded-lg p-2 text-xl my-2 font-bold hover:bg-transparent border-white border-2 duration-300"
                             >
-                                Send Reset Token
+                                Send OTP
                             </button>
                         </form>
                     ) : (
                         <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleResetPassword();
-                            }}
+                            onSubmit={handleResetPassword}
                             className="p-4 bg-gray-800 flex flex-col gap-5 rounded-b-lg pt-10 rounded-tl-lg"
                         >
                             <label className="flex flex-col gap-2">
                                 <span className="text-gray-300">
-                                    Enter token
+                                    Enter OTP
                                     <sup className="text-red-500">*</sup>
                                 </span>
                                 <input
                                     type="text"
                                     required
-                                    placeholder="Enter the token"
-                                    value={token}
-                                    onChange={(e) => setToken(e.target.value)}
+                                    placeholder="One Time Password"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
                                     className="w-full bg-gray-700 px-4 py-3 outline-none rounded-lg text-gray-300"
                                 />
                             </label>
@@ -139,7 +159,7 @@ const ForgotPasswordPage = () => {
                                                 : 'password'
                                         }
                                         required
-                                        placeholder="Enter your new password"
+                                        placeholder="New password"
                                         value={newPassword}
                                         onChange={(e) =>
                                             setNewPassword(e.target.value)
@@ -156,6 +176,7 @@ const ForgotPasswordPage = () => {
                                     </span>
                                 </div>
                             </label>
+
                             <label className="flex flex-col gap-2">
                                 <span className="text-gray-300">
                                     Confirm Password
@@ -163,28 +184,49 @@ const ForgotPasswordPage = () => {
                                 </span>
                                 <div className="w-full bg-gray-700 rounded-lg flex items-center">
                                     <input
-                                        type={showConfirmPassword
+                                        type={
+                                            showConfirmPassword
                                                 ? 'text'
                                                 : 'password'
                                         }
                                         required
-                                        placeholder="Enter Confirm password"
+                                        placeholder="Confirm password"
                                         value={confirmPassword}
-                                        onChange={(e) =>
-                                            setConfirmPassword(e.target.value)
-                                        }
+                                        onChange={handleConfirmPasswordChange} // Update the password match status
                                         className="w-full bg-gray-700 px-4 py-3 outline-none rounded-lg text-gray-300"
                                     />
                                     <span
                                         onClick={() =>
-                                            setShowConfirmPassword(!showConfirmPassword)
+                                            setShowConfirmPassword(
+                                                !showConfirmPassword,
+                                            )
                                         }
                                         className="pr-3 cursor-pointer text-gray-300"
                                     >
-                                        {showConfirmPassword ? <EyeOff /> : <Eye />}
+                                        {showConfirmPassword ? (
+                                            <EyeOff />
+                                        ) : (
+                                            <Eye />
+                                        )}
                                     </span>
                                 </div>
+
+                                {/* Password match message */}
+                                {confirmPassword && (
+                                    <p
+                                        className={`mt-1 text-sm ${
+                                            passwordMatch
+                                                ? 'text-green-500'
+                                                : 'text-red-500'
+                                        }`}
+                                    >
+                                        {passwordMatch
+                                            ? 'Passwords match'
+                                            : 'Passwords do not match'}
+                                    </p>
+                                )}
                             </label>
+                            
                             <button
                                 type="submit"
                                 className="w-full bg-gray-200 text-black hover:text-white rounded-lg p-2 text-xl my-2 font-bold hover:bg-transparent border-white border-2 duration-300"
