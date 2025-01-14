@@ -51,7 +51,7 @@ export function AppSidebar() {
 
         if (userRole === userRoles.CONTRIBUTOR) {
           // Contributor hides thses items
-          return !["Subscribers", "Contributor", "Moderator", "Category", "Page"].includes(item.title);
+          return !["Subscribers", "Contributor", "Moderator", "Category", "Page", "Comments"].includes(item.title);
         }
 
         // Default: Hide restricted items for other roles
