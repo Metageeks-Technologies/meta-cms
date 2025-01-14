@@ -4,7 +4,6 @@ import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.dto';
-import { emailVerificationDto } from './dto/signup.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -56,12 +55,6 @@ export class AuthController {
   async resestPassword(@Body() userDetails: resetPasswordDto){
     await this.authService.resetUserPassword(userDetails)
     return { message: "Password reset succesfully" }
-  }
-
-  @Post('verifyEmail')
-  async verifyEmailId(@Body() userDetails: emailVerificationDto){ 
-    await this.authService.verifyEmailId(userDetails)
-    return { message: "User verified - Now Login" }
   }
 
 }

@@ -62,9 +62,5 @@ export class CreateUserDto {
     @ValidateNested()
     @IsOptional()
     socialLinks?: SocialLinksDto;
-
-    @IsNotEmpty()
-    @IsString()
-    otp: string;
 }
 

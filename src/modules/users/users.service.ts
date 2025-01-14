@@ -9,6 +9,7 @@ import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { IOtp } from './schema/otp.schema';
 import { sendEmail } from 'src/utils/emailService';
+import { emailVerificationOtpTemplate, resetPasswordOtpTemplate } from 'src/utils/emailTemplates';
 const otpGenerator = require('otp-generator');
 
 
@@ -21,18 +22,6 @@ export class UsersService {
   ) { }
 
   async create(newUserDetails: CreateUserDto) {
-    const { email, otp } = newUserDetails;
-
-    const storedOtp = await this.Otp.findOne({ email: email }).sort({ createdAt: -1 });
-
-    if (!storedOtp.otp) {
-      throw new BadRequestException('OTP not found or has expired.')
-    }
-
-    if (storedOtp.otp !== otp) {
-      throw new BadRequestException('Invalid Otp')
-    }
-
     const newUser = new this.User(newUserDetails);
 
     // Hash the password
@@ -158,17 +147,17 @@ export class UsersService {
       specialChars: false,
     });
 
-    console.log(otp, "Otp ")
-
     await this.Otp.create({
       email: email,
       otp: otp
     });
 
+    const emailBody = resetPasswordOtpTemplate(user.name, otp)
+
     await sendEmail(
       email,
-      "Resest password email - Meta-CMS",
-      `Otp - ${otp}`
+      "Resest password OTP - Meta-CMS",
+      emailBody,
     )
   }
 
@@ -193,33 +182,6 @@ export class UsersService {
     const hashPassword = await bcrypt.hash(password, 10);
 
     const updatedUser = await this.User.findOneAndUpdate({ email: email }, { hash: hashPassword });
-  }
-
-
-  async emailVerificationOtp(email: string) {
-    const user = await this.User.findOne({ email: email }, { name: 1 });
-
-    if (user.name) {
-      throw new BadRequestException('User already registered')
-    }
-
-    const otp = otpGenerator.generate(6, {
-      lowerCaseAlphabets: false,
-      upperCaseAlphabets: false,
-      specialChars: false,
-    });
-
-    await this.Otp.create({
-      email: email,
-      otp: otp
-    });
-
-    await sendEmail(
-      email,
-      "Email verification - Meta-CMS",
-      `Otp - ${otp}`
-    )
-
   }
 
 

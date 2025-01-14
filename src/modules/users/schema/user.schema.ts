@@ -23,7 +23,6 @@ export interface IUser extends mongoose.Document {
   hash: string;
   phoneNo?: string;
   bio?: string;
-  verify: boolean;
   block: boolean;
   role: UserRoleEnum;
   socialLinks?: ISocialLinks;
@@ -35,11 +34,6 @@ export const UserSchema = new mongoose.Schema({
   hash: { type: String, required: true },
   phoneNo: { type: String, required: false },
   bio: { type: String, required: false },
-  verify:{
-    type: Boolean,
-    default: false,
-    required: true,
-  },
   block: {
     type: Boolean,
     default: false,
