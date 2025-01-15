@@ -121,7 +121,7 @@ export class PostsController {
   }
 
   @Get('comment/awating-approval')
-  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.CONTRIBUTOR)
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAwatingApproval () {
     const comments = await this.postsService.getAwaitingApproveComment();

@@ -1,4 +1,6 @@
+import { JwtService } from '@nestjs/jwt';
 import mongoose from 'mongoose';
+import { sendEmail } from 'src/utils/emailService';
 
 export enum UserRoleEnum {
   SUBSCRIBER = 'subscriber',
@@ -21,6 +23,7 @@ export interface IUser extends mongoose.Document {
   hash: string;
   phoneNo?: string;
   bio?: string;
+  block: boolean;
   role: UserRoleEnum;
   socialLinks?: ISocialLinks;
 };
@@ -31,6 +34,11 @@ export const UserSchema = new mongoose.Schema({
   hash: { type: String, required: true },
   phoneNo: { type: String, required: false },
   bio: { type: String, required: false },
+  block: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
   role: {
     type: String,
     enum: Object.values(UserRoleEnum),

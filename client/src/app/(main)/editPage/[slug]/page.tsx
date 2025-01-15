@@ -75,7 +75,7 @@ const EditPage = () => {
                     slug: "",
                     content: ""
                 });
-                router.back();
+                router.push(`/page/${payload.slug}`);
             } else {
                 toast.error(resp?.data?.message, { duration: 2000 })
             }
@@ -111,7 +111,7 @@ const EditPage = () => {
 
     useEffect(() => {
         if (user.role) fetchPage();
-    }, [user]);
+    }, []);
 
 
     return (

@@ -102,6 +102,17 @@ export class CommentService {
     pipeline.push({ $limit: LIMIT });
 
 
+    pipeline.push({
+      $lookup: {
+        from: 'users', // The collection you want to join (users)
+        localField: 'userId', // The field in your comment collection
+        foreignField: '_id', // The field in the users collection
+        as: 'userDetails', // The name of the new field to store the populated data
+      },
+    });
+
+    pipeline.push({ $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } });
+
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();
     return comments;

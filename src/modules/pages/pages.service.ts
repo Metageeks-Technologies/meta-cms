@@ -84,9 +84,9 @@ export class PagesService {
     }
 
     async updatePage(id: string, updatePageDetails: UpdatePageDto) {
-        const page = await this.Page.findOne({ _id: id }, { title: 1 });
+        const page = await this.Page.findOne({ _id: id }, { title: 1 }).exec();
 
-        if (!page) {
+        if (!page.title) {
             throw new NotFoundException('Page not found');
         }
 

@@ -122,6 +122,12 @@ const App: React.FC = () => {
       toast.error('Post slug is required.', { duration: 2000 });
       return;
     }
+
+    if (formData.slug.trim().length < 3) {
+      toast.error('Add atleast 3 character in slug.', { duration: 2000 });
+      return;
+    }
+
     if (!formData.category.length) {
       toast.error('At least one category must be selected.', { duration: 2000 });
       return;
@@ -150,7 +156,7 @@ const App: React.FC = () => {
       const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload);
       if (resp.status === 200 || resp.status === 201) {
         toast.success('Post updated successfully!', { duration: 2000 });
-        router.back();
+       router.push(`/post/${payload.slug}`);
 
       } else {
         toast.error(resp.data.message, { duration: 2000 });

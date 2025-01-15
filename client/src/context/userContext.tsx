@@ -17,6 +17,8 @@ interface UserContextType {
     changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
     getUserProfile: () => Promise<void>;
     setUser: (user: UserProfile) => void;
+    blockUser: (userId: string) => Promise<void>;
+    unblockUser: (userId: string) => Promise<void>;
     loading: boolean;
     setLoading : (loading: boolean) => void;
 };
@@ -119,6 +121,49 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
 
+    const blockUser = async (userId: string) => {
+        setLoading(true);
+        try {
+            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/block/${userId}`);
+            
+            if (response.status === 200) {
+                toast.success(response.data.message);
+                await fetchUsers(userRoles.CONTRIBUTOR);
+                await fetchUsers(userRoles.MODERATOR);
+                await fetchUsers(userRoles.SUBSCRIBER); 
+
+                // Refresh the 
+            } else {
+                throw new Error(response.data.message);
+            }
+        } catch (error) {
+            toast.error('Failed to block user');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const unblockUser = async (userId: string) => {
+        setLoading(true);
+        try {
+            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/unBlock/${userId}`);
+            
+            if (response.status === 200) {
+                toast.success(response.data.message);
+                await fetchUsers(userRoles.CONTRIBUTOR); 
+                await fetchUsers(userRoles.MODERATOR);
+                await fetchUsers(userRoles.SUBSCRIBER); 
+            } else {
+                throw new Error(response.data.message);
+            }
+        } catch (error) {
+            toast.error('Failed to unblock user');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     useEffect(() => {
         if(loading){
             document.body.style.overflow = 'hidden';
@@ -142,6 +187,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         changeUserRole,
         getUserProfile,
         setUser,
+        blockUser,
+        unblockUser,
         loading,
         setLoading,
     };

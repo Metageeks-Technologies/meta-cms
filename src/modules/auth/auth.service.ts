@@ -7,17 +7,25 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserRoleEnum } from '../users/schema/user.schema';
 import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.dto';
 import { sendEmail } from 'src/utils/emailService';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
+
+const revokedTokens = new Set<string>();
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) { }
 
   async login(loginDetails: LoginDto, isAdminLogin: boolean) {
     const { email, password } = loginDetails;
     const user = await this.usersService.findByEmail(email);
+
+    if (user.block) {
+      throw new ForbiddenException('Account blocked contact to Admin');
+    }
 
     if (isAdminLogin && user.role === UserRoleEnum.SUBSCRIBER) {
       throw new ForbiddenException("You cannot login on this route");
@@ -40,38 +48,14 @@ export class AuthService {
     await this.usersService.create(newUserDetails);
   }
 
-  async createResetPassToken(userDetails: generateResetPasswordDto) {
+  async resetPasswordOtp(userDetails: generateResetPasswordDto) {
     const { email } = userDetails;
-
-    const user = this.usersService.findByEmail(email)
-    if (!user) {
-      throw new NotFoundException("User not found");
-    }
-
-    const token = await this.jwtService.signAsync({ email }, {
-      secret: process.env.JWT_SECRET_KEY_RESET_PASS,
-      expiresIn: '10m',
-    });
-
-    await sendEmail(
-      email,
-      "Resest password email - Meta-CMS",
-      `Reset password token - ${token}`
-    )
+    await this.usersService.sendResetPasswordOtp(email)
   }
 
-
   async resetUserPassword(userDetails: resetPasswordDto) {
-    const { token, password } = userDetails;
-    try {
-      const payload = await this.jwtService.decode(token);
-      const email = payload.email;
-      
-      await this.usersService.changePassword(email, password);
-
-    } catch {
-      throw new UnauthorizedException();
-    }
+    const { email, otp, password } = userDetails;
+    await this.usersService.changePassword(email, otp, password)
   }
 
 }

@@ -45,10 +45,10 @@ export class AuthController {
     res.status(200).json({ message: 'Login successful' });
   }
 
-  @Post('generate-reset-password-token')
-  async generateResetPasswordToken (@Body() userDetails: generateResetPasswordDto) {
-    await this.authService.createResetPassToken(userDetails);
-    return { message: "Token send on your email" }
+  @Post('send-reset-password-otp')
+  async generateResetPasswordToken(@Body() userDetails: generateResetPasswordDto) {
+    await this.authService.resetPasswordOtp(userDetails);
+    return { message: "Otp send on your email" }
   }
 
   @Post('reset-password')

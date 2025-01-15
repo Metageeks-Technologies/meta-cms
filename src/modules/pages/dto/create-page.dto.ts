@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Matches } from "class-validator";
+import { IsNotEmpty, IsString, Matches, MaxLength } from "class-validator";
 
 
 export class CreatePageDto {
@@ -8,6 +8,7 @@ export class CreatePageDto {
 
     @IsNotEmpty()
     @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
+    @MaxLength(128)
     slug: string;
 
     @IsNotEmpty()
