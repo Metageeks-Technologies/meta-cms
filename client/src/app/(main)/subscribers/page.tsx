@@ -98,31 +98,36 @@ const columns = [
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-800" />
 
-              <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger>
+
+     {/* options base option */}
+                {user.block ? (
+              <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                <AlertDialogTrigger onClick={() => setClickedItem(3)}>
+                  Unblock User
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
+            ) : (
+              <>
+                <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger>
                   Promote to Contributor
-                </AlertDialogTrigger>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger>
-                  Promote to Moderator
-                </AlertDialogTrigger>
-              </DropdownMenuItem>
-
-              {user.block ? (
-                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger onClick={() => setClickedItem(3)}>
-                    Unblock User
                   </AlertDialogTrigger>
                 </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger onClick={() => setClickedItem(4)}>
+
+                <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger>
+                  Promote to Moderator
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger>
                     Block User
                   </AlertDialogTrigger>
                 </DropdownMenuItem>
-              )}
+              </>
+            )}
+
 
             </DropdownMenuContent>
           </DropdownMenu>
