@@ -42,7 +42,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // API Calls
     const fetchUsers = async (role: string) => {
         // console.log(role,"User role");
+        setLoading(true);
         setIsLoading(true);
+
         try {
             const response = await axiosCall(
                 'GET',
@@ -69,6 +71,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             toast.error(`Failed to fetch ${role}s!`);
         }finally{
             setIsLoading(false);
+            setLoading(false);
         }
     };
 
