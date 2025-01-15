@@ -32,7 +32,7 @@ const CreatePage = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        if (!formData.title) {
+        if (!formData.title.trim()) {
             toast.error("title is required", { duration: 2000 });
             return
         }

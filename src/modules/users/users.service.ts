@@ -10,6 +10,7 @@ import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { IOtp } from './schema/otp.schema';
 import { sendEmail } from 'src/utils/emailService';
 import { emailVerificationOtpTemplate, resetPasswordOtpTemplate } from 'src/utils/emailTemplates';
+import { CloudCog } from 'lucide-react';
 const otpGenerator = require('otp-generator');
 
 
@@ -137,7 +138,8 @@ export class UsersService {
 
   async sendResetPasswordOtp(email: string) {
     const user = await this.User.findOne({ email: email }, { name: 1 }).exec();
-    if (!user.name) {
+
+    if (!user?.name) {
       throw new NotFoundException('User not found');
     }
 
