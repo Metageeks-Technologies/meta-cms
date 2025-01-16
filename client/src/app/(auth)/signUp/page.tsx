@@ -113,7 +113,7 @@ const page = () => {
                 name='fullName'
                 value={formData.fullName}
                 required
-                placeholder='Enter full name'
+                placeholder='Enter Full Name'
                 className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg'
                 onChange={handleNameChange}
               />
@@ -126,7 +126,7 @@ const page = () => {
                 name='email'
                 value={formData.email}
                 required
-                placeholder='Enter email id'
+                placeholder='Enter Email'
                 className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg'
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
@@ -141,7 +141,7 @@ const page = () => {
                     name='password'
                     value={formData.password}
                     required
-                    placeholder='Enter password'
+                    placeholder='Enter Password'
                     className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg'
                     onChange={handlePasswordChange}
                   />
@@ -164,7 +164,7 @@ const page = () => {
                     name='confirmPassword'
                     required
                     value={formData.confirmPassword}
-                    placeholder='Confirm password'
+                    placeholder='Confirm Password'
                     className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg'
                     onChange={handlePasswordChange}
                   />
@@ -186,7 +186,7 @@ const page = () => {
             }
 
             <button type='submit' className='w-full text-center bg-gray-200 text-black hover:text-white rounded-lg p-2 text-xl my-2 font-bold hover:bg-transparent border-white border-2 duration-300'>Sign Up</button>
-            <p className='text-center my-3'>Already have an account? <span onClick={() => router.push('/login')} className='underline hover:text-blue-500 cursor-pointer'>Log in</span></p>
+            <p className='text-center my-3'>Already have an account? <span onClick={() => router.push('/login')} className='underline text-blue-500 cursor-pointer'>Log in</span></p>
           </form>
 
         </div>

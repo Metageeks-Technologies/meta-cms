@@ -149,6 +149,16 @@ const columns = [
       }
 
       const updateCategory = async (e: any) => {
+
+        if (!category.name.trim() || !category.description.trim() ) {
+          toast.error("Please fill in all fields correctly.", {
+              duration: 2000,
+          });
+          setLoading(false);
+          return; 
+      }
+
+      
         e.preventDefault();
         setLoading(true);
         try {
@@ -360,7 +370,6 @@ function Category() {
   return (
     <div className="w-full container mx-auto px-4">
       <div className="flex flex-col py-4">
-        <h2 className="my-3 text-2xl font-bold">All Categories</h2>
         <div className="flex flex-row items-center justify-between">
           <Input
             placeholder="Search name..."

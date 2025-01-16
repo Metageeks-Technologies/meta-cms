@@ -287,7 +287,7 @@ const page = () => {
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
-                                                {user?.id === post?.authorId && (post?.status === postStatuEnum.DRAFT || post?.status === postStatuEnum.REJECTED || post?.status === postStatuEnum.SCHEDULED) && (
+                                                {user?.id === post?.authorId && (post?.status === postStatuEnum.DRAFT || post?.status === postStatuEnum.REJECTED || post?.status === postStatuEnum.SCHEDULED)  && (
                                                     <button
                                                         onClick={() => router.push(`/editpost/${post.slug}`)}
 

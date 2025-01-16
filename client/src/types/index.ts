@@ -71,9 +71,11 @@ export interface IComment {
     userId: UserProfile; 
     userDetails?: UserProfile;
     postId: PostTypes; 
+    
     message: string;
-    status: 'awaiting approval' | 'published' | 'rejected';
+    status: 'awaiting approval' | 'published' | 'rejected' |'deleted';
     createdAt: string;
+    verify: boolean;
 }
 
 

@@ -210,7 +210,6 @@ function User() {
   return (
     <div className="w-full container mx-auto px-4">
       <div className="flex flex-col py-4">
-        <h2 className="my-3 text-2xl font-bold">All Contributors</h2>
         <Input
           placeholder="Search email..."
           value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
