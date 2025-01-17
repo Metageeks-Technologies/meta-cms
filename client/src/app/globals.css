@@ -194,3 +194,24 @@ body {
 .styledScrollable::-webkit-scrollbar-thumb:hover {
   background: #555; /* Color when hovering over the scrollbar */
 }
+
+
+/* Styles for displaying tinymce content properly*/
+.tinymce-content h1{
+  @apply text-3xl font-bold;
+}
+.tinymce-content h2 {
+  @apply text-2xl font-semibold;
+}
+.tinymce-content h3 {
+  @apply text-xl font-medium;
+}
+.tinymce-content ul {
+  @apply list-disc pl-5 space-y-2;
+}
+.tinymce-content ol {
+  @apply list-decimal pl-5 space-y-2;
+}
+.tinymce-content li {
+  @apply text-base;
+}

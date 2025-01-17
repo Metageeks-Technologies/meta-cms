@@ -45,6 +45,7 @@ export interface PostTypes {
     isDeleted: boolean;
     slug: string;
     publishedDate: string;
+    commentCount: number
 }
 
 
@@ -68,18 +69,11 @@ export interface UserProfile {
 export interface IComment {
     _id: string; 
     userId: UserProfile; 
+    userDetails?: UserProfile;
     postId: PostTypes; 
     message: string;
     status: 'awaiting approval' | 'published' | 'rejected';
     createdAt: string;
-}
-
-export interface Comment {
-    id: number;
-    postId: number;
-    user: string;
-    content: string;
-    date: string;
 }
 
 
