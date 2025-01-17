@@ -38,14 +38,14 @@ const AddCategory = () => {
 
     const handleCreateCategory = async (e: any) => {
         e.preventDefault();
-        if (!createForm.name) {
+        if (!createForm.name.trim()) {
             toast.error('Name is required', {
                 duration: 2000,
             });
             return;
         }
 
-        if (!createForm.description) {
+        if (!createForm.description.trim()) {
             toast.error('Description is required', {
                 duration: 2000,
             });

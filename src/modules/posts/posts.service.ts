@@ -596,13 +596,36 @@ export class PostsService {
     return comments;
   }
 
-  async deleteComment (userId: string, userRole: string, commentId: string) {
+  async deleteComment (postId: string, userId: string, userRole: string, commentId: string) {
+    const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
+    if (!post) {
+      throw new NotFoundException("Post Id not found");
+    }
+
     await this.commentService.deleteComment(userId, userRole, commentId);
+
+    post.commentCount--;
+    post.save();
   } 
 
-  async getPublishedComment(postId: string, lastId?: string){
-    const comments = await this.commentService.allPublishedComments(postId, lastId);
+  async getPublishedCommentOnPost(postId: string, lastId?: string){
+    const comments = await this.commentService.allPublishedCommentOnPost(postId, lastId);
     return comments;
+  }
+
+  async getAllRejectedComments(lastId?: string){
+    const comments = await this.commentService.allRejectedComment(lastId);
+    return comments;
+  }
+
+  async getAllPublishedComments(lastId?: string){
+    const comments = await this.commentService.allPublishedComment(lastId);
+    return comments;
+  }
+
+  async getAllDeletedComments(lastId?: string){
+    const comments = await this.commentService.allDeletedComment(lastId);
+    return comments
   }
 
 }

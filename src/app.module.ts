@@ -19,6 +19,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { PagesModule } from './modules/pages/pages.module';
+import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PagesModule } from './modules/pages/pages.module';
     BookmarksModule,
     DashboardModule,
     PagesModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [

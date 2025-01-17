@@ -71,10 +71,10 @@ const columns = [
   },
   {
     accessorKey: "isDeleted",
-    header: "Deleted",
+    header: "Status",
     cell: ({ row }: any) => {
       const isDeleted = row.getValue("isDeleted")
-      return <div>{isDeleted? <span className="text-red-500">True</span> : <span className="text-green-500">False</span>}</div>
+      return <div>{isDeleted? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
     },
   },
   {
@@ -195,7 +195,6 @@ const page = () => {
   return (
     <div className="w-full container mx-auto px-4">
       <div className="flex flex-col py-4">
-        <h2 className="my-3 text-2xl font-bold">All Pages</h2>
         <Input
           placeholder="Search title..."
           value={(table?.getColumn("title")?.getFilterValue() as string) ?? ""}
