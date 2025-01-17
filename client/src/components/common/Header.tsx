@@ -18,6 +18,7 @@ import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
 import { INITIAL_USER } from '@/constant/user';
+import { headerData } from '@/constant/sidebar';
 
 
 
@@ -28,6 +29,7 @@ const Header = () => {
 
     const router = useRouter()
     const pathname = usePathname();
+    const param = pathname.split('/')[1];
     const {setLoading, setUser} = useUserContext();
 
     const handleLogOut = async () => {
@@ -56,12 +58,7 @@ const Header = () => {
             <div className='flex flex-row items-center gap-3'>
                 <button onClick={toggleSidebar}><AlignJustify /></button>
                 <span className='text-white'>
-                    {
-                        pathname.split('/')[1] ?
-                            pathname.split('/')[1] === 'allPost' ? "All Post" :
-                                pathname.split('/')[1] === 'newPost' ? "New Post" :
-                                    pathname.split('/')[1].charAt(0).toUpperCase() + pathname.split('/')[1].slice(1)
-                            : "Dashboard"}
+                    {headerData[param as keyof typeof headerData]}
                 </span>
             </div>
 
