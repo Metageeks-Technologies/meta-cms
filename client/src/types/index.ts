@@ -68,9 +68,8 @@ export interface UserProfile {
 
 export interface IComment {
     _id: string; 
-    userId: UserProfile; 
     userDetails?: UserProfile;
-    postId: PostTypes; 
+    postDetails: PostTypes; 
     
     message: string;
     status: 'awaiting approval' | 'published' | 'rejected' |'deleted';
