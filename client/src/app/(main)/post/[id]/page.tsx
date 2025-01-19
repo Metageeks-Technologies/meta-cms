@@ -68,19 +68,23 @@ const page = () => {
 
     const fetchComments = async (postId: string, lastId?: string) => {
         if (!postId || isFetching) return;
-
+    
         setIsFetching(true);
         try {
             const param = new URLSearchParams();
-            if (lastId) param.append('lastId', lastId); // This remains as is
+            if (lastId) param.append('lastId', lastId);
             param.append('page', String(page));
-
+    
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public/comment/${postId}?${param.toString()}`);
-
+    
             if (resp.status === 200 || resp.status === 201) {
                 const newComments = resp.data;
-                setComments((prev) => [...prev, ...newComments]);
-
+    
+                // Filter out duplicate comments
+                const uniqueComments = [...new Map([...comments, ...newComments].map(comment => [comment._id, comment])).values()];
+    
+                setComments(uniqueComments);
+    
                 if (newComments.length < 5) {
                     setHasMore(false);
                 }
@@ -93,6 +97,7 @@ const page = () => {
             setIsFetching(false);
         }
     };
+    
 
 
 
@@ -100,11 +105,18 @@ const page = () => {
         setLoading(true);
         try {
             const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${post?._id}/delete/${commentId}`);
-
+    
             if (resp.status === 200 || resp.status === 201) {
                 toast.success("Comment Deleted", { duration: 2000 });
-                //re fetch comment
-                await fetchComments(commentId);
+                // Remove the deleted comment from state
+                setComments((prev) => {
+                    // Update the post's comment count
+                    setPost((prevPost:any) => ({
+                        ...prevPost,
+                        commentCount: prevPost.commentCount > 0 ? prevPost.commentCount - 1 : 0
+                    }));
+                    return prev.filter(comment => comment._id !== commentId);
+                });
             } else {
                 toast.error(resp.data.message, { duration: 2000 });
             }
@@ -114,6 +126,8 @@ const page = () => {
             setLoading(false);
         }
     };
+    
+    
 
 
     const handleRejectPost = async () => {
@@ -332,50 +346,53 @@ const page = () => {
                                     {/* Render Comments */}
                                     {/* Render Comments only if the post status is not DRAFT or SCHEDULED */}
                                     {
-                                        post.status !== postStatuEnum.DRAFT && post.status !== postStatuEnum.SCHEDULED && (
-                                            <div>
-                                                <h2 className='text-xl font-semibold'>Comments ({post?.commentCount})</h2>
-                                                <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
-                                                    {comments.map((comment: IComment) => (
-                                                        <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
-                                                            <img
-                                                                src={`https://ui-avatars.com/api/?name=${comment.userId.name}&size=40`}
-                                                                alt={comment.userId.name}
-                                                                className='w-10 h-10 rounded-full mr-3'
-                                                            />
-                                                            <div className='flex-1'>
-                                                                <p className='font-semibold'>
-                                                                    {comment.userDetails?.name} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span>
-                                                                </p>
-                                                                <p className='text-gray-200'>{comment.message}</p>
-                                                                {/* Conditionally render delete button */}
-                                                                {(user?.id === comment.userId.id || user.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) && (
-                                                                    <div className='flex justify-end'>
-                                                                        <button
-                                                                            onClick={() => handleDeleteComment(comment._id)}
-                                                                            className='bg-red-500 text-white px-2 py-1 text-semibold rounded-lg mt-1'
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                    {hasMore && (
-                                                        <div className='flex justify-center'>
-                                                            <button
-                                                                onClick={() => fetchComments(post?._id, lastId)} // Call the fetch function with the post ID and last comment ID
-                                                                className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'
-                                                            >
-                                                                Load More
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
-                                    }
+    post.status !== postStatuEnum.DRAFT &&
+    post.status !== postStatuEnum.SCHEDULED &&
+    comments.length > 0 && ( // Check if comments exist
+        <div>
+            <h2 className='text-xl font-semibold'>Comments </h2>
+            <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
+                
+                {comments.map((comment: IComment) => (
+                    <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
+                        <img
+                            src={`https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`}
+                            alt={comment.userDetails?.name}
+                            className='w-10 h-10 rounded-full mr-3'
+                        />
+                        <div className='flex-1'>
+                            <p className='font-semibold'>
+                                {comment.userDetails?.name} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span>
+                            </p>
+                            <p className='text-gray-200'>{comment.message}</p>
+                            {(user?.id === comment.userDetails?.id || user.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) && (
+                                <div className='flex justify-end'>
+                                    <button
+                                        onClick={() => handleDeleteComment(comment._id)}
+                                        className='bg-red-500 text-white px-2 py-1 text-semibold rounded-lg mt-1'
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))}
+                {hasMore && (
+                    <div className='flex justify-center'>
+                        <button
+                            onClick={() => fetchComments(post?._id, lastId)}
+                            className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'
+                        >
+                            Load More
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
 
 
 

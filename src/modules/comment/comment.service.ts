@@ -46,15 +46,42 @@ export class CommentService {
 
   async awaitingApproveComment() {
     try {
-      const awaitingComments = await this.Comment.find({
+
+      const pipeline: mongoose.PipelineStage[] = [];
+
+      const matchStage: Record<string, any> = {
         status: CommentStatusEnum.AWAITING_APPROVAL,
         isDeleted: { $ne: true }
-      }).populate({
-        path: 'postId'
-      })
-        .populate({
-          path: 'userId'
-        });
+      };
+
+      pipeline.push({ $match: matchStage });
+
+      pipeline.push({
+        $lookup: {
+          from: 'posts',
+          localField: 'postId',
+          foreignField: '_id',
+          as: 'postDetails'
+        }
+      });
+
+      pipeline.push({
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userDetails'
+        }
+      });
+
+      pipeline.push({
+        $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
+      });
+      pipeline.push({
+        $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true }
+      });
+
+      const awaitingComments = await this.Comment.aggregate(pipeline).exec();
 
       return awaitingComments;
     } catch (error) {
@@ -114,14 +141,27 @@ export class CommentService {
       },
     });
 
+    pipeline.push({
+      $lookup: {
+        from: 'posts', // The collection you want to join (users)
+        localField: 'postId', // The field in your comment collection
+        foreignField: '_id', // The field in the users collection
+        as: 'postDetails', // The name of the new field to store the populated data
+      },
+    });
+
     pipeline.push({ $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } });
+    
+    pipeline.push({
+      $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
+    });
 
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();
     return comments;
   }
 
-  async allRejectedComment(lastId?: string){
+  async allRejectedComment(lastId?: string) {
     const pipeline: mongoose.PipelineStage[] = [];
 
     // Match stage
@@ -154,14 +194,27 @@ export class CommentService {
       },
     });
 
+    pipeline.push({
+      $lookup: {
+        from: 'posts', // The collection you want to join (users)
+        localField: 'postId', // The field in your comment collection
+        foreignField: '_id', // The field in the users collection
+        as: 'postDetails', // The name of the new field to store the populated data
+      },
+    });
+
     pipeline.push({ $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } });
+
+    pipeline.push({
+      $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
+    });
 
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();
     return comments;
   }
 
-  async allPublishedComment(lastId?: string){
+  async allPublishedComment(lastId?: string) {
     const pipeline: mongoose.PipelineStage[] = [];
 
     // Match stage
@@ -194,7 +247,20 @@ export class CommentService {
       },
     });
 
+    pipeline.push({
+      $lookup: {
+        from: 'posts', // The collection you want to join (users)
+        localField: 'postId', // The field in your comment collection
+        foreignField: '_id', // The field in the users collection
+        as: 'postDetails', // The name of the new field to store the populated data
+      },
+    });
+
     pipeline.push({ $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } });
+
+    pipeline.push({
+      $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
+    });
 
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();
@@ -233,7 +299,20 @@ export class CommentService {
       },
     });
 
+    pipeline.push({
+      $lookup: {
+        from: 'posts', // The collection you want to join (users)
+        localField: 'postId', // The field in your comment collection
+        foreignField: '_id', // The field in the users collection
+        as: 'postDetails', // The name of the new field to store the populated data
+      },
+    });
+
     pipeline.push({ $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } });
+
+    pipeline.push({
+      $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
+    });
 
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();

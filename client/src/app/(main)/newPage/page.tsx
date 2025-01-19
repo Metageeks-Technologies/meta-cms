@@ -82,6 +82,7 @@ const CreatePage = () => {
                         id='title'
                         placeholder='Enter title'
                         value={formData.title}
+                        maxLength={120}
                         onChange={handleChange}
                     />
                 </label>
