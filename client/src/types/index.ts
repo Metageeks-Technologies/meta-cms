@@ -75,6 +75,7 @@ export interface IComment {
     status: 'awaiting approval' | 'published' | 'rejected' |'deleted';
     createdAt: string;
     verify: boolean;
+    isDeleted: boolean;
 }
 
 
