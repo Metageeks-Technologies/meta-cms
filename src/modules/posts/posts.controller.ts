@@ -177,6 +177,14 @@ export class PostsController {
     return { message: "Comment edit successfully" }
   }
 
+  @Patch('comment/recover/:commentId')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async recoverComment(@Param('commentId', ValidateId) commentId: string){
+    await this.postsService.recoverComment(commentId);
+    return { message: "Comment recover successfully" }
+  }
+
   @Get('my/all')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)

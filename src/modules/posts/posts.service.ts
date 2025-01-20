@@ -651,4 +651,8 @@ export class PostsService {
     await this.commentService.editComment(userId, userRole, commentId, message)
   }
 
+  async recoverComment(commentId: string){
+    await this.commentService.recoverComment(commentId)
+  }
+
 }

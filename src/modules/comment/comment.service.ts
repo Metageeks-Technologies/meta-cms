@@ -151,7 +151,7 @@ export class CommentService {
     });
 
     pipeline.push({ $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } });
-    
+
     pipeline.push({
       $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
     });
@@ -338,7 +338,15 @@ export class CommentService {
     }
 
     const query = await this.Comment.updateOne({ _id: commentId }, { message, status: CommentStatusEnum.AWAITING_APPROVAL }).lean().exec();
-    
+
+  }
+
+  async recoverComment(commentId: string) {
+    const comment = await this.Comment.findOneAndUpdate({ _id: commentId }, { isDeleted: false });
+
+    if(!comment){
+      throw new NotFoundException('Comment not found');
+    }
   }
 
 }
