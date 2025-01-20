@@ -529,51 +529,8 @@ const page = () => {
                                             </div>
                                         )
                                     }
-                                        post.status !== postStatuEnum.DRAFT &&
-                                        post.status !== postStatuEnum.SCHEDULED &&
-                                        comments.length != 0 && ( // Check if comments exist
-                                            <div>
-                                                <h2 className='text-xl font-semibold'>Comments </h2>
-                                                <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
-
-                                                    {comments.map((comment: IComment) => (
-                                                        <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
-                                                            <img
-                                                                src={`https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`}
-                                                                alt={comment.userDetails?.name}
-                                                                className='w-10 h-10 rounded-full mr-3'
-                                                            />
-                                                            <div className='flex-1'>
-                                                                <p className='font-semibold'>
-                                                                    {comment.userDetails?.name} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span>
-                                                                </p>
-                                                                <p className='text-gray-200'>{comment.message}</p>
-                                                                {(user?.id === comment.userDetails?.id || user.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) && (
-                                                                    <div className='flex justify-end'>
-                                                                        <button
-                                                                            onClick={() => handleDeleteComment(comment._id)}
-                                                                            className='bg-red-500 text-white px-2 py-1 text-semibold rounded-lg mt-1'
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                    {hasMore && (
-                                                        <div className='flex justify-center'>
-                                                            <button
-                                                                onClick={() => fetchComments(post?._id, lastId)}
-                                                                className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'
-                                                            >
-                                                                Load More
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
+                                       
+                                        
                                 </div>
                                 : <p className='text-center text-2xl'>No Data found.</p>
                         }

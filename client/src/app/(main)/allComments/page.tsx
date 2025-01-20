@@ -8,49 +8,17 @@ import toast from 'react-hot-toast';
 const CommentsPage: React.FC = () => {
     const [comments, setComments] = useState<IComment[]>([]);
     const { isLoading, setLoading }: any = useUserContext();
-
     const [filter, setFilter] = useState<'awaiting approval' | 'published' | 'rejected' | 'deleted'>('awaiting approval');
     const [lastCommentId, setLastCommentId] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState(true);
-
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingMessage, setEditingMessage] = useState<string>('');
-
-    const handleEdit = (comment: IComment) => {
-        setEditingCommentId(comment._id);
-        setEditingMessage(comment.message);
-    };
-
-    const handleUpdateComment = async (commentId: string) => {
-        const updatedComments = comments.map(comment => {
-            if (comment._id === commentId) {
-                return { ...comment, message: editingMessage };
-            }
-            return comment;
-        });
-
-        setComments(updatedComments);
-        setEditingCommentId(null);
-
-        try {
-            const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
-            const resp =  await axiosCall('patch', endpoint, { message: editingMessage });
-
-            if(resp === 200 || resp === 201){
-                // fetchComments()
-            }
-        } catch (error) {
-            toast.error('Error updating comment');
-            setComments(comments); // Revert to original state in case of error
-        }
-    };
 
     const fetchComments = async (status: string, lastId: string | null) => {
         setLoading(true);
         try {
             const endpointMap: { [key: string]: string } = {
-                'awaiting approval': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/awating-approval`,
-
+                'awaiting approval': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/awaiting-approval`,
                 'published': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-published${lastId ? `?lastId=${lastId}` : ''}`,
                 'rejected': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-rejected${lastId ? `?lastId=${lastId}` : ''}`,
                 'deleted': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-deleted${lastId ? `?lastId=${lastId}` : ''}`
@@ -59,10 +27,13 @@ const CommentsPage: React.FC = () => {
             const resp = await axiosCall('get', endpointMap[status]);
 
             if (Array.isArray(resp.data)) {
-                setComments(prev => {
-                    const newComments = resp.data.filter((comment: { _id: string; }) => !prev.some(existingComment => existingComment._id === comment._id));
-                    return [...prev, ...newComments];
-                });
+                if (lastId) {
+                    // For loading more comments, concatenate to existing comments
+                    setComments(prev => [...prev, ...resp.data]);
+                } else {
+                    // For initial fetch, replace existing comments
+                    setComments(resp.data);
+                }
                 setHasMore(resp.data.length > 0);
                 if (resp.data.length > 0) {
                     setLastCommentId(resp.data[resp.data.length - 1]._id);
@@ -83,10 +54,63 @@ const CommentsPage: React.FC = () => {
     };
 
     useEffect(() => {
-        setComments([]);
-        setLastCommentId(null);
+        setLastCommentId(null); // Reset lastCommentId for new fetch
         fetchComments(filter, null);
     }, [filter]);
+
+    const handleEdit = (comment: IComment) => {
+        setEditingCommentId(comment._id);
+        setEditingMessage(comment.message);
+    };
+
+    const handleUpdateComment = async (commentId: string) => {
+        try {
+            const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
+            await axiosCall('patch', endpoint, { message: editingMessage });
+            toast.success('Comment updated successfully');
+            fetchComments(filter, null); // Refetch comments after updating
+            setEditingCommentId(null);
+        } catch (error) {
+            toast.error('Error updating comment');
+            fetchComments(filter, null); // Refetch comments in case of error
+        }
+    };
+
+    const changeStatus = async (commentId: string, postId: string, newStatus: 'published' | 'rejected' | 'deleted' | 'awaiting approval') => {
+        try {
+            let endpoint;
+            if (newStatus === 'published') {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/approve/${commentId}`;
+            } else if (newStatus === 'rejected') {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/reject/${commentId}`;
+            } else if (newStatus === 'deleted') {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/delete/${commentId}`;
+                await axiosCall('DELETE', endpoint);
+                toast.success('Comment deleted successfully');
+                fetchComments(filter, null); // Refetch comments after deletion
+                return; // Exit early to avoid refetching again
+            } else {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
+            }
+
+            await axiosCall('patch', endpoint);
+            toast.success('Comment status updated successfully');
+            fetchComments(filter, null); // Refetch comments after updating status
+        } catch (error) {
+            toast.error('Error updating comment status');
+        }
+    };
+
+    const recoverComment = async (commentId: string) => {
+        try {
+            const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/recover/${commentId}`;
+            await axiosCall('patch', endpoint);
+            toast.success('Comment recovered successfully');
+            fetchComments(filter, null); // Refetch comments after recovering
+        } catch (error) {
+            toast.error('Error recovering comment');
+        }
+    };
 
     const loadMoreComments = () => {
         if (hasMore && lastCommentId) {
@@ -102,41 +126,6 @@ const CommentsPage: React.FC = () => {
         const optionsTime: any = { hour: 'numeric', minute: 'numeric', hour12: true };
         const formattedTime = new Intl.DateTimeFormat('en-US', optionsTime).format(date);
         return `${day}/${month}/${year} ${formattedTime}`;
-    };
-
-    const changeStatus = async (commentId: string, postId: string, newStatus: 'published' | 'rejected' | 'deleted' | 'awaiting approval') => {
-        const updatedComments = comments.map(comment => {
-            if (comment._id === commentId) {
-                return { ...comment, status: newStatus };
-            }
-            return comment;
-        });
-        setComments(updatedComments);
-
-        try {
-            let endpoint;
-            if (newStatus === 'published') {
-                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/approve/${commentId}`;
-            } else if (newStatus === 'rejected') {
-                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/reject/${commentId}`;
-            } else if (newStatus === 'deleted') {
-                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/delete/${commentId}`;
-                await axiosCall('DELETE', endpoint);
-                return; // Exit early to avoid refetching
-            } else {
-                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
-            }
-
-            await axiosCall('patch', endpoint);
-
-            
-                fetchComments(filter, null);
-            
-
-        } catch (error) {
-            toast.error('Error updating comment status');
-            setComments(comments);
-        }
     };
 
     return (
@@ -166,22 +155,36 @@ const CommentsPage: React.FC = () => {
                                 </p>
                             </div>
                             {editingCommentId === comment._id ? (
-                                <>
-                                    <textarea
-                                        className="w-full p-2 bg-gray-800 text-gray-200 border border-gray-600 rounded"
-                                        value={editingMessage}
-                                        onChange={(e) => setEditingMessage(e.target.value)}
-                                    />
-                                    <button
-                                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
-                                        onClick={() => handleUpdateComment(comment._id)}
-                                    >
-                                        Submit
-                                    </button>
-                                </>
-                            ) : (
-                                <p className="text-gray-200 border-l-4 border-blue-500 pl-4 mb-4 italic bg-gray-800 p-3 rounded">{comment.message}</p>
-                            )}
+    <>
+        <textarea
+            className="w-full p-2 bg-gray-800 text-gray-200 border border-gray-600 rounded"
+            value={editingMessage}
+            onChange={(e) => setEditingMessage(e.target.value)}
+        />
+        <div className="mt-2 flex space-x-2">
+            <button
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
+                onClick={() => handleUpdateComment(comment._id)}
+            >
+                Submit
+            </button>
+            <button
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500"
+                onClick={() => {
+                    setEditingCommentId(null); // Clear the editing state
+                    setEditingMessage(''); // Clear the message
+                }}
+            >
+                Cancel
+            </button>
+        </div>
+    </>
+) : (
+    <p className="text-gray-200 border-l-4 border-blue-500 pl-4 mb-4 italic bg-gray-800 p-3 rounded">
+        {comment.message}
+    </p>
+)}
+
                             <p className="text-sm text-gray-400 mb-4">
                                 <strong>Status:</strong>
                                 <span className={`font-semibold ${comment.status === 'published' ? 'text-green-400' : comment.status === 'rejected' ? 'text-red-400' : comment.status === 'deleted' ? 'text-gray-600' : 'text-orange-300'}`}>
@@ -189,7 +192,7 @@ const CommentsPage: React.FC = () => {
                                 </span>
                             </p>
                             <div className="mt-4 flex space-x-3">
-                                {(comment.status === 'awaiting approval' && comment.isDeleted===false)  && (
+                                {(comment.status === 'awaiting approval' && !comment.isDeleted) && (
                                     <>
                                         <button
                                             className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500 transition duration-200"
@@ -211,7 +214,7 @@ const CommentsPage: React.FC = () => {
                                         </button>
                                     </>
                                 )}
-                                {(comment.status === 'published'&& comment.isDeleted===false ) && (
+                                {(comment.status === 'published' && !comment.isDeleted) && (
                                     <>
                                         <button
                                             className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition duration-200"
@@ -230,8 +233,13 @@ const CommentsPage: React.FC = () => {
                                 {comment.status === 'rejected' && (
                                     <button onClick={() => handleEdit(comment)} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-200">Edit</button>
                                 )}
-                                {((comment.status === 'published' || comment.status==='awaiting approval') && comment.isDeleted===true) && (
-                                    <button onClick={() => handleEdit(comment)} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-200">Edit</button>
+                                {comment.isDeleted && (
+                                    <button
+                                        onClick={() => recoverComment(comment._id)}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-200"
+                                    >
+                                        Recover
+                                    </button>
                                 )}
                             </div>
                         </li>
