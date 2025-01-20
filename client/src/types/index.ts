@@ -38,14 +38,18 @@ export interface PostTypes {
     description: string;
     previewImageKey: string;
     tags: string[];
-    categories: string[];
+    categories: {
+        _id: string,
+        name: string,
+    }[];
     authorId: string;
     likesCount: number;
     status: string;
     isDeleted: boolean;
     slug: string;
     publishedDate: string;
-    commentCount: number
+    commentCount: number;
+    readTime?: string;
 }
 
 
@@ -99,6 +103,7 @@ export interface MediaType {
 }
 
 
+
 export interface PostContextType {
     categories: any[];
     fetchCategories: () => Promise<void>;
@@ -107,6 +112,12 @@ export interface PostContextType {
     media: MediaType[];
     hasMoreMedia: boolean;
     isFetching: boolean;
+    filterBy: string;
+    setFilterBy: (filter: string) =>  void;
+    sortBy: string;
+    setSortBy: (sortBy: string) => void;
+    selectedCategory: string;
+    setSelectedCategory: (category: string) => void;
 }
 
 

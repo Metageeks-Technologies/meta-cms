@@ -32,9 +32,9 @@ const Card = ({ post, index }: any) => {
 
 
     return (
-        <div key={index} onClick={() => router.push(`/post/${post.slug}`)} className='w-80 my-2 md:my-5 group rounded-lg cursor-pointer'>
-            <div className='w-full h-[250px] '>
-                <img src={getURL(post.previewImageKey)} alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' />
+        <div key={index} onClick={() => router.push(`/post/${post.slug}`)} className='w-80 my-2 md:my-5 group rounded-lg cursor-pointer group'>
+            <div className='w-full h-[250px] overflow-hidden rounded-t-lg'>
+                <img src={getURL(post.previewImageKey)} alt="Blog Image" className='w-full h-full object-cover rounded-t-lg group-hover:scale-110 duration-300' />
                 {/* <img src="/blogImg.png" alt="Blog Image" className='w-full h-full object-cover rounded-t-lg' /> */}
 
             </div>

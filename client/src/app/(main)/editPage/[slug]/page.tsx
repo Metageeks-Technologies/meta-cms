@@ -129,9 +129,6 @@ const EditPage = () => {
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
 
             <div className='text-2xl cursor-pointer text-white -mt-2 mb-5' onClick={() => router.push('/allPage')}>
-
-
-
                 <FaArrowLeft />
             </div>
 

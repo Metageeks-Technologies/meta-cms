@@ -1,10 +1,11 @@
 import axios from "axios";
 import axiosCall from "./ApiCall";
 import toast from "react-hot-toast";
+import { monthsArr } from "@/constant/Chart";
 
 export const handleDate = (date: any) => {
     const newDate = new Date(date);
-    return `${newDate.getDate()}/${newDate.getMonth() + 1}/${newDate.getFullYear()}`
+    return `${monthsArr[newDate.getMonth()]} ${newDate.getDate()}, ${newDate.getFullYear()}`
 }
 
 export function isValidPassword(password: string) {

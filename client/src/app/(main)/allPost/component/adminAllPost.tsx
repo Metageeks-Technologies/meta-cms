@@ -7,38 +7,51 @@ import { postStatuEnum, statusArrAdminAllPost } from '@/constant/post';
 import { useUserContext } from '@/context/userContext';
 import toast from 'react-hot-toast';
 import debounce from 'lodash/debounce';
+import { usePostContext } from '@/context/postContext';
 
 
 const AdminAllPost = () => {
 
     const { user } = useUserContext();
 
-    const [filterBy, setFilterBy] = useState('');
-    const [sortBy, setSortBy] = useState('');
+    const { filterBy, sortBy, setFilterBy, setSortBy, selectedCategory, setSelectedCategory } = usePostContext();
+
+    const [category, setCategory] = useState([]);
     const [postData, setPostData] = useState<any>(null);
     const { loading, setLoading } = useUserContext();
     const [lastId, setLastId] = useState('');
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
+    const [searchText, setSearchText] = useState('');
 
     async function fetchAllPosts(lastId?: string) {
         if (isFetching) return;
         setIsFetching(true);
         page === 1 && setLoading(true);
-        
+
         try {
             if (filterBy === postStatuEnum.DRAFT) {
                 const param = new URLSearchParams();
                 if (sortBy) param.append('sortBy', sortBy);
                 if (lastId) param.append('lastId', lastId);
+                if (selectedCategory) param.append('categories', selectedCategory);
                 param.append('isDeleted', 'false');
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/draft?${param.toString()}`);
 
                 if (resp.status === 200 || resp.status === 201) {
                     const newPost = resp?.data;
-                    if(newPost.length < 10) setHasMore(false);
-                    setPostData((prevData: any) => [...(prevData || []), ...newPost]);
+                    if (newPost.length < 10) setHasMore(false);
+                    setPostData((prevData: any) => {
+                        const updatedData = [...(prevData || [])];
+                        newPost.forEach((post: any) => {
+                            // Check if the post already exists (by comparing unique identifier, such as id)
+                            if (!updatedData.some((existingPost: any) => existingPost._id === post._id)) {
+                                updatedData.push(post);
+                            }
+                        });
+                        return updatedData;
+                    });
                 } else {
                     toast.error(resp.data.message, {
                         duration: 2000,
@@ -60,17 +73,26 @@ const AdminAllPost = () => {
                 }
 
                 if (sortBy) param.append('sortBy', sortBy);
-
                 if (lastId) param.append('lastId', lastId);
+                if (selectedCategory) param.append('categories', selectedCategory);
+                if (searchText) param.append('searchQuery', searchText);
 
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
                 // console.log(resp)
 
                 if (resp.status === 200 || resp.status === 201) {
                     const newPost = resp?.data;
-                    if(newPost.length < 10) setHasMore(false)
-                    // setHasMore(newPost.length < 10 && false);
-                    setPostData((prevData: any) => [...(prevData || []), ...newPost]);
+                    if (newPost.length < 10) setHasMore(false);
+                    setPostData((prevData: any) => {
+                        const updatedData = [...(prevData || [])];
+                        newPost.forEach((post: any) => {
+                            // Check if the post already exists (by comparing unique identifier, such as id)
+                            if (!updatedData.some((existingPost: any) => existingPost._id === post._id)) {
+                                updatedData.push(post);
+                            }
+                        });
+                        return updatedData;
+                    });
                 } else {
                     toast.error(resp.data.message, {
                         duration: 2000,
@@ -86,11 +108,36 @@ const AdminAllPost = () => {
         }
     }
 
+    const fetchCategory = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
+
+            console.log(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setCategory(resp.data);
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const debouncedSetSearchText = debounce((value: string) => {
+        setSearchText(value);
+    }, 900);
+
+    const handleSearch = async (e: any) => {
+        const { value } = e.target;
+        debouncedSetSearchText(value);
+    }
+
 
     const handleScroll = () => {
         if (
             window.innerHeight + document.documentElement.scrollTop >=
-            document.documentElement.offsetHeight - 100 // Trigger 100px before the bottom
+            document.documentElement.offsetHeight - 100 && !isFetching && hasMore
         ) {
             setPage((prevPage) => prevPage + 1);
         }
@@ -99,28 +146,34 @@ const AdminAllPost = () => {
     useEffect(() => {
         const debouncedHandleScroll = debounce(handleScroll, 200);
         window.addEventListener('scroll', debouncedHandleScroll);
-        return () => window.removeEventListener('scroll', handleScroll); // Cleanup listener
+        return () => window.removeEventListener('scroll', debouncedHandleScroll);
     }, []);
 
 
-    useEffect(() => {
-        if (hasMore && user.role) fetchAllPosts(lastId);
-    }, [page]);
 
     useEffect(() => {
-        if(user.role){
+        if (hasMore && user.role) {
+            fetchAllPosts(lastId);
+        }
+    }, [page, hasMore]);
+
+    useEffect(() => {
+        if (user.role) {
             setPostData([]);
             setPage(1);
             setLastId('');
             setHasMore(true);
             fetchAllPosts();
         }
-    }, [filterBy, sortBy]);
+    }, [filterBy, sortBy, selectedCategory, searchText]);
 
     useEffect(() => {
         setLastId(postData?.[postData.length - 1]?._id || null);
     }, [postData]);
 
+    useEffect(() => {
+        fetchCategory();
+    }, [])
 
 
     return (
@@ -143,7 +196,7 @@ const AdminAllPost = () => {
                 </div>
 
                 <div className='flex flex-row items-center'>
-                    <select onChange={(e) => setSortBy(e.target.value)} name="" id="" className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
+                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} name="" id="" className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
                         <option value="">-- Sort by --</option>
                         {/* <option value="trending">Trending</option> */}
                         <option value="popular">Popular</option>
@@ -152,11 +205,35 @@ const AdminAllPost = () => {
                     </select>
                 </div>
 
+                <div className='flex flex-row items-center'>
+                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} name="" id="" className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
+                        <option value="">-- Select Category --</option>
+                        {
+                            category.map((cat: any) => (
+                                <option key={cat._id} value={cat._id}>{cat.name}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+
+
+                {
+                    filterBy == '' &&
+                    <div>
+                        <input
+                            type="text"
+                            className='bg-transparent px-3 py-[10px] border-[1px] border-gray-800 rounded-lg outline-none'
+                            placeholder='Search...'
+                            onChange={handleSearch}
+                        />
+                    </div>
+                }
+
             </div>
 
             <div className='w-full h-full flex flex-row flex-wrap items-start justify-center gap-5 p-4'>
                 {
-                    postData ?
+                    postData && !loading ?
                         (
                             <div className='flex flex-row flex-wrap items-start justify-center gap-5 '>
                                 {
@@ -168,14 +245,14 @@ const AdminAllPost = () => {
                                 }
                             </div>
                         )
-                        : <p className='mt-10 text-xl'>Loading...</p>
+                        : null
                 }
 
             </div>
 
 
             {
-                (hasMore && !loading ) &&
+                (hasMore && !loading) &&
                 <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
                     <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
                         <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>

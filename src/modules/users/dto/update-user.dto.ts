@@ -8,6 +8,10 @@ export class UpdateUserDto {
     @IsNotEmpty()
     name?: string;
 
+    @IsOptional()
+    @IsString()
+    imageKey?: string;
+
     @ValidateIf((object, value) => value !== '')
     @IsOptional()
     @IsNumberString()

@@ -3,10 +3,10 @@ import { Transform, TransformPlainToInstance, Type } from 'class-transformer';
 import { PostStatusEnum } from '../schema/post.schema';
 
 export enum PostSortByEnum {
-    TRENDING = 'trending',
-    POPULAR = 'popular',
-    RECENT = 'recent',
-    OLDEST = 'oldest',
+  TRENDING = 'trending',
+  POPULAR = 'popular',
+  RECENT = 'recent',
+  OLDEST = 'oldest',
 };
 
 export class GetPostsQueryDto {
@@ -30,9 +30,9 @@ export class GetPostsQueryDto {
   @IsMongoId()
   authorId?: string;
 
-  @Transform( ({ value }) => ( 
-    Array.isArray(value) ? 
-      value : 
+  @Transform(({ value }) => (
+    Array.isArray(value) ?
+      value :
       (value ? [value] : value)
   ))
   @IsOptional()
@@ -40,9 +40,9 @@ export class GetPostsQueryDto {
   @IsString({ each: true })
   tags?: string[];
 
-  @Transform( ({ value }) => ( 
-    Array.isArray(value) ? 
-      value : 
+  @Transform(({ value }) => (
+    Array.isArray(value) ?
+      value :
       (value ? [value] : value)
   ))
   @IsOptional()
@@ -62,4 +62,8 @@ export class GetPostsQueryDto {
   @IsOptional()
   @IsNumber()
   lastLikesCount?: number;
+
+  @IsString()
+  @IsOptional()
+  searchQuery?: string
 }

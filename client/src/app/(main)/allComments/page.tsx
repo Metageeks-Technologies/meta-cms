@@ -33,8 +33,12 @@ const CommentsPage: React.FC = () => {
         setEditingCommentId(null);
 
         try {
-            const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${commentId}`;
-            await axiosCall('patch', endpoint, { message: editingMessage });
+            const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
+            const resp =  await axiosCall('patch', endpoint, { message: editingMessage });
+
+            if(resp === 200 || resp === 201){
+                // fetchComments()
+            }
         } catch (error) {
             toast.error('Error updating comment');
             setComments(comments); // Revert to original state in case of error

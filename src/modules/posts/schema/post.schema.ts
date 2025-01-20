@@ -19,6 +19,7 @@ export interface IPost extends mongoose.Document {
     likesCount: number;
     commentCount: number;
     status: PostStatusEnum;
+    readTime: string;
     isDeleted: boolean;
     slug: string;
     publishedDate: string;
@@ -50,6 +51,11 @@ export const PostSchema = new mongoose.Schema({
         default: PostStatusEnum.DRAFT,
         required: true,
     },
+    readTime: {
+        type: String,
+        default: "0 min read",
+        require: true
+    },
     isDeleted: { type: Boolean, required: true, default: false },
     slug: { type: String, required: true, unique: true },
     publishedDate: { type: Date, required: true, default: Date.now },
@@ -57,3 +63,5 @@ export const PostSchema = new mongoose.Schema({
 
 // Create a text index for title, description, and tags
 PostSchema.index({ title: 'text', description: 'text', tags: 'text' });
+
+  

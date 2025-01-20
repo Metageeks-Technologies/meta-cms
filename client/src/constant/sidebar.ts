@@ -9,7 +9,7 @@ import { RiPagesLine } from "react-icons/ri";
 export const items: MenuItem[] = [
   {
     title: "Dashboard",
-    url: "dashboard",
+    url: "/dashboard",
     icon: Home,
   },
   {

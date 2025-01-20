@@ -12,6 +12,7 @@ import { SearchPostSortByEnum, SearchPostsQueryDto } from './dto/search-post.dto
 import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { postStatuEnum } from 'client/src/constant/post';
 import { CommentService } from '../comment/comment.service';
+const readingTime = require('reading-time');
 
 @Injectable()
 export class PostsService {
@@ -87,6 +88,8 @@ export class PostsService {
     newPost.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
     // newPost.slug = await this.createUniqueSlugFromTitle(newPost.title);
 
+    const stats = readingTime(newPostData.description);
+    newPost.readTime = stats.text;
 
     // If contributor creates a post to be published/scheduled, change its status to 'awaiting approval'
     if (authorRole === UserRoleEnum.CONTRIBUTOR && (newPost.status === PostStatusEnum.PUBLISHED || newPost.status === PostStatusEnum.SCHEDULED)) {
@@ -114,7 +117,8 @@ export class PostsService {
     categories: string[],
     sortBy: string,
     lastId: string,
-    lastLikesCount: number
+    lastLikesCount: number,
+    searchQuery?: string,
   ) {
     const pipeline: mongoose.PipelineStage[] = [];
 
@@ -122,6 +126,7 @@ export class PostsService {
     // Match stage
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
+
     if (status) {
       matchStage.status = status;
     } else {
@@ -143,6 +148,11 @@ export class PostsService {
     if (categories && categories.length > 0) {
       const categoriesIds = categories.map((id) => mongoose.Types.ObjectId.createFromHexString(id));
       matchStage.categories = { $in: categoriesIds };
+    }
+
+    // Add text search condition if searchQuery is provided
+    if (searchQuery) {
+      matchStage.$text = { $search: searchQuery };
     }
 
     switch (sortBy) {
@@ -178,7 +188,7 @@ export class PostsService {
     /////////////////////////////////////////
     // Sorting stage
     /////////////////////////////////////////
-    const sortStage: Record<string, 1 | -1> = {};
+    const sortStage: Record<string, 1 | -1 | { $meta: 'textScore' }> = {};
     switch (sortBy) {
       case PostSortByEnum.OLDEST:
         sortStage._id = 1;
@@ -194,6 +204,12 @@ export class PostsService {
         sortStage._id = -1;
         break;
     }
+
+    // If there's a search query, prioritize sorting by text score first
+    if (searchQuery) {
+      sortStage.score = { $meta: 'textScore' }; // Sort by text score if search query is present
+    }
+
     if (Object.keys(sortStage).length > 0) {
       pipeline.push({ $sort: sortStage });
     }
@@ -213,6 +229,9 @@ export class PostsService {
     const posts = await this.Post.aggregate(pipeline).exec();
     return posts;
   }
+
+
+  
 
   async searchPosts({ query, sortBy, lastId, lastScore }: SearchPostsQueryDto) {
     const pipeline: mongoose.PipelineStage[] = [];
@@ -591,12 +610,12 @@ export class PostsService {
     await this.commentService.rejectComment(commentId);
   }
 
-  async getAwaitingApproveComment () {
+  async getAwaitingApproveComment() {
     const comments = await this.commentService.awaitingApproveComment();
     return comments;
   }
 
-  async deleteComment (postId: string, userId: string, userRole: string, commentId: string) {
+  async deleteComment(postId: string, userId: string, userRole: string, commentId: string) {
     const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
@@ -606,26 +625,30 @@ export class PostsService {
 
     post.commentCount--;
     post.save();
-  } 
+  }
 
-  async getPublishedCommentOnPost(postId: string, lastId?: string){
+  async getPublishedCommentOnPost(postId: string, lastId?: string) {
     const comments = await this.commentService.allPublishedCommentOnPost(postId, lastId);
     return comments;
   }
 
-  async getAllRejectedComments(lastId?: string){
+  async getAllRejectedComments(lastId?: string) {
     const comments = await this.commentService.allRejectedComment(lastId);
     return comments;
   }
 
-  async getAllPublishedComments(lastId?: string){
+  async getAllPublishedComments(lastId?: string) {
     const comments = await this.commentService.allPublishedComment(lastId);
     return comments;
   }
 
-  async getAllDeletedComments(lastId?: string){
+  async getAllDeletedComments(lastId?: string) {
     const comments = await this.commentService.allDeletedComment(lastId);
     return comments
+  }
+
+  async editComment(userId: string, userRole: string, commentId: string, message: string) {
+    await this.commentService.editComment(userId, userRole, commentId, message)
   }
 
 }

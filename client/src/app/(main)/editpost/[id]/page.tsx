@@ -12,7 +12,6 @@ import MediaModal from '@/app/(main)/newPost/component/mediaModal';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum } from '@/constant/post';
-import moment from "moment";
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { FaArrowLeft } from 'react-icons/fa6';

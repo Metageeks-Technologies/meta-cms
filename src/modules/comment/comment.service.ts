@@ -156,6 +156,10 @@ export class CommentService {
       $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
     });
 
+    pipeline.push({
+      $unwind: { path: '$postDetails', preserveNullAndEmptyArrays: true }
+    });
+
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();
     return comments;
@@ -317,6 +321,24 @@ export class CommentService {
     // Execute the aggregation pipeline
     const comments = await this.Comment.aggregate(pipeline).exec();
     return comments;
+  }
+
+  async editComment(userId: string, userRole: string, commentId: string, message: string) {
+
+    const comment = await this.Comment.findOne({ _id: commentId }, { userId: 1 }).lean().exec();
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    if (userRole == UserRoleEnum.CONTRIBUTOR) {
+      // If a contributor tries to update post of someone else
+      if (userId != comment.userId.toString()) {
+        throw new ForbiddenException();
+      }
+    }
+
+    const query = await this.Comment.updateOne({ _id: commentId }, { message, status: CommentStatusEnum.AWAITING_APPROVAL }).lean().exec();
+    
   }
 
 }

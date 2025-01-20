@@ -14,6 +14,7 @@ import { SearchPostsQueryDto } from './dto/search-post.dto';
 import { CreateCommentDto } from '../comment/dto/create-comment-dto';
 import { userRoles } from 'client/src/constant/user';
 import { commentQueryDto } from '../comment/dto/comment-query-dto';
+import { UpdateCommentDto } from '../comment/dto/update-comment-dto';
 
 @Controller('posts')
 export class PostsController {
@@ -165,6 +166,15 @@ export class PostsController {
   async allDeletedComments(@Query() query: commentQueryDto){
     const comments = await this.postsService.getAllDeletedComments(query.lastId);
     return comments;
+  }
+
+  @Patch('comment/edit/:commentId')
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async editComment(@Param('commentId', ValidateId) commentId: string, @Req() req:Request, @Body() commentDetails: UpdateCommentDto){
+    const user = (req as any).user
+    await this.postsService.editComment(user._id, user.role, commentId, commentDetails?.message);
+    return { message: "Comment edit successfully" }
   }
 
   @Get('my/all')
@@ -450,7 +460,8 @@ export class PostsController {
       query.categories,
       query.sortBy,
       query.lastId,
-      query.lastLikesCount
+      query.lastLikesCount,
+      query.searchQuery
     );
     return posts;
   }
