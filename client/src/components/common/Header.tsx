@@ -19,6 +19,7 @@ import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
 import { INITIAL_USER } from '@/constant/user';
 import { headerData } from '@/constant/sidebar';
+import { getURL } from '@/utils/AWS_Config';
 
 
 
@@ -26,6 +27,8 @@ import { headerData } from '@/constant/sidebar';
 const Header = () => {
 
     const { toggleSidebar } = useSidebar();
+    const {user} = useUserContext();
+
 
     const router = useRouter()
     const pathname = usePathname();
@@ -65,7 +68,7 @@ const Header = () => {
             <DropdownMenu>
                 <DropdownMenuTrigger>
                     <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>

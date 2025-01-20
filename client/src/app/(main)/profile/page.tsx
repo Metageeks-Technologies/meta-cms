@@ -9,13 +9,19 @@ import { RiInstagramFill } from "react-icons/ri";
 import { ImLinkedin } from "react-icons/im";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import { useUserContext } from '@/context/userContext';
+import { MdEdit } from "react-icons/md";
+import { uploadToS3 } from '@/utils/helperFunction';
+import axios from 'axios';
+import { getURL } from '@/utils/AWS_Config';
 
 const ProfilePage: React.FC = () => {
   const { user, getUserProfile, setLoading }: any = useUserContext();
 
+
   const [userProfile, setUserProfile] = useState({
     name: "",
     email: "",
+    imageKey: "",
     role: "",
     phoneNo: "",
     bio: "",
@@ -33,6 +39,7 @@ const ProfilePage: React.FC = () => {
     setUserProfile({
       name: user?.name,
       email: user?.email,
+      imageKey: user?.imageKey,
       role: user?.role,
       phoneNo: user?.phoneNo ? user?.phoneNo : "",
       bio: user?.bio ? user?.bio : "",
@@ -76,6 +83,43 @@ const ProfilePage: React.FC = () => {
     }
   }
 
+  const handleUploadProfile = async (fileList: FileList | null) => {
+    if (!isEditing) return;
+
+    try {
+      setLoading(true);
+      // console.log(fileList?.[0]);
+      const payload = {
+        folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS,
+        fileName: fileList?.[0].name,
+        contentType: fileList?.[0].type
+      }
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+
+      // console.log(resp, "generate upload url")
+
+      if (resp.status === 200 || resp.status === 201) {
+        // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
+        const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
+
+        if (response.status === 200 || response.status === 201) {
+          setUserProfile({...userProfile, imageKey: resp?.data?.key})
+        }
+
+      } else {
+        toast.error(resp.data.message, {
+          duration: 2000
+        });
+      }
+
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+
+  }
+
   useEffect(() => {
     fetchUser();
   }, [user]);
@@ -88,10 +132,29 @@ const ProfilePage: React.FC = () => {
 
         <div className="flex items-center justify-between space-x-4 mb-6">
           <div className="flex flex-row items-center gap-5">
-            <Avatar className='w-20 h-20'>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+
+            {
+              isEditing ?
+                <label>
+                  <div className='relative'>
+                    <Avatar className='w-20 h-20'>
+                      <AvatarImage src={userProfile?.imageKey ? getURL(userProfile?.imageKey) : "https://github.com/shadcn.png"} />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    <div className='bg-white text-black text-xl rounded-full max-w-min p-1 absolute right-0 bottom-0 cursor-pointer'>
+                      <MdEdit />
+                    </div>
+                  </div>
+
+                  <input type="file" className='hidden' onChange={(e) => handleUploadProfile(e.target.files)} />
+                </label>
+                :
+                <Avatar className='w-20 h-20'>
+                  <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+            }
+
             <h1 className="text-xl sm:text-2xl font-bold text-white">My Profile</h1>
           </div>
 

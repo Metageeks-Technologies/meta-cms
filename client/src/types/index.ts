@@ -60,6 +60,7 @@ export interface UserProfile {
     phoneNo?: string;
     bio?: string;
     role: string;
+    imageKey?:string;
     block?: boolean;
     socialLinks?: {
       linkedIn?: string;

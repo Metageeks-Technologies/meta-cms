@@ -56,6 +56,10 @@ export class CommentService {
 
       pipeline.push({ $match: matchStage });
 
+      // Sorting stage
+      const sortStage: Record<string, 1 | -1> = { createdAt: -1 }; // Sort by most recent comments first
+      pipeline.push({ $sort: sortStage });
+
       pipeline.push({
         $lookup: {
           from: 'posts',
@@ -124,7 +128,7 @@ export class CommentService {
     pipeline.push({ $match: matchStage });
 
     // Sorting stage
-    const sortStage: Record<string, 1 | -1> = { _id: -1 }; // Sort by most recent comments first
+    const sortStage: Record<string, 1 | -1> = { createdAt: -1 }; // Sort by most recent comments first
     pipeline.push({ $sort: sortStage });
 
     // Limit stage
@@ -181,7 +185,7 @@ export class CommentService {
     pipeline.push({ $match: matchStage });
 
     // Sorting stage
-    const sortStage: Record<string, 1 | -1> = { _id: -1 }; // Sort by most recent comments first
+    const sortStage: Record<string, 1 | -1> = { createdAt: -1 }; // Sort by most recent comments first
     pipeline.push({ $sort: sortStage });
 
     // Limit stage
@@ -234,7 +238,7 @@ export class CommentService {
     pipeline.push({ $match: matchStage });
 
     // Sorting stage
-    const sortStage: Record<string, 1 | -1> = { _id: -1 }; // Sort by most recent comments first
+    const sortStage: Record<string, 1 | -1> = { createdAt: -1 }; // Sort by most recent comments first
     pipeline.push({ $sort: sortStage });
 
     // Limit stage
@@ -286,7 +290,7 @@ export class CommentService {
     pipeline.push({ $match: matchStage });
 
     // Sorting stage
-    const sortStage: Record<string, 1 | -1> = { _id: -1 }; // Sort by most recent comments first
+    const sortStage: Record<string, 1 | -1> = { createdAt: -1 }; // Sort by most recent comments first
     pipeline.push({ $sort: sortStage });
 
     // Limit stage
@@ -344,7 +348,7 @@ export class CommentService {
   async recoverComment(commentId: string) {
     const comment = await this.Comment.findOneAndUpdate({ _id: commentId }, { isDeleted: false });
 
-    if(!comment){
+    if (!comment) {
       throw new NotFoundException('Comment not found');
     }
   }

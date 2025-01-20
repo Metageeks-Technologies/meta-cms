@@ -314,7 +314,7 @@ const page = () => {
                                     <div className='w-full mb-2 sm:mb-4 flex flex-row justify-between'>
                                         <div className='w-full flex flex-row items-center gap-3'>
                                             <Avatar className='w-12 h-12'>
-                                                <AvatarImage src="https://github.com/shadcn.png" />
+                                                <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
                                                 <AvatarFallback>CN</AvatarFallback>
                                             </Avatar>
 
@@ -379,19 +379,7 @@ const page = () => {
                                             </AlertDialog>
                                         )}
 
-                                        {/* Existing Edit Post button */}
-                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN) && (
-                                            <button
-                                                onClick={() => router.push(`/editpost/${post.slug}`)}
-                                                className='bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
-                                            >
-                                                Edit Post
-                                            </button>
-                                        )}
-                                    </div>
-
-
-                                    {
+{
                                         post.isDeleted && user.role === userRoles.SUPERADMIN &&
 
                                         <AlertDialog>
@@ -409,6 +397,20 @@ const page = () => {
                                             </AlertDialogContent>
                                         </AlertDialog>
                                     }
+
+
+                                        {/* Existing Edit Post button */}
+                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN) && (
+                                            <button
+                                                onClick={() => router.push(`/editpost/${post.slug}`)}
+                                                className='bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
+                                            >
+                                                Edit Post
+                                            </button>
+                                        )}
+                                    </div>
+
+
 
                                     {
                                         post.status === postStatuEnum.DRAFT &&
@@ -438,7 +440,7 @@ const page = () => {
 
                                     <div className='w-full flex flex-row gap-5 my-5'>
                                         <Avatar className='w-20 h-20'>
-                                            <AvatarImage src="https://github.com/shadcn.png" />
+                                            <AvatarImage src={user?.imageKey ? getURL(user?.imageKey): "https://github.com/shadcn.png"} />
                                             <AvatarFallback>CN</AvatarFallback>
                                         </Avatar>
 
@@ -493,7 +495,7 @@ const page = () => {
                                                     {comments.map((comment: IComment) => (
                                                         <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
                                                             <img
-                                                                src={`https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`}
+                                                                src={user?.imageKey ? getURL(user?.imageKey) : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`}
                                                                 alt={comment.userDetails?.name}
                                                                 className='w-10 h-10 rounded-full mr-3'
                                                             />

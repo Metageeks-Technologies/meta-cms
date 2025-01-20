@@ -121,7 +121,7 @@ export class PostsController {
     return { message: "Comment rejected" }
   }
 
-  @Get('comment/awating-approval')
+  @Get('comment/awaiting-approval')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAwatingApproval () {
