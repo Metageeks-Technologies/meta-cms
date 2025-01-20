@@ -269,7 +269,8 @@ const App: React.FC = () => {
                 promotion: false,
                 height: 400,
                 skin: "oxide-dark",
-                content_css: "dark",
+                content_css: "dark",valid_elements: '*[*]', // Allows all elements
+                extended_valid_elements: 'script[src|type]',
                 external_plugins: {
                   embed: "/api/embed?requestType=plugin",
                 },

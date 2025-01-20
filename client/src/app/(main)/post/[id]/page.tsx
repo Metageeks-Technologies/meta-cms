@@ -68,23 +68,23 @@ const page = () => {
 
     const fetchComments = async (postId: string, lastId?: string) => {
         if (!postId || isFetching) return;
-    
+
         setIsFetching(true);
         try {
             const param = new URLSearchParams();
             if (lastId) param.append('lastId', lastId);
             param.append('page', String(page));
-    
+
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public/comment/${postId}?${param.toString()}`);
-    
+
             if (resp.status === 200 || resp.status === 201) {
                 const newComments = resp.data;
-    
+
                 // Filter out duplicate comments
                 const uniqueComments = [...new Map([...comments, ...newComments].map(comment => [comment._id, comment])).values()];
-    
+
                 setComments(uniqueComments);
-    
+
                 if (newComments.length < 5) {
                     setHasMore(false);
                 }
@@ -97,7 +97,7 @@ const page = () => {
             setIsFetching(false);
         }
     };
-    
+
 
 
 
@@ -105,13 +105,13 @@ const page = () => {
         setLoading(true);
         try {
             const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${post?._id}/delete/${commentId}`);
-    
+
             if (resp.status === 200 || resp.status === 201) {
                 toast.success("Comment Deleted", { duration: 2000 });
                 // Remove the deleted comment from state
                 setComments((prev) => {
                     // Update the post's comment count
-                    setPost((prevPost:any) => ({
+                    setPost((prevPost: any) => ({
                         ...prevPost,
                         commentCount: prevPost.commentCount > 0 ? prevPost.commentCount - 1 : 0
                     }));
@@ -126,8 +126,8 @@ const page = () => {
             setLoading(false);
         }
     };
-    
-    
+
+
 
 
     const handleRejectPost = async () => {
@@ -251,7 +251,45 @@ const page = () => {
     useEffect(() => {
         setLastId(comments[comments.length - 1]?._id || '');
     }, [comments]);
-    
+
+    useEffect(() => {
+
+        // Find all the script tags within the content
+        const scripts = post?.description?.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/g);
+
+        if (scripts) {
+            scripts.forEach((script) => {
+                // Create a new script element
+                const newScript = document.createElement("script");
+
+
+                // Use a regex to extract attributes and content
+                const attrMatch = script.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/);
+                if (attrMatch) {
+                    // Set attributes if any
+                    const attributesString = attrMatch[1]; // This will contain the attributes
+                    const content = attrMatch[2]; // This will contain the script content
+
+                    // Set attributes to the new script element
+                    attributesString.trim().split(/\s+/).forEach(attr => {
+                        const [key, value] = attr.split('=');
+                        if (value) {
+                            newScript.setAttribute(key, value.replace(/['"]/g, '')); // Remove quotes
+                        } else {
+                            newScript.setAttribute(key, ''); // For boolean attributes like 'async'
+                        }
+                    });
+
+                    // Set the inner content of the new script
+                    newScript.textContent = content.trim();
+                }
+
+                // Append the new script to the document body
+                document.body.appendChild(newScript);
+            });
+        }
+    }, [post]);
+
 
 
     return (
@@ -269,7 +307,7 @@ const page = () => {
                                     <h1 className='text-2xl sm:text-3xl md:text-5xl mb-2 sm:mb-4 font-bold'>{post?.title}</h1>
                                     <img src={getURL(post?.previewImageKey)} className='w-full object-contain' />
                                     {/* <img src={"/blogImg.png"} className='w-full object-contain' /> */}
-                                    <div className="tinymce-content" dangerouslySetInnerHTML={{ __html: post?.description }}></div>
+                                    <div className="tinymce-content" id='postContent' dangerouslySetInnerHTML={{ __html: post?.description }}></div>
                                     <div className='w-full flex flex-row justify-end gap-2'>
                                         <p>Author : {post?.author.name}</p> |
                                         <p>Date : {handleDate(post?.publishedDate)}</p>
@@ -284,44 +322,43 @@ const page = () => {
                                         </div>
                                     }
 
-                                    {
-                                        !post.isDeleted && (
-                                            <div className='flex justify-between'>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Post</Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent className="bg-black text-white border-none">
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={handleDeletePost} className="text-white bg-red-500 hover:bg-red-700">Delete</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                                {user?.id === post?.authorId && (post?.status === postStatuEnum.DRAFT || post?.status === postStatuEnum.REJECTED || post?.status === postStatuEnum.SCHEDULED)  && (
-                                                    <button
-                                                        onClick={() => router.push(`/editpost/${post.slug}`)}
+                                    <div className='flex justify-between mt-4'>
+                                        {/* Existing Delete Post button */}
+                                        {!post.isDeleted && (
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Post</Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="bg-black text-white border-none">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={handleDeletePost} className="text-white bg-red-500 hover:bg-red-700">Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        )}
 
+                                        {/* Existing Edit Post button */}
+                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN) && (
+                                            <button
+                                                onClick={() => router.push(`/editpost/${post.slug}`)}
+                                                className='bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
+                                            >
+                                                Edit Post
+                                            </button>
+                                        )}
+                                    </div>
 
-
-                                                        className=' bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
-                                                    >
-                                                        Edit Post
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )
-                                    }
 
                                     {
                                         post.isDeleted && user.role === userRoles.SUPERADMIN &&
 
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
-                                                <Button className='bg-green-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-green-700'>Recover Post</Button>
+                                                <Button className='bg-green-500 max-w-min text-white px-6  text-base rounded-lg font-bold hover:bg-green-700'>Recover Post</Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent className="bg-black text-white border-none">
                                                 <AlertDialogHeader>
@@ -346,52 +383,52 @@ const page = () => {
                                     {/* Render Comments */}
                                     {/* Render Comments only if the post status is not DRAFT or SCHEDULED */}
                                     {
-    post.status !== postStatuEnum.DRAFT &&
-    post.status !== postStatuEnum.SCHEDULED &&
-    comments.length > 0 && ( // Check if comments exist
-        <div>
-            <h2 className='text-xl font-semibold'>Comments </h2>
-            <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
-                
-                {comments.map((comment: IComment) => (
-                    <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
-                        <img
-                            src={`https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`}
-                            alt={comment.userDetails?.name}
-                            className='w-10 h-10 rounded-full mr-3'
-                        />
-                        <div className='flex-1'>
-                            <p className='font-semibold'>
-                                {comment.userDetails?.name} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span>
-                            </p>
-                            <p className='text-gray-200'>{comment.message}</p>
-                            {(user?.id === comment.userDetails?.id || user.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) && (
-                                <div className='flex justify-end'>
-                                    <button
-                                        onClick={() => handleDeleteComment(comment._id)}
-                                        className='bg-red-500 text-white px-2 py-1 text-semibold rounded-lg mt-1'
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-                {hasMore && (
-                    <div className='flex justify-center'>
-                        <button
-                            onClick={() => fetchComments(post?._id, lastId)}
-                            className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'
-                        >
-                            Load More
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    )
-}
+                                        post.status !== postStatuEnum.DRAFT &&
+                                        post.status !== postStatuEnum.SCHEDULED &&
+                                        comments.length > 0 && ( // Check if comments exist
+                                            <div>
+                                                <h2 className='text-xl font-semibold'>Comments </h2>
+                                                <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
+
+                                                    {comments.map((comment: IComment) => (
+                                                        <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
+                                                            <img
+                                                                src={`https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`}
+                                                                alt={comment.userDetails?.name}
+                                                                className='w-10 h-10 rounded-full mr-3'
+                                                            />
+                                                            <div className='flex-1'>
+                                                                <p className='font-semibold'>
+                                                                    {comment.userDetails?.name} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span>
+                                                                </p>
+                                                                <p className='text-gray-200'>{comment.message}</p>
+                                                                {(user?.id === comment.userDetails?.id || user.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) && (
+                                                                    <div className='flex justify-end'>
+                                                                        <button
+                                                                            onClick={() => handleDeleteComment(comment._id)}
+                                                                            className='bg-red-500 text-white px-2 py-1 text-semibold rounded-lg mt-1'
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    {hasMore && (
+                                                        <div className='flex justify-center'>
+                                                            <button
+                                                                onClick={() => fetchComments(post?._id, lastId)}
+                                                                className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'
+                                                            >
+                                                                Load More
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    }
 
 
 
