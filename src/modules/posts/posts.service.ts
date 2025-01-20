@@ -602,8 +602,6 @@ export class PostsService {
 
     await this.commentService.approveComment(commentId);
 
-    post.commentCount++;
-    post.save();
   }
 
   async rejectComment(commentId: string) {
@@ -623,8 +621,6 @@ export class PostsService {
 
     await this.commentService.deleteComment(userId, userRole, commentId);
 
-    post.commentCount--;
-    post.save();
   }
 
   async getPublishedCommentOnPost(postId: string, lastId?: string) {

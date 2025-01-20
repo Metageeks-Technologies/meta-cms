@@ -17,7 +17,6 @@ export interface IPost extends mongoose.Document {
     categories: mongoose.Types.ObjectId[];
     authorId: mongoose.Types.ObjectId;
     likesCount: number;
-    commentCount: number;
     status: PostStatusEnum;
     readTime: string;
     isDeleted: boolean;
@@ -44,7 +43,6 @@ export const PostSchema = new mongoose.Schema({
         required: true,
     },
     likesCount: { type: Number, required: true, default: 0 },
-    commentCount: {type: Number, required: true, default: 0 },
     status: {
         type: String,
         enum: Object.values(PostStatusEnum),

@@ -28,6 +28,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SiFacebook } from 'react-icons/si'
 import { RiInstagramFill } from 'react-icons/ri'
 import { ImLinkedin } from 'react-icons/im'
+import { FaHeart } from "react-icons/fa";
+
 
 
 const page = () => {
@@ -339,7 +341,7 @@ const page = () => {
                                                 </div>
                                             }
                                             |
-                                            <div className='flex flex-row items-center text-nowrap'>Likes : {post.likesCount}</div>
+                                            <div className='flex flex-row items-center text-nowrap text-white'> <FaHeart className='mr-1'/>  Likes : {post.likesCount}</div>
                                         </div>
                                     </div>
 
@@ -379,24 +381,24 @@ const page = () => {
                                             </AlertDialog>
                                         )}
 
-{
-                                        post.isDeleted && user.role === userRoles.SUPERADMIN &&
+                                        {
+                                            post.isDeleted && user.role === userRoles.SUPERADMIN &&
 
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button className='bg-green-500 max-w-min text-white px-6  text-base rounded-lg font-bold hover:bg-green-700'>Recover Post</Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent className="bg-black text-white border-none">
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleRecovePost} className="text-white bg-green-500 hover:bg-green-700">Recover</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    }
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button className='bg-green-500 max-w-min text-white px-6  text-base rounded-lg font-bold hover:bg-green-700'>Recover Post</Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent className="bg-black text-white border-none">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={handleRecovePost} className="text-white bg-green-500 hover:bg-green-700">Recover</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        }
 
 
                                         {/* Existing Edit Post button */}
@@ -409,7 +411,6 @@ const page = () => {
                                             </button>
                                         )}
                                     </div>
-
 
 
                                     {
@@ -440,7 +441,7 @@ const page = () => {
 
                                     <div className='w-full flex flex-row gap-5 my-5'>
                                         <Avatar className='w-20 h-20'>
-                                            <AvatarImage src={user?.imageKey ? getURL(user?.imageKey): "https://github.com/shadcn.png"} />
+                                            <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
                                             <AvatarFallback>CN</AvatarFallback>
                                         </Avatar>
 
@@ -531,8 +532,8 @@ const page = () => {
                                             </div>
                                         )
                                     }
-                                       
-                                        
+
+
                                 </div>
                                 : <p className='text-center text-2xl'>No Data found.</p>
                         }
