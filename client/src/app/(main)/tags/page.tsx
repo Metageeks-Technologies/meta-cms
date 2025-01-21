@@ -1,5 +1,4 @@
 "use client";
-import { tagsdata } from '@/constant/tags';
 import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
 import { setDefaultAutoSelectFamily } from 'net';

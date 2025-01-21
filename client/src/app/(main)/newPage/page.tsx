@@ -4,7 +4,6 @@ import Editor from '@monaco-editor/react';
 import toast from 'react-hot-toast';
 import axiosCall from '@/utils/ApiCall';
 import { INITIAL_PAGE_CONTENT } from '@/constant/page';
-import { duration } from 'moment';
 import { useUserContext } from '@/context/userContext';
 
 const CreatePage = () => {
