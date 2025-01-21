@@ -14,6 +14,7 @@ import { SearchPostsQueryDto } from './dto/search-post.dto';
 import { CreateCommentDto } from '../comment/dto/create-comment-dto';
 import { userRoles } from 'client/src/constant/user';
 import { commentQueryDto } from '../comment/dto/comment-query-dto';
+import { UpdateCommentDto } from '../comment/dto/update-comment-dto';
 
 @Controller('posts')
 export class PostsController {
@@ -120,7 +121,7 @@ export class PostsController {
     return { message: "Comment rejected" }
   }
 
-  @Get('comment/awating-approval')
+  @Get('comment/awaiting-approval')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAwatingApproval () {
@@ -128,21 +129,61 @@ export class PostsController {
     return comments;
   }
 
-  @Delete('comment/delete/:commentId')
+  @Delete('comment/:postId/delete/:commentId')
   @AllowedRoles(UserRoleEnum.SUBSCRIBER, UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteComment (@Req() req: Request, @Param('commentId', ValidateId) commentId: string) {
+  async deleteComment (@Req() req: Request, @Param('postId', ValidateId) postId: string ,@Param('commentId', ValidateId) commentId: string) {
     const user = (req as any).user;
-    await this.postsService.deleteComment(user._id, user.role, commentId);
+    await this.postsService.deleteComment(postId, user._id, user.role, commentId);
     return { message: "Comment deleted succesfully" }
   }
 
   @Get('public/comment/:postId')
   async publicComments (@Param('postId', ValidateId) postId: string, @Query() query: commentQueryDto){
-    const comments = await this.postsService.getPublishedComment(postId, query.lastId);
+    const comments = await this.postsService.getPublishedCommentOnPost(postId, query.lastId);
     return comments;
   }
 
+  @Get('comment/all-rejected')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async allRejectedComments(@Query() query: commentQueryDto){
+    const comments = await this.postsService.getAllRejectedComments(query.lastId);
+    return comments;
+  }
+
+  @Get('comment/all-published')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async allPublishedComments(@Query() query: commentQueryDto){
+    const comments = await this.postsService.getAllPublishedComments(query.lastId);
+    return comments;
+  }
+
+  @Get('comment/all-deleted')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async allDeletedComments(@Query() query: commentQueryDto){
+    const comments = await this.postsService.getAllDeletedComments(query.lastId);
+    return comments;
+  }
+
+  @Patch('comment/edit/:commentId')
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async editComment(@Param('commentId', ValidateId) commentId: string, @Req() req:Request, @Body() commentDetails: UpdateCommentDto){
+    const user = (req as any).user
+    await this.postsService.editComment(user._id, user.role, commentId, commentDetails?.message);
+    return { message: "Comment edit successfully" }
+  }
+
+  @Patch('comment/recover/:commentId')
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async recoverComment(@Param('commentId', ValidateId) commentId: string){
+    await this.postsService.recoverComment(commentId);
+    return { message: "Comment recover successfully" }
+  }
 
   @Get('my/all')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
@@ -427,7 +468,8 @@ export class PostsController {
       query.categories,
       query.sortBy,
       query.lastId,
-      query.lastLikesCount
+      query.lastLikesCount,
+      query.searchQuery
     );
     return posts;
   }

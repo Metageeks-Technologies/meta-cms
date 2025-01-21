@@ -75,7 +75,18 @@ const EditPage = () => {
                     slug: "",
                     content: ""
                 });
-                router.push(`/page/${payload.slug}`);
+                // router.push(`/page/${payload.slug}`);
+                  const fetchUpdatedPage = async () => {
+                const pageResp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${payload.slug}`);
+                if (pageResp.status === 200) {
+                    router.push(`/page/${payload.slug}`);
+                } else {
+                    // If the page doesn't exist, redirect to /allPage
+                    router.push('/allPage');
+                }
+            };
+
+            fetchUpdatedPage();
             } else {
                 toast.error(resp?.data?.message, { duration: 2000 })
             }
@@ -117,7 +128,7 @@ const EditPage = () => {
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
 
-            <div className='text-2xl cursor-pointer text-white -mt-2 mb-5' onClick={() => router.back()}>
+            <div className='text-2xl cursor-pointer text-white -mt-2 mb-5' onClick={() => router.push('/allPage')}>
                 <FaArrowLeft />
             </div>
 

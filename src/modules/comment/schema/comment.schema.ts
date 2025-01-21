@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 export enum CommentStatusEnum {
     AWAITING_APPROVAL = 'awaiting approval',
     PUBLISHED = 'published',
@@ -12,6 +11,7 @@ export interface IComment extends mongoose.Document {
     postId: mongoose.Schema.Types.ObjectId,
     message: string,
     status: CommentStatusEnum,
+    isDeleted: boolean,
 }
 
 export const CommentSchema = new mongoose.Schema({
@@ -35,6 +35,11 @@ export const CommentSchema = new mongoose.Schema({
         enum: Object.values(CommentStatusEnum),
         required: true,
         default: CommentStatusEnum.AWAITING_APPROVAL
+    },
+    isDeleted: {
+        type: Boolean,
+        required: true,
+        default: false,
     }
 
 }, { timestamps: true })

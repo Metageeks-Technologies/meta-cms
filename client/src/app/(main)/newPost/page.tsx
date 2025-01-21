@@ -139,7 +139,7 @@ const App: React.FC = () => {
           previewImg: '',
         });
         setTagInput('');
-         editorRef.current?.setContent(''); // Reset TinyMCE editor content
+        //  editorRef.current?.setContent(''); // Reset TinyMCE editor content
         fetchCategory(); // Re-fetch categories
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -235,7 +235,6 @@ const App: React.FC = () => {
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
             <Editor
-              // apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
               licenseKey='gpl'
               tinymceScriptSrc='/tinymce/tinymce.min.js'
               init={{

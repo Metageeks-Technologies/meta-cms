@@ -32,7 +32,7 @@ const CreatePage = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        if (!formData.title) {
+        if (!formData.title.trim()) {
             toast.error("title is required", { duration: 2000 });
             return
         }
@@ -82,6 +82,7 @@ const CreatePage = () => {
                         id='title'
                         placeholder='Enter title'
                         value={formData.title}
+                        maxLength={120}
                         onChange={handleChange}
                     />
                 </label>

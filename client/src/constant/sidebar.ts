@@ -90,3 +90,21 @@ export const items: MenuItem[] = [
     icon: Settings,
   },
 ];
+
+
+export const headerData = {
+  dashboard: "Dashboard",
+  newPost: "New Post",
+  allPost: "All Post",
+  category: "Category",
+  tags: "Tags",
+  newPage: "New Page",
+  allPage: "All Page",
+  allComments: "All Comments",
+  subscribers: "Subscribers",
+  contributor: "Contributor",
+  moderator: "Moderator",
+  media: "Media",
+  notification: "Notification",
+  profile: "Settings"
+}

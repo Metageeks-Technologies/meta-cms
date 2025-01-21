@@ -38,13 +38,18 @@ export interface PostTypes {
     description: string;
     previewImageKey: string;
     tags: string[];
-    categories: string[];
+    categories: {
+        _id: string,
+        name: string,
+    }[];
     authorId: string;
     likesCount: number;
     status: string;
     isDeleted: boolean;
     slug: string;
     publishedDate: string;
+    commentCount: number;
+    readTime?: string;
 }
 
 
@@ -55,6 +60,7 @@ export interface UserProfile {
     phoneNo?: string;
     bio?: string;
     role: string;
+    imageKey?:string;
     block?: boolean;
     socialLinks?: {
       linkedIn?: string;
@@ -67,19 +73,14 @@ export interface UserProfile {
 
 export interface IComment {
     _id: string; 
-    userId: UserProfile; 
-    postId: PostTypes; 
+    userDetails?: UserProfile;
+    postDetails: PostTypes; 
+    
     message: string;
-    status: 'awaiting approval' | 'published' | 'rejected';
+    status: 'awaiting approval' | 'published' | 'rejected' |'deleted';
     createdAt: string;
-}
-
-export interface Comment {
-    id: number;
-    postId: number;
-    user: string;
-    content: string;
-    date: string;
+    verify: boolean;
+    isDeleted: boolean;
 }
 
 
@@ -103,6 +104,7 @@ export interface MediaType {
 }
 
 
+
 export interface PostContextType {
     categories: any[];
     fetchCategories: () => Promise<void>;
@@ -111,6 +113,12 @@ export interface PostContextType {
     media: MediaType[];
     hasMoreMedia: boolean;
     isFetching: boolean;
+    filterBy: string;
+    setFilterBy: (filter: string) =>  void;
+    sortBy: string;
+    setSortBy: (sortBy: string) => void;
+    selectedCategory: string;
+    setSelectedCategory: (category: string) => void;
 }
 
 

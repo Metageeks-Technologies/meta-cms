@@ -7,19 +7,22 @@ import toast from 'react-hot-toast';
 import { postSortByEnum, postStatuEnum, statusArrAdminAllPost } from '@/constant/post';
 import { useUserContext } from '@/context/userContext';
 import { debounce, filter } from 'lodash';
+import { usePostContext } from '@/context/postContext';
 
 const ContributorAllPost = () => {
 
     const { loading, setLoading, user } = useUserContext();
+
+    const { filterBy, setFilterBy, sortBy, setSortBy, selectedCategory, setSelectedCategory } = usePostContext();
 
     const [lastId, setLastId] = useState('');
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
 
     const [isFetching, setIsFetching] = useState(false);
-    const [filterBy, setFilterBy] = useState('');
-    const [sortBy, setSortBy] = useState('');
     const [postData, setPostData] = useState<any>(null);
+
+    const [category, setCategory] = useState([]);
 
 
     const fetchPostByStatus = async (status: string, param: URLSearchParams,) => {
@@ -50,9 +53,10 @@ const ContributorAllPost = () => {
             const param = new URLSearchParams();
             if (sortBy) param.append('sortBy', sortBy);
             if (lastId) param.append('lastId', lastId);
+            if (selectedCategory) param.append('categories', selectedCategory);
             if (filterBy !== postStatuEnum.DELETED) param.append('isDeleted', 'false');
 
-            if(filterBy === "") await fetchPostByStatus("all", param);
+            if (filterBy === "") await fetchPostByStatus("all", param);
 
             if (filterBy === postStatuEnum.PUBLISHED) await fetchPostByStatus(postStatuEnum.PUBLISHED, param);
 
@@ -74,7 +78,22 @@ const ContributorAllPost = () => {
         }
     }
 
-    
+    const fetchCategory = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
+
+            console.log(resp);
+            if (resp.status === 200 || resp.status === 201) {
+                setCategory(resp.data);
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
 
     const handleScroll = () => {
         if (
@@ -88,27 +107,31 @@ const ContributorAllPost = () => {
     useEffect(() => {
         const debouncedHandleScroll = debounce(handleScroll, 200);
         window.addEventListener('scroll', debouncedHandleScroll);
-        return () => window.removeEventListener('scroll', handleScroll); // Cleanup listener
+        return () => window.removeEventListener('scroll', debouncedHandleScroll); // Cleanup listener
     }, []);
 
 
     useEffect(() => {
         if (hasMore && user.role) fetchPosts(lastId);
-    }, [page]);
+    }, [page, hasMore]);
 
     useEffect(() => {
-        if(user.role){
+        if (user.role) {
             setPostData([]);
             setPage(1);
             setLastId('');
             setHasMore(true);
             fetchPosts();
         }
-    }, [filterBy, sortBy]);
+    }, [filterBy, sortBy, selectedCategory]);
 
     useEffect(() => {
         setLastId(postData?.[postData.length - 1]?._id || null);
     }, [postData]);
+
+    useEffect(() => {
+        fetchCategory();
+    }, [])
 
     return (
         <div>
@@ -136,6 +159,17 @@ const ContributorAllPost = () => {
                         <option value={postSortByEnum.POPULAR}>Popular</option>
                         <option value={postSortByEnum.RECENT}>Recent</option>
                         <option value={postSortByEnum.OLDEST}>Oldest</option>
+                    </select>
+                </div>
+
+                <div className='flex flex-row items-center'>
+                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} name="" id="" className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
+                        <option value="">-- Select Category --</option>
+                        {
+                            category.map((cat: any) => (
+                                <option key={cat._id} value={cat._id}>{cat.name}</option>
+                            ))
+                        }
                     </select>
                 </div>
 

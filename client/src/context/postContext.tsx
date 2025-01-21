@@ -1,4 +1,4 @@
-    'use client'
+'use client'
 import axiosCall from "@/utils/ApiCall";
 import React, { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
@@ -12,6 +12,10 @@ const postContext = createContext<any>(null);
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { setLoading } = useUserContext();
+
+    const [filterBy, setFilterBy] = useState('');
+    const [sortBy, setSortBy] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('')
 
     const [categories, setCategeories] = useState([]);
     const [media, setMedia] = useState<any>([]);
@@ -31,7 +35,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             }
         } catch (error) {
             console.log(error);
-        }finally{
+        } finally {
             setLoading(false);
         }
     }
@@ -59,7 +63,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const fetchMedia = async (lastId: string) => {
-        if(isFetching) return;
+        if (isFetching) return;
         setIsFetching(true);
         try {
             const param = new URLSearchParams();
@@ -89,8 +93,13 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         fetchMedia,
         media,
         hasMoreMedia,
-        isFetching
-        
+        isFetching,
+        filterBy,
+        setFilterBy,
+        sortBy,
+        setSortBy,
+        selectedCategory,
+        setSelectedCategory
     }
 
     return (

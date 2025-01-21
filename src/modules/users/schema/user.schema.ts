@@ -22,6 +22,7 @@ export interface IUser extends mongoose.Document {
   email: string;
   hash: string;
   phoneNo?: string;
+  imageKey?:string;
   bio?: string;
   block: boolean;
   role: UserRoleEnum;
@@ -34,6 +35,7 @@ export const UserSchema = new mongoose.Schema({
   hash: { type: String, required: true },
   phoneNo: { type: String, required: false },
   bio: { type: String, required: false },
+  imageKey: { type: String },
   block: {
     type: Boolean,
     default: false,

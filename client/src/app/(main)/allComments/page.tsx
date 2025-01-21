@@ -2,87 +2,257 @@
 import React, { useState, useEffect } from 'react';
 import axiosCall from "@/utils/ApiCall";
 import { IComment } from '@/types';
+import { useUserContext } from '@/context/userContext';
+import toast from 'react-hot-toast';
 
 const CommentsPage: React.FC = () => {
     const [comments, setComments] = useState<IComment[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { isLoading, setLoading }: any = useUserContext();
+    const [filter, setFilter] = useState<'awaiting approval' | 'published' | 'rejected' | 'deleted'>('awaiting approval');
+    const [lastCommentId, setLastCommentId] = useState<string | null>(null);
+    const [hasMore, setHasMore] = useState(true);
+    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+    const [editingMessage, setEditingMessage] = useState<string>('');
 
-    const fetchComments = async () => {
+    const fetchComments = async (status: string, lastId: string | null) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/awating-approval`);
+            const endpointMap: { [key: string]: string } = {
+                'awaiting approval': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/awaiting-approval`,
+                'published': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-published${lastId ? `?lastId=${lastId}` : ''}`,
+                'rejected': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-rejected${lastId ? `?lastId=${lastId}` : ''}`,
+                'deleted': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-deleted${lastId ? `?lastId=${lastId}` : ''}`
+            };
 
-            // Check the response structure
+            const resp = await axiosCall('get', endpointMap[status]);
+
             if (Array.isArray(resp.data)) {
-                setComments(resp.data); 
+                if (lastId) {
+                    // For loading more comments, concatenate to existing comments
+                    setComments(prev => [...prev, ...resp.data]);
+                } else {
+                    // For initial fetch, replace existing comments
+                    setComments(resp.data);
+                }
+                setHasMore(resp.data.length > 0);
+                if (resp.data.length > 0) {
+                    setLastCommentId(resp.data[resp.data.length - 1]._id);
+                } else {
+                    setHasMore(false);
+                }
             } else {
-                console.error('Expected an array of comments but got:', resp.data);
+                setComments([]);
+                setHasMore(false);
             }
         } catch (error) {
-            console.error('Error fetching comments:', error);
+            toast.error('Failed to fetch comments');
+            setComments([]);
+            setHasMore(false);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchComments();
-    }, []);
+        setLastCommentId(null); // Reset lastCommentId for new fetch
+        fetchComments(filter, null);
+    }, [filter]);
 
-    const changeStatus = async (commentId: string, postId: string, newStatus: 'published' | 'rejected') => {
+    const handleEdit = (comment: IComment) => {
+        setEditingCommentId(comment._id);
+        setEditingMessage(comment.message);
+    };
+
+    const handleUpdateComment = async (commentId: string) => {
         try {
-            if (newStatus === 'published') {
-                await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/approve/${commentId}`);
-            } else if (newStatus === 'rejected') {
-                await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/reject/${commentId}`);
-            }
-            
-            // Update the local state
-            setComments(prevComments =>
-                prevComments.map(comment => {
-                    if (comment._id === commentId) {
-                        return { ...comment, status: newStatus };
-                    }
-                    return comment;
-                })
-            );
+            const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
+            await axiosCall('patch', endpoint, { message: editingMessage });
+            toast.success('Comment updated successfully');
+            fetchComments(filter, null); // Refetch comments after updating
+            setEditingCommentId(null);
         } catch (error) {
-            console.error('Error updating comment status:', error);
+            toast.error('Error updating comment');
+            fetchComments(filter, null); // Refetch comments in case of error
         }
     };
 
-    if (loading) {
-        return <p className="text-center">Loading comments...</p>;
-    }
+    const changeStatus = async (commentId: string, postId: string, newStatus: 'published' | 'rejected' | 'deleted' | 'awaiting approval') => {
+        try {
+            let endpoint;
+            if (newStatus === 'published') {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/approve/${commentId}`;
+            } else if (newStatus === 'rejected') {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/reject/${commentId}`;
+            } else if (newStatus === 'deleted') {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/delete/${commentId}`;
+                await axiosCall('DELETE', endpoint);
+                toast.success('Comment deleted successfully');
+                fetchComments(filter, null); // Refetch comments after deletion
+                return; // Exit early to avoid refetching again
+            } else {
+                endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
+            }
+
+            await axiosCall('patch', endpoint);
+            toast.success('Comment status updated successfully');
+            fetchComments(filter, null); // Refetch comments after updating status
+        } catch (error) {
+            toast.error('Error updating comment status');
+        }
+    };
+
+    const recoverComment = async (commentId: string) => {
+        try {
+            const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/recover/${commentId}`;
+            await axiosCall('patch', endpoint);
+            toast.success('Comment recovered successfully');
+            fetchComments(filter, null); // Refetch comments after recovering
+        } catch (error) {
+            toast.error('Error recovering comment');
+        }
+    };
+
+    const loadMoreComments = () => {
+        if (hasMore && lastCommentId) {
+            fetchComments(filter, lastCommentId);
+        }
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = date.toLocaleString('default', { month: 'short' });
+        const year = date.getFullYear();
+        const optionsTime: any = { hour: 'numeric', minute: 'numeric', hour12: true };
+        const formattedTime = new Intl.DateTimeFormat('en-US', optionsTime).format(date);
+        return `${day}/${month}/${year} ${formattedTime}`;
+    };
 
     return (
         <div className="p-6 mx-auto bg-black text-white">
-            <h1 className="font-bold mb-4 text-center text-4xl">Comments</h1>
+            <div className="mb-4 flex space-x-4">
+                {['awaiting approval', 'published', 'rejected', 'deleted'].map(status => (
+                    <button
+                        key={status}
+                        onClick={() => setFilter(status as 'awaiting approval' | 'published' | 'rejected' | 'deleted')}
+                        className={`px-4 py-2 rounded ${filter === status ? 'bg-blue-500' : 'bg-gray-700'} hover:bg-blue-400`}
+                    >
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </button>
+                ))}
+            </div>
+
             {comments.length === 0 ? (
-                <p className="text-gray-400 text-center">No comments at this time.</p>
+                <p className="text-gray-500 text-center text-lg italic">No comments at this time.</p>
             ) : (
-                <ul className="space-y-4">
+                <ul className="space-y-6">
                     {comments.map(comment => (
-                        <li key={comment._id} className={`border border-gray-700 p-4 rounded-lg shadow bg-gray-800`}>
-                            <p><strong>User Name:</strong> {comment.userId.name}</p>
-                            <p><strong>Post Title:</strong> {comment.postId.title}</p>
-                            <p><strong>Message:</strong> {comment.message}</p>
-                            <p><strong>Status:</strong> <span className="font-semibold text-orange-300">{comment.status}</span></p>
-                            <p><strong>Created At:</strong> {new Date(comment.createdAt).toLocaleString()}</p>
-                            <div className="mt-2 space-x-2">
-                                {comment.status === 'awaiting approval' && (
+                        <li key={comment._id} className="border border-gray-700 p-6 rounded-lg shadow-lg bg-gray-900">
+                            <div className="mb-4">
+                                <h2 className="text-2xl font-semibold text-blue-300">Post: {comment.postDetails.title}</h2>
+                                <p className="text-sm text-gray-400">
+                                    Commented by <strong>{comment.userDetails?.name}</strong> on <em>{formatDate(comment.createdAt)}</em>
+                                </p>
+                            </div>
+                            {editingCommentId === comment._id ? (
+    <>
+        <textarea
+            className="w-full p-2 bg-gray-800 text-gray-200 border border-gray-600 rounded"
+            value={editingMessage}
+            onChange={(e) => setEditingMessage(e.target.value)}
+        />
+        <div className="mt-2 flex space-x-2">
+            <button
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
+                onClick={() => handleUpdateComment(comment._id)}
+            >
+                Submit
+            </button>
+            <button
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500"
+                onClick={() => {
+                    setEditingCommentId(null); // Clear the editing state
+                    setEditingMessage(''); // Clear the message
+                }}
+            >
+                Cancel
+            </button>
+        </div>
+    </>
+) : (
+    <p className="text-gray-200 border-l-4 border-blue-500 pl-4 mb-4 italic bg-gray-800 p-3 rounded">
+        {comment.message}
+    </p>
+)}
+
+                            <p className="text-sm text-gray-400 mb-4">
+                                <strong>Status:</strong>
+                                <span className={`font-semibold ${comment.status === 'published' ? 'text-green-400' : comment.status === 'rejected' ? 'text-red-400' : comment.status === 'deleted' ? 'text-gray-600' : 'text-orange-300'}`}>
+                                    {comment.status}
+                                </span>
+                            </p>
+                            <div className="mt-4 flex space-x-3">
+                                {(comment.status === 'awaiting approval' && !comment.isDeleted) && (
                                     <>
-                                        <button className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-500 transition" onClick={() => changeStatus(comment._id, comment.postId._id, 'published')}>Publish</button>
-                                        <button className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-500 transition" onClick={() => changeStatus(comment._id, comment.postId._id, 'rejected')}>Reject</button>
+                                        <button
+                                            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500 transition duration-200"
+                                            onClick={() => changeStatus(comment._id, comment.postDetails._id, 'published')}
+                                        >
+                                            Publish
+                                        </button>
+                                        <button
+                                            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition duration-200"
+                                            onClick={() => changeStatus(comment._id, comment.postDetails._id, 'rejected')}
+                                        >
+                                            Reject
+                                        </button>
+                                        <button
+                                            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition duration-200"
+                                            onClick={() => changeStatus(comment._id, comment.postDetails._id, 'deleted')}
+                                        >
+                                            Delete
+                                        </button>
                                     </>
                                 )}
-                                {comment.status === 'published' && (
-                                    <button className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-500 transition" onClick={() => changeStatus(comment._id, comment.postId._id, 'rejected')}>Reject</button>
+                                {(comment.status === 'published' && !comment.isDeleted) && (
+                                    <>
+                                        <button
+                                            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition duration-200"
+                                            onClick={() => changeStatus(comment._id, comment.postDetails._id, 'rejected')}
+                                        >
+                                            Reject
+                                        </button>
+                                        <button
+                                            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition duration-200"
+                                            onClick={() => changeStatus(comment._id, comment.postDetails._id, 'deleted')}
+                                        >
+                                            Delete
+                                        </button>
+                                    </>
+                                )}
+                                {comment.status === 'rejected' && (
+                                    <button onClick={() => handleEdit(comment)} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-200">Edit</button>
+                                )}
+                                {comment.isDeleted && (
+                                    <button
+                                        onClick={() => recoverComment(comment._id)}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-200"
+                                    >
+                                        Recover
+                                    </button>
                                 )}
                             </div>
                         </li>
                     ))}
                 </ul>
+            )}
+
+            {hasMore && (filter === 'published' || filter === 'rejected' || filter === 'deleted') && (
+                <div className="mt-4 flex justify-center">
+                    <button onClick={loadMoreComments} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition duration-200">
+                        Load More
+                    </button>
+                </div>
             )}
         </div>
     );

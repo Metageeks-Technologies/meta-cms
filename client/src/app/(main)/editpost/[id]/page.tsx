@@ -12,7 +12,6 @@ import MediaModal from '@/app/(main)/newPost/component/mediaModal';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum } from '@/constant/post';
-import moment from "moment";
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { FaArrowLeft } from 'react-icons/fa6';
@@ -269,7 +268,8 @@ const App: React.FC = () => {
                 promotion: false,
                 height: 400,
                 skin: "oxide-dark",
-                content_css: "dark",
+                content_css: "dark",valid_elements: '*[*]', // Allows all elements
+                extended_valid_elements: 'script[src|type]',
                 external_plugins: {
                   embed: "/api/embed?requestType=plugin",
                 },
