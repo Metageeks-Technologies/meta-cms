@@ -108,7 +108,7 @@ const CreatePage = () => {
                     <Editor
                         height="50vh"
                         theme='vs-dark'
-                        language="html" // Change this to your desired default language
+                        language="javascript" // Change this to your desired default language
                         value={formData.content}
                         onChange={handleEditorChange}
                     />

@@ -5,6 +5,7 @@ import { ICategory } from './schema/category.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
+import { RedisKeys } from 'src/utils/constant';
 
 @Injectable()
 export class CategoriesService {
@@ -17,6 +18,9 @@ export class CategoriesService {
     const newCategory = new this.Category(newCategoryData);
     
     try {
+      // Delete all Category cache
+      await this.redisService.deleteCache(RedisKeys.AllCategory);
+
       await newCategory.save();
     } catch(error) {
       if (error.code === 11000) {
@@ -34,23 +38,33 @@ export class CategoriesService {
     // since categories will be fetched quite often
 
     // get categories from cache 
-    const categoriesData = await this.redisService.getCache('allCategory');
+    const categoriesData = await this.redisService.getCache(RedisKeys.AllCategory);
     if(categoriesData){
       return JSON.parse(categoriesData);
     }
     
     const categories = await this.Category.find().sort({ createdAt: -1 }).lean().exec();
 
-    // stored categories from cache 
-    await this.redisService.setCache('allCategory', JSON.stringify(categories));
+    // stored categories in cache 
+    this.redisService.setCache(RedisKeys.AllCategory, JSON.stringify(categories));
     return categories as ICategory[];
   }
 
   async findById(_id: string) {
+
+    // get category by id from cache
+    const categoryData = await this.redisService.getCache(`${RedisKeys.CategoryId}_${_id}`);
+    if(categoryData){
+      return JSON.parse(categoryData);
+    }
+
     const category = await this.Category.findOne({_id: _id}).lean().exec();
     if(!category) {
       throw new NotFoundException("Category not found");
     }
+
+    // stored categories in cache
+    this.redisService.setCache(`${RedisKeys.CategoryId}_${_id}`, JSON.stringify(category));
     return category as ICategory;
   }
 
@@ -60,6 +74,11 @@ export class CategoriesService {
       if(query.matchedCount == 0) {
         throw new NotFoundException("Category ID not found");
       }
+
+      // Delete all Category cache
+      await this.redisService.deleteCache(RedisKeys.AllCategory);
+      // Delete Category by id
+      await this.redisService.deleteCache(`${RedisKeys.CategoryId}_${_id}`);
     } catch(error) {
       if (error.code === 11000) {
         // Duplicate key error
@@ -76,5 +95,10 @@ export class CategoriesService {
     if(query.deletedCount == 0) {
       throw new NotFoundException('Category Id not found');
     }
+
+    // Delete all Category cache
+    await this.redisService.deleteCache(RedisKeys.AllCategory);
+    // Delete Category by id
+    await this.redisService.deleteCache(`${RedisKeys.CategoryId}_${_id}`);
   }
 }

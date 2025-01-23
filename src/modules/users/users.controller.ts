@@ -4,7 +4,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { UserRoleEnum } from './schema/user.schema';
 import { RolesGuard } from '../auth/role.guard';
-import { ChangeRoleDto } from './dto/change-role.dto';
+import { ChangeRoleDto, ChangeStoreRole } from './dto/change-role.dto';
 import { Request, Response } from 'express';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -80,6 +80,15 @@ export class UsersController {
   async changeRole(@Body() changeRoleDto: ChangeRoleDto) {
     const { _id, newRole } = changeRoleDto;
     await this.usersService.changeRole(_id, newRole);
+    return { message: "User role changed successfully" }; 
+  }
+
+  @Put('change-store-role')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async changeStoreRole(@Body() changeRoleDto: ChangeStoreRole) {
+    const { _id, newRole } = changeRoleDto;
+    await this.usersService.changeStoreRole(_id, newRole);
     return { message: "User role changed successfully" }; 
   }
 

@@ -5,12 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './schema/user.schema';
 import { BookmarksModule } from '../bookmarks/bookmarks.module';
 import { OtpSchema } from './schema/otp.schema';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   imports: [ 
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     MongooseModule.forFeature([{ name: 'Otp', schema: OtpSchema}]),
-    BookmarksModule
+    BookmarksModule,
+    RedisModule
   ],
   controllers: [UsersController],
   providers: [UsersService],

@@ -1,0 +1,16 @@
+import mongoose from 'mongoose';
+
+export interface IProductCategory extends mongoose.Document {
+  _id: string;
+  name: string;
+  code: string;
+  description: string;
+  bannerImageKey: string;
+}
+
+export const ProductCategorySchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  code: {type: String, required: true, unique: true},
+  description: { type: String, required: true },
+  bannerImageKey: { type: String, required: true },
+}, { timestamps: true });

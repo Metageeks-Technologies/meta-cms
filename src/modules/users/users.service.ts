@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
-import { IUser, UserRoleEnum } from './schema/user.schema';
+import { IUser, UserRoleEnum, UserStoreRoleEnum } from './schema/user.schema';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,6 +11,8 @@ import { IOtp } from './schema/otp.schema';
 import { sendEmail } from 'src/utils/emailService';
 import { emailVerificationOtpTemplate, resetPasswordOtpTemplate } from 'src/utils/emailTemplates';
 import { CloudCog } from 'lucide-react';
+import { RedisService } from '../redis/redis.service';
+import { RedisKeys } from 'src/utils/constant';
 const otpGenerator = require('otp-generator');
 
 
@@ -19,7 +21,8 @@ export class UsersService {
   constructor(
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Otp') private Otp: Model<IOtp>,
-    private bookmarksService: BookmarksService
+    private bookmarksService: BookmarksService,
+    private readonly redisService: RedisService
   ) { }
 
   async create(newUserDetails: CreateUserDto) {
@@ -29,6 +32,9 @@ export class UsersService {
     newUser.hash = await bcrypt.hash(newUserDetails.password, 10);
 
     try {
+      // delete all subscribes form cache 
+      // await this.redisService.deleteCache(RedisKeys.AllSubscribers);
+
       await newUser.save();
       return newUser;
     } catch (error) {
@@ -43,22 +49,41 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
+
+    // return user if user email in cache 
+    // const userData = await this.redisService.getCache(`${RedisKeys.User}_${email}`);
+    // if(userData){
+    //   return JSON.parse(userData);
+    // }
+
     const user = await this.User.findOne({ email: email }).exec();
 
     if (!user) {
       throw new NotFoundException("Email not found");
     }
+
+    // set user in cache by email 
+    // this.redisService.setCache(`${RedisKeys.User}_${email}`, JSON.stringify(user));
     return user;
   }
 
   // This also hides the hash and other sensitive fields
   async findById(_id: string) {
+
+    // return user if user id in cache 
+    // const userData = await this.redisService.getCache(`${RedisKeys.User}_${_id}`);
+    // if(userData){
+    //   return JSON.parse(userData);
+    // }
+
     const user = await this.User.findOne({ _id: _id }, { hash: 0, __v: 0 }).exec();
 
     if (!user) {
       throw new NotFoundException("User not found");
     }
 
+    // set user in cache by email 
+    // this.redisService.setCache(`${RedisKeys.User}_${_id}`, JSON.stringify(user));
     return user;
   }
 
@@ -74,6 +99,18 @@ export class UsersService {
     return user.role;
   }
 
+  async getStoreRole(_id: string) {
+    // This function will be called by StoreRoleGuard on protected requests
+    // So, it makes sense to use lean and only fetch required fields to reduce latency
+    const user = await this.User.findOne({ _id: _id }, { storeRole: 1 }).lean();
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    return user.storeRole;
+  }
+
   async changeRole(_id: string, newRole: UserRoleEnum) {
     if (newRole == UserRoleEnum.SUPERADMIN) {
       throw new HttpException("Cannot change role to superadmin", 400)
@@ -83,6 +120,20 @@ export class UsersService {
     if (query.matchedCount == 0) {
       throw new NotFoundException("User ID not found");
     }
+
+    // await this.redisService.deleteCache(`${RedisKeys.User}_${_id}`);
+  }
+
+  async changeStoreRole(_id: string, newRole: UserStoreRoleEnum) {
+    if (newRole == UserStoreRoleEnum.SUPERADMIN) {
+      throw new HttpException("Cannot change role to superadmin", 400)
+    }
+
+    const query = await this.User.updateOne({ _id: _id }, { $set: { storeRole: newRole } }).exec();
+    if (query.matchedCount == 0) {
+      throw new NotFoundException("User ID not found");
+    }
+
   }
 
   async updateProfile(_id: string, updatedUserProfile: UpdateUserDto) {
