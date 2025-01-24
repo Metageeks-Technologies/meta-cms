@@ -13,7 +13,7 @@ import { query } from "express";
 
 
 
-@Controller()
+@Controller('products')
 export class PorductController {
     constructor(private readonly productService: ProductService) { }
 

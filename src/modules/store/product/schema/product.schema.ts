@@ -40,7 +40,6 @@ const ProductVariantSchema = new mongoose.Schema({
     variantId: {
         type: String,
         required: true,
-        unique: true,
     },
     sku: {
         type: String,
@@ -71,7 +70,7 @@ const ProductVariantSchema = new mongoose.Schema({
         required: true,
         validator: {
             validator: function (arr: any) {
-                return Array.isArray(arr) && arr.length > 0 
+                return Array.isArray(arr) && arr.length > 0
             },
             message: "Add atlest one image of product"
         }
@@ -127,13 +126,12 @@ export const ProductSchema = new mongoose.Schema(
             required: true, // Variants must always exist
             validate: {
                 validator: function (variants: IProductVariant[]) {
-                  // Check if `variantId` is unique within the same array
-                  const variantIds = variants.map((variant) => variant.variantId);
-                  const uniqueVariantIds = new Set(variantIds);
-                  return variantIds.length === uniqueVariantIds.size;
+                    const variantIds = variants.map((variant) => variant.variantId);
+                    const uniqueVariantIds = new Set(variantIds);
+                    return variantIds.length === uniqueVariantIds.size;
                 },
                 message: "Each variantId must be unique within the product's variants.",
-              },
+            }
         },
         isDeleted: {
             type: Boolean,
@@ -145,6 +143,9 @@ export const ProductSchema = new mongoose.Schema(
 );
 
 
-ProductSchema.index({title: "text", subDescription: "text", description: "text", brand: "text"})
+
+
+
+ProductSchema.index({ title: "text", subDescription: "text", description: "text", brand: "text" })
 
 

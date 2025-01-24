@@ -1,4 +1,4 @@
-function generateSku(categoryCode: string, productTitle: string, variantId: string): string {
+export function generateSku(categoryCode: string, productTitle: string, variantId: string): string {
     // Normalize the category code
     const normalizedCategoryCode = categoryCode.trim().toUpperCase();
   

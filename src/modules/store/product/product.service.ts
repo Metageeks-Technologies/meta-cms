@@ -7,6 +7,7 @@ import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
 import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { ProductCategoriesService } from "../productCategories/productCategories.service";
 import { ProductSortByEnum } from "./dto/get-product-dto";
+import { generateSku } from "src/utils/helperFunctions";
 
 
 
@@ -41,6 +42,9 @@ export class ProductService {
             await newProduct.save();
 
         } catch (error) {
+            if(error.code === 11000){
+                throw new ConflictException('SKU already registered')
+            }
             throw error;
         }
     }
