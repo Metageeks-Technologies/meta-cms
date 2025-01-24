@@ -23,15 +23,18 @@ export class ProductService {
     ) { }
 
 
+
     async createProduct(newProductDetail: CreateProductDto, userId: string, userStoreRole: string) {
         const newProduct = new this.Product(newProductDetail);
         newProduct.vendor = mongoose.Types.ObjectId.createFromHexString(userId);
 
-        const category = await this.productCategoryService.findById(newProductDetail.category);
 
-        newProduct.variants.forEach((variant, index) => {
-            variant.sku = generateSku(category.code, newProduct.title, variant.variantId);
-        });
+        const skus = newProduct.variants.map(variant => variant.sku);
+        const uniqueSkus = new Set(skus);
+    
+        if (skus.length !== uniqueSkus.size) {
+            throw new ConflictException('Duplicate SKUs found in product variants');
+        }
 
         // If vendor creates a product to be published, change its status to 'awaiting approval'
         if (userStoreRole === UserStoreRoleEnum.VENDOR && (newProduct.status === ProductStatusEnum.PUBLISHED)) {
@@ -42,7 +45,7 @@ export class ProductService {
             await newProduct.save();
 
         } catch (error) {
-            if(error.code === 11000){
+            if (error.code === 11000) {
                 throw new ConflictException('SKU already registered')
             }
             throw error;

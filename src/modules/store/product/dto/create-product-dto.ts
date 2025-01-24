@@ -45,7 +45,7 @@ export class CreateVariantDto {
     variantId: string;
 
     @IsString()
-    @IsOptional()
+    @IsNotEmpty()
     sku: string; // Unique identifier for the variant
 
     @IsNumber()
