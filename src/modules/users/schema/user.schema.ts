@@ -9,6 +9,13 @@ export enum UserRoleEnum {
   SUPERADMIN = 'superadmin',
 };
 
+export enum UserStoreRoleEnum {
+  USER = 'subscriber',
+  VENDOR = 'contributor',
+  MODERATOR = 'moderator',
+  SUPERADMIN = 'superadmin',
+};
+
 interface ISocialLinks {
   linkedIn: string;
   instagram: string;
@@ -26,6 +33,7 @@ export interface IUser extends mongoose.Document {
   bio?: string;
   block: boolean;
   role: UserRoleEnum;
+  storeRole: UserStoreRoleEnum;
   socialLinks?: ISocialLinks;
 };
 
@@ -45,6 +53,12 @@ export const UserSchema = new mongoose.Schema({
     type: String,
     enum: Object.values(UserRoleEnum),
     default: UserRoleEnum.SUBSCRIBER,
+    required: true
+  },
+  storeRole: {
+    type: String,
+    enum: Object.values(UserStoreRoleEnum),
+    default: UserStoreRoleEnum.USER,
     required: true
   },
   socialLinks: {

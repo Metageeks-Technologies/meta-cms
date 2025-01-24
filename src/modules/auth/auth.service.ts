@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UserRoleEnum } from '../users/schema/user.schema';
+import { UserRoleEnum, UserStoreRoleEnum } from '../users/schema/user.schema';
 import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.dto';
 import { sendEmail } from 'src/utils/emailService';
 import { InjectModel } from '@nestjs/mongoose';
@@ -27,7 +27,7 @@ export class AuthService {
       throw new ForbiddenException('Account blocked contact to Admin');
     }
 
-    if (isAdminLogin && user.role === UserRoleEnum.SUBSCRIBER) {
+    if (isAdminLogin && (user.role === UserRoleEnum.SUBSCRIBER || user.storeRole === UserStoreRoleEnum.USER)) {
       throw new ForbiddenException("You cannot login on this route");
     }
 

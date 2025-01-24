@@ -20,6 +20,10 @@ import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { PagesModule } from './modules/pages/pages.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { ProductCategoriesModule } from './modules/store/productCategories/productCategories.module';
+import { AddressModule } from './modules/store/addresses/addresses.module';
+import { ProductModule } from './modules/store/product/product.module';
+
 
 @Module({
   imports: [
@@ -40,6 +44,9 @@ import { RedisModule } from './modules/redis/redis.module';
     DashboardModule,
     PagesModule,
     RedisModule,
+    ProductCategoriesModule,
+    AddressModule,
+    ProductModule
   ],
   controllers: [AppController],
   providers: [

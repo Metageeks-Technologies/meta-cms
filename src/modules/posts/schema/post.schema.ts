@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 
+export enum WebsiteEnum {
+    METAGEEKS = "metageeks",
+    FAMPROTOCAL = "famprotocal",
+    GAMETERMINAL = "gameterminal",
+    CLUSTERPROTOCAL = "clusterprotocal"
+}
+
 export enum PostStatusEnum {
     DRAFT = 'draft',
     AWAITING_APPROVAL = 'awaiting approval',
@@ -22,6 +29,7 @@ export interface IPost extends mongoose.Document {
     isDeleted: boolean;
     slug: string;
     publishedDate: string;
+    website: WebsiteEnum;
 };
 
 export const PostSchema = new mongoose.Schema({
@@ -53,6 +61,11 @@ export const PostSchema = new mongoose.Schema({
         type: String,
         default: "0 min read",
         require: true
+    },
+    website: {
+        type: String,
+        enum: WebsiteEnum,
+        required: true
     },
     isDeleted: { type: Boolean, required: true, default: false },
     slug: { type: String, required: true, unique: true },

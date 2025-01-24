@@ -83,7 +83,7 @@ const ContributorAllPost = () => {
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
 
-            console.log(resp);
+            // console.log(resp);
             if (resp.status === 200 || resp.status === 201) {
                 setCategory(resp.data);
             }

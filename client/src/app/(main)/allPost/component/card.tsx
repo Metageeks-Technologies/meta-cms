@@ -48,7 +48,7 @@ const Card = ({ post, index }: any) => {
                     <p className='text-[#6941C6] text-sm'>{post.author.name} | {handleDate(post.publishedDate)}</p>
                     <p className=' text-sm'>{post.status}</p>
                 </div>
-                <h2 className='text-xl md:text-2xl group-hover:underline cursor-pointer'    >{post.title} &#8599;</h2>
+                <h2 className='text-xl md:text-2xl group-hover:underline cursor-pointer'>{post.title} &#8599;</h2>
                 <p className='text-gray-400'>{plainText}</p>
                 <div className={`w-full flex flex-row flex-wrap gap-2`}>
                     {

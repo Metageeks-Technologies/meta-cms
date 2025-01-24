@@ -41,6 +41,7 @@ const App: React.FC = () => {
     tags: [],
     publishDate: null,
     previewImg: '',
+    website: ""
   });
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
@@ -83,6 +84,7 @@ const App: React.FC = () => {
           tags: resp.data.tags || [],
           publishDate: resp.data.publishedDate ? new Date(resp.data.publishedDate) : null,
           previewImg: resp.data.previewImageKey,
+          website: resp.data.website,
         });
       } else {
         toast.error(resp.data.message, { duration: 2000 });

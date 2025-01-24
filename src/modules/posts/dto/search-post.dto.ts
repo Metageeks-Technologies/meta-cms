@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
 import { IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { WebsiteEnum } from "../schema/post.schema";
 
 export enum SearchPostSortByEnum {
     RELEVANCY = 'relevancy',
@@ -23,4 +24,8 @@ export class SearchPostsQueryDto {
     @IsOptional()
     @IsNumber()
     lastScore?: number;
+
+    @IsEnum(WebsiteEnum)
+    @IsNotEmpty()
+    website: WebsiteEnum;
 }

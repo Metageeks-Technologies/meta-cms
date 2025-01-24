@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString, IsBoolean, IsArray, IsNumber, IsMongoId } from 'class-validator';
 import { Transform, TransformPlainToInstance, Type } from 'class-transformer';
-import { PostStatusEnum } from '../schema/post.schema';
+import { PostStatusEnum, WebsiteEnum } from '../schema/post.schema';
 
 export enum PostSortByEnum {
   TRENDING = 'trending',
@@ -66,4 +66,8 @@ export class GetPostsQueryDto {
   @IsString()
   @IsOptional()
   searchQuery?: string
+
+  @IsEnum(WebsiteEnum)
+  @IsOptional()
+  website: WebsiteEnum
 }

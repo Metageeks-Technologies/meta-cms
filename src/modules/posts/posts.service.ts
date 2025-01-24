@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, ForbiddenException, HttpException, Injectable, NotFoundException, ParseBoolPipe } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { IPost, PostStatusEnum } from './schema/post.schema';
+import { IPost, PostStatusEnum, WebsiteEnum } from './schema/post.schema';
 import mongoose, { Model, mongo } from 'mongoose';
 import { GetPostsQueryDto, PostSortByEnum } from './dto/get-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -118,6 +118,7 @@ export class PostsService {
     sortBy: string,
     lastId: string,
     lastLikesCount: number,
+    website?: WebsiteEnum,
     searchQuery?: string,
   ) {
     const pipeline: mongoose.PipelineStage[] = [];
@@ -148,6 +149,15 @@ export class PostsService {
     if (categories && categories.length > 0) {
       const categoriesIds = categories.map((id) => mongoose.Types.ObjectId.createFromHexString(id));
       matchStage.categories = { $in: categoriesIds };
+    }
+
+    if (!website || website === WebsiteEnum.FAMPROTOCAL) {
+      matchStage.$or = [
+        { website: WebsiteEnum.FAMPROTOCAL },
+        { website: { $exists: false } }, // Include documents where the website field is not defined
+      ];
+    } else {
+      matchStage.website = website; // Match the specified website
     }
 
     // Add text search condition if searchQuery is provided
@@ -208,6 +218,7 @@ export class PostsService {
     // If there's a search query, prioritize sorting by text score first
     if (searchQuery) {
       sortStage.score = { $meta: 'textScore' }; // Sort by text score if search query is present
+      sortStage._id = -1;
     }
 
     if (Object.keys(sortStage).length > 0) {
@@ -231,15 +242,25 @@ export class PostsService {
   }
 
 
-  
 
-  async searchPosts({ query, sortBy, lastId, lastScore }: SearchPostsQueryDto) {
+
+  async searchPosts({ query, sortBy, lastId, lastScore, website }: SearchPostsQueryDto) {
     const pipeline: mongoose.PipelineStage[] = [];
 
     /////////////////////////////////////////
     // Match stage
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
+    
+    if (!website || website === WebsiteEnum.FAMPROTOCAL) {
+      matchStage.$or = [
+        { website: WebsiteEnum.FAMPROTOCAL },
+        { website: { $exists: false } }, // Include documents where the website field is not defined
+      ];
+    } else {
+      matchStage.website = website; // Match the specified website
+    }
+
     matchStage.$text = {
       $search: query
     };
@@ -647,7 +668,7 @@ export class PostsService {
     await this.commentService.editComment(userId, userRole, commentId, message)
   }
 
-  async recoverComment(commentId: string){
+  async recoverComment(commentId: string) {
     await this.commentService.recoverComment(commentId)
   }
 

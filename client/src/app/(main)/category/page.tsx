@@ -122,7 +122,7 @@ const columns = [
 
       const uploadNewFile = async (fileList: FileList | null) => {
         setLoading(true);
-        console.log(fileList, "file list");
+        // console.log(fileList, "file list");
         try {
           const payload = {
             folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY,
@@ -130,7 +130,7 @@ const columns = [
             contentType: fileList?.[0].type
           }
 
-          console.log(payload, "payload");
+          // console.log(payload, "payload");
 
           const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
 

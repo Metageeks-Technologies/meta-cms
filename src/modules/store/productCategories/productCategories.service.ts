@@ -1,0 +1,106 @@
+import { ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { RedisService } from '../../redis/redis.service';
+import { RedisKeys } from 'src/utils/constant';
+import { IProductCategory } from './schema/productCategory.schema';
+import { CreateProductCategoryDto } from './dto/create-product-category.dto';
+import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
+
+@Injectable()
+export class ProductCategoriesService {
+  constructor(
+    @InjectModel('ProductCategory') private ProductCategory: Model<IProductCategory>,
+    private readonly redisService: RedisService
+  ) { }
+
+  async create(newCategoryData: CreateProductCategoryDto) {
+    const newCategory = new this.ProductCategory(newCategoryData);
+    newCategory.code = newCategory.code.toUpperCase();
+    
+    try {
+      // Delete all Category cache
+      await this.redisService.deleteCache(RedisKeys.AllProductCategory);
+
+      await newCategory.save();
+    } catch(error) {
+      if (error.code === 11000) {
+        // Duplicate key error
+        throw new ConflictException('Category Name or Code already exists');
+      }
+      
+      // Re-throw the error if it's not a duplicate key error
+      throw error;
+    }
+  }
+
+  async findAll() {
+    // Using lean for efficiency
+    // since categories will be fetched quite often
+
+    // get categories from cache 
+    const categoriesData = await this.redisService.getCache(RedisKeys.AllProductCategory);
+    if(categoriesData){
+      return JSON.parse(categoriesData);
+    }
+    
+    const categories = await this.ProductCategory.find().sort({ createdAt: -1 }).lean().exec();
+
+    // stored categories in cache 
+    this.redisService.setCache(RedisKeys.AllProductCategory, JSON.stringify(categories));
+    return categories as IProductCategory[];
+  }
+
+  async findById(_id: string) {
+
+    // get category by id from cache
+    const categoryData = await this.redisService.getCache(`${RedisKeys.ProductCategoryId}_${_id}`);
+    if(categoryData){
+      return JSON.parse(categoryData);
+    }
+
+    const category = await this.ProductCategory.findOne({_id: _id}).lean().exec();
+    if(!category) {
+      throw new NotFoundException("Category not found");
+    }
+
+    // stored categories in cache
+    this.redisService.setCache(`${RedisKeys.ProductCategoryId}_${_id}`, JSON.stringify(category));
+    return category as IProductCategory;
+  }
+
+  async updateById(_id: string, updatedCategoryData: UpdateProductCategoryDto) {
+
+    try {
+      const query = await this.ProductCategory.updateOne( { _id : _id }, { $set: updatedCategoryData } ).exec();
+      if(query.matchedCount == 0) {
+        throw new NotFoundException("Category ID not found");
+      }
+
+      // Delete all Category cache
+      await this.redisService.deleteCache(RedisKeys.AllProductCategory);
+      // Delete Category by id
+      await this.redisService.deleteCache(`${RedisKeys.ProductCategoryId}_${_id}`);
+    } catch(error) {
+      if (error.code === 11000) {
+        // Duplicate key error
+        throw new ConflictException('Category Name already exists');
+      }
+      
+      // Re-throw the error if it's not a duplicate key error
+      throw error;
+    }
+  }
+
+  async deleteById(_id: string) {
+    const query = await this.ProductCategory.deleteOne( { _id: _id }).exec(); 
+    if(query.deletedCount == 0) {
+      throw new NotFoundException('Category Id not found');
+    }
+
+    // Delete all Category cache
+    await this.redisService.deleteCache(RedisKeys.AllProductCategory);
+    // Delete Category by id
+    await this.redisService.deleteCache(`${RedisKeys.ProductCategoryId}_${_id}`);
+  }
+}

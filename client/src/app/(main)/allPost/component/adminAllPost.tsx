@@ -3,7 +3,7 @@ import axiosCall from '@/utils/ApiCall';
 import { Check } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import Card from './card';
-import { postStatuEnum, statusArrAdminAllPost } from '@/constant/post';
+import { postStatuEnum, statusArrAdminAllPost, WebsiteEnum } from '@/constant/post';
 import { useUserContext } from '@/context/userContext';
 import toast from 'react-hot-toast';
 import debounce from 'lodash/debounce';
@@ -72,6 +72,7 @@ const AdminAllPost = () => {
                     }
                 }
 
+
                 if (sortBy) param.append('sortBy', sortBy);
                 if (lastId) param.append('lastId', lastId);
                 if (selectedCategory) param.append('categories', selectedCategory);
@@ -113,7 +114,7 @@ const AdminAllPost = () => {
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
 
-            console.log(resp);
+            // console.log(resp);
             if (resp.status === 200 || resp.status === 201) {
                 setCategory(resp.data);
             }
