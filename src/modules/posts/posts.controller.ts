@@ -46,7 +46,8 @@ export class PostsController {
       query.categories,
       query.sortBy,
       query.lastId,
-      query.lastLikesCount
+      query.lastLikesCount,
+      query.website,
     );
     return publicPosts;
   }
@@ -469,6 +470,7 @@ export class PostsController {
       query.sortBy,
       query.lastId,
       query.lastLikesCount,
+      query.website,
       query.searchQuery
     );
     return posts;

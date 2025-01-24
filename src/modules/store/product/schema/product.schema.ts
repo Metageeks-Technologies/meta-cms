@@ -1,4 +1,3 @@
-import { validate } from "class-validator";
 import mongoose from "mongoose";
 
 
@@ -18,6 +17,7 @@ export interface IProductVariant {
     color?: string;
     //   attributes?: Record<string, string>; 
     imageKeys?: string[];
+    isDeleted?: boolean;
 }
 
 export interface IProduct {
@@ -32,6 +32,7 @@ export interface IProduct {
     size?: string;
     attributes?: Record<string, string>;
     variants: IProductVariant[];
+    isDeleted?: boolean;
 }
 
 
@@ -74,6 +75,11 @@ const ProductVariantSchema = new mongoose.Schema({
             },
             message: "Add atlest one image of product"
         }
+    },
+    isDeleted: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 
@@ -128,9 +134,17 @@ export const ProductSchema = new mongoose.Schema(
                 },
                 message: "Each variantId must be unique within the product's variants.",
               },
+        },
+        isDeleted: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     },
     { timestamps: true }
 );
+
+
+ProductSchema.index({title: "text", subDescription: "text", description: "text", brand: "text"})
 
 

@@ -28,6 +28,7 @@ export interface NewPostFormData {
     tags: string[];
     publishDate: Date | null;
     previewImg: File | string |null;
+    website: string;
 }
 
 
@@ -50,6 +51,7 @@ export interface PostTypes {
     publishedDate: string;
     commentCount: number;
     readTime?: string;
+    website?: string;
 }
 
 

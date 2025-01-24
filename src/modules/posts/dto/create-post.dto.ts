@@ -1,5 +1,5 @@
 import { ArrayNotEmpty, IsArray, IsDateString, isDateString, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
-import { PostStatusEnum } from '../schema/post.schema';
+import { PostStatusEnum, WebsiteEnum } from '../schema/post.schema';
 
 // Enum defining what satatus a new post can have
 // Users cannot explicitly create post with awaiting approval or rejected status
@@ -42,4 +42,8 @@ export class CreatePostDto {
     @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
     @MaxLength(128)
     slug: string;
+
+    @IsEnum(WebsiteEnum)
+    @IsNotEmpty()
+    website: string;
 }

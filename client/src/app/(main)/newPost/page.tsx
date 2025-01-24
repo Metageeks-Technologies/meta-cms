@@ -11,7 +11,7 @@ import { Check } from 'lucide-react';
 import MediaModal from './component/mediaModal';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
-import { postStatuEnum } from '@/constant/post';
+import { postStatuEnum, WebsiteEnum } from '@/constant/post';
 
 const App: React.FC = () => {
   const { setLoading, user } = useUserContext();
@@ -29,6 +29,7 @@ const App: React.FC = () => {
     tags: [],
     publishDate: null,
     previewImg: '',
+    website: ''
   });
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
@@ -52,7 +53,7 @@ const App: React.FC = () => {
 
   // Fetch categories on mount
   useEffect(() => {
-    if(user.role) fetchCategory();
+    if (user.role) fetchCategory();
   }, [user]);
 
   // Handle image selection from MediaPage modal
@@ -70,6 +71,7 @@ const App: React.FC = () => {
     categories: string[];
     status: string;
     publishedDate?: Date;
+    website: string;
   }
 
   // Handle post creation
@@ -88,7 +90,7 @@ const App: React.FC = () => {
       toast.error('Post slug is required.', { duration: 2000 });
       return;
     }
-    
+
     if (formData.slug.trim().length < 3) {
       toast.error('Add atleast 3 character in slug.', { duration: 2000 });
       return;
@@ -109,6 +111,10 @@ const App: React.FC = () => {
       return;
     }
 
+    if (!formData.website) {
+      toast.error('Please selete website', { duration: 2000 })
+    }
+
     setLoading(true);
     try {
       const payload: PayloadType = {
@@ -120,6 +126,7 @@ const App: React.FC = () => {
         categories: formData.category,
         status: formData.postStatus,
         ...(formData.publishDate && { publishedDate: formData.publishDate }),
+        website: formData.website
       };
 
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
@@ -137,6 +144,7 @@ const App: React.FC = () => {
           tags: [],
           publishDate: null,
           previewImg: '',
+          website: '',
         });
         setTagInput('');
         //  editorRef.current?.setContent(''); // Reset TinyMCE editor content
@@ -188,9 +196,9 @@ const App: React.FC = () => {
     setFormData({ ...formData, tags: filteredTags });
   };
 
-  const handleEditSlug = (value:string) => {
-    if(value.length <= 128){
-      setFormData({...formData, slug: value})
+  const handleEditSlug = (value: string) => {
+    if (value.length <= 128) {
+      setFormData({ ...formData, slug: value })
     }
   }
 
@@ -323,6 +331,23 @@ const App: React.FC = () => {
               <option value={postStatuEnum.DRAFT}>Draft</option>
               <option value={postStatuEnum.PUBLISHED}>Published</option>
               <option value={postStatuEnum.SCHEDULED}>Scheduled</option>
+            </select>
+          </div>
+
+          {/* Post for website */}
+          <div>
+            <label htmlFor="websiteName" className="text-white">Website</label>
+            <select
+              id="websiteName"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
+            >
+              <option value="">-- Selete --</option>
+              <option value={WebsiteEnum.METAGEEKS}>Metageeks</option>
+              <option value={WebsiteEnum.FAMPROTOCAL}>Fam Protocal</option>
+              <option value={WebsiteEnum.CLUSTERPROTOCAL}>Cluster Protocal</option>
+              <option value={WebsiteEnum.GAMETERMINAL}>Game Terminal</option>
             </select>
           </div>
 

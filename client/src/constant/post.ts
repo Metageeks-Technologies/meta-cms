@@ -58,4 +58,13 @@ export const defaultNewPostData: NewPostFormData = {
   tags: [],
   publishDate: null,
   previewImg: '',
+  website: ''
+}
+
+
+export enum WebsiteEnum {
+  METAGEEKS = "metageeks",
+  FAMPROTOCAL = "famprotocal",
+  GAMETERMINAL = "gameterminal",
+  CLUSTERPROTOCAL = "clusterprotocal"
 }
