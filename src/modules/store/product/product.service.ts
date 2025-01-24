@@ -45,7 +45,7 @@ export class ProductService {
         }
     }
 
-    async getProduct(
+    async getProducts(
         status: ProductStatusEnum,
         isDeleted: boolean,
         userId: string,
@@ -178,22 +178,27 @@ export class ProductService {
             {
                 $match: {
                     _id: productId,
-                    ...(status && {status: status}),
-                    ...(status && {isDeleted: isDeleted})
+                    ...(status && { status: status }),
+                    ...(status && { isDeleted: isDeleted })
                 }
             }
         ]).exec();
 
         const product = result[0];
 
-        if(!product){
+        if (!product) {
             throw new NotFoundException('Product not found')
         }
         return product;
     }
 
-    async getPublicProductById(productId: string){
+    async getPublicProductById(productId: string) {
         const product = await this.getProductById(productId, ProductStatusEnum.PUBLISHED, false);
+        return product;
+    }
+
+    async getAnyProductById(productId: string) {
+        const product = await this.getProductById(productId, undefined, undefined);
         return product;
     }
 
@@ -310,6 +315,13 @@ export class ProductService {
         }
     }
 
+    async changeProductStatus(productId: string, newStatus: ProductStatusEnum) {
+        const query = await this.Product.updateOne({ _id: productId }, { $set: { status: newStatus } }).exec();
+        if (query.matchedCount === 0) {
+            throw new NotFoundException('Product not found');
+        }
+    }
+
     async deleteProduct(productId: string) {
         const product = await this.Product.findOneAndUpdate({ _id: productId }, { isDeleted: true });
 
@@ -325,8 +337,4 @@ export class ProductService {
             throw new NotFoundException('Product not found');
         }
     }
-
-
-
-
 }
