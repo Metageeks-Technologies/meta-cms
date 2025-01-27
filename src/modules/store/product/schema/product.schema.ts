@@ -9,6 +9,7 @@ export enum ProductStatusEnum {
 }
 
 export interface IProductVariant {
+    _doc?: IProductVariant;
     variantId: string;
     sku: string;
     price: number;
@@ -44,7 +45,6 @@ const ProductVariantSchema = new mongoose.Schema({
     sku: {
         type: String,
         required: true,
-        unique: true,
     },
     price: {
         type: Number,
@@ -141,9 +141,6 @@ export const ProductSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
-
-
-
 
 
 ProductSchema.index({ title: "text", subDescription: "text", description: "text", brand: "text" })

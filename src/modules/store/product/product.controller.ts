@@ -1,12 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
 import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
 import { AuthGuard } from "src/modules/auth/auth.guard";
 import { RolesGuard, StoreRolesGuard } from "src/modules/auth/role.guard";
-import { CreateProductDto } from "./dto/create-product-dto";
+import { CreateProductDto, CreateVariantDto } from "./dto/create-product-dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
-import { UpdateProductDto } from "./dto/update-product-dto";
+import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { GetProductQueryDto } from "./dto/get-product-dto";
 import { ProductStatusEnum } from "./schema/product.schema";
 import { query } from "express";
@@ -52,7 +52,7 @@ export class PorductController {
     @Get('my')
     @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, StoreRolesGuard)
-    async getMyAllPorduct(@Req() req: Request, @Query() query: GetProductQueryDto){
+    async getMyAllPorduct(@Req() req: Request, @Query() query: GetProductQueryDto) {
         const userId = (req as any).user._id;
         const products = await this.productService.getProducts(
             query.status,
@@ -70,7 +70,7 @@ export class PorductController {
     @Get('my/delete')
     @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, StoreRolesGuard)
-    async getMyDeleted(@Req() req: Request, @Query() query: GetProductQueryDto){
+    async getMyDeleted(@Req() req: Request, @Query() query: GetProductQueryDto) {
         const userId = (req as any).user._id;
         const products = await this.productService.getProducts(
             query.status,
@@ -88,7 +88,7 @@ export class PorductController {
     @Get('all')
     @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, StoreRolesGuard)
-    async getAllPorduct(@Query() query: GetProductQueryDto){
+    async getAllPorduct(@Query() query: GetProductQueryDto) {
         const products = await this.productService.getProducts(
             query.status,
             false,
@@ -99,12 +99,12 @@ export class PorductController {
             query.searchQuery
         );
         return products;
-    }    
+    }
 
     @Get('all/delete')
     @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, StoreRolesGuard)
-    async getAllDeletedProduct(@Query() query: GetProductQueryDto){
+    async getAllDeletedProduct(@Query() query: GetProductQueryDto) {
         const products = await this.productService.getProducts(
             query.status,
             true,
@@ -121,9 +121,28 @@ export class PorductController {
     @Get(':id')
     @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, StoreRolesGuard)
-    async getProductById(@Param('id', ValidateId) productId: string){
-     const product = await this.productService.getAnyProductById(productId)
-     return product;   
+    async getProductById(@Param('id', ValidateId) productId: string, @Req() req: Request) {
+        const user = (req as any).user;
+        const product = await this.productService.getAnyProductById(productId, user._id, user.storeRole)
+        return product;
+    }
+
+
+
+    @Patch('approve/:id')
+    @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async approveProduct(@Param('id', ValidateId) productId: string) {
+        await this.productService.changeProductStatus(productId, ProductStatusEnum.PUBLISHED)
+        return { message: "Product published successfully" }
+    }
+
+    @Patch('reject/:id')
+    @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async rejectProduct(@Param('id', ValidateId) productId: string) {
+        await this.productService.changeProductStatus(productId, ProductStatusEnum.REJECTED)
+        return { message: "Product rejected successfully" }
     }
 
 
@@ -136,6 +155,69 @@ export class PorductController {
         return { message: "Product update successfully" }
     }
 
-    // @Patch('')
+    @Delete('delete/:id')
+    @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async deleteProduct(@Param('id', ValidateId) productId: string, @Req() req: Request) {
+        const user = (req as any).user;
+        await this.productService.deleteProduct(productId, user._id, user.storeRole);
+        return { message: "Product delete successfully" }
+    }
+
+    @Patch('recover/:id')
+    @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async recoverProduct(@Param('id', ValidateId) productId: string) {
+        await this.productService.recoverProduct(productId);
+        return { message: "Product recover successfully" }
+    }
+
+    @Post('variant/:id')
+    @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async addVariant(@Req() req: Request, @Param('id', ValidateId) productId: string, @Body() newVariant: CreateVariantDto) {
+        const user = (req as any).user;
+        await this.productService.addVariant(user._id, user.storeRole, productId, newVariant);
+        return { message: "Variant add successfully" }
+    }
+
+    @Patch('variant/:productId/:variantId')
+    @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async updateVariant(
+        @Req() req: Request,
+        @Param('productId', ValidateId) productId: string,
+        @Param('variantId') variantId: string,
+        @Body() variantDetails: UpdateVariantDto
+    ) {
+        const user = (req as any).user;
+        await this.productService.updateVariant(user._id, user.storeRole, productId, variantId, variantDetails)
+        return { message: "Variant updated successfully" }
+    }
+
+    @Delete('variant/:productId/:variantId')
+    @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async deleteVariant(
+        @Req() req: Request,
+        @Param('productId', ValidateId) productId: string,
+        @Param('variantId') variantId: string,
+    ) {
+        const user = (req as any).user;
+        await this.productService.deleteVariant(user._id, user.storeRole, productId, variantId)
+        return { message: "Variant deleted successfully" }
+    }
+
+    @Patch('variant/recover/:productId/:variantId')
+    @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async recoverVariant(
+        @Param('productId', ValidateId) productId: string,
+        @Param('variantId') variantId: string,
+    ){
+        await this.productService.recoverVariant(productId, variantId)
+        return { message: "Variant recover successfully" }  
+    }
+
 
 }

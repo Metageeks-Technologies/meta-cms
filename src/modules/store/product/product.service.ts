@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { IProduct, ProductStatusEnum } from "./schema/product.schema";
@@ -29,12 +29,29 @@ export class ProductService {
         newProduct.vendor = mongoose.Types.ObjectId.createFromHexString(userId);
 
 
+        const ids = newProduct.variants.map(variant => variant.variantId)
+        const uniqueIds = new Set(ids);
+        if (ids.length !== uniqueIds.size) {
+            throw new ConflictException('Duplicate Ids found in product variants');
+        }
+
+
         const skus = newProduct.variants.map(variant => variant.sku);
         const uniqueSkus = new Set(skus);
-    
         if (skus.length !== uniqueSkus.size) {
             throw new ConflictException('Duplicate SKUs found in product variants');
         }
+
+        // Query to check if any of the SKUs already exist for this vendor
+        const conflict = await this.Product.findOne({
+            vendor: newProduct.vendor,
+            'variants.sku': { $in: skus },
+        });
+
+        if (conflict) {
+            throw new ConflictException('One or more SKUs are already registered with this vendor');
+        }
+
 
         // If vendor creates a product to be published, change its status to 'awaiting approval'
         if (userStoreRole === UserStoreRoleEnum.VENDOR && (newProduct.status === ProductStatusEnum.PUBLISHED)) {
@@ -179,23 +196,25 @@ export class ProductService {
 
     }
 
-    async getProductById(productId: string, status: string, isDeleted: boolean) {
+    async getProductById(productId: string, status: ProductStatusEnum, isDeleted: boolean) {
 
         const result = await this.Product.aggregate([
             {
                 $match: {
-                    _id: productId,
-                    ...(status && { status: status }),
-                    ...(status && { isDeleted: isDeleted })
-                }
-            }
+                    _id: mongoose.Types.ObjectId.createFromHexString(productId),
+                    ...(status !== undefined && { status }),
+                    ...(isDeleted !== undefined && { isDeleted }),
+                },
+            },
         ]).exec();
 
         const product = result[0];
+        console.log(product, "Porudct")
 
         if (!product) {
             throw new NotFoundException('Product not found')
         }
+
         return product;
     }
 
@@ -204,8 +223,14 @@ export class ProductService {
         return product;
     }
 
-    async getAnyProductById(productId: string) {
+    async getAnyProductById(productId: string, userId: string, userStoreRole: UserStoreRoleEnum) {
         const product = await this.getProductById(productId, undefined, undefined);
+
+        if (userId && userStoreRole) {
+            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+                throw new ForbiddenException();
+            }
+        }
         return product;
     }
 
@@ -229,11 +254,15 @@ export class ProductService {
         const query = await this.Product.updateOne({ _id: productId }, { $set: productDetail }).exec();
     }
 
-    async addVariant(productId: string, newVariant: CreateVariantDto) {
+    async addVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, newVariant: CreateVariantDto) {
         const product = await this.Product.findById(productId);
 
         if (!product) {
             throw new NotFoundException('Product not found');
+        }
+
+        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            throw new ForbiddenException();
         }
 
         // Validate the uniqueness of the new variant within the product's variants
@@ -242,21 +271,30 @@ export class ProductService {
             throw new ConflictException(`Variant ID already exists in this product.`);
         }
 
-        const category = await this.productCategoryService.findById(product.category.toString());
+        const conflict = await this.Product.findOne({
+            vendor: product.vendor,
+            'variants.sku': { $in: newVariant.sku },
+        });
 
-        newVariant.sku = generateSku(category.code, product.title, newVariant.variantId);
+        if (conflict) {
+            throw new ConflictException('One or more SKUs are already registered with this vendor');
+        }
 
         product.variants.push(newVariant);
 
         await product.save();
     }
 
-    async updateVariant(productId: string, variantId: string, variantDetails: UpdateVariantDto) {
+    async updateVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string, variantDetails: UpdateVariantDto) {
         try {
             const product = await this.Product.findById(productId);
 
             if (!product) {
                 throw new NotFoundException('Product not found');
+            }
+
+            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+                throw new ForbiddenException();
             }
 
             // Find the variant to update
@@ -265,9 +303,14 @@ export class ProductService {
                 throw new NotFoundException(`Variant not found`);
             }
 
+            console.log({
+                ...product.variants[variantIndex],
+                ...variantDetails,
+            })
+
             // Update the variant with the new details
             product.variants[variantIndex] = {
-                ...product.variants[variantIndex],
+                ...product.variants[variantIndex]._doc,
                 ...variantDetails,
             };
 
@@ -277,7 +320,7 @@ export class ProductService {
         }
     }
 
-    async deleteVariant(productId: string, variantId: string) {
+    async deleteVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string) {
         try {
             const product = await this.Product.findById(productId);
 
@@ -285,10 +328,18 @@ export class ProductService {
                 throw new NotFoundException('Product not found');
             }
 
+            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+                throw new ForbiddenException();
+            }
+
             // Find the variant to update
             const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId);
             if (variantIndex === -1) {
                 throw new NotFoundException(`Variant not found`);
+            }
+
+            if (product.variants[variantIndex].isDeleted) {
+                throw new BadRequestException('Variant already deleted');
             }
 
             product.variants[variantIndex].isDeleted = true;
@@ -329,12 +380,17 @@ export class ProductService {
         }
     }
 
-    async deleteProduct(productId: string) {
-        const product = await this.Product.findOneAndUpdate({ _id: productId }, { isDeleted: true });
-
+    async deleteProduct(productId: string, userId: string, userStoreRole: string) {
+        const product = await this.Product.findOne({ _id: productId }, { vendor: 1 });
         if (!product) {
             throw new NotFoundException('Product not found');
         }
+
+        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            throw new ForbiddenException()
+        }
+
+        await this.Product.updateOne({ _id: productId }, { isDeleted: true });
     }
 
     async recoverProduct(productId: string) {

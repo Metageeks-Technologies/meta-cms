@@ -69,7 +69,7 @@ export class CreateVariantDto {
     color?: string;   
 
     @IsArray()
-    @IsOptional()
+    @IsNotEmpty()
     imageKeys?: string[]; // Variant-specific images
 }
 
