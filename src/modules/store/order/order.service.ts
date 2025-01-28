@@ -1,13 +1,13 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { IOrder } from "./schema/order.schema";
+import { IOrder, OrderStatusEnum } from "./schema/order.schema";
 import { ProductService } from "../product/product.service";
 import { CartService } from "../cart/cart.service";
 import { UsersService } from "src/modules/users/users.service";
 import { CreateOrderDto } from "./dto/create-order-dto";
 import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
-import { query } from "express";
+import { GetOrderQuery } from "./dto/get-order-dto";
 
 
 
@@ -54,8 +54,8 @@ export class OrderService {
             items.forEach((item: any) => {
                 // console.log(item.product.variants, "Variants")
                 item.product.variants.forEach((variant: any) => {
-                    if(variant.variantId === item.variantId){
-                        if(variant.discountedPrice){
+                    if (variant.variantId === item.variantId) {
+                        if (variant.discountedPrice) {
                             totalPrice += variant.discountedPrice
                             return
                         }
@@ -78,22 +78,90 @@ export class OrderService {
     }
 
 
-    async getOrders(userId: string, vendorId: string){
+    async getOrders(userId: string, vendorId: string, status: OrderStatusEnum, lastId: string) {
         const query = {}
 
-        if(userId){
+        if (userId) {
             query['user'] = userId
         }
 
-        if(vendorId){
+        if (vendorId) {
             query['vendor'] = vendorId
         }
 
-        // const result = this.Order.find(query).
+        if (status) {
+            query['shippingStatus'] = status
+        }
 
-        // const orders = result[0];
+        if (lastId) {
+            query['_id'] = { $lt: lastId };
+        }
+
+        const orders = this.Order.find(query)
+            .sort({ _id: -1 })
+            .limit(10)
+            .populate({
+                path: "user",
+                select: "_id name email phone bio"
+            }).populate({
+                path: "vendor",
+                select: "_id name email phone bio"
+            }).populate({
+                path: "items",
+                populate: {
+                    path: "product",
+                    populate: {
+                        path: "category"
+                    }
+                }
+            }).populate('shippingAddress')
+
+
+        return orders;
     }
 
+    async getUserOrders(userId: string, query: GetOrderQuery) {
+        const orders = await this.getOrders(userId, undefined, query.status, query.lastId)
+        return orders;
+    }
 
+    async getVendorOrders(vendorId: string, query: GetOrderQuery) {
+        const orders = await this.getOrders(undefined, vendorId, query.status, query.lastId)
+        return orders;
+    }
+
+    async updateOrderStatus(query: any, newStatus: OrderStatusEnum) {
+        const order = await this.Order.findOneAndUpdate(query, { shippingStatus: newStatus })
+
+        if (!order) {
+            throw new NotFoundException('Order not found')
+        }
+    }
+
+    async cancelOrder(orderId: string, userId: string, vendorId: string) {
+        const query = {
+            _id: orderId,
+            shippingStatus: OrderStatusEnum.PENDING
+        }
+
+        if (userId) {
+            query['user'] = userId;
+        }
+
+        if (vendorId) {
+            query['vendor'] = vendorId;
+        }
+
+        await this.updateOrderStatus(query, OrderStatusEnum.CANCELLED);
+    }
+
+    async changeOrderStatus(orderId: string, vendorId: string, newStatus: OrderStatusEnum) {
+        const query = {
+            _id: orderId,
+            vendor: vendorId
+        }
+        console.log(query, "Ouery")
+        await this.updateOrderStatus(query, newStatus);
+    }
 
 }

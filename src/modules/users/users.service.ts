@@ -167,6 +167,15 @@ export class UsersService {
     return users as IUser[];
   }
 
+  async getAllStoreUsers(storeRole: UserStoreRoleEnum){
+    const query = storeRole === UserStoreRoleEnum.USER 
+    ? { $or: [{ storeRole: UserStoreRoleEnum.USER }, { storeRole: { $exists: false } }] } 
+    : { storeRole };
+
+    const users = await this.User.find(query).select('-hash').sort({ createdAt: -1 }).lean().exec();
+    return users
+  }
+
   async getUsersCount() {
     const result = await this.User.aggregate([{
       $group: {

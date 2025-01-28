@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 export enum OrderStatusEnum {
     PENDING = 'pending',
+    CONFIRM = 'confirm',
     SHIPPED = 'shipped',
     DELIVERED = 'delivered',
     CANCELLED = 'cancelled',
@@ -55,7 +56,7 @@ const OrderItemSchema = new mongoose.Schema<IItem>({
         required: true,
         min: 1,
     },
-});
+}, {_id: false});
 
 
 export const OrderSchema = new mongoose.Schema<IOrder>(

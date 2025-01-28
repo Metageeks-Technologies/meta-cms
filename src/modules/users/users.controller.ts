@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Req, Res, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
-import { UserRoleEnum } from './schema/user.schema';
-import { RolesGuard } from '../auth/role.guard';
+import { AllowedRoles, AllowedStoreRoles } from 'src/common/decorators/allowed-roles.decorator';
+import { UserRoleEnum, UserStoreRoleEnum } from './schema/user.schema';
+import { RolesGuard, StoreRolesGuard } from '../auth/role.guard';
 import { ChangeRoleDto, ChangeStoreRole } from './dto/change-role.dto';
 import { Request, Response } from 'express';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
@@ -37,7 +37,7 @@ export class UsersController {
   }
 
   @Get('all-moderator')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.MODERATOR)
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllModerators() {
     const users = await this.usersService.getAllModerator()
@@ -48,7 +48,7 @@ export class UsersController {
   }
 
   @Get('all-contributor')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.MODERATOR)
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllContributor() {
     const users = await this.usersService.getAllContributor()
@@ -59,12 +59,45 @@ export class UsersController {
   }
 
   @Get('all-subscriber')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.MODERATOR)
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllSubscribers() {
     const users = await this.usersService.getAllSubscribers()
     return { 
       message: "All subscribers fetched successfully",
+      users
+    };
+  }
+
+  @Get('all-store-user')
+  @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, StoreRolesGuard)
+  async getAllStoreUser() {
+    const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.USER)
+    return { 
+      message: "All Users fetched successfully",
+      users
+    };
+  }
+
+  @Get('all-store-vendors')
+  @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, StoreRolesGuard)
+  async getAllStoreVendor() {
+    const vendors = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.VENDOR)
+    return { 
+      message: "All Vendors fetched successfully",
+      vendors
+    };
+  }
+
+  @Get('all-store-moderator')
+  @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, StoreRolesGuard)
+  async getAllStoreModerator() {
+    const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.MODERATOR)
+    return { 
+      message: "All Moderator fetched successfully",
       users
     };
   }
