@@ -80,7 +80,7 @@ const ProductVariantSchema = new mongoose.Schema({
         required: true,
         default: false
     }
-});
+}, {_id: false});
 
 export const ProductSchema = new mongoose.Schema(
     {

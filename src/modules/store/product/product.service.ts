@@ -139,6 +139,36 @@ export class ProductService {
             pipeline.push({ $match: matchStage });
         }
 
+
+        /////////////////////////////////////////
+        // Lookup stage to populate references
+        /////////////////////////////////////////
+        pipeline.push(
+            // Populate vendor
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'vendor',
+                    foreignField: '_id',
+                    as: 'vendor',
+                },
+            },
+            { $unwind: '$vendor' },
+            // Populate category
+            {
+                $lookup: {
+                    from: 'productcategories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category',
+                },
+            },
+            { $unwind: '$category' } 
+        );
+
+
+
+
         /////////////////////////////////////////
         // Sorting stage
         /////////////////////////////////////////

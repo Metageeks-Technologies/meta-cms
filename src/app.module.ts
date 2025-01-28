@@ -23,6 +23,8 @@ import { RedisModule } from './modules/redis/redis.module';
 import { ProductCategoriesModule } from './modules/store/productCategories/productCategories.module';
 import { AddressModule } from './modules/store/addresses/addresses.module';
 import { ProductModule } from './modules/store/product/product.module';
+import { CartModule } from './modules/store/cart/cart.module';
+import { OrderModule } from './modules/store/order/order.module';
 
 
 @Module({
@@ -46,7 +48,9 @@ import { ProductModule } from './modules/store/product/product.module';
     RedisModule,
     ProductCategoriesModule,
     AddressModule,
-    ProductModule
+    ProductModule,
+    CartModule,
+    OrderModule
   ],
   controllers: [AppController],
   providers: [
