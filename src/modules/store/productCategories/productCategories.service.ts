@@ -16,7 +16,6 @@ export class ProductCategoriesService {
 
   async create(newCategoryData: CreateProductCategoryDto) {
     const newCategory = new this.ProductCategory(newCategoryData);
-    newCategory.code = newCategory.code.toUpperCase();
     
     try {
       // Delete all Category cache

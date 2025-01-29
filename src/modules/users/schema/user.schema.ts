@@ -10,8 +10,8 @@ export enum UserRoleEnum {
 };
 
 export enum UserStoreRoleEnum {
-  USER = 'subscriber',
-  VENDOR = 'contributor',
+  USER = 'user',
+  VENDOR = 'vendor',
   MODERATOR = 'moderator',
   SUPERADMIN = 'superadmin',
 };

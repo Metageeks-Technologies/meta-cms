@@ -7,19 +7,19 @@ import { ProductStatusEnum } from "../schema/product.schema";
 
 export class UpdateProductDto {
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     title: string
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     subDescription: string
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     description: string
 
     @IsMongoId({ message: "Invalid Id in category" })
-    @IsNotEmpty()
+    @IsOptional()
     category: string
 
     @IsString()
@@ -27,7 +27,7 @@ export class UpdateProductDto {
     brand?: string
 
     @IsEnum(ProductStatusEnum)
-    @IsNotEmpty()
+    @IsOptional()
     status: ProductStatusEnum
 
     @IsOptional()

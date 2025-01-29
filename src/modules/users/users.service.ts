@@ -151,20 +151,29 @@ export class UsersService {
 
   async getAllModerator(): Promise<IUser[]> {
     // Assuming user verified as super Admin
-    const users = await this.User.find({ role: UserRoleEnum.MODERATOR }).sort({ createdAt: -1 }).lean().exec();
+    const users = await this.User.find({ role: UserRoleEnum.MODERATOR }).sort({ createdAt: -1 }).select('-hash').lean().exec();
     return users as IUser[];
   }
 
   async getAllContributor(): Promise<IUser[]> {
     // Assuming user verified as super Admin
-    const users = await this.User.find({ role: UserRoleEnum.CONTRIBUTOR }).sort({ createdAt: -1 }).lean().exec();
+    const users = await this.User.find({ role: UserRoleEnum.CONTRIBUTOR }).sort({ createdAt: -1 }).select('-hash').lean().exec();
     return users as IUser[];
   }
 
   async getAllSubscribers(): Promise<IUser[]> {
     // Assuming user verified as super Admin
-    const users = await this.User.find({ role: UserRoleEnum.SUBSCRIBER }).sort({ createdAt: -1 }).lean().exec();
+    const users = await this.User.find({ role: UserRoleEnum.SUBSCRIBER }).sort({ createdAt: -1 }).select('-hash').lean().exec();
     return users as IUser[];
+  }
+
+  async getAllStoreUsers(storeRole: UserStoreRoleEnum){
+    const query = storeRole === UserStoreRoleEnum.USER 
+    ? { $or: [{ storeRole: UserStoreRoleEnum.USER }, { storeRole: { $exists: false } }] } 
+    : { storeRole };
+
+    const users = await this.User.find(query).select('-hash').sort({ createdAt: -1 }).lean().exec();
+    return users
   }
 
   async getUsersCount() {

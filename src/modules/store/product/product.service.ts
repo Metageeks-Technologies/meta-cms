@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { IProduct, ProductStatusEnum } from "./schema/product.schema";
@@ -7,6 +7,8 @@ import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
 import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { ProductCategoriesService } from "../productCategories/productCategories.service";
 import { ProductSortByEnum } from "./dto/get-product-dto";
+import { generateSku } from "src/utils/helperFunctions";
+import { SearchProductQueryDto, SearchProductSortByEnum } from "./dto/search-product-dto";
 
 
 
@@ -22,15 +24,35 @@ export class ProductService {
     ) { }
 
 
+
     async createProduct(newProductDetail: CreateProductDto, userId: string, userStoreRole: string) {
         const newProduct = new this.Product(newProductDetail);
         newProduct.vendor = mongoose.Types.ObjectId.createFromHexString(userId);
 
-        const category = await this.productCategoryService.findById(newProductDetail.category);
 
-        newProduct.variants.forEach((variant, index) => {
-            variant.sku = generateSku(category.code, newProduct.title, variant.variantId);
+        const ids = newProduct.variants.map(variant => variant.variantId)
+        const uniqueIds = new Set(ids);
+        if (ids.length !== uniqueIds.size) {
+            throw new ConflictException('Duplicate Ids found in product variants');
+        }
+
+
+        const skus = newProduct.variants.map(variant => variant.sku);
+        const uniqueSkus = new Set(skus);
+        if (skus.length !== uniqueSkus.size) {
+            throw new ConflictException('Duplicate SKUs found in product variants');
+        }
+
+        // Query to check if any of the SKUs already exist for this vendor
+        const conflict = await this.Product.findOne({
+            vendor: newProduct.vendor,
+            'variants.sku': { $in: skus },
         });
+
+        if (conflict) {
+            throw new ConflictException('One or more SKUs are already registered with this vendor');
+        }
+
 
         // If vendor creates a product to be published, change its status to 'awaiting approval'
         if (userStoreRole === UserStoreRoleEnum.VENDOR && (newProduct.status === ProductStatusEnum.PUBLISHED)) {
@@ -41,11 +63,14 @@ export class ProductService {
             await newProduct.save();
 
         } catch (error) {
+            if (error.code === 11000) {
+                throw new ConflictException('SKU already registered')
+            }
             throw error;
         }
     }
 
-    async getProduct(
+    async getProducts(
         status: ProductStatusEnum,
         isDeleted: boolean,
         userId: string,
@@ -115,6 +140,36 @@ export class ProductService {
             pipeline.push({ $match: matchStage });
         }
 
+
+        /////////////////////////////////////////
+        // Lookup stage to populate references
+        /////////////////////////////////////////
+        pipeline.push(
+            // Populate vendor
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'vendor',
+                    foreignField: '_id',
+                    as: 'vendor',
+                },
+            },
+            { $unwind: '$vendor' },
+            // Populate category
+            {
+                $lookup: {
+                    from: 'productcategories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category',
+                },
+            },
+            { $unwind: '$category' }
+        );
+
+
+
+
         /////////////////////////////////////////
         // Sorting stage
         /////////////////////////////////////////
@@ -168,32 +223,116 @@ export class ProductService {
 
     }
 
-    async searchProduct() {
+    async searchProduct({ query, sortBy, lastId, lastScore }: SearchProductQueryDto) {
+        const pipeline: mongoose.PipelineStage[] = [];
+
+        /////////////////////////////////////////
+        // Match stage
+        /////////////////////////////////////////
+        const matchStage: Record<string, any> = {};
+
+        matchStage.$text = {
+            $search: query
+        };
+        pipeline.push({
+            $match: matchStage
+        });
+
+        /////////////////////////////////////////
+        // Adding score field
+        /////////////////////////////////////////
+        const addFieldsStage: Record<string, any> = {
+            score: { $meta: "textScore" }
+        }
+        pipeline.push({
+            $addFields: addFieldsStage
+        });
+
+        /////////////////////////////////////////
+        // Pagination Match stage
+        // Filters out previously fetched documents
+        /////////////////////////////////////////
+        if (lastId && lastScore) {
+            const paginationMatchStage: Record<string, any> = {};
+            if (sortBy == SearchProductSortByEnum.RELEVANCY) {
+                paginationMatchStage.$or = [
+                    { score: { $lt: lastScore } },
+                    {
+                        score: lastScore,
+                        _id: { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) }
+                    }
+                ];
+            } else {
+                paginationMatchStage._id = { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) }
+            }
+
+            pipeline.push({
+                $match: paginationMatchStage
+            })
+        }
+
+        /////////////////////////////////////////
+        // Sort stage
+        /////////////////////////////////////////
+        let sortStage: Record<string, 1 | -1> = {};
+        if (sortBy == SearchProductSortByEnum.RELEVANCY) {
+            sortStage = { score: -1, _id: -1 }
+        } else {
+            sortStage = { _id: -1 }
+        }
+
+        pipeline.push({
+            $sort: sortStage
+        });
+
+        /////////////////////////////////////////
+        // limit stage
+        /////////////////////////////////////////
+        pipeline.push({
+            $limit: this.PRODUCT_BATCH_LIMIT
+        });
+
+        // Execute the aggregation pipeline
+        const posts = await this.Product.aggregate(pipeline).exec();
+        return posts;
 
     }
 
-    async getProductById(productId: string, status: string, isDeleted: boolean) {
+    async getProductById(productId: string, status: ProductStatusEnum, isDeleted: boolean) {
 
         const result = await this.Product.aggregate([
             {
                 $match: {
-                    _id: productId,
-                    ...(status && {status: status}),
-                    ...(status && {isDeleted: isDeleted})
-                }
-            }
+                    _id: mongoose.Types.ObjectId.createFromHexString(productId),
+                    ...(status !== undefined && { status }),
+                    ...(isDeleted !== undefined && { isDeleted }),
+                },
+            },
         ]).exec();
 
         const product = result[0];
+        // console.log(product, "Porudct")
 
-        if(!product){
+        if (!product) {
             throw new NotFoundException('Product not found')
         }
+
         return product;
     }
 
-    async getPublicProductById(productId: string){
+    async getPublicProductById(productId: string) {
         const product = await this.getProductById(productId, ProductStatusEnum.PUBLISHED, false);
+        return product;
+    }
+
+    async getAnyProductById(productId: string, userId: string, userStoreRole: UserStoreRoleEnum) {
+        const product = await this.getProductById(productId, undefined, undefined);
+
+        if (userId && userStoreRole) {
+            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+                throw new ForbiddenException();
+            }
+        }
         return product;
     }
 
@@ -217,11 +356,15 @@ export class ProductService {
         const query = await this.Product.updateOne({ _id: productId }, { $set: productDetail }).exec();
     }
 
-    async addVariant(productId: string, newVariant: CreateVariantDto) {
+    async addVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, newVariant: CreateVariantDto) {
         const product = await this.Product.findById(productId);
 
         if (!product) {
             throw new NotFoundException('Product not found');
+        }
+
+        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            throw new ForbiddenException();
         }
 
         // Validate the uniqueness of the new variant within the product's variants
@@ -230,21 +373,30 @@ export class ProductService {
             throw new ConflictException(`Variant ID already exists in this product.`);
         }
 
-        const category = await this.productCategoryService.findById(product.category.toString());
+        const conflict = await this.Product.findOne({
+            vendor: product.vendor,
+            'variants.sku': { $in: newVariant.sku },
+        });
 
-        newVariant.sku = generateSku(category.code, product.title, newVariant.variantId);
+        if (conflict) {
+            throw new ConflictException('One or more SKUs are already registered with this vendor');
+        }
 
         product.variants.push(newVariant);
 
         await product.save();
     }
 
-    async updateVariant(productId: string, variantId: string, variantDetails: UpdateVariantDto) {
+    async updateVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string, variantDetails: UpdateVariantDto) {
         try {
             const product = await this.Product.findById(productId);
 
             if (!product) {
                 throw new NotFoundException('Product not found');
+            }
+
+            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+                throw new ForbiddenException();
             }
 
             // Find the variant to update
@@ -253,9 +405,11 @@ export class ProductService {
                 throw new NotFoundException(`Variant not found`);
             }
 
+
+
             // Update the variant with the new details
             product.variants[variantIndex] = {
-                ...product.variants[variantIndex],
+                ...product.variants[variantIndex]._doc,
                 ...variantDetails,
             };
 
@@ -265,7 +419,7 @@ export class ProductService {
         }
     }
 
-    async deleteVariant(productId: string, variantId: string) {
+    async deleteVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string) {
         try {
             const product = await this.Product.findById(productId);
 
@@ -273,10 +427,18 @@ export class ProductService {
                 throw new NotFoundException('Product not found');
             }
 
+            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+                throw new ForbiddenException();
+            }
+
             // Find the variant to update
             const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId);
             if (variantIndex === -1) {
                 throw new NotFoundException(`Variant not found`);
+            }
+
+            if (product.variants[variantIndex].isDeleted) {
+                throw new BadRequestException('Variant already deleted');
             }
 
             product.variants[variantIndex].isDeleted = true;
@@ -310,12 +472,24 @@ export class ProductService {
         }
     }
 
-    async deleteProduct(productId: string) {
-        const product = await this.Product.findOneAndUpdate({ _id: productId }, { isDeleted: true });
+    async changeProductStatus(productId: string, newStatus: ProductStatusEnum) {
+        const query = await this.Product.updateOne({ _id: productId }, { $set: { status: newStatus } }).exec();
+        if (query.matchedCount === 0) {
+            throw new NotFoundException('Product not found');
+        }
+    }
 
+    async deleteProduct(productId: string, userId: string, userStoreRole: string) {
+        const product = await this.Product.findOne({ _id: productId }, { vendor: 1 });
         if (!product) {
             throw new NotFoundException('Product not found');
         }
+
+        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            throw new ForbiddenException()
+        }
+
+        await this.Product.updateOne({ _id: productId }, { isDeleted: true });
     }
 
     async recoverProduct(productId: string) {
@@ -325,8 +499,4 @@ export class ProductService {
             throw new NotFoundException('Product not found');
         }
     }
-
-
-
-
 }

@@ -33,7 +33,6 @@ export class PostsController {
   async searchPosts(@Query() query: SearchPostsQueryDto) {
     const posts = await this.postsService.searchPosts(query);
     return posts;
-
   }
 
   @Get('public')
@@ -125,7 +124,7 @@ export class PostsController {
   @Get('comment/awaiting-approval')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAwatingApproval () {
+  async getAwatingApprovalComments () {
     const comments = await this.postsService.getAwaitingApproveComment();
     return comments;
   }
