@@ -8,6 +8,7 @@ import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { ProductCategoriesService } from "../productCategories/productCategories.service";
 import { ProductSortByEnum } from "./dto/get-product-dto";
 import { generateSku } from "src/utils/helperFunctions";
+import { SearchProductQueryDto, SearchProductSortByEnum } from "./dto/search-product-dto";
 
 
 
@@ -163,7 +164,7 @@ export class ProductService {
                     as: 'category',
                 },
             },
-            { $unwind: '$category' } 
+            { $unwind: '$category' }
         );
 
 
@@ -222,7 +223,78 @@ export class ProductService {
 
     }
 
-    async searchProduct() {
+    async searchProduct({ query, sortBy, lastId, lastScore }: SearchProductQueryDto) {
+        const pipeline: mongoose.PipelineStage[] = [];
+
+        /////////////////////////////////////////
+        // Match stage
+        /////////////////////////////////////////
+        const matchStage: Record<string, any> = {};
+
+        matchStage.$text = {
+            $search: query
+        };
+        pipeline.push({
+            $match: matchStage
+        });
+
+        /////////////////////////////////////////
+        // Adding score field
+        /////////////////////////////////////////
+        const addFieldsStage: Record<string, any> = {
+            score: { $meta: "textScore" }
+        }
+        pipeline.push({
+            $addFields: addFieldsStage
+        });
+
+        /////////////////////////////////////////
+        // Pagination Match stage
+        // Filters out previously fetched documents
+        /////////////////////////////////////////
+        if (lastId && lastScore) {
+            const paginationMatchStage: Record<string, any> = {};
+            if (sortBy == SearchProductSortByEnum.RELEVANCY) {
+                paginationMatchStage.$or = [
+                    { score: { $lt: lastScore } },
+                    {
+                        score: lastScore,
+                        _id: { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) }
+                    }
+                ];
+            } else {
+                paginationMatchStage._id = { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) }
+            }
+
+            pipeline.push({
+                $match: paginationMatchStage
+            })
+        }
+
+        /////////////////////////////////////////
+        // Sort stage
+        /////////////////////////////////////////
+        let sortStage: Record<string, 1 | -1> = {};
+        if (sortBy == SearchProductSortByEnum.RELEVANCY) {
+            sortStage = { score: -1, _id: -1 }
+        } else {
+            sortStage = { _id: -1 }
+        }
+
+        pipeline.push({
+            $sort: sortStage
+        });
+
+        /////////////////////////////////////////
+        // limit stage
+        /////////////////////////////////////////
+        pipeline.push({
+            $limit: this.PRODUCT_BATCH_LIMIT
+        });
+
+        // Execute the aggregation pipeline
+        const posts = await this.Product.aggregate(pipeline).exec();
+        return posts;
 
     }
 
@@ -239,7 +311,7 @@ export class ProductService {
         ]).exec();
 
         const product = result[0];
-        console.log(product, "Porudct")
+        // console.log(product, "Porudct")
 
         if (!product) {
             throw new NotFoundException('Product not found')
@@ -333,10 +405,7 @@ export class ProductService {
                 throw new NotFoundException(`Variant not found`);
             }
 
-            console.log({
-                ...product.variants[variantIndex],
-                ...variantDetails,
-            })
+
 
             // Update the variant with the new details
             product.variants[variantIndex] = {

@@ -5,16 +5,20 @@ import mongoose from "mongoose";
 export interface IPage extends mongoose.Document {
     _id: string;
     title: string;
+    slug: string;
     authorId: mongoose.Types.ObjectId;
     content: {
         heroSection: {
             subHeading: string,
             heading: string,
-            description: string
+            description: string,
+            imageKey: string,
         },
         solutionSection1: {
+            subHeading: string
             heading: string,
-            description: string
+            description: string,
+            imageKey: string
         },
         servicesSection: {
             heading: string,
@@ -33,8 +37,10 @@ export interface IPage extends mongoose.Document {
             }[]
         },
         solutionSection2: {
+            subHeading: string
             heading: string,
-            description: string
+            description: string,
+            imageKey: string
         },
         featureSection: {
             heading: string,
@@ -45,6 +51,8 @@ export interface IPage extends mongoose.Document {
             }[]
         },
         marketForecastSection: {
+            imageKey: string,
+            subHeading: string,
             heading: string,
             list: {
                 point: string
@@ -73,7 +81,7 @@ export interface IPage extends mongoose.Document {
     isActive: boolean;
 }
 
-export const PageSchema = new mongoose.Schema({
+export const PageSchema = new mongoose.Schema<IPage>({
     title: {
         type: String,
         required: true,
@@ -90,11 +98,14 @@ export const PageSchema = new mongoose.Schema({
         heroSection: {
             subHeading: { type: String, required: true },
             heading: { type: String, required: true },
-            description: { type: String, required: true }
+            description: { type: String, required: true },
+            imageKey: { type: String, required: true }
         },
         solutionSection1: {
+            subHeading: { type: String, required: true },
             heading: { type: String, required: true },
-            description: { type: String, required: true }
+            description: { type: String, required: true },
+            imageKey: { type: String, required: true }
         },
         servicesSection: {
             heading: { type: String, required: true },
@@ -117,8 +128,10 @@ export const PageSchema = new mongoose.Schema({
             ]
         },
         solutionSection2: {
+            subHeading: { type: String, required: true },
             heading: { type: String, required: true },
-            description: { type: String, required: true }
+            description: { type: String, required: true },
+            imageKey: { type: String, required: true }
         },
         featureSection: {
             heading: { type: String, required: true },
@@ -131,6 +144,8 @@ export const PageSchema = new mongoose.Schema({
             ]
         },
         marketForecastSection: {
+            imageKey: { type: String, required: true },
+            subHeading: { type: String, required: true },
             heading: { type: String, required: true },
             list: [
                 {

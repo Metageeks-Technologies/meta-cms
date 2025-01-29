@@ -33,7 +33,6 @@ export class PostsController {
   async searchPosts(@Query() query: SearchPostsQueryDto) {
     const posts = await this.postsService.searchPosts(query);
     return posts;
-
   }
 
   @Get('public')

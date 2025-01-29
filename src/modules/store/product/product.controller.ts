@@ -10,6 +10,7 @@ import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { GetProductQueryDto } from "./dto/get-product-dto";
 import { ProductStatusEnum } from "./schema/product.schema";
 import { query } from "express";
+import { SearchProductQueryDto } from "./dto/search-product-dto";
 
 
 
@@ -42,6 +43,13 @@ export class PorductController {
 
         return products;
     }
+
+    @Get('search')
+    async searchProduct(@Query() query: SearchProductQueryDto) {
+        const produts = await this.productService.searchProduct(query);
+        return produts;
+    }
+
 
     @Get('public/:id')
     async getPublicProductById(@Param('id', ValidateId) productId: string) {

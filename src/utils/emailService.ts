@@ -17,6 +17,6 @@ export const sendEmail = async (email: string, subject: string, body: string) =>
         html: body,
     });
 
-    console.log("Email info: ", info)
+    // console.log("Email info: ", info)
     return info;
 }

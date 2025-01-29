@@ -14,9 +14,17 @@ class HeroSectionDto {
     @IsNotEmpty()
     @IsString()
     description: string
+
+    @IsNotEmpty()
+    @IsString()
+    imageKey: string
 }
 
 class SolutionSection1Dto {
+    @IsNotEmpty()
+    @IsString()
+    subHeading: string;
+
     @IsNotEmpty()
     @IsString()
     heading: string;
@@ -24,6 +32,10 @@ class SolutionSection1Dto {
     @IsNotEmpty()
     @IsString()
     description: string
+
+    @IsNotEmpty()
+    @IsString()
+    imageKey: string
 }
 
 class ServicesSectionCardDto {
@@ -79,11 +91,19 @@ class ProcessSectionDto {
 class SolutionSection2Dto {
     @IsNotEmpty()
     @IsString()
+    subHeading: string;
+
+    @IsNotEmpty()
+    @IsString()
     heading: string;
 
     @IsNotEmpty()
     @IsString()
     description: string
+
+    @IsNotEmpty()
+    @IsString()
+    imageKey: string;
 }
 
 class FeatureSectionCardsDto {
@@ -117,6 +137,14 @@ class MarketForecastSectionListDto {
     point: string
 }
 class MarketForecastSectionDto {
+    @IsNotEmpty()
+    @IsString()
+    imageKey: string
+
+    @IsNotEmpty()
+    @IsString()
+    subHeading: string
+
     @IsNotEmpty()
     @IsString()
     heading: string

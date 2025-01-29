@@ -44,9 +44,6 @@ export class OrderService {
             vendorMap.get(vendorId).push(item);
         }
 
-
-        // const orders = [];
-
         for (const [vendorId, items] of vendorMap) {
 
             let totalPrice = 0;
@@ -160,7 +157,7 @@ export class OrderService {
             _id: orderId,
             vendor: vendorId
         }
-        console.log(query, "Ouery")
+        // console.log(query, "Ouery")
         await this.updateOrderStatus(query, newStatus);
     }
 
