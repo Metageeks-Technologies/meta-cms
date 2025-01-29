@@ -13,6 +13,7 @@ import { MdEdit } from "react-icons/md";
 import { uploadToS3 } from '@/utils/helperFunction';
 import axios from 'axios';
 import { getURL } from '@/utils/AWS_Config';
+import ProfileTabs from './components/ProfileTabs';
 
 const ProfilePage: React.FC = () => {
   const { user, getUserProfile, setLoading }: any = useUserContext();
@@ -127,7 +128,7 @@ const ProfilePage: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16">
+    <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16 pb-20">
       <div className="mx-auto rounded-lg bg-black shadow-lg p-6 sm:p-8 md:p-10">
 
         <div className="flex items-center justify-between space-x-4 mb-6">
@@ -426,6 +427,8 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ProfileTabs/>
     </div>
   );
 };

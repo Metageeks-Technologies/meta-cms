@@ -356,6 +356,26 @@ export class ProductService {
         const query = await this.Product.updateOne({ _id: productId }, { $set: productDetail }).exec();
     }
 
+    async getVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string) {
+        const product = await this.Product.findById(productId);
+
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+
+        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            throw new ForbiddenException();
+        }
+
+        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
+        if (variantIndex === -1) {
+            throw new NotFoundException(`Variant not found`);
+        }
+        const variant = product.variants[variantIndex]
+
+        return variant;
+    }
+
     async addVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, newVariant: CreateVariantDto) {
         const product = await this.Product.findById(productId);
 

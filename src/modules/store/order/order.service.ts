@@ -73,7 +73,7 @@ export class OrderService {
             //   orders.push(order);
         }
 
-        // await this.cartService.clearCart(userId, userStoreRole);
+        await this.cartService.clearCart(userId, userStoreRole);
     }
 
 
@@ -173,8 +173,6 @@ export class OrderService {
 
         // Clear cart after successful order creation
         await this.cartService.clearCart(userId, userStoreRole);
-
-        return { success: true, message: 'Order created successfully' };
     }
 
 
