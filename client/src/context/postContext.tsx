@@ -17,7 +17,12 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const [sortBy, setSortBy] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('')
 
+    const[selectedProductCategory, setSelectedProductCategory] = useState('');
+
     const [categories, setCategeories] = useState([]);
+
+    const[productCategories,setProductCategories] = useState([]);
+
     const [media, setMedia] = useState<any>([]);
     const [hasMoreMedia, setHasMoreMedia] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
@@ -40,6 +45,24 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const fetchProductCategories = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`)
+            if (resp?.status === 200 || resp?.status === 201) {
+                setProductCategories(resp?.data);
+            } else {
+                toast.error(resp?.data?.message, {
+                    duration: 2000,
+                });
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const deleteCategory = async (id: string) => {
         setLoading(true);
         try {
@@ -50,6 +73,29 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
                     duration: 2000,
                 });
                 fetchCategories();
+            } else {
+                toast.error(resp?.data?.message, {
+                    duration: 2000,
+                });
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
+    const deleteProductCategory = async (id: string) => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${id}`);
+
+            if (resp.status === 200 || resp?.status === 201) {
+                toast.success(resp?.data?.message, {
+                    duration: 2000,
+                });
+                fetchProductCategories();
             } else {
                 toast.error(resp?.data?.message, {
                     duration: 2000,
@@ -88,6 +134,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
     const contextValues: PostContextType = {
         categories,
+        productCategories,
         fetchCategories,
         deleteCategory,
         fetchMedia,
@@ -99,7 +146,11 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         sortBy,
         setSortBy,
         selectedCategory,
-        setSelectedCategory
+        setSelectedCategory,
+        selectedProductCategory,
+        setSelectedProductCategory,
+        fetchProductCategories,
+         deleteProductCategory,
     }
 
     return (

@@ -13,6 +13,13 @@ import { MdEdit } from "react-icons/md";
 import { uploadToS3 } from '@/utils/helperFunction';
 import axios from 'axios';
 import { getURL } from '@/utils/AWS_Config';
+<<<<<<< Updated upstream
+import ProfileTabs from './components/ProfileTabs';
+=======
+import { Address } from '@/types';
+import { useParams } from 'next/navigation';
+
+>>>>>>> Stashed changes
 
 const ProfilePage: React.FC = () => {
   const { user, getUserProfile, setLoading }: any = useUserContext();
@@ -33,7 +40,74 @@ const ProfilePage: React.FC = () => {
     }
   });
 
+  const [userAddress, setUserAddress] = useState({
+    house: "",
+    street: "",
+    landmark: "",
+    postalCode: "",
+    city: "",
+    state: "",
+  })
+
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  const fetchAddress = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`);
+
+      if (response.data && response.data.length > 0) {
+        const address = response.data[0]; // Assuming you need the first address
+        console.log
+        setUserAddress({
+          house: address.house,
+          street: address.street,
+          landmark: address.landmark,
+          postalCode: address.postalCode,
+          city: address.city,
+          state: address.state,
+        });
+      }
+    } catch (error) {
+      toast.error('Error fetching address');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  // Update the address using PATCH
+  const updateAddress = async () => {
+    try {
+      setIsLoading(true);
+      const addressPayload = { ...userAddress };
+      const addressId = '6790c56eaa0bcf6a67947d08'; // Replace with the actual address ID you want to update
+      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${addressId}`, addressPayload);
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Address updated successfully!');
+        setAddressEditing(false);
+        fetchAddress(); // Re-fetch the updated address
+      } else {
+        toast.error('Failed to update address');
+      }
+    } catch (error) {
+      toast.error('Error updating address');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddress();
+  }, []);
+
+
   const [isEditing, setIsEditing] = useState(false);
+  const [addressEditing, setAddressEditing] = useState(false);
 
   const fetchUser = () => {
     setUserProfile({
@@ -95,15 +169,12 @@ const ProfilePage: React.FC = () => {
         contentType: fileList?.[0].type
       }
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-
-      // console.log(resp, "generate upload url")
-
       if (resp.status === 200 || resp.status === 201) {
         // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
         const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
 
         if (response.status === 200 || response.status === 201) {
-          setUserProfile({...userProfile, imageKey: resp?.data?.key})
+          setUserProfile({ ...userProfile, imageKey: resp?.data?.key })
         }
 
       } else {
@@ -124,10 +195,8 @@ const ProfilePage: React.FC = () => {
     fetchUser();
   }, [user]);
 
-
-
   return (
-    <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16">
+    <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16 pb-20">
       <div className="mx-auto rounded-lg bg-black shadow-lg p-6 sm:p-8 md:p-10">
 
         <div className="flex items-center justify-between space-x-4 mb-6">
@@ -426,6 +495,145 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
       </div>
+
+<<<<<<< Updated upstream
+      <ProfileTabs/>
+=======
+      <div className="mx-auto rounded-lg bg-black shadow-lg p-6 sm:p-8 md:p-10">
+        <h1 className="text-xl font-semibold text-gray-300 mb-4">Address</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* House No */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="houseNo">
+              House No.
+            </label>
+            <input
+              type="text"
+              id="houseNo"
+              name="houseNo"
+              placeholder="Enter House No."
+              value={userAddress.house}
+              onChange={(e) => setUserAddress({ ...userAddress, house: e.target.value })}
+              disabled={!addressEditing}
+              className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Street */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="street">
+              Street
+            </label>
+            <input
+              type="text"
+              id="street"
+              name="street"
+              placeholder="Enter Street"
+              value={userAddress.street}
+              onChange={(e) => setUserAddress({ ...userAddress, street: e.target.value })}
+              disabled={!addressEditing}
+              className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Landmark */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="landmark">
+              Landmark
+            </label>
+            <input
+              type="text"
+              id="landmark"
+              name="landmark"
+              placeholder="Enter Landmark"
+              value={userAddress.landmark}
+              onChange={(e) => setUserAddress({ ...userAddress, landmark: e.target.value })}
+              disabled={!addressEditing}
+              className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Postal Code */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="postalCode">
+              Postal Code
+            </label>
+            <input
+              type="number"
+              id="postalCode"
+              name="postalCode"
+              placeholder="Enter Postal Code"
+              value={userAddress.postalCode}
+              onChange={(e) => setUserAddress({ ...userAddress, postalCode: e.target.value })}
+              disabled={!addressEditing}
+              className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* City */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="city">
+              City
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              placeholder="Enter City"
+              value={userAddress.city}
+              onChange={(e) => setUserAddress({ ...userAddress, city: e.target.value })}
+              disabled={!addressEditing}
+              className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* State */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="state">
+              State
+            </label>
+            <input
+              type="text"
+              id="state"
+              name="state"
+              placeholder="Enter State"
+              value={userAddress.state}
+              onChange={(e) => setUserAddress({ ...userAddress, state: e.target.value })}
+              disabled={!addressEditing}
+              className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-end space-x-4 mt-6">
+          {addressEditing ? (
+            <>
+              <button
+                onClick={updateAddress}
+                className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm sm:text-base"
+              >
+                <FaCheck className="inline mr-2" /> Save
+              </button>
+              <button
+                onClick={() => setAddressEditing(false)}
+                className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm sm:text-base"
+              >
+                <FaTimes className="inline mr-2" /> Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setAddressEditing(true)}
+              className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md text-sm sm:text-base"
+            >
+              <FaEdit className="inline mr-2" /> Edit Address
+            </button>
+          )}
+        </div>
+      </div>
+
+>>>>>>> Stashed changes
     </div>
   );
 };

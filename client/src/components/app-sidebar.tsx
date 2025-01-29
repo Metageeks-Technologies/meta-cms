@@ -35,7 +35,7 @@ export function AppSidebar() {
 
   const [postSubMenu, setPostSubMenu] = useState(false);
 
-  const {user} = useUserContext();
+  const { user } = useUserContext();
 
   const getFilteredMenuItems = (userRole: string): MenuItem[] => {
     return items
@@ -86,23 +86,23 @@ export function AppSidebar() {
     <Sidebar className="border-gray-800">
       <SidebarContent className="bg-[#06040B] text-gray-200">
         <SidebarGroup className="p-0">
-        <SidebarGroupLabel 
-  onClick={() => router.push('/dashboard')} 
-  className="h-16 -my-[0.5px] ml-2 text-2xl md:text-2xl text-gray-200 font-bold cursor-pointer"
->
-  <div>
-    CMS 
-    <p className="text-sm font-thin">Content Management System</p>
-  </div>
-</SidebarGroupLabel>
+          <SidebarGroupLabel
+            onClick={() => router.push('/dashboard')}
+            className="h-16 -my-[0.5px] ml-2 text-2xl md:text-2xl text-gray-200 font-bold cursor-pointer"
+          >
+            <div>
+              CMS
+              <p className="text-sm font-thin">Content Management System</p>
+            </div>
+          </SidebarGroupLabel>
           <Separator className="bg-gray-800" />
           <SidebarGroupContent className="p-2">
             <SidebarMenu>
               {filteredItems.map((item, index) => (
                 <div key={index}>
                   {
-                    item.title == "Post" || item.title == "Page"?
-                      <SidebarSubmenu item={item}/>
+                    item.title == "Post" || item.title == "Page" || item.title == "Product" ?
+                      <SidebarSubmenu item={item} />
 
                       : <div>
                         <SidebarMenuItem key={item.title}>

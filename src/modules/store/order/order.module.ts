@@ -6,6 +6,7 @@ import { OrderSchema } from "./schema/order.schema";
 import { CartModule } from "../cart/cart.module";
 import { UsersModule } from "src/modules/users/users.module";
 import { ProductModule } from "../product/product.module";
+import { PaymentModule } from "../payment/payment.module";
 
 
 
@@ -14,7 +15,8 @@ import { ProductModule } from "../product/product.module";
         MongooseModule.forFeature([{ name: "Order", schema: OrderSchema}]),
         ProductModule,
         CartModule,
-        UsersModule
+        UsersModule,
+        PaymentModule
     ],
     controllers: [OrderController],
     providers: [OrderService]

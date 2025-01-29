@@ -32,7 +32,8 @@ const Header = () => {
 
     const router = useRouter()
     const pathname = usePathname();
-    const param = pathname.split('/')[1];
+    const paramArr = pathname.split('/');
+    const param = paramArr[paramArr.length - 1];
     const {setLoading, setUser} = useUserContext();
 
     const handleLogOut = async () => {
