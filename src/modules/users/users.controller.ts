@@ -80,7 +80,7 @@ export class UsersController {
     };
   }
 
-  @Get('all-store-vendors')
+  @Get('all-store-vendor')
   @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, StoreRolesGuard)
   async getAllStoreVendor() {
