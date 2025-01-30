@@ -79,7 +79,7 @@ const columns = [
 
       const user = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const { changeUserRole, blockUser, unblockUser }: any = useUserContext();
+      const { changeStoreRole, blockUser, unblockUser }: any = useUserContext();
 
       return (
         <AlertDialog>
@@ -146,9 +146,9 @@ const columns = [
               <AlertDialogAction
                 onClick={
                   clickedItem === 1 ?
-                    () => changeUserRole(user._id, user.role, StoreRole.STOREMODERATOR)
+                    () => changeStoreRole(user._id, user.storeRole, StoreRole.STOREMODERATOR)
                     : clickedItem === 2 ?
-                      () => changeUserRole(user._id, user.role, StoreRole.USER)
+                      () => changeStoreRole(user._id, user.storeRole, StoreRole.USER)
                       : clickedItem === 3
                         ? () => unblockUser(user._id)
                         : clickedItem === 4

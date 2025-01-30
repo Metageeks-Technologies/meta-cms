@@ -82,7 +82,21 @@ export const items: MenuItem[] = [
       },
     ]
   },
-
+  {
+    title: "Users",
+    url: "/store/users",
+    icon: UsersRound,
+  },
+  {
+    title: "Vendors",
+    url: "/store/vendor",
+    icon: UsersRound,
+  },
+  {
+    title: "Store Moderator",
+    url: "/store/storeModerator",
+    icon: UsersRound,
+  },
 
   {
     title: "Comments",
