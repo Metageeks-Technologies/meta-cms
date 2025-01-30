@@ -12,8 +12,8 @@ import {
     Legend,
     Filler,
 } from 'chart.js';
-
 import { LineData, LineOptions } from '@/constant/dummyStoreData';
+
 
 // Register the required chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -21,7 +21,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const LineChart = () => {
   
 
-  
 
     return (
         <div style={{ height: "100%", width: "100%", padding: '20px' }} className='mx-auto'>

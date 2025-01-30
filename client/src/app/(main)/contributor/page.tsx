@@ -107,26 +107,26 @@ const columns = [
                 {/* Show options based on user's block status */}
                 {user.block ? (
               <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger onClick={() => setClickedItem(3)}>
+                <AlertDialogTrigger onClick={() => setClickedItem(3)} className="w-full text-left">
                   Unblock User
                 </AlertDialogTrigger>
               </DropdownMenuItem>
             ) : (
               <>
                 <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
+                  <AlertDialogTrigger className="w-full text-left">
                     Promote to Moderator
                   </AlertDialogTrigger>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
+                  <AlertDialogTrigger className="w-full text-left">
                     Demote to Subscriber
                   </AlertDialogTrigger>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
+                  <AlertDialogTrigger className="w-full text-left">
                     Block User
                   </AlertDialogTrigger>
                 </DropdownMenuItem>

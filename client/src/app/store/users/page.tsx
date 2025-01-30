@@ -45,6 +45,8 @@ import {
 import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
 import { StoreRole } from "@/constant/store"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import UserDetails from "@/components/common/UserDetails"
 
 
 
@@ -70,11 +72,11 @@ const columns = [
       <div className="capitalize">{row.getValue("phoneNo")}</div>
     ),
   },
-  
+
 
   {
-  
-  id: "actions",
+
+    id: "actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
@@ -82,85 +84,96 @@ const columns = [
       const [clickedItem, setClickedItem] = useState(0)
       const { changeStoreRole, blockUser, unblockUser }: any = useUserContext();
 
+      const [isOpen, setIsOpen] = useState(false);
+
       return (
-        <AlertDialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-800" />
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-gray-800" />
 
+                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                  <DialogTrigger className="w-full text-left">
+                    User Details
+                  </DialogTrigger>
+                </DropdownMenuItem>
 
-     {/* options base option */}
+                {/* options base option */}
                 {user.block ? (
-              <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger onClick={() => setClickedItem(3)}>
-                  Unblock User
-                </AlertDialogTrigger>
-              </DropdownMenuItem>
-            ) : (
-              <>
-                <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
-                  Promote to Vendor
-                  </AlertDialogTrigger>
-                </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                    <AlertDialogTrigger onClick={() => setClickedItem(3)} className="w-full text-left">
+                      Unblock User
+                    </AlertDialogTrigger>
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                      <AlertDialogTrigger className="w-full text-left">
+                        Promote to Vendor
+                      </AlertDialogTrigger>
+                    </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
-                  Promote to Moderator
-                  </AlertDialogTrigger>
-                </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                      <AlertDialogTrigger className="w-full text-left">
+                        Promote to Moderator
+                      </AlertDialogTrigger>
+                    </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
-                    Block User
-                  </AlertDialogTrigger>
-                </DropdownMenuItem>
-              </>
-            )}
+                    <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
+                      <AlertDialogTrigger className="w-full text-left">
+                        Block User
+                      </AlertDialogTrigger>
+                    </DropdownMenuItem>
+                  </>
+                )}
 
 
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <AlertDialogContent className='bg-black border-gray-800'>
-            <AlertDialogHeader>
-              <AlertDialogTitle></AlertDialogTitle>
-              <AlertDialogDescription className='h-24' >
-                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
-              </AlertDialogDescription>
-              <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
-                Are you sure ?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
+            <AlertDialogContent className='bg-black border-gray-800'>
+              <AlertDialogHeader>
+                <AlertDialogTitle></AlertDialogTitle>
+                <AlertDialogDescription className='h-24' >
+                  <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+                </AlertDialogDescription>
+                <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+                  Are you sure ?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={
-                  clickedItem === 1 ?
-                    () => changeStoreRole(user._id, user.storeRole, StoreRole.VENDOR)
-                    : clickedItem === 2 ?
-                      () => changeStoreRole(user._id, user.storeRole, StoreRole.STOREMODERATOR)
-                      : clickedItem === 3
-                        ? () => unblockUser(user._id)
-                        : clickedItem === 4
-                          ? () => blockUser(user._id)
-                          : () => { }
-                }
-              >
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={
+                    clickedItem === 1 ?
+                      () => changeStoreRole(user._id, user.storeRole, StoreRole.VENDOR)
+                      : clickedItem === 2 ?
+                        () => changeStoreRole(user._id, user.storeRole, StoreRole.STOREMODERATOR)
+                        : clickedItem === 3
+                          ? () => unblockUser(user._id)
+                          : clickedItem === 4
+                            ? () => blockUser(user._id)
+                            : () => { }
+                  }
+                >
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
 
-          </AlertDialogContent>
-        </AlertDialog>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <UserDetails user={user} setIsOpen={setIsOpen}/>
+        </Dialog>
       )
     },
   },
@@ -172,7 +185,7 @@ const columns = [
 function User() {
 
   const [sorting, setSorting] = useState<SortingState>([])
-  const { user, subscribers,storeUser,fetchStoreRole, isLoading } = useUserContext()
+  const { user, subscribers, storeUser, fetchStoreRole, isLoading } = useUserContext()
 
   const table = useReactTable({
     data: storeUser,
@@ -190,7 +203,7 @@ function User() {
 
 
   useEffect(() => {
-    if (user.storeRole) fetchStoreRole(StoreRole.USER);  
+    if (user.storeRole) fetchStoreRole(StoreRole.USER);
   }, [user]);
 
 

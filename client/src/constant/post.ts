@@ -24,7 +24,7 @@ export const statusArrAdminAllPost = [
     query: postStatuEnum.DRAFT
   },
   {
-    label: 'Schedule',
+    label: 'Sheduled',
     query: postStatuEnum.SCHEDULED
   },
   {
@@ -32,7 +32,7 @@ export const statusArrAdminAllPost = [
     query: postStatuEnum.REJECTED
   },
   {
-    label: 'Await approve',
+    label: 'Awaiting Approval',
     query: postStatuEnum.AWAITING_APPROVAL
   },
   {

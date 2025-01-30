@@ -26,6 +26,7 @@ import { MenuItem } from "@/types";
 import { useUserContext } from "@/context/userContext";
 import { userRoles } from "@/constant/user";
 import SidebarSubmenu from "./sidebar-submenu";
+import { StoreRole } from "@/constant/store";
 
 
 
@@ -37,38 +38,68 @@ export function AppSidebar() {
 
   const { user } = useUserContext();
 
-  const getFilteredMenuItems = (userRole: string): MenuItem[] => {
+  const getFilteredMenuItems = (userRole: string, userStoreRole: string): MenuItem[] => {
     return items
       .filter((item) => {
-        if (userRole === userRoles.SUPERADMIN) {
-          // Superadmin sees all menu items
-          return true;
+        if (userRole === userRoles.SUPERADMIN || userStoreRole === StoreRole.SUPERADMIN) {
+          return true; // Superadmin sees all items
         }
 
+        const includedItems = new Set<string>();
+
+        // Collect all exclusions for MODERATOR
         if (userRole === userRoles.MODERATOR) {
-          // Moderator hides these items
-          return !["Subscribers", "Contributor", "Moderator", "Page"].includes(item.title);
+          ["Dashboard", "Post", "Comments", "Media", "Notification", "Settings"].forEach((title) => includedItems.add(title));
         }
 
+        // Collect all exclusions for STORE MODERATOR
+        if (userStoreRole === StoreRole.STOREMODERATOR) {
+          ["Dashboard", "Product", "Notification", "Settings"].forEach((title) => includedItems.add(title));
+        }
+
+        // Collect all exclusions for CONTRIBUTOR
         if (userRole === userRoles.CONTRIBUTOR) {
-          // Contributor hides thses items
-          return !["Subscribers", "Contributor", "Moderator", "Category", "Page", "Comments"].includes(item.title);
+          ["Dashboard", "Post", "Comments", "Media", "Notification", "Settings"].forEach((title) => includedItems.add(title));
         }
 
-        // Default: Hide restricted items for other roles
-        return false;
+        // Collect all exclusions for VENDOR
+        if (userStoreRole === StoreRole.VENDOR) {
+          ["Dashboard", "Product", "Notification", "Settings"].forEach((title) => includedItems.add(title));
+        }
+        return includedItems.has(item.title);
       })
       .map((item) => {
-        // Filter subMenu items if applicable
         if (item.subMenu) {
           return {
             ...item,
             subMenu: item.subMenu.filter((subItem) => {
-              if (userRole === userRoles.CONTRIBUTOR) {
-                // Contributor hides thses sub items
-                return !["Category", "New Page", "All Page"].includes(subItem.title);
+              const includedSubItems = new Set<string>();
+
+              if (userRole === userRoles.SUPERADMIN || userStoreRole === StoreRole.SUPERADMIN) {
+                return true; // Superadmin sees all items
               }
-              return true; // Keep all submenus for other roles
+
+              // Collect all exclusions for MODERATOR
+              if (userRole === userRoles.MODERATOR) {
+                ["New Post", "All Post", "Category", "Tags"].forEach((title) => includedSubItems.add(title));
+              }
+
+              // Collect all exclusions for STORE MODERATOR
+              if (userStoreRole === StoreRole.STOREMODERATOR) {
+                ["New Product", "All Product", "Product Category"].forEach((title) => includedSubItems.add(title));
+              }
+
+              // Collect all exclusions for CONTRIBUTOR
+              if (userRole === userRoles.CONTRIBUTOR) {
+                ["New Post", "All Post", "Tags"].forEach((title) => includedSubItems.add(title));
+              }
+
+              // Collect all exclusions for VENDOR
+              if (userStoreRole === StoreRole.VENDOR) {
+                ["New Product", "All Product"].forEach((title) => includedSubItems.add(title));
+              }
+
+              return includedSubItems.has(subItem.title);
             }),
           };
         }
@@ -77,14 +108,15 @@ export function AppSidebar() {
   };
 
 
-  const filteredItems = getFilteredMenuItems(user.role);
+
+  const filteredItems = getFilteredMenuItems(user.role, user?.storeRole);
 
 
 
 
   return (
     <Sidebar className="border-gray-800">
-      <SidebarContent className="bg-[#06040B] text-gray-200">
+      <SidebarContent className="bg-[#06040B] text-gray-200 styledScrollable">
         <SidebarGroup className="p-0">
           <SidebarGroupLabel
             onClick={() => router.push('/dashboard')}

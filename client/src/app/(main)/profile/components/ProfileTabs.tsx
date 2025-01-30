@@ -3,6 +3,7 @@ import Addresses from './Addresses'
 import Orders from './Orders';
 import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
+import toast from 'react-hot-toast';
 
 const ProfileTabs = () => {
 
@@ -13,21 +14,23 @@ const ProfileTabs = () => {
   const [orders, setOrders] = useState([]);
 
   const getUserAddresses = async () => {
-      setLoading(true);
-      try {
-          const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`)
+    setLoading(true);
+    try {
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`)
 
-          // console.log(resp, "Response in address")
+      // console.log(resp, "Response in address")
 
-          if (resp.status === 200 || resp.status === 201) {
-              setAddresses(resp?.data)
-          }
-
-      } catch (error) {
-          console.log("Error in fetch user address : ", error);
-      } finally {
-          setLoading(false);
+      if (resp.status === 200 || resp.status === 201) {
+        setAddresses(resp?.data)
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 })
       }
+
+    } catch (error) {
+      console.log("Error in fetch user address : ", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const getUserOrders = async () => {
@@ -35,10 +38,12 @@ const ProfileTabs = () => {
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`)
 
-      console.log(resp, "Response in orders")
+      // console.log(resp, "Response in orders")
 
       if (resp.status === 200 || resp.status === 201) {
-          setOrders(resp?.data)
+        setOrders(resp?.data)
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 })
       }
     } catch (error) {
       console.log("Error in fetching user orders : ", error);
@@ -48,22 +53,22 @@ const ProfileTabs = () => {
   }
 
   useEffect(() => {
-      getUserAddresses();
-      getUserOrders();
+    getUserAddresses();
+    getUserOrders();
   }, []);
 
   return (
     <div>
       <div className='flex flex-row gap-5 my-10'>
-        <button onClick={() => setTab(1)} className={`font-bold px-5 py-2 ${tab === 1 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Address</button>
-        <button onClick={() => setTab(2)} className={`font-bold px-5 py-2 ${tab === 2 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Orders</button>
+        <button type='button' onClick={() => setTab(1)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 1 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Address</button>
+        <button type='button' onClick={() => setTab(2)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 2 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Orders</button>
       </div>
 
       {
         tab === 1 ?
-          <Addresses addresses={addresses}/>
+          <Addresses addresses={addresses} getUserAddresses={getUserAddresses} />
           : tab === 2 ?
-            <Orders orders={orders}/>
+            <Orders orders={orders} />
             : null
       }
     </div>
