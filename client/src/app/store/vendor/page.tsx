@@ -181,7 +181,7 @@ function Vendor() {
 
 
 const table = useReactTable({
-  data: vendor , 
+  data: vendor, 
   columns,
   onSortingChange: setSorting,
   getCoreRowModel: getCoreRowModel(),
@@ -259,7 +259,7 @@ const table = useReactTable({
                        ) : (
                          <TableRow>
                            <TableCell
-                             colSpan={columns.length}
+                             colSpan={columns?.length}
                              className="h-24 text-center"
                            >
                              {isLoading ? "Loading..." : "No results."}
@@ -272,7 +272,7 @@ const table = useReactTable({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Total {table.getFilteredRowModel().rows.length} rows.
+          Total {table.getFilteredRowModel()?.rows?.length} rows.
         </div>
         <div className="space-x-2">
           <Button

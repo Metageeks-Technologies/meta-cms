@@ -507,7 +507,7 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
     id="productStatus"
     className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
     value={productStatus}
-    onChange={(e) => setProductStatus(e.target.value)}
+    onChange={(e) => setFormData({...formData,status: e.target.value})}
   >
     <option value="draft">Draft</option>
     <option value="published">Published</option>

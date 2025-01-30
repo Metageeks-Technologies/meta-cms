@@ -45,9 +45,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [contributors, setContributors] = useState([]);
     const [moderators, setModerators] = useState([]);
 
-    const[storeUser,setStoreUser] = useState([]);
-    const[vendor,setVendor] = useState([]);
-    const[storeModerator,setStoreModerator] = useState([]);
+    const[storeUser, setStoreUser] = useState([]);
+    const[vendor, setVendor] = useState([]);
+    const[storeModerator, setStoreModerator] = useState([]);
+
 
 
     // API Calls
@@ -87,11 +88,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchStoreRole = async (storeRole: string) => {
         setLoading(true);
         setIsLoading(true);
-    
         try {
             const response = await axiosCall('GET',`${process.env.NEXT_PUBLIC_BASE_URL}/users/all-store-${storeRole}` );
     
-            console.log(response, "userfetch res");
+            // console.log(response, "userfetch res");
     
             if (response?.status === 200 || response?.status === 201) {
                 // Dynamically update the state based on storeRole
@@ -100,7 +100,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
                 
                 if (storeRole === StoreRole.VENDOR) {
-                    setVendor(response?.data?.users);
+                    setVendor(response?.data?.vendors);
                 }
                 if (storeRole === StoreRole.STOREMODERATOR) {
                     setStoreModerator(response?.data?.users);
