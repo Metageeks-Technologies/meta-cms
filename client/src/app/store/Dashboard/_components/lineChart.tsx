@@ -12,19 +12,24 @@ import {
     Legend,
     Filler,
 } from 'chart.js';
-import { LineData, LineOptions } from '@/constant/dummyStoreData';
+import { monthsArr, storeLineChartData, storeLineChartOption } from '@/constant/Chart';
 
 
 // Register the required chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-const LineChart = () => {
-  
+const LineChart = ({ data }: any) => {
 
 
+    if(!data){
+        return(
+            <div></div>
+        )
+    }
+    
     return (
         <div style={{ height: "100%", width: "100%", padding: '20px' }} className='mx-auto'>
-            <Line data={LineData} options={LineOptions} className='w-full h-full' />
+            <Line data={storeLineChartData(data)} options={storeLineChartOption()} className='w-full h-full' />
         </div>
     )
 }

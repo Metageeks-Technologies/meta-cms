@@ -7,21 +7,24 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-
-import { PieData,PieOptions } from '@/constant/dummyStoreData';
+import { storePieChartData, storePieChartOption } from '@/constant/Chart';
 
 
 // Register the required chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const DoughnutChart = () => {
+const DoughnutChart = ({data}: any) => {
 
-  
+    if(!data){
+        return <div></div>
+    }
+    
+
 
     return (
         <div style={{ height: "100%", width: "100%", padding: '20px' }} className='mx-auto'>
-            <h1 className='font-bold text-center' >Top 5 Products</h1>
-            <Doughnut data={PieData} options={PieOptions} className='w-full h-full' />
+            <h1 className='font-bold text-center' >Top {data?.length} Products</h1>
+            <Doughnut data={storePieChartData(data)} options={storePieChartOption(data)} className='w-full h-full' />
         </div>
     );
 };

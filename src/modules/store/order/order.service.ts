@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { IOrder, OrderStatusEnum, PaymentStatusEnum, PaymentTypeEnum } from "./schema/order.schema";
 import { ProductService } from "../product/product.service";
 import { CartService } from "../cart/cart.service";
@@ -196,7 +196,7 @@ export class OrderService {
             query['_id'] = { $lt: lastId };
         }
 
-        const orders = this.Order.find(query)
+        const orders = await this.Order.find(query)
             .sort({ _id: -1 })
             .limit(10)
             .populate({
@@ -218,6 +218,160 @@ export class OrderService {
 
         return orders;
     }
+
+    async getlastOrder(vendorId: string) {
+        const query = {}
+        if(vendorId){
+            query['vendor'] = vendorId;
+        }
+        const order = await this.Order.find(query).sort({ createdAt: -1 }).limit(10).populate({
+            path: "user",
+            select: "name email role"
+        }).populate({
+            path: "vendor",
+            select: "name email role"
+        });
+        return order;
+    }
+
+    async getMonthlyOrderCount(vendorId: string) {
+        // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
+        // Assuming userId exists and is coming from JWT
+
+        const currentDate = new Date();
+        const lastYearDate = new Date()
+        lastYearDate.setMonth(currentDate.getMonth() - 12);
+
+        const matchFilter: Record<string, any> = {
+            createdAt: { $gte: lastYearDate }
+        };
+        if (vendorId) {
+            matchFilter.vendor = mongoose.Types.ObjectId.createFromHexString(vendorId); // Assuming 'createdBy' is the field storing userId
+        }
+
+        const result = await this.Order.aggregate([
+            {
+                $match: matchFilter
+            },
+            {
+                $project: {
+                    month: { $month: "$createdAt" },
+                    year: { $year: "$createdAt" }
+                }
+            },
+            {
+                $group: {
+                    _id: { month: "$month", year: "$year" },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { "_id.year": -1, "_id.month": -1 }
+            },
+            {
+                $project: {
+                    month: "$_id.month",
+                    year: "$_id.year",
+                    count: 1,
+                    _id: 0
+                }
+            }
+        ]).exec();
+
+        // Create an array for the last 12 months (starting from the current month)
+        const monthlyOrderCount = [];
+        let tempDate = new Date(currentDate);
+        for (let i = 0; i < 12; i++) {
+            const currentMonth = { month: tempDate.getMonth() + 1, year: tempDate.getFullYear() };
+            const currentCount = result.find(r => r.month === currentMonth.month && r.year === currentMonth.year);
+            monthlyOrderCount.push(currentCount ? currentCount : { month: currentMonth.month, year: currentMonth.year, count: 0 });
+
+            // Construct a new Date object here. Otherwise, the months might repeat(due to different number of days in each month)
+            tempDate = new Date(tempDate.getFullYear(), tempDate.getMonth() - 1);
+        }
+
+        // Return the array in reverse order (oldest to most recent)
+        return monthlyOrderCount.reverse();
+
+    }
+
+    async getTotalOrderCount(vendorId: string) {
+        const query = {}
+        if(vendorId){
+            query['vendor'] = new mongoose.Types.ObjectId(vendorId);
+        }
+
+        const orderCount = await this.Order.countDocuments(query);
+        
+        return orderCount;
+    }
+
+    async getTopSellingProducts(vendorId: string) {
+        const matchFilter: any = {};
+
+        // If vendorId is provided, filter orders by vendor
+        if (vendorId) {
+            matchFilter.vendor = new mongoose.Types.ObjectId(vendorId);
+        }
+
+        const result = await this.Order.aggregate([
+            {
+                $match: matchFilter // Apply vendor filter if provided
+            },
+            {
+                $unwind: "$items" // Break down order items
+            },
+            {
+                $group: {
+                    _id: "$items.product",
+                    totalSoldQuantity: { $sum: "$items.quantity" },
+                    totalOrders: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { totalSoldQuantity: -1 } // Sort by quantity sold
+            },
+            {
+                $limit: 5 // Get top 5
+            },
+            {
+                $lookup: {
+                    from: "products", // Ensure this matches your collection name
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $unwind: { path: "$product", preserveNullAndEmptyArrays: true } // Prevent errors if no product found
+            },
+            {
+                $project: {
+                    _id: 0,
+                    productId: "$_id",
+                    name: "$product.name",
+                    price: "$product.price",
+                    image: "$product.image",
+                    totalSoldQuantity: 1,
+                    totalOrders: 1
+                }
+            }
+        ]).exec();
+
+
+        const topItems = await Promise.all(
+            result.map(async (item: any) => {
+                const product = await this.productService.getProductById(item.productId, undefined, undefined);
+                delete item.productId;
+                item['product'] = product;
+                return item;
+            })
+        );
+
+        return topItems;
+    }
+
+
 
     async getUserOrders(userId: string, query: GetOrderQuery) {
         const orders = await this.getOrders(userId, undefined, query.status, query.lastId)

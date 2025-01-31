@@ -223,6 +223,28 @@ export class ProductService {
 
     }
 
+    async getLatestProduct(vendorId: string){
+        const query = {status: ProductStatusEnum.PUBLISHED}
+        if(vendorId){
+            query['vendor'] = vendorId
+        }
+        const products = await this.Product.find(query).sort({createdAt: -1}).limit(10).exec();
+        return products;
+    }
+
+
+    async getProductCount(vendorId: string){
+        const query = {}
+        if(vendorId){
+            query['vendor'] = new mongoose.Types.ObjectId(vendorId)
+        }
+
+        const productCount = await this.Product.countDocuments(query)
+
+        return productCount;
+    }
+    
+
     async searchProduct({ query, sortBy, lastId, lastScore }: SearchProductQueryDto) {
         const pipeline: mongoose.PipelineStage[] = [];
 
@@ -303,7 +325,7 @@ export class ProductService {
         const result = await this.Product.aggregate([
             {
                 $match: {
-                    _id: mongoose.Types.ObjectId.createFromHexString(productId),
+                    _id: new mongoose.Types.ObjectId(productId),
                     ...(status !== undefined && { status }),
                     ...(isDeleted !== undefined && { isDeleted }),
                 },

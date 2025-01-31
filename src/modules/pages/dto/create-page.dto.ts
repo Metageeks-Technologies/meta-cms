@@ -154,63 +154,8 @@ class MarketForecastSectionDto {
     @Type(() => MarketForecastSectionListDto)
     list: MarketForecastSectionListDto
 }
-class WhyChooseSectionCardDto {
-    @IsNotEmpty()
-    @IsString()
-    heading: string
 
-    @IsNotEmpty()
-    @IsString()
-    description: string
-}
 
-class WhyChooseSectionDto {
-    @IsNotEmpty()
-    @IsString()
-    heading: string
-
-    @IsNotEmpty()
-    @IsString()
-    description: string
-
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => WhyChooseSectionCardDto)
-    cards: WhyChooseSectionCardDto
-}
-
-class ReviewsSectionCardDto {
-    @IsNotEmpty()
-    @IsString()
-    message: string
-
-    @IsNotEmpty()
-    @IsString()
-    imageKey: string
-
-    @IsNotEmpty()
-    @IsString()
-    name: string
-
-    @IsNotEmpty()
-    @IsString()
-    company: string
-}
-
-class ReviewsSectionDto {
-    @IsNotEmpty()
-    @IsString()
-    heading: string
-
-    @IsNotEmpty()
-    @IsString()
-    description: string
-
-    @IsArray()
-    @ValidateNested({each: true})
-    @Type(() => ReviewsSectionCardDto)
-    cards: ReviewsSectionCardDto[]
-}
 
 export class CreateContentDto {
 
@@ -244,14 +189,6 @@ export class CreateContentDto {
     @ValidateNested()
     @Type(() => MarketForecastSectionDto)
     marketForecastSection: MarketForecastSectionDto
-
-    @ValidateNested()
-    @Type(() => WhyChooseSectionDto)
-    whyChooseSection: WhyChooseSectionDto
-
-    @ValidateNested()
-    @Type(() => ReviewsSectionDto)
-    reviewsSection: ReviewsSectionDto
 }
 
 export class CreatePageDto {
