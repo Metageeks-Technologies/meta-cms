@@ -56,17 +56,7 @@ interface ForecastContent {
     list: {point: string}[];
 }
 
-interface ChooseSection {
-    heading: string;
-    description: string;
-    cards: { heading: string; description: string }[];
-}
 
-interface reviewsSection {
-    heading: string;
-    description: string;
-    cards: Caad[];
-}
 
 interface PageContent {
     title: string;
@@ -79,8 +69,7 @@ interface PageContent {
         solutionSection2: SectionContent;
         featureSection: FeatureSection;
         marketForecastSection: ForecastContent;
-        whyChooseSection: ChooseSection;
-        reviewsSection: reviewsSection;
+       
     };
 }
 
@@ -142,26 +131,7 @@ const INITIAL_PAGE_CONTENT: PageContent = {
                 point: '',
             }]
         },
-        whyChooseSection: {
-            heading: '',
-            description: '',
-            cards: [{
-                heading: '',
-                description: '',
-            }]
-        },
-        reviewsSection: {
-            heading: '',
-            description: '',
-            cards: [
-                {
-                    imageKey: '',
-                    company: '',
-                    name:'',
-                    message: '',
-                }
-            ]
-        },
+        
     }
 };
 
@@ -178,7 +148,7 @@ const CreatePage = () => {
     };
 
     const handleSectionChange = (
-        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'processSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection' | 'whyChooseSection' | 'reviewsSection',
+        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'processSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection' ,
         field: string,
         value: string
     ) => {
@@ -267,52 +237,20 @@ const CreatePage = () => {
                     }
                 }
             }));
-        } else if (section === 'whyChooseSection') {
-            updatedCards = [...formData.content.whyChooseSection.cards];
-            updatedCards[index] = {
-                ...updatedCards[index],
-                [field]: value
-            };
-            setFormData((prev) => ({
-                ...prev,
-                content: {
-                    ...prev.content,
-                    whyChooseSection: {
-                        ...prev.content.whyChooseSection,
-                        cards: updatedCards
-                    }
-                }
-            }));
-        } else if (section === 'reviewsSection') {
-            updatedCards = [...formData.content.reviewsSection.cards];
-            updatedCards[index] = {
-                ...updatedCards[index],
-                [field]: value
-            };
-            setFormData((prev) => ({
-                ...prev,
-                content: {
-                    ...prev.content,
-                    reviewsSection: {
-                        ...prev.content.reviewsSection,
-                        cards: updatedCards
-                    }
-                }
-            }));
-        }
+        } 
     };
 
 
     // General handleImageChange function for all sections
     const handleImageChange = async (
         e: React.ChangeEvent<HTMLInputElement>,
-        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection' | 'reviewsSection',
+        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection',
         index?: number
     ) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const payload = {
-                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_USER,
+                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PAGES,
                 fileName: file.name,
                 contentType: file.type
             };
@@ -401,23 +339,7 @@ const CreatePage = () => {
                                     }
                                 }
                             }));
-                        } else if (section === 'reviewsSection' && index !== undefined) {
-                            const updatedCards = [...formData.content.reviewsSection.cards];
-                            updatedCards[index] = {
-                                ...updatedCards[index],
-                                imageKey
-                            };
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    reviewsSection: {
-                                        ...prev.content.reviewsSection,
-                                        cards: updatedCards
-                                    }
-                                }
-                            }));
-                        }
+                        } 
                     }
                 } else {
                     toast.error(resp?.data?.message, { duration: 2000 });
@@ -431,7 +353,7 @@ const CreatePage = () => {
 
     const removeCard = (
         index: number,
-        section: 'servicesSection' | 'processSection' | 'featureSection' | 'marketForecastSection' | 'whyChooseSection' | 'reviewsSection'
+        section: 'servicesSection' | 'processSection' | 'featureSection' | 'marketForecastSection' 
     ) => {
         let updatedCards: any;
 
@@ -491,35 +413,7 @@ const CreatePage = () => {
                     },
                 },
             }));
-        } else if (section === 'whyChooseSection') {
-            updatedCards = formData.content.whyChooseSection.cards.filter(
-                (_, i) => i !== index
-            );
-            setFormData((prev) => ({
-                ...prev,
-                content: {
-                    ...prev.content,
-                    whyChooseSection: {
-                        ...prev.content.whyChooseSection,
-                        cards: updatedCards,
-                    },
-                },
-            }));
-        } else if (section === 'reviewsSection') {
-            updatedCards = formData.content.reviewsSection.cards.filter(
-                (_, i) => i !== index
-            );
-            setFormData((prev) => ({
-                ...prev,
-                content: {
-                    ...prev.content,
-                    reviewsSection: {
-                        ...prev.content.reviewsSection,
-                        cards: updatedCards,
-                    },
-                },
-            }));
-        }
+        } 
     };
 
 
@@ -592,42 +486,7 @@ const CreatePage = () => {
         }));
     };
 
-    const addChooseCard = () => {
-        const newCard = {
-            heading: '',
-            description: ''
-        };
-        setFormData((prev) => ({
-            ...prev,
-            content: {
-                ...prev.content,
-                whyChooseSection: {
-                    ...prev.content.whyChooseSection,
-                    cards: [...prev.content.whyChooseSection.cards, newCard]
-                }
-            }
-        }));
-    };
-
-    const addReviewCard = () => {
-        const newCard: Caad = {
-            imageKey: '',
-            company: '',
-            message: '',
-            name:'',
-        };
-        setFormData((prev) => ({
-            ...prev,
-            content: {
-                ...prev.content,
-                reviewsSection: {
-                    ...prev.content.reviewsSection,
-                    cards: [...prev.content.reviewsSection.cards, newCard]
-                }
-            }
-        }));
-    };
-
+   
 
 
 
@@ -689,14 +548,7 @@ const CreatePage = () => {
             return;
         }
 
-        const missing3ImageIndex = formData.content.reviewsSection?.cards.findIndex(
-            (card: any) => !card.imageKey
-        );
-    
-        if (missing3ImageIndex !== -1) {
-            toast.error(` Reviews section Card  image is required`, { duration: 2000 });
-            return;
-        }
+        
     
 
         setLoading(true);
@@ -1357,218 +1209,9 @@ const CreatePage = () => {
                     </div>
                 </label>
                 
-                {/* why choose Section */}
-                <label className="block text-white mb-5">
-                    <span>Why Choose Section</span>
-                    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-                        <div className="mb-4">
-                            <label htmlFor="chooseSectionHeading" className="block text-gray-300 mb-2">
-                                Heading
-                            </label>
-                            <input
-                                type="text"
-                                id="chooseSectionHeading"
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter  Heading"
-                                value={formData.content.whyChooseSection.heading}
-                                onChange={(e) => handleSectionChange('whyChooseSection', 'heading', e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
-                                Description
-                            </label>
-                            <textarea
-                                id="description"
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Description"
-                                value={formData.content.whyChooseSection.description}
-                                onChange={(e) => handleSectionChange('whyChooseSection', 'description', e.target.value)}
-                                rows={4}
-                                required
-                            />
-                        </div>
-
-                        
-
-                        {/* Cards Section */}
-                        {formData.content.whyChooseSection.cards.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'whyChooseSection')}
-                                >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
-                                </button>
-                                <div className="mb-4">
-                                    <label htmlFor={`choose-card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`choose-card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Card Heading"
-                                        value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'whyChooseSection', 'heading', e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label htmlFor={`choose-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        id={`choose-card-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Card Description"
-                                        value={card.description}
-                                        onChange={(e) => handleCardChange(index, 'whyChooseSection', 'description', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                            onClick={addChooseCard}
-                        >
-                            Add More
-                        </button>
-                    </div>
-                </label>
+                
                  
-                {/* Review Section */}
-                <label className="block text-white mb-5">
-                    <span>Review Section</span>
-                    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-                        <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
-                                Heading
-                            </label>
-                            <input
-                                type="text"
-                                id="heading"
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Heading"
-                                value={formData.content.reviewsSection.heading}
-                                onChange={(e) => handleSectionChange('reviewsSection', 'heading', e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
-                                Description
-                            </label>
-                            <textarea
-                                id="description"
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Description"
-                                value={formData.content.reviewsSection.description}
-                                onChange={(e) => handleSectionChange('reviewsSection', 'description', e.target.value)}
-                                rows={4}
-                                required
-                            />
-                        </div>
-
-
-                        {/* Cards Section */}
-                        {formData.content.reviewsSection.cards.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'reviewsSection')}
-                                >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
-                                </button>
-                                <div className="mb-4">
-                                    <label htmlFor={`review-card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter name"
-                                        value={card.name}
-                                        onChange={(e) => handleCardChange(index, 'reviewsSection', 'name', e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="mb-4">
-                                    <label htmlFor={`review-card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Company
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter company"
-                                        value={card.company}
-                                        onChange={(e) => handleCardChange(index, 'reviewsSection', 'company', e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label htmlFor={`review-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Message
-                                    </label>
-                                    <textarea
-                                        id={`card-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter the message"
-                                        value={card.message}
-                                        onChange={(e) => handleCardChange(index, 'reviewsSection', 'message', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="block text-gray-300 mb-2">Upload Image</label>
-                                    <label
-                                        className="relative w-full h-48 bg-[#333333] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
-                                        htmlFor={`imageInputCardre-${index}`}
-                                    >
-                                        {card.imageKey ? (
-                                            <img
-                                                src={getURL(card.imageKey)}
-                                                alt="Card Preview"
-                                                className="object-contain w-full h-full rounded-lg"
-                                            />
-                                        ) : (
-                                            <span className="text-white text-3xl">+</span>
-                                        )}
-                                    </label>
-                                    <input
-                                        type="file"
-                                        id={`imageInputCardre-${index}`}
-                                        className="hidden"
-                                        onChange={(e) => handleImageChange(e, 'reviewsSection', index)}
-                                        
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                            onClick={addReviewCard}
-                        >
-                            Add More
-                        </button>
-                    </div>
-                </label>
-
-
+                
 
                 <button
                     type="submit"
