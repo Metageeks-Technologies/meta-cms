@@ -547,7 +547,8 @@ export class ProductService {
         }
     }
 
-    async updateVariantQuantity(productId: string, variantId: string, newQuantity: number) {
+    async updateVariantQuantity(productId: string, variantId: string, value: number) {
+
         const product = await this.Product.findById(productId).exec();
 
         const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
@@ -555,7 +556,7 @@ export class ProductService {
             throw new NotFoundException(`Variant not found`);
         }
 
-        product.variants[variantIndex].quantity = newQuantity;
+        product.variants[variantIndex].quantity += value;
         await product.save();
     }
 }
