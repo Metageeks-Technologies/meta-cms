@@ -76,7 +76,7 @@ const columns = [
     cell: ({ row }: any) => {
 
       const user = row.original;
-      console.log(user);
+      // console.log(user);
       const [clickedItem, setClickedItem] = useState(0);
       const { changeStoreRole, blockUser, unblockUser }: any = useUserContext();
 
@@ -145,9 +145,9 @@ const columns = [
               <AlertDialogAction
                 onClick={
                   clickedItem === 1 ?
-                    () => changeStoreRole(user._id, user.role, StoreRole.USER)
+                    () => changeStoreRole(user._id, user.storeRole, StoreRole.USER)
                     : clickedItem === 2 ?
-                      () => changeStoreRole(user._id, user.role, StoreRole.VENDOR)
+                      () => changeStoreRole(user._id, user.storeRole, StoreRole.VENDOR)
                       : clickedItem === 3
                         ? () => unblockUser(user._id)
                         : clickedItem === 4
@@ -171,10 +171,7 @@ const columns = [
 
 function StoreModerator() {
   const [sorting, setSorting] = useState<SortingState>([])
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
-  // const [rowSelection, setRowSelection] = React.useState({})
-
+ 
   const { user, storeModerator,  fetchStoreRole} = useUserContext();
 
 
@@ -187,13 +184,10 @@ function StoreModerator() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
-    // onRowSelectionChange: setRowSelection,
+  
     state: {
       sorting,
-      // columnFilters,
-      // columnVisibility,
-      // rowSelection,
+     
     },
   });
 

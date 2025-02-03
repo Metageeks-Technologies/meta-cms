@@ -330,7 +330,7 @@ const App: React.FC = () => {
             >
               <option value={postStatuEnum.DRAFT}>Draft</option>
               <option value={postStatuEnum.PUBLISHED}>Published</option>
-              <option value={postStatuEnum.SCHEDULED}>Scheduled</option>
+              {/* <option value={postStatuEnum.SCHEDULED}>Scheduled</option> */}
             </select>
           </div>
 

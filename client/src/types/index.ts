@@ -182,6 +182,20 @@ export interface PostContextType {
     setSelectedProductCategory: (category: string) => void;
 }
 
+export type ProductContextType = {
+  productCategories: any[];  // Update this with correct type if needed
+  filterBy: string;
+  setFilterBy: React.Dispatch<React.SetStateAction<string>>;
+  sortBy: string;
+  setSortBy: React.Dispatch<React.SetStateAction<string>>;
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+
+  selectedProductCategory: string;
+  setSelectedProductCategory: React.Dispatch<React.SetStateAction<string>>;
+  fetchProductCategories: () => Promise<void>;
+  deleteProductCategory: (id: string) => Promise<void>;
+};
 
 
 export interface Address {
@@ -198,3 +212,35 @@ export interface Address {
   }
   
 
+  export interface Vendor {
+    name: string;
+    email: string;
+    phoneNo: string;
+    bio: string;
+    socialLinks: { [key: string]: string };
+    imageKey: string;
+  }
+
+
+ export interface ProductDetails {
+    _id: string;
+    title: string;
+    subDescription: string;
+    description: string;
+    variants: ProductVariant[];
+    brand: string;
+    status: string;
+    attributes: { [key: string]: string };
+    vendor: Vendor;
+    category: {
+      name: string;
+      description: string;
+      code: string;
+      bannerImageKey: string;
+    };
+  }
+
+
+ export interface ProductCardProps {
+    product: ProductDetails;
+}

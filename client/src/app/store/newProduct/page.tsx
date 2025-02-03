@@ -202,14 +202,13 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
           return variant;
         });
       });
-      // Also update the formData to ensure the correct imageKeys are part of the payload
       setFormData((prevFormData) => ({
         ...prevFormData,
         variants: prevFormData.variants.map((variant) => {
           if (variant.variantId === variantId) {
             return {
               ...variant,
-              imageKeys: [...variant.imageKeys, ...imageKeys],  // Ensure that the formData has the correct image keys
+              imageKeys: [...variant.imageKeys, ...imageKeys],  
             };
           }
           return variant;
@@ -453,14 +452,9 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
         console.error("Invalid hex color");
       }
     }}
-    className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
+    className="w-full  rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
   />
   
-  {/* Color display box */}
-  <div
-    className="mt-2 w-12 h-12 border rounded"
-    style={{ backgroundColor: variant.color }}
-  />
 </div>
 
 
@@ -507,7 +501,11 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
     id="productStatus"
     className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
     value={productStatus}
-    onChange={(e) => setFormData({...formData,status: e.target.value})}
+    onChange={(e) => {
+      const newStatus = e.target.value;
+      setProductStatus(newStatus); // update the status
+      setFormData({ ...formData, status: newStatus }); // update formData status
+    }}
   >
     <option value="draft">Draft</option>
     <option value="published">Published</option>

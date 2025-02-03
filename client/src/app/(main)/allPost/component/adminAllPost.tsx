@@ -207,7 +207,10 @@ const AdminAllPost = () => {
                 </div>
 
                 <div className='flex flex-row items-center'>
-                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} name="" id="" className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
+                    <select value={selectedCategory}
+                     onChange={(e) => setSelectedCategory(e.target.value)}
+                      name="" id="" 
+                      className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
                         <option value="">-- Select Category --</option>
                         {
                             category.map((cat: any) => (

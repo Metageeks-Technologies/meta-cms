@@ -172,10 +172,6 @@ const columns = [
 
 function Vendor() {
   const [sorting, setSorting] = useState<SortingState>([])
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
-  // const [rowSelection, setRowSelection] = React.useState({})
-
   const { user, vendor,  fetchStoreRole,isLoading} = useUserContext();
   
 
