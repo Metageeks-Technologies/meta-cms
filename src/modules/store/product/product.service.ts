@@ -223,19 +223,19 @@ export class ProductService {
 
     }
 
-    async getLatestProduct(vendorId: string){
-        const query = {status: ProductStatusEnum.PUBLISHED}
-        if(vendorId){
+    async getLatestProduct(vendorId: string) {
+        const query = { status: ProductStatusEnum.PUBLISHED }
+        if (vendorId) {
             query['vendor'] = vendorId
         }
-        const products = await this.Product.find(query).sort({createdAt: -1}).limit(10).exec();
+        const products = await this.Product.find(query).sort({ createdAt: -1 }).limit(10).exec();
         return products;
     }
 
 
-    async getProductCount(vendorId: string){
+    async getProductCount(vendorId: string) {
         const query = {}
-        if(vendorId){
+        if (vendorId) {
             query['vendor'] = new mongoose.Types.ObjectId(vendorId)
         }
 
@@ -243,7 +243,7 @@ export class ProductService {
 
         return productCount;
     }
-    
+
 
     async searchProduct({ query, sortBy, lastId, lastScore }: SearchProductQueryDto) {
         const pipeline: mongoose.PipelineStage[] = [];
@@ -473,6 +473,11 @@ export class ProductService {
                 throw new ForbiddenException();
             }
 
+            const unDeletedVariant = product.variants.filter((variant: any) => !variant.isDeleted)
+            if(unDeletedVariant.length <= 1){
+                throw new BadRequestException('At least one product variant must remain.')
+            }
+
             // Find the variant to update
             const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId);
             if (variantIndex === -1) {
@@ -540,5 +545,17 @@ export class ProductService {
         if (!product) {
             throw new NotFoundException('Product not found');
         }
+    }
+
+    async updateVariantQuantity(productId: string, variantId: string, newQuantity: number) {
+        const product = await this.Product.findById(productId).exec();
+
+        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
+        if (variantIndex === -1) {
+            throw new NotFoundException(`Variant not found`);
+        }
+
+        product.variants[variantIndex].quantity = newQuantity;
+        await product.save();
     }
 }

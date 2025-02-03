@@ -8,7 +8,7 @@ const Orders = ({ orders }: any) => {
             {
                 orders.length <= 0 ?
                     <p className='text-center'>No order found</p>
-                    : orders.map((order: any, index: number) => (
+                    : orders?.map((order: any, index: number) => (
                         <div key={index} className='bg-gray-900 p-4 rounded-lg flex flex-col gap-2'>
                             <div>
                                 <p>{PaymentStatusEnum[order.paymentStatus as keyof typeof PaymentStatusEnum]}</p>

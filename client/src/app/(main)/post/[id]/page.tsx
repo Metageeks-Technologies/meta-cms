@@ -29,7 +29,10 @@ import { SiFacebook } from 'react-icons/si'
 import { RiInstagramFill } from 'react-icons/ri'
 import { ImLinkedin } from 'react-icons/im'
 import { FaHeart } from "react-icons/fa";
+import dynamic from 'next/dynamic'
 
+
+// const PostContent = dynamic(() => import('./PostContent'), { ssr: false });
 
 
 const page = () => {

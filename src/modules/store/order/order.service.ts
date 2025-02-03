@@ -54,6 +54,11 @@ export class OrderService {
                 // console.log(item.product.variants, "Variants")
                 item.product.variants.forEach((variant: any) => {
                     if (variant.variantId === item.variantId) {
+
+                        if(item.quantity > variant.quantity){
+                            throw new BadRequestException('Insufficient stock available')
+                        }
+
                         if (variant.discountedPrice) {
                             totalPrice += variant.discountedPrice * item.quantity
                             return
