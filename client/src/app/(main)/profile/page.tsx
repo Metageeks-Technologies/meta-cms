@@ -10,7 +10,6 @@ import { ImLinkedin } from "react-icons/im";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import { useUserContext } from '@/context/userContext';
 import { MdEdit } from "react-icons/md";
-import { uploadToS3 } from '@/utils/helperFunction';
 import axios from 'axios';
 import { getURL } from '@/utils/AWS_Config';
 import ProfileTabs from './components/ProfileTabs';

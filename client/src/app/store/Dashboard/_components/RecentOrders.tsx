@@ -35,9 +35,9 @@ const RecentOrders = ({ data }: any) => {
           <TableBody className="divide-y divide-gray-700">
             {
               data.length > 0 ? (
-                data.map((order: any) => (
+                data.map((order: any, index: number) => (
                   <TableRow
-                    key={order.id}
+                    key={index}
                     className="hover:bg-gray-700 cursor-pointer"
                   >
                     <TableCell className="px-4 py-2">{order?.user.name}</TableCell>

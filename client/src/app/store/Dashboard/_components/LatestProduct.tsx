@@ -20,7 +20,7 @@ const LatestProducts = ({data}: any) => {
           <li key={index} className="flex items-center justify-between">
             <div className="flex items-center">
               <img
-                src={getURL(product?.variants[0].imageKeys[0])}
+                src={getURL(product?.variants[0]?.imageKeys[0])}
                 alt={product.name}
                 className="w-16 h-16 rounded-lg mr-4 border border-gray-700"
               />

@@ -78,7 +78,7 @@ const columns = [
     cell: ({ row }: any) => {
 
       const user = row.original;
-      console.log(user);
+      // console.log(user);
       const [clickedItem, setClickedItem] = useState(0);
       const { changeStoreRole, blockUser, unblockUser }: any = useUserContext();
 
@@ -202,13 +202,10 @@ function StoreModerator() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
-    // onRowSelectionChange: setRowSelection,
+  
     state: {
       sorting,
-      // columnFilters,
-      // columnVisibility,
-      // rowSelection,
+     
     },
   });
 

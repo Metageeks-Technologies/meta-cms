@@ -137,9 +137,6 @@ const page = () => {
         }
     };
 
-
-
-
     const handleRejectPost = async () => {
         setLoading(true);
         try {

@@ -4,6 +4,7 @@ import Orders from './Orders';
 import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
+import Cart from './Cart';
 
 const ProfileTabs = () => {
 
@@ -52,6 +53,7 @@ const ProfileTabs = () => {
     }
   }
 
+
   useEffect(() => {
     getUserAddresses();
     getUserOrders();
@@ -62,6 +64,7 @@ const ProfileTabs = () => {
       <div className='flex flex-row gap-5 my-10'>
         <button type='button' onClick={() => setTab(1)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 1 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Address</button>
         <button type='button' onClick={() => setTab(2)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 2 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Orders</button>
+        <button type='button' onClick={() => setTab(3)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 3 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Cart</button>
       </div>
 
       {
@@ -69,7 +72,9 @@ const ProfileTabs = () => {
           <Addresses addresses={addresses} getUserAddresses={getUserAddresses} />
           : tab === 2 ?
             <Orders orders={orders} />
-            : null
+            : tab === 3 ?
+              <Cart />
+              : null
       }
     </div>
   )

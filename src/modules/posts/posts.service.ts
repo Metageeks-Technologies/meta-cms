@@ -151,13 +151,15 @@ export class PostsService {
       matchStage.categories = { $in: categoriesIds };
     }
 
-    if (!website || website === WebsiteEnum.FAMPROTOCAL) {
-      matchStage.$or = [
-        { website: WebsiteEnum.FAMPROTOCAL },
-        { website: { $exists: false } }, // Include documents where the website field is not defined
-      ];
-    } else {
-      matchStage.website = website; // Match the specified website
+    if (website) {
+      if (website === WebsiteEnum.FAMPROTOCAL) {
+        matchStage.$or = [
+          { website: WebsiteEnum.FAMPROTOCAL },
+          { website: { $exists: false } }, // Include documents where the website field is not defined
+        ];
+      } else {
+        matchStage.website = website; // Match the specified website
+      }
     }
 
     // Add text search condition if searchQuery is provided
@@ -251,7 +253,7 @@ export class PostsService {
     // Match stage
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
-    
+
     if (!website || website === WebsiteEnum.FAMPROTOCAL) {
       matchStage.$or = [
         { website: WebsiteEnum.FAMPROTOCAL },

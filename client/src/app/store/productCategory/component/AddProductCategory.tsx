@@ -18,7 +18,6 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
         name:  '',
         description:  '',
         bannerImageKey: '',
-        code:  '', // Added code
     });
 
     const setImageKey = (key: string) => {
@@ -163,7 +162,7 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
                                 required
                             />
                         </div>
-                        <div className="mb-4">
+                        {/* <div className="mb-4">
                             <Label htmlFor="code" className="text-right">
                                 Code
                             </Label>
@@ -175,7 +174,7 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
                                 onChange={(e) => setCreateForm({ ...createForm, code: e.target.value })}
                                 required
                             />
-                        </div>
+                        </div> */}
 
                         <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
                             <Label htmlFor="img" className="text-right w-full ">

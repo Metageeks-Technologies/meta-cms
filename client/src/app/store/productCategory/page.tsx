@@ -122,7 +122,6 @@ const columns = [
           const payload = {
             name: productCategory.name,
             description: productCategory.description,
-            code: productCategory.code, // Added code in the payload
             bannerImageKey: productCategory.bannerImageKey
           }
           const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${productCategory._id}`, payload);
@@ -239,18 +238,7 @@ const columns = [
                   required
                 />
               </div>
-              <div className="mb-4">
-                <Label htmlFor="code" className="text-right">
-                  Code
-                </Label>
-                <Input
-                  id="code"
-                  value={productCategory.code}
-                  placeholder='Enter code'
-                  onChange={(e) => setProductCategory({ ...productCategory, code: e.target.value })}
-                  required
-                />
-              </div>
+          
 
               <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
                 <Label htmlFor="img" className="text-right w-full ">
