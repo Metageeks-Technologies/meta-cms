@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ICart } from "./schema/cart.schema";
 import mongoose, { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
@@ -27,6 +27,15 @@ export class CartService {
 
         if (productData?.status !== ProductStatusEnum.PUBLISHED) {
             throw new ForbiddenException();
+        }
+
+        const variantIndex = productData.variants.findIndex((variant: any) => variant.variantId === variantId);
+        if (variantIndex === -1) {
+            throw new NotFoundException(`Variant not found`);
+        }
+
+        if(productData.variants[variantIndex].quantity < quantity){
+            throw new BadRequestException('Insufficient stock available for this variant');
         }
 
         const cart = await this.Cart.findOne({ user: userId, isActive: true });
@@ -150,7 +159,7 @@ export class CartService {
             .lean()
             .exec();
 
-        if(!cart){
+        if (!cart) {
             return null
         }
 

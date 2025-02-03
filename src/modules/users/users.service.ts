@@ -196,6 +196,28 @@ export class UsersService {
     return counts;
   }
 
+
+  async getStoreUsersCount() {
+    const result = await this.User.aggregate([{
+      $group: {
+        _id: "$storeRole",
+        count: { $count: {} }
+      }
+    },
+    {
+      $project: {
+        count: 1
+      }
+    }]).exec();
+
+    const counts = {};
+    for (const key in result) {
+      counts[result[key]._id] = result[key].count;
+    }
+    return counts;
+  }
+
+
   async sendResetPasswordOtp(email: string) {
     const user = await this.User.findOne({ email: email }, { name: 1 }).exec();
 

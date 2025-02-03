@@ -180,6 +180,14 @@ export class PorductController {
         return { message: "Product recover successfully" }
     }
 
+    @Get('variant/:productId/:variantId')
+    @UseGuards(AuthGuard)
+    async getProductVariant(@Req() req: Request, @Param('productId', ValidateId) productId: string, @Param('variantId') variantId: string) {
+        const user = (req as any).user
+        const variant = await this.productService.getVariant(user._id, user.storeRole, productId, variantId)
+        return variant;
+    }
+
     @Post('variant/:id')
     @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, StoreRolesGuard)
@@ -222,9 +230,9 @@ export class PorductController {
     async recoverVariant(
         @Param('productId', ValidateId) productId: string,
         @Param('variantId') variantId: string,
-    ){
+    ) {
         await this.productService.recoverVariant(productId, variantId)
-        return { message: "Variant recover successfully" }  
+        return { message: "Variant recover successfully" }
     }
 
 

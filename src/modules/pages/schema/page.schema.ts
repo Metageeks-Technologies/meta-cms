@@ -58,24 +58,6 @@ export interface IPage extends mongoose.Document {
                 point: string
             }[]
         },
-        whyChooseSection: {
-            heading: string,
-            description: string,
-            cards: {
-                heading: string,
-                description: string
-            }[]
-        },
-        reviewsSection: {
-            heading: string,
-            description: string,
-            cards: {
-                message: string,
-                imageKey: string,
-                name: string,
-                company: string
-            }[]
-        }
     }
     isDeleted: boolean;
     isActive: boolean;
@@ -153,28 +135,6 @@ export const PageSchema = new mongoose.Schema<IPage>({
                 }
             ]
         },
-        whyChooseSection: {
-            heading: { type: String, required: true },
-            description: { type: String, required: true },
-            cards: [
-                {
-                    heading: { type: String, required: true },
-                    description: { type: String, required: true }
-                }
-            ]
-        },
-        reviewsSection: {
-            heading: { type: String, required: true },
-            description: { type: String, required: true },
-            cards: [
-                {
-                    message: { type: String, required: true },
-                    imageKey: { type: String, required: true },
-                    name: { type: String, required: true },
-                    company: { type: String, required: true }
-                }
-            ],
-        }
     },
     isDeleted: {
         type: Boolean,

@@ -57,14 +57,15 @@ export class AddressService {
         return address
     }
 
-    async update(addressId: string, authorId: string, storeRole: UserStoreRoleEnum, addressDetails: UpdateAddressDto) {
+    async update(addressId: string, userId: string, storeRole: UserStoreRoleEnum, addressDetails: UpdateAddressDto) {
         const address = await this.Address.findOne({ _id: addressId, isDeleted: false }, { user: 1 }).lean().exec();
 
         if (!address) {
             throw new NotFoundException('Address not found');
         }
+        console.log(storeRole, "Store role")
 
-        if (storeRole !== UserStoreRoleEnum.SUPERADMIN && address.user.toString() !== authorId) {
+        if (storeRole !== UserStoreRoleEnum.SUPERADMIN && address.user.toString() !== userId) {
             throw new ForbiddenException();
         }
 

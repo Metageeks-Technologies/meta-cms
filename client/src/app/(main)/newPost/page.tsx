@@ -343,7 +343,7 @@ const App: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, website: e.target.value })}
               className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
             >
-              <option value="">-- Selete --</option>
+              <option value="">-- Select --</option>
               <option value={WebsiteEnum.METAGEEKS}>Metageeks</option>
               <option value={WebsiteEnum.FAMPROTOCAL}>Fam Protocal</option>
               <option value={WebsiteEnum.CLUSTERPROTOCAL}>Cluster Protocal</option>

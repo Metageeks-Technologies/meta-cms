@@ -30,6 +30,59 @@ export interface NewPostFormData {
     previewImg: File | string |null;
     website: string;
 }
+  
+  export interface ProductAttribute {
+    [key: string]: string | number; // or any other specific structure you have
+  }
+  
+  export interface ProductVariant {
+    variantId: string;
+    sku: string;
+    price: number;
+    discountedPrice: number;
+    quantity: number;
+    size?: string | number; // Flexibility for size as string or number
+    color?: string; // Assuming color will always be a string
+    weight?: string | number; // Optional weight attribute
+    material?: string; // Optional material attribute
+    imageKeys: string[]; // Array of image keys
+  }
+  
+  export interface CreateProductFormData {
+    title: string;
+    subDescription: string;
+    description: string;
+    category: string; // Can be an enum or union type depending on the use case
+    brand: string;
+    status: string; // Status types are good
+    publishDate: Date | null;
+
+    attributes: ProductAttribute; // Dynamic attributes object that can hold strings or numbers
+    variants: ProductVariant[]; // Array of product variants
+  }
+  
+  export interface ProductTypes {
+    _id: string; 
+    title: string;
+    subDescription: string;
+    description: string; 
+    category: { 
+        _id: string; 
+        name: string; 
+  
+    };
+    brand: string; 
+    status: string;// Product status
+    attributes: { 
+        [key: string]: string | number;
+    };
+    variants: ProductVariant[]; 
+    isDeleted: boolean; 
+ 
+}
+
+
+  
 
 
 export interface PostTypes {
@@ -62,6 +115,7 @@ export interface UserProfile {
     phoneNo?: string;
     bio?: string;
     role: string;
+    storeRole: string;
     imageKey?:string;
     block?: boolean;
     socialLinks?: {
@@ -109,8 +163,11 @@ export interface MediaType {
 
 export interface PostContextType {
     categories: any[];
+    productCategories:any[];
     fetchCategories: () => Promise<void>;
+    fetchProductCategories:()=> Promise<void>;
     deleteCategory: (id: string) => Promise<void>;
+    deleteProductCategory: (id: string) => Promise<void>;
     fetchMedia: (lastId: string) => Promise<void>;
     media: MediaType[];
     hasMoreMedia: boolean;
@@ -120,7 +177,24 @@ export interface PostContextType {
     sortBy: string;
     setSortBy: (sortBy: string) => void;
     selectedCategory: string;
+    selectedProductCategory:string;
     setSelectedCategory: (category: string) => void;
+    setSelectedProductCategory: (category: string) => void;
 }
 
+
+
+export interface Address {
+    _id: string;
+    house: string;
+    street: string;
+    landmark: string;
+    postalCode: number;
+    city: string;
+    state: string;
+    instruction: string;
+    isDefault: boolean;
+    isDeleted: boolean;
+  }
+  
 

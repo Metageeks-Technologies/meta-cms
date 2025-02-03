@@ -186,9 +186,9 @@ const CommentsPage: React.FC = () => {
 )}
 
                             <p className="text-sm text-gray-400 mb-4">
-                                <strong>Status:</strong>
+                                <strong>Status: </strong>
                                 <span className={`font-semibold ${comment.status === 'published' ? 'text-green-400' : comment.status === 'rejected' ? 'text-red-400' : comment.status === 'deleted' ? 'text-gray-600' : 'text-orange-300'}`}>
-                                    {comment.status}
+                                    {comment.status.replace(/^\w/, (c) => c.toUpperCase())}
                                 </span>
                             </p>
                             <div className="mt-4 flex space-x-3">

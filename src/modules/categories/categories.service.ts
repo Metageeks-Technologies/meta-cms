@@ -16,7 +16,8 @@ export class CategoriesService {
 
   async create(newCategoryData: CreateCategoryDto) {
     const newCategory = new this.Category(newCategoryData);
-    
+    newCategory.name = newCategory.name.replace(/^\w/, (c) => c.toUpperCase());
+
     try {
       // Delete all Category cache
       await this.redisService.deleteCache(RedisKeys.AllCategory);

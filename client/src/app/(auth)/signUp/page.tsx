@@ -14,7 +14,7 @@ const page = () => {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
-
+  const [emailError, setEmailError] = useState(false);
   const [passError, setPassError] = useState<string>('');
 
   const [formData, setFormData] = useState<SignUpFormData>({
@@ -33,9 +33,15 @@ const page = () => {
       setFormData({ ...formData, fullName: "" });
       return
     }
-    if (isValidString(value)) {
+    if (isValidString(value) && value.length <= 26) {
       setFormData({ ...formData, fullName: e.target.value });
     }
+  }
+
+  const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailError(false);
+    const {value} = e.target;
+    setFormData({ ...formData, email: value })
   }
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,6 +56,14 @@ const page = () => {
 
   const handleSignUp = async (e: any) => {
     e.preventDefault();
+
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailPattern.test(formData.email)) {
+      setEmailError(true);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast.error("Password must be same", {
         duration: 2000,
@@ -122,15 +136,19 @@ const page = () => {
             <label className='flex flex-col gap-2'>
               <span>Email<sup className='text-red-500'>*</sup></span>
               <input
-                type="email"
+                type="text"
                 name='email'
                 value={formData.email}
-                required
+                // required
                 placeholder='Enter Email'
                 className='w-full bg-gray-700 px-4 py-3 outline-none rounded-lg'
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => handleChangeEmail(e)}
               />
             </label>
+            {
+              emailError &&
+              <p className='text-red-500 text-sm -mt-3'>Invaild Email Id</p>
+            }
 
             <div className='w-full flex flex-row items-center gap-5'>
               <label className='w-full flex flex-col gap-2'>

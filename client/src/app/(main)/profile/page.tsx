@@ -13,6 +13,9 @@ import { MdEdit } from "react-icons/md";
 import { uploadToS3 } from '@/utils/helperFunction';
 import axios from 'axios';
 import { getURL } from '@/utils/AWS_Config';
+import ProfileTabs from './components/ProfileTabs';
+import { Address } from '@/types';
+import { useParams } from 'next/navigation';
 
 const ProfilePage: React.FC = () => {
   const { user, getUserProfile, setLoading }: any = useUserContext();
@@ -23,6 +26,7 @@ const ProfilePage: React.FC = () => {
     email: "",
     imageKey: "",
     role: "",
+    storeRole: "",
     phoneNo: "",
     bio: "",
     socialLinks: {
@@ -33,7 +37,74 @@ const ProfilePage: React.FC = () => {
     }
   });
 
+  const [userAddress, setUserAddress] = useState({
+    house: "",
+    street: "",
+    landmark: "",
+    postalCode: "",
+    city: "",
+    state: "",
+  })
+
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  const fetchAddress = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`);
+
+      if (response.data && response.data.length > 0) {
+        const address = response.data[0]; // Assuming you need the first address
+        console.log
+        setUserAddress({
+          house: address.house,
+          street: address.street,
+          landmark: address.landmark,
+          postalCode: address.postalCode,
+          city: address.city,
+          state: address.state,
+        });
+      }
+    } catch (error) {
+      toast.error('Error fetching address');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  // Update the address using PATCH
+  const updateAddress = async () => {
+    try {
+      setIsLoading(true);
+      const addressPayload = { ...userAddress };
+      const addressId = '6790c56eaa0bcf6a67947d08'; // Replace with the actual address ID you want to update
+      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${addressId}`, addressPayload);
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Address updated successfully!');
+        setAddressEditing(false);
+        fetchAddress(); // Re-fetch the updated address
+      } else {
+        toast.error('Failed to update address');
+      }
+    } catch (error) {
+      toast.error('Error updating address');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddress();
+  }, []);
+
+
   const [isEditing, setIsEditing] = useState(false);
+  const [addressEditing, setAddressEditing] = useState(false);
 
   const fetchUser = () => {
     setUserProfile({
@@ -41,6 +112,7 @@ const ProfilePage: React.FC = () => {
       email: user?.email,
       imageKey: user?.imageKey,
       role: user?.role,
+      storeRole: user?.storeRole,
       phoneNo: user?.phoneNo ? user?.phoneNo : "",
       bio: user?.bio ? user?.bio : "",
       socialLinks: {
@@ -90,20 +162,17 @@ const ProfilePage: React.FC = () => {
       setLoading(true);
       // console.log(fileList?.[0]);
       const payload = {
-        folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS,
+        folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_USER,
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
       }
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-
-      // console.log(resp, "generate upload url")
-
       if (resp.status === 200 || resp.status === 201) {
         // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
         const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
 
         if (response.status === 200 || response.status === 201) {
-          setUserProfile({...userProfile, imageKey: resp?.data?.key})
+          setUserProfile({ ...userProfile, imageKey: resp?.data?.key })
         }
 
       } else {
@@ -124,10 +193,8 @@ const ProfilePage: React.FC = () => {
     fetchUser();
   }, [user]);
 
-
-
   return (
-    <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16">
+    <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16 pb-20">
       <div className="mx-auto rounded-lg bg-black shadow-lg p-6 sm:p-8 md:p-10">
 
         <div className="flex items-center justify-between space-x-4 mb-6">
@@ -267,9 +334,6 @@ const ProfilePage: React.FC = () => {
 
 
 
-
-
-
           {/* email  */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="email">Email</label>
@@ -286,17 +350,34 @@ const ProfilePage: React.FC = () => {
           </div>
 
 
-          {/* role  */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Role</label>
-            <input
-              type="text"
-              name="role"
-              id="role"
-              value={userProfile?.role}
-              disabled
-              className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-            />
+          <div className='flex flex-row gap-5'>
+
+            {/* role  */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Role</label>
+              <input
+                type="text"
+                name="role"
+                id="role"
+                value={userProfile?.role.replace(/^\w/, (c) => c.toUpperCase())}
+                disabled
+                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+              />
+            </div>
+
+            {/* STORE ROLE  */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="storeRole">Store role</label>
+              <input
+                type="text"
+                name="storeRole"
+                id="storeRole"
+                value={userProfile?.storeRole.replace(/^\w/, (c) => c.toUpperCase())}
+                disabled
+                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
+              />
+            </div>
+
           </div>
 
           {
@@ -426,6 +507,8 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ProfileTabs />
     </div>
   );
 };
