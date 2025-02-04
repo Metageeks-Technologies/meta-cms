@@ -167,6 +167,14 @@ const AdminAllProduct = () => {
         fetchCategory();
     }, []);
 
+    useEffect(() => {
+        // Set default filter to 'all' on initial load
+        if (!filterBy) {
+            setFilterBy('all');
+        }
+    }, []);
+    
+
     return (
         <div>
             <div className='w-full flex flex-row flex-wrap gap-2 sm:gap-4 lg:gap-8 px-2 ms:px-8 mt-6 md:mt-12'>
