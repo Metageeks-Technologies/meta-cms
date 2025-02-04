@@ -44,7 +44,7 @@ const VendorProduct = () => {
                     const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my/delete?${param.toString()}`);
                     if (resp.status === 200 || resp.status === 201) {
                         const deletedProducts = resp?.data;
-                        if (deletedProducts.length < 10) setHasMore(false);
+                        if (deletedProducts.length < 20) setHasMore(false);
                         setProductData((prevData: any) => {
                             const updatedData = [...(prevData || [])];
                             deletedProducts.forEach((product: any) => {

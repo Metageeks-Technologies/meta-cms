@@ -391,7 +391,7 @@ const ProductCard: React.FC = () => {
       <div className="w-full   mt-9 px-4 py-4">
 
         {
-          ((user?.role === StoreRole.SUPERADMIN || user?.role === StoreRole.STOREMODERATOR) && product?.status === "awaiting approval") &&
+          ((user?.storeRole === StoreRole.SUPERADMIN || user?.storeRole === StoreRole.STOREMODERATOR) && product?.status === "awaiting approval") &&
           <div className='w-full flex flex-row gap-3 mt-5'>
             <button onClick={handleRejected} className='w-full bg-red-200 border-[2px] border-red-600 text-red-600 font-bold p-2 rounded-lg text-base'>Reject</button>
             <button onClick={handleApprove} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Approve</button>

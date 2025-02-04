@@ -45,7 +45,7 @@ const AdminAllProduct = () => {
                     const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all/delete?${param.toString()}`);
                     if (resp.status === 200 || resp.status === 201) {
                         const deletedProducts = resp?.data;
-                        if (deletedProducts.length < 10) setHasMore(false);
+                        if (deletedProducts.length < 20) setHasMore(false);
                         setProductData((prevData: any) => {
                             const updatedData = [...(prevData || [])];
                             deletedProducts.forEach((product: any) => {
@@ -53,12 +53,14 @@ const AdminAllProduct = () => {
                                     updatedData.push(product);
                                 }
                             });
+
                             return updatedData;
                         });
                     } else {
                         toast.error(resp.data.message, { duration: 2000 });
                         setHasMore(false);
                     }
+
                     return; // Exit early for deleted filter
                 } else if (filterBy !== 'all') {
                     param.append('status', filterBy.toLowerCase());
