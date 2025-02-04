@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -16,11 +16,18 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
   setIsAddModalOpen,
   handleAddVariant,
 }) => {
+  // State to hold image previews
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       const fileArray = Array.from(files);
       const uploadedImageKeys: string[] = [];
+
+      // Update previews before uploading
+      const previewUrls = fileArray.map((file) => URL.createObjectURL(file));
+      setImagePreviews((prev) => [...prev, ...previewUrls]);
 
       for (let i = 0; i < fileArray.length; i++) {
         const file = fileArray[i];
@@ -143,6 +150,19 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
                 onChange={handleImageUpload}
                 className="w-full bg-gray-600 p-2 border rounded-md mb-2"
               />
+              {/* Image Previews */}
+              {/* Image Previews */}
+              <div className="flex gap-4 mt-4 flex-wrap overflow-x-auto">
+                {imagePreviews.map((preview, index) => (
+                  <img
+                    key={index}
+                    src={preview}
+                    alt={`preview-${index}`}
+                    className="w-20 h-20 object-cover border rounded-md mb-2"
+                  />
+                ))}
+              </div>
+
             </div>
           </div>
 

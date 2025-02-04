@@ -32,7 +32,7 @@ const ProductCard: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const { user } = useUserContext();
 
-    const { loading, setLoading } = useUserContext();
+  const { loading, setLoading } = useUserContext();
 
   const [newVariant, setNewVariant] = useState<any>({
     variantId: "",
@@ -73,7 +73,7 @@ const ProductCard: React.FC = () => {
       });
       return; // Prevent further execution if variantId is missing
     }
-  
+
     // Check if sku is empty
     if (!newVariant.sku.trim()) {
       toast.error('SKU is required', {
@@ -89,7 +89,7 @@ const ProductCard: React.FC = () => {
       });
       return;
     }
-  
+
     // Check if the SKU already exists in the current product's variants
     const existingSku = product.variants.find((variant: any) => variant.sku === newVariant.sku);
     if (existingSku) {
@@ -98,8 +98,8 @@ const ProductCard: React.FC = () => {
       });
       return;
     }
-  
-  
+
+
     try {
       const response = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}`, newVariant);
       setProduct((prev: any) => ({
@@ -108,16 +108,16 @@ const ProductCard: React.FC = () => {
       }));
       fetchProductData();
       setIsAddModalOpen(false); // Close the modal after adding
-       setNewVariant({
-      variantId: '',
-      sku: '',
-      price: 0,
-      discountedPrice: 0,
-      quantity: 0,
-      size: '',
-      color: '#000000',
-      imageKeys: [],
-    });
+      setNewVariant({
+        variantId: '',
+        sku: '',
+        price: 0,
+        discountedPrice: 0,
+        quantity: 0,
+        size: '',
+        color: '#000000',
+        imageKeys: [],
+      });
     } catch (error) {
       console.error("Error adding new variant:", error);
     }
@@ -269,8 +269,8 @@ const ProductCard: React.FC = () => {
   if (!product) {
     return (
       <div className="text-center py-12">
-     <p className='mt-10 text-3xl '>No products found.....</p>
-                                        </div>
+        <p className='mt-10 text-3xl '>No products found.....</p>
+      </div>
     );
   }
 
@@ -280,9 +280,9 @@ const ProductCard: React.FC = () => {
 
   return (
     <div className="text-gray-200 p-3 sm:p-8"> <div className='my-3 flex justify-start'>
-    <ArrowLeft className='w-5 sm:w-8 h-4 sm:h-8 cursor-pointer' onClick={() => router.push('/store/allProduct')} />
-  
-            </div>
+      <ArrowLeft className='w-5 sm:w-8 h-4 sm:h-8 cursor-pointer' onClick={() => router.push('/store/allProduct')} />
+
+    </div>
       <div className="flex flex-col sm:flex-row gap-8">
         {/* Image Section */}
         <div className="flex flex-col w-full sm:w-1/2 pr-4">
@@ -324,11 +324,18 @@ const ProductCard: React.FC = () => {
             <p className="text-sm text-gray-500 mt-1">{subDescription}</p>
 
             <div className="text-xl font-bold mt-2">
-              <span className="line-through text-zinc-700">
-                ₹{selectedVariant?.price}
-              </span>{" "}
-              <span className="text-blue-600">₹{selectedVariant?.discountedPrice}</span>
+              {selectedVariant?.discountedPrice ? (
+                <>
+                  <span className="line-through text-zinc-700">
+                    ₹{selectedVariant?.price}
+                  </span>{" "}
+                  <span className="text-blue-600">₹{selectedVariant?.discountedPrice}</span>
+                </>
+              ) : (
+                <span className="text-blue-600">₹{selectedVariant?.price}</span>
+              )}
             </div>
+
 
             <hr className="my-4 border-gray-800 border-t-2" />
 
@@ -351,16 +358,16 @@ const ProductCard: React.FC = () => {
                         key={variant.variantId || index}
                         onClick={() => handleVariantChange(variant)}
                         className={`${selectedVariant?.variantId === variant.variantId
-                            ? "scale-110 border-2 border-white shadow-md"
-                            : "scale-100"
+                          ? "scale-100 border-2 border-white shadow-md"
+                          : "scale-100"
                           } transition-all duration-200 ease-in-out transform p-2 rounded-md`}
                       >
                         {variant.color ? (
                           <span
                             style={{ backgroundColor: variant.color }}
                             className={`inline-block w-8 h-8 rounded-full border-2 ${selectedVariant?.variantId === variant.variantId
-                                ? "border-blue-600"
-                                : "border-yellow-400"
+                              ? "border-blue-600"
+                              : "border-yellow-400"
                               }`}
                           ></span>
                         ) : null}
@@ -383,13 +390,19 @@ const ProductCard: React.FC = () => {
                   <li><strong>SKU:</strong> {selectedVariant.sku}</li>
                   {selectedVariant.size && <li><strong>Size:</strong> {selectedVariant.size}</li>}
                   {selectedVariant.color && (
-                    <li>
-                      <strong>Color:</strong>
-                      <span style={{ backgroundColor: selectedVariant.color }} className="inline-block w-6 h-6 rounded-full border-yellow-400"></span>
+                    <li className="flex items-center">
+                      <strong className="mr-2">Color:</strong>
+                      <span
+                        style={{ backgroundColor: selectedVariant.color }}
+                        className="inline-block w-6 h-6 rounded-full border-yellow-400 mr-2"
+                      ></span>
                     </li>
                   )}
+
                   <li><strong>Price:</strong> ₹{selectedVariant.price}</li>
-                  <li><strong>Discounted Price:</strong> ₹{selectedVariant.discountedPrice}</li>
+                  {selectedVariant?.discountedPrice && (
+                    <li><strong>Discounted Price:</strong> ₹{selectedVariant.discountedPrice}</li>
+                  )}
                   <li><strong>Quantity:</strong> {selectedVariant.quantity}</li>
                 </ul>
 
