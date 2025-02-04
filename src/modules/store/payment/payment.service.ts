@@ -46,7 +46,6 @@ export class PaymentService {
             .update(body.toString())
             .digest('hex');
 
-
         const isAuthentic = expectedSignature === razorpay_signature;
 
         return {

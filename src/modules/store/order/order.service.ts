@@ -46,7 +46,6 @@ export class OrderService {
         }
 
         for (const [vendorId, items] of vendorMap) {
-
             let totalPrice = 0;
 
             for (const item of items) {
@@ -63,9 +62,9 @@ export class OrderService {
 
                         if (variant.discountedPrice) {
                             totalPrice += variant.discountedPrice * item.quantity
-                            return
+                        } else {
+                            totalPrice += variant.price * item.quantity;
                         }
-                        totalPrice += variant.price * item.quantity;
                         await this.productService.updateVariantQuantity(item?.product._id, item.variantId, -item.quantity);
                     }
                 }
@@ -81,11 +80,15 @@ export class OrderService {
             //   orders.push(order);
         }
 
+
+
         await this.cartService.clearCart(userId, userStoreRole);
     }
 
 
     async initiatePayment(userId: string) {
+
+        const user = await this.userService.findById(userId);
 
         // Get cart details
         const cart = await this.cartService.getCart(userId);
@@ -124,6 +127,8 @@ export class OrderService {
             orderId: order.id,
             amount: order.amount,
             currency: order.currency,
+            name: user.name,
+            email: user.email,
         };
     }
 
@@ -133,9 +138,11 @@ export class OrderService {
         userStoreRole: UserStoreRoleEnum,
         newOrderDetails: CreateOrderDto,
     ) {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, payment_type } = newOrderDetails;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = newOrderDetails;
 
         const isPaymentValid = await this.paymentService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+
+        console.log(isPaymentValid, "Is payment valid");
 
         if (!isPaymentValid.success) {
             throw new BadRequestException('Payment verification failed');
@@ -176,9 +183,9 @@ export class OrderService {
 
                         if (variant.discountedPrice) {
                             totalPrice += variant.discountedPrice * item.quantity
-                            return
+                        } else {
+                            totalPrice += variant.price * item.quantity;
                         }
-                        totalPrice += variant.price * item.quantity;
                         await this.productService.updateVariantQuantity(item?.product._id, item.variantId, -item.quantity);
                     }
                 }
@@ -191,7 +198,6 @@ export class OrderService {
                 totalAmount: totalPrice,
                 shippingAddress: addressId,
                 paymentStatus: PaymentStatusEnum.PAID,
-                paymentType: payment_type,
                 razorpayOrderId: razorpay_order_id,
                 razorpayPaymentId: razorpay_payment_id,
             });
@@ -431,7 +437,7 @@ export class OrderService {
             query['vendor'] = vendorId;
         }
 
-        const order = await this.Order.findOne({_id: orderId}).populate('items.product').exec();
+        const order = await this.Order.findOne({ _id: orderId }).populate('items.product').exec();
 
         if (!order) {
             throw new NotFoundException('Order not found.');
