@@ -13,8 +13,7 @@ import { MdEdit } from "react-icons/md";
 import axios from 'axios';
 import { getURL } from '@/utils/AWS_Config';
 import ProfileTabs from './components/ProfileTabs';
-import { Address } from '@/types';
-import { useParams } from 'next/navigation';
+import { BsTwitterX } from "react-icons/bs";
 
 const ProfilePage: React.FC = () => {
   const { user, getUserProfile, setLoading }: any = useUserContext();
@@ -246,7 +245,7 @@ const ProfilePage: React.FC = () => {
             {
               userProfile?.socialLinks.twitter &&
               <a href={userProfile?.socialLinks.twitter} target='_blank'>
-                <FaSquareXTwitter className='text-3xl text-gray-800' />
+                <BsTwitterX className='text-2xl text-white' />
               </a>
             }
           </div>

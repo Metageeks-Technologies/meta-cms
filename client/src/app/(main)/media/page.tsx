@@ -81,7 +81,7 @@ const page = () => {
 
                     {
                         media?.map((media: MediaType, index: number) => (
-                            <DialogTrigger onClick={() => setImage(media.key)}>
+                            <DialogTrigger key={index} onClick={() => setImage(media.key)}>
                                 <div key={media._id} className='w-80'>
                                     <img src={getURL(media.key)} alt="" loading='lazy' className='w-full h-full object-cover' />
                                 </div>
@@ -92,6 +92,7 @@ const page = () => {
 
 
                 <DialogContent className="min-w-[800px] h-auto max-h-[80%] bg-gray-950 border-none p-0">
+                    <DialogTitle></DialogTitle>
                     <img src={getURL(image)} alt="" className='w-full h-auto object-cover'/>
                 </DialogContent>
 

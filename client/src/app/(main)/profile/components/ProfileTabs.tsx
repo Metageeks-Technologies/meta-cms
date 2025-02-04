@@ -5,6 +5,7 @@ import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import Cart from './Cart';
+import { BsCart4 } from "react-icons/bs";
 
 const ProfileTabs = () => {
 
@@ -64,7 +65,7 @@ const ProfileTabs = () => {
       <div className='flex flex-row gap-5 my-10'>
         <button type='button' onClick={() => setTab(1)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 1 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Address</button>
         <button type='button' onClick={() => setTab(2)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 2 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Orders</button>
-        <button type='button' onClick={() => setTab(3)} className={`font-bold px-5 py-2 cursor-pointer ${tab === 3 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}>Cart</button>
+        <button type='button' onClick={() => setTab(3)} className={`font-bold px-5 py-2 cursor-pointer flex flex-row items-center gap-2 ${tab === 3 ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}><BsCart4/> Cart</button>
       </div>
 
       {

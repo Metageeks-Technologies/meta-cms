@@ -23,14 +23,13 @@ import { userRoles } from '@/constant/user'
 import { useUserContext } from '@/context/userContext'
 import { getURL } from '@/utils/AWS_Config'
 import { IComment } from '@/types'
-import { FaClock, FaSquareXTwitter } from "react-icons/fa6";
+import { FaClock } from "react-icons/fa6";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SiFacebook } from 'react-icons/si'
 import { RiInstagramFill } from 'react-icons/ri'
 import { ImLinkedin } from 'react-icons/im'
 import { FaHeart } from "react-icons/fa";
-import dynamic from 'next/dynamic'
-
+import { BsTwitterX } from "react-icons/bs";
 
 // const PostContent = dynamic(() => import('./PostContent'), { ssr: false });
 
@@ -360,7 +359,9 @@ const page = () => {
 
 
                                     {
-                                        ((user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR) && post?.status === postStatuEnum.AWAITING_APPROVAL) &&
+                                        (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR) &&
+                                        post?.status === postStatuEnum.AWAITING_APPROVAL &&
+                                        !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
                                         <div className='w-full flex flex-row gap-3 mt-5'>
                                             <button onClick={handleRejectPost} className='w-full bg-red-200 border-[2px] border-red-600 text-red-600 font-bold p-2 rounded-lg text-base'>Reject</button>
                                             <button onClick={handleApprovePost} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Approve</button>
@@ -369,7 +370,7 @@ const page = () => {
 
                                     <div className='flex justify-between mt-4'>
                                         {/* Existing Delete Post button */}
-                                        {!post.isDeleted && (
+                                        {!post.isDeleted && !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) && (
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Post</Button>
@@ -388,6 +389,7 @@ const page = () => {
 
                                         {
                                             post.isDeleted && user.role === userRoles.SUPERADMIN &&
+                                            !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
 
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
@@ -407,14 +409,16 @@ const page = () => {
 
 
                                         {/* Existing Edit Post button */}
-                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN) && (
-                                            <button
-                                                onClick={() => router.push(`/editpost/${post.slug}`)}
-                                                className='bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
-                                            >
-                                                Edit Post
-                                            </button>
-                                        )}
+                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN) &&
+                                            !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
+                                            (
+                                                <button
+                                                    onClick={() => router.push(`/editpost/${post.slug}`)}
+                                                    className='bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
+                                                >
+                                                    Edit Post
+                                                </button>
+                                            )}
                                     </div>
 
 
@@ -476,7 +480,7 @@ const page = () => {
                                                     {
                                                         post.author?.socialLinks.twitter &&
                                                         <a href={post.author?.socialLinks.twitter} target='_blank'>
-                                                            <FaSquareXTwitter className='text-3xl text-gray-800' />
+                                                            <BsTwitterX className='text-2xl text-white p-0' />
                                                         </a>
                                                     }
                                                 </div>

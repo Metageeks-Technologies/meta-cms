@@ -413,7 +413,7 @@ export class PostsService {
 
     }
 
-    const query = await this.Post.updateOne({ _id: _id }, { $set: updatedPost }).exec();
+    const query = await this.Post.updateOne({ _id: _id }, { $set: { ...updatedPost, isDeleted: false } }).exec();
     // No need to check here if post exists or not. we already checked above
   }
 
