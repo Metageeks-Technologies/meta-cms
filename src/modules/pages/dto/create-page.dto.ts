@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
-import { IsArray, IsNotEmpty, IsObject, IsString, Matches, MaxLength, ValidateNested } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsObject, IsString, Matches, MaxLength, ValidateNested } from "class-validator";
+import { PageServiceEnum, PageSubServiceEnum } from "../schema/page.schema";
 
 
 class HeroSectionDto {
@@ -200,6 +201,14 @@ export class CreatePageDto {
     @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
     @MaxLength(128)
     slug: string;
+
+    @IsEnum(PageServiceEnum)
+    @IsNotEmpty()
+    service: PageServiceEnum
+
+    @IsEnum(PageSubServiceEnum)
+    @IsNotEmpty()
+    subService: PageSubServiceEnum
 
     @IsNotEmpty()
     @ValidateNested()

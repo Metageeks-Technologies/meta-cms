@@ -2,9 +2,34 @@ import { timeStamp } from "console";
 import mongoose from "mongoose";
 
 
+export enum PageServiceEnum {
+    BLOCKCHAIN= "blockchain",
+    AI= 'ai',
+    GAMING= 'gaming',
+    CONSULTING= 'consulting',
+    INDUSTRIES= 'industries',
+    ABOUTUS= 'aboutus',
+    CONTACTUS= 'contactus'
+}
+
+export enum PageSubServiceEnum {
+    CORE_BLOCKCHAIN = 'core_blockchain',
+    CRYPTO = 'crypto',
+    DAPPS = 'dapps',
+    AI_SOLUTIONS = 'ai_solutions',
+    ROBOTICS = 'robotics',
+    GAMING_TECH = 'gaming_tech',
+    ESPORTS = 'esports',
+    CONSULTING = 'consulting',
+    INDUSTRIES = 'industries'
+}
+
+
 export interface IPage extends mongoose.Document {
     _id: string;
     title: string;
+    service: string;
+    subService: string;
     slug: string;
     authorId: mongoose.Types.ObjectId;
     content: {
@@ -68,6 +93,14 @@ export const PageSchema = new mongoose.Schema<IPage>({
         type: String,
         required: true,
     },
+    service: {
+        type: String,
+        enum: Object.values(PageServiceEnum)
+    }, 
+    subService: {
+        type: String,
+        enum: Object.values(PageSubServiceEnum)
+    },  
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true
@@ -76,6 +109,7 @@ export const PageSchema = new mongoose.Schema<IPage>({
         type: String,
         required: true
     },
+    
     content: {
         heroSection: {
             subHeading: { type: String, required: true },

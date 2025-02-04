@@ -19,8 +19,8 @@ const Orders = ({ orders }: any) => {
                                         <div key={index} className='flex flex-row gap-5 my-1'>
                                             <div className='w-[120px] h-[130px]'>
                                                 {
-                                                    item.product.variants.filter((variant: any) => variant.variantId === item.variantId).map((variant: any) => (
-                                                        <img src={getURL(variant.imageKeys[0])} className='w-full h-full object-contain' />
+                                                    item.product.variants.filter((variant: any) => variant.variantId === item.variantId).map((variant: any, index: number) => (
+                                                        <img key={index} src={getURL(variant.imageKeys[0])} className='w-full h-full object-contain' />
                                                     ))
                                                 }
                                             </div>
