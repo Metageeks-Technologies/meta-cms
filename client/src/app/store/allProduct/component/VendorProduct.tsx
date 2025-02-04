@@ -36,6 +36,9 @@ const VendorProduct = () => {
             
             // Check filter for deleted products
             if (filterBy) {
+
+                param.append('isDeleted', 'true');  // Add isDeleted filter as true
+
                 if (filterBy === 'deleted') {
                     if (selectedProductCategory) {
                         param.append('categoryId', selectedProductCategory);  // Add categoryId if selected
@@ -48,8 +51,10 @@ const VendorProduct = () => {
                         setProductData((prevData: any) => {
                             const updatedData = [...(prevData || [])];
                             deletedProducts.forEach((product: any) => {
-                                if (!updatedData.some((existingProduct: any) => existingProduct._id === product._id)) {
-                                    updatedData.push(product);
+                                if (product.isDeleted) {
+                                    if (!updatedData.some((existingProduct: any) => existingProduct._id === product._id)) {
+                                        updatedData.push(product);
+                                    }
                                 }
                             });
                             return updatedData;
@@ -183,7 +188,7 @@ const VendorProduct = () => {
                         className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'
                     >
                         <option value="">-- Sort by --</option>
-                        <option value="popular">Popular</option>
+                        {/* <option value="popular">Popular</option> */}
                         <option value="recent">Recent</option>
                         <option value="oldest">Oldest</option>
                     </select>

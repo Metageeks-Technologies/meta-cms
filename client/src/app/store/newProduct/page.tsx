@@ -235,14 +235,38 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
   }
 
   const handleCreateProduct = async () => {
-    if (!formData.title.trim()|| !formData.subDescription.trim() || !formData.description.trim() || !formData.brand.trim() ) {
-      toast.error("Please fill in all fields correctly.", {
-        duration: 2000,
-      });
-      setLoading(false);
+ 
+   if (!formData.title.trim()) {
+      toast.error('Product title is required.', { duration: 2000 });
+      return;
+    }
+    if (!formData.subDescription.trim()) {
+      toast.error('Product subDescription is required.', { duration: 2000 });
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      toast.error('Product description is required.', { duration: 2000 });
       return;
     }
     
+    if (!formData.category.trim()) {
+      toast.error('At least one category must be selected.', { duration: 2000 });
+      return;
+    }
+
+    if (!Array.isArray(formData.variants) || formData.variants.length === 0) {
+      toast.error('Add at least one variant', { duration: 2000 });
+      return;
+    }
+
+    if (!formData.brand.trim()) {
+      toast.error('product brand is required.', { duration: 2000 });
+      return;
+    }
+
+    
+
     setLoading(true);
     try {
       const payload: PayloadType = {

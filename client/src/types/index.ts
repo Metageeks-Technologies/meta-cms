@@ -52,7 +52,7 @@ export interface NewPostFormData {
     title: string;
     subDescription: string;
     description: string;
-    category: string; // Can be an enum or union type depending on the use case
+    category: string ; // Can be an enum or union type depending on the use case
     brand: string;
     status: string; // Status types are good
     publishDate: Date | null;
