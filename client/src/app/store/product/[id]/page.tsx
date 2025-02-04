@@ -67,6 +67,39 @@ const ProductCard: React.FC = () => {
 
 
   const handleAddVariant = async () => {
+    if (!newVariant.variantId.trim()) {
+      toast.error('Variant ID is required', {
+        duration: 2000,
+      });
+      return; // Prevent further execution if variantId is missing
+    }
+  
+    // Check if sku is empty
+    if (!newVariant.sku.trim()) {
+      toast.error('SKU is required', {
+        duration: 2000,
+      });
+      return; // Prevent further execution if sku is missing
+    }
+
+    const existingVariantId = product.variants.find((variant: any) => variant.variantId === newVariant.variantId);
+    if (existingVariantId) {
+      toast.error('Variant ID already exists', {
+        duration: 2000,
+      });
+      return;
+    }
+  
+    // Check if the SKU already exists in the current product's variants
+    const existingSku = product.variants.find((variant: any) => variant.sku === newVariant.sku);
+    if (existingSku) {
+      toast.error('SKU already exists', {
+        duration: 2000,
+      });
+      return;
+    }
+  
+  
     try {
       const response = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}`, newVariant);
       setProduct((prev: any) => ({
@@ -75,6 +108,16 @@ const ProductCard: React.FC = () => {
       }));
       fetchProductData();
       setIsAddModalOpen(false); // Close the modal after adding
+       setNewVariant({
+      variantId: '',
+      sku: '',
+      price: 0,
+      discountedPrice: 0,
+      quantity: 0,
+      size: '',
+      color: '#000000',
+      imageKeys: [],
+    });
     } catch (error) {
       console.error("Error adding new variant:", error);
     }
@@ -289,12 +332,12 @@ const ProductCard: React.FC = () => {
 
             <hr className="my-4 border-gray-800 border-t-2" />
 
-            <div>
+            {/* <div>
               <h6 className="font-semibold mb-2">Total Quantity:</h6>
               <span className="border rounded px-4 py-2">{selectedVariant?.quantity}</span>
-            </div>
+            </div> */}
 
-            <hr className="my-4 border-gray-800 border-t-2" />
+            {/* <hr className="my-4 border-gray-800 border-t-2" /> */}
 
             {/* Variant Selection */}
             {variants && variants.length > 0 && (
@@ -308,7 +351,7 @@ const ProductCard: React.FC = () => {
                         key={variant.variantId || index}
                         onClick={() => handleVariantChange(variant)}
                         className={`${selectedVariant?.variantId === variant.variantId
-                            ? "scale-110 border-4 border-blue-600 shadow-lg"
+                            ? "scale-110 border-2 border-white shadow-md"
                             : "scale-100"
                           } transition-all duration-200 ease-in-out transform p-2 rounded-md`}
                       >

@@ -16,14 +16,6 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
   setIsAddModalOpen,
   handleAddVariant,
 }) => {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const parsedValue = (name === "quantity" || name === "price" || name === "discountedPrice")
-      ? (value === "" ? 0 : parseFloat(value))
-      : value;
-    setNewVariant((prev: any) => ({ ...prev, [name]: parsedValue }));
-  };
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
