@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React,{ useState }  from 'react';
 import toast from 'react-hot-toast';
 import axiosCall from '@/utils/ApiCall';
 import { useUserContext } from '@/context/userContext';
@@ -1068,7 +1068,7 @@ const CreatePage = () => {
                                         onChange={(e) => handleCardChange(index, 'featureSection', 'description', e.target.value)}
                                         rows={3}
                                         required
-                                    />
+                                    />I am Iron Man
                                 </div>
 
                                 <div className="mb-4">

@@ -90,7 +90,7 @@ const ProfilePage: React.FC = () => {
       setLoading(true);
       // console.log(fileList?.[0]);
       const payload = {
-        folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_USER,
+        folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS,
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
       }
