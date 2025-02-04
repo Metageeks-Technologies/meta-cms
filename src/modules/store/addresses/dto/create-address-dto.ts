@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsMongoId, IsNotEmpty, IsNotIn, IsNumber, IsOptional, IsString } from "class-validator"
+import { IsBoolean, IsEmail, IsMongoId, IsNotEmpty, IsNotIn, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from "class-validator"
 
 
 export class CreateAddressDto {
@@ -29,6 +29,8 @@ export class CreateAddressDto {
 
     @IsNumber(undefined, { message: 'Postal code must be a number' })
     @IsNotEmpty()
+    @Min(100000, { message: 'Postal code must have at least 6 digits' })
+    @Max(999999, { message: 'Postal code must have at most 6 digits' }) 
     postalCode: number;
 
     @IsString()

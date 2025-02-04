@@ -73,6 +73,22 @@ const columns = [
     ),
   },
   {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }: any) => {
+      const user = row.original;
+      return (
+        <div
+          className={`${
+            user.block ? "text-red-500" : "text-green-500"
+          } font-semibold`}
+        >
+          {user.block ? "Inactive" : "Active"}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "role",
     header: () => <div className="text-right">Role</div>,
     cell: ({ row }: any) => (
@@ -101,32 +117,32 @@ const columns = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
               <DropdownMenuSeparator className="bg-gray-800" />
 
                 {/* Show options based on user's block status */}
                 {user.block ? (
               <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger onClick={() => setClickedItem(3)}>
+                <AlertDialogTrigger onClick={() => setClickedItem(3)} className="w-full text-left">
                   Unblock User
                 </AlertDialogTrigger>
               </DropdownMenuItem>
             ) : (
               <>
                 <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
+                  <AlertDialogTrigger className="w-full text-left">
                     Promote to Moderator
                   </AlertDialogTrigger>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
+                  <AlertDialogTrigger className="w-full text-left">
                     Demote to Subscriber
                   </AlertDialogTrigger>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger>
+                  <AlertDialogTrigger className="w-full text-left">
                     Block User
                   </AlertDialogTrigger>
                 </DropdownMenuItem>

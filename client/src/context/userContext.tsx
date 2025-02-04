@@ -5,16 +5,23 @@ import toast from 'react-hot-toast';
 import axiosCall from '@/utils/ApiCall';
 import { UserProfile } from '@/types';
 import { INITIAL_USER, userRoles } from '@/constant/user';
-
+import {StoreRole} from '@/constant/store';
 interface UserContextType {
     user: UserProfile;
     subscribers: UserProfile[];
     contributors: UserProfile[];
     moderators: UserProfile[];
+
+    storeUser: UserProfile[];
+    vendor: UserProfile[];
+    storeModerator: UserProfile[];
+
     isAuthenticated: boolean;
     isLoading: boolean;
     fetchUsers: (role: string) => Promise<void>;
+    fetchStoreRole:(storeRole: string) => Promise<void>;
     changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
+    changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
     getUserProfile: () => Promise<void>;
     setUser: (user: UserProfile) => void;
     blockUser: (userId: string) => Promise<void>;
@@ -38,6 +45,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [contributors, setContributors] = useState([]);
     const [moderators, setModerators] = useState([]);
 
+    const[storeUser, setStoreUser] = useState([]);
+    const[vendor, setVendor] = useState([]);
+    const[storeModerator, setStoreModerator] = useState([]);
+
+
 
     // API Calls
     const fetchUsers = async (role: string) => {
@@ -46,9 +58,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
 
         try {
-            const response = await axiosCall(
-                'GET',
-                `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-${role}`
+            const response = await axiosCall('GET',`${process.env.NEXT_PUBLIC_BASE_URL}/users/all-${role}`
             );
 
             // console.log(response, "userfetch res")
@@ -75,6 +85,39 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const fetchStoreRole = async (storeRole: string) => {
+        setLoading(true);
+        setIsLoading(true);
+        try {
+            const response = await axiosCall('GET',`${process.env.NEXT_PUBLIC_BASE_URL}/users/all-store-${storeRole}` );
+    
+           // console.log(response, "userfetch res");
+    
+            if (response?.status === 200 || response?.status === 201) {
+                // Dynamically update the state based on storeRole
+                if (storeRole === StoreRole.USER) {
+                    setStoreUser(response?.data?.users);
+                }
+                
+                if (storeRole === StoreRole.VENDOR) {
+                    setVendor(response?.data?.vendors);
+                }
+                if (storeRole === StoreRole.STOREMODERATOR) {
+                    setStoreModerator(response?.data?.users);
+                }
+            } else {
+                throw new Error(response?.data?.message || `Failed to fetch ${storeRole}s`);
+            }
+        } catch (error) {
+            console.error(`Error fetching ${storeRole}s:`, error);
+            toast.error(`Failed to fetch ${storeRole}s!`);
+        } finally {
+            setIsLoading(false);
+            setLoading(false);
+        }
+    };
+    
+
     const changeUserRole = async (userId: string, currentRole: string, newRole: string) => {
         setLoading(true);
         try {
@@ -97,6 +140,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+
+    const changeStoreRole =async (userId: string, currentRole: string, newRole: string)=>{
+        setLoading(true);
+        try{
+            const response = await axiosCall('PUT', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-store-role`, {
+                _id: userId,
+                newRole
+            });
+           // console.log(response);
+            if (response.status === 200 || response.status === 201) {
+                await fetchStoreRole(currentRole); 
+                toast.success(response.data.message);
+            } else {
+                throw new Error(response.data.message);
+            }
+        }catch (error) {
+            console.error('Error changing user role:', error);
+            toast.error('Failed to update user role');
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const getUserProfile = async () => {
         setLoading(true);
@@ -134,6 +199,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await fetchUsers(userRoles.CONTRIBUTOR);
                 await fetchUsers(userRoles.MODERATOR);
                 await fetchUsers(userRoles.SUBSCRIBER); 
+                await fetchStoreRole(StoreRole.USER);
+                await fetchStoreRole(StoreRole.VENDOR);
+                await fetchStoreRole(StoreRole.STOREMODERATOR);
 
                 // Refresh the 
             } else {
@@ -156,6 +224,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await fetchUsers(userRoles.CONTRIBUTOR); 
                 await fetchUsers(userRoles.MODERATOR);
                 await fetchUsers(userRoles.SUBSCRIBER); 
+                await fetchStoreRole(StoreRole.USER);
+                await fetchStoreRole(StoreRole.VENDOR);
+                await fetchStoreRole(StoreRole.STOREMODERATOR);
             } else {
                 throw new Error(response.data.message);
             }
@@ -188,12 +259,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         fetchUsers,
         changeUserRole,
+        changeStoreRole,
         getUserProfile,
         setUser,
         blockUser,
         unblockUser,
         loading,
         setLoading,
+        fetchStoreRole,
+        vendor,
+        storeModerator,
+        storeUser,
     };
 
     return (

@@ -6,6 +6,7 @@ import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
 import axios from 'axios';
 import { list } from 'postcss';
+import { PageService, PageSubService } from '@/constant/page';
 
 interface SectionContent {
     subHeading: string;
@@ -53,7 +54,7 @@ interface ForecastContent {
     subHeading: string;
     heading: string;
     imageKey: string | null;
-    list: {point: string}[];
+    list: { point: string }[];
 }
 
 
@@ -61,6 +62,8 @@ interface ForecastContent {
 interface PageContent {
     title: string;
     slug: string;
+    service: string;
+    subService: string;
     content: {
         heroSection: SectionContent;
         solutionSection1: SectionContent;
@@ -69,13 +72,15 @@ interface PageContent {
         solutionSection2: SectionContent;
         featureSection: FeatureSection;
         marketForecastSection: ForecastContent;
-       
+
     };
 }
 
 const INITIAL_PAGE_CONTENT: PageContent = {
     title: '',
     slug: '',
+    service: '',
+    subService: '',
     content: {
         heroSection: {
             subHeading: '',
@@ -131,13 +136,15 @@ const INITIAL_PAGE_CONTENT: PageContent = {
                 point: '',
             }]
         },
-        
+
     }
 };
 
 const CreatePage = () => {
     const { setLoading } = useUserContext();
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
+    console.log(formData)
+    const [subServiceArr, setSubServiceArr] = useState<any>([])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
@@ -148,7 +155,7 @@ const CreatePage = () => {
     };
 
     const handleSectionChange = (
-        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'processSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection' ,
+        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'processSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection',
         field: string,
         value: string
     ) => {
@@ -237,7 +244,7 @@ const CreatePage = () => {
                     }
                 }
             }));
-        } 
+        }
     };
 
 
@@ -339,7 +346,7 @@ const CreatePage = () => {
                                     }
                                 }
                             }));
-                        } 
+                        }
                     }
                 } else {
                     toast.error(resp?.data?.message, { duration: 2000 });
@@ -353,7 +360,7 @@ const CreatePage = () => {
 
     const removeCard = (
         index: number,
-        section: 'servicesSection' | 'processSection' | 'featureSection' | 'marketForecastSection' 
+        section: 'servicesSection' | 'processSection' | 'featureSection' | 'marketForecastSection'
     ) => {
         let updatedCards: any;
 
@@ -413,7 +420,7 @@ const CreatePage = () => {
                     },
                 },
             }));
-        } 
+        }
     };
 
 
@@ -472,7 +479,7 @@ const CreatePage = () => {
 
     const addList = () => {
         const newList = {
-            point:''
+            point: ''
         };
         setFormData((prev) => ({
             ...prev,
@@ -486,7 +493,24 @@ const CreatePage = () => {
         }));
     };
 
-   
+    const handleSelectService = (e: any) => {
+        const { value } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            service: value,
+            subService: ""
+        }));
+
+        if(!value){
+            setSubServiceArr([]);
+            return
+        }
+
+        setSubServiceArr(PageSubService[value as keyof typeof PageSubService]);
+    }
+
+
 
 
 
@@ -496,17 +520,17 @@ const CreatePage = () => {
             toast.error("Title is required", { duration: 2000 });
             return;
         }
-    
+
         if (!formData.slug) {
             toast.error("Slug is required", { duration: 2000 });
             return;
         }
-    
+
         if (formData.slug.trim().length < 3) {
             toast.error('Slug should be at least 3 characters long.', { duration: 2000 });
             return;
         }
-    
+
         if (!formData.content || Object.keys(formData.content).length === 0) {
             toast.error("Content is required", { duration: 2000 });
             return;
@@ -528,12 +552,12 @@ const CreatePage = () => {
             toast.error(" market section image is required", { duration: 2000 });
             return;
         }
-    
-        
+
+
         const missingImageIndex = formData.content.servicesSection?.cards.findIndex(
             (card: any) => !card.imageKey
         );
-    
+
         if (missingImageIndex !== -1) {
             toast.error(` service section Card  image is required`, { duration: 2000 });
             return;
@@ -542,14 +566,14 @@ const CreatePage = () => {
         const missing2ImageIndex = formData.content.featureSection?.features.findIndex(
             (feature: any) => !feature.imageKey
         );
-    
+
         if (missing2ImageIndex !== -1) {
             toast.error(`Feature section image image is required`, { duration: 2000 });
             return;
         }
 
-        
-    
+
+
 
         setLoading(true);
         try {
@@ -598,6 +622,40 @@ const CreatePage = () => {
                         required
                     />
                 </label>
+
+                <div className='flex flex-row gap-5 items-center'>
+                    <label className="w-full flex flex-col gap-2 mb-5">
+                        <span>Service</span>
+                        <select onChange={handleSelectService} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
+                            <option value="">--Select service--</option>
+                            {
+                                PageService.map((service, index) => (
+                                    <option key={index} value={service.key}>{service.title}</option>
+                                ))
+                            }
+                        </select>
+                    </label>
+
+                    <label className="w-full flex flex-col gap-2 mb-5">
+                        <span>Sub Service</span>
+                        <select
+                            name=""
+                            id="subService"
+                            value={formData.subService}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, subService: e.target.value }))}
+                            className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none"
+                            disabled= {formData.service === ""? true : false}
+                            required
+                        >
+                            <option value="">--Select sub service--</option>
+                            {
+                                subServiceArr.map((service: any, index: any) => (
+                                    <option key={index} value={service.key}>{service.title}</option>
+                                ))
+                            }
+                        </select>
+                    </label>
+                </div>
 
                 <label className="block text-white mb-5">
                     <span>Hero Section</span>
@@ -670,7 +728,7 @@ const CreatePage = () => {
                                 id="imageInputHero"
                                 className="hidden"
                                 onChange={(e) => handleImageChange(e, 'heroSection')}
-                                
+
                             />
                         </div>
                     </div>
@@ -747,7 +805,7 @@ const CreatePage = () => {
                                 id="imageInputSolution"
                                 className="hidden"
                                 onChange={(e) => handleImageChange(e, 'solutionSection1')}
-                               
+
                             />
                         </div>
                     </div>
@@ -848,7 +906,7 @@ const CreatePage = () => {
                                         id={`imageInputCard-${index}`}
                                         className="hidden"
                                         onChange={(e) => handleImageChange(e, 'servicesSection', index)}
-                                        
+
                                     />
                                 </div>
                             </div>
@@ -1004,7 +1062,7 @@ const CreatePage = () => {
                                 id="imageInputSolution2"
                                 className="hidden"
                                 onChange={(e) => handleImageChange(e, 'solutionSection2')}
-                                
+
                             />
                         </div>
                     </div>
@@ -1092,7 +1150,7 @@ const CreatePage = () => {
                                         id={`imageInputFeature-${index}`}
                                         className="hidden"
                                         onChange={(e) => handleImageChange(e, 'featureSection', index)}
-                                        
+
                                     />
                                 </div>
                             </div>
@@ -1106,12 +1164,12 @@ const CreatePage = () => {
                         </button>
                     </div>
                 </label>
-                 
-                 {/* market forecast Section  */}
+
+                {/* market forecast Section  */}
                 <label className="block text-white mb-5">
                     <span>Market Forecast Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-                        
+
                         <div className="mb-4">
                             <label htmlFor="subHeading" className="block text-gray-300 mb-2">
                                 Sub Heading
@@ -1142,7 +1200,7 @@ const CreatePage = () => {
                             />
                         </div>
 
-                        
+
 
                         {/* Image Upload */}
                         <div className="mb-6">
@@ -1166,7 +1224,7 @@ const CreatePage = () => {
                                 id="imageInputMarket"
                                 className="hidden"
                                 onChange={(e) => handleImageChange(e, 'marketForecastSection')}
-                                
+
                             />
                         </div>
 
@@ -1180,10 +1238,10 @@ const CreatePage = () => {
                                 >
                                     <span className="text-xl">×</span> {/* "×" is the close icon */}
                                 </button>
-                                
+
                                 <div className="mb-4">
                                     <label htmlFor={`market-card-description-${index}`} className="block text-gray-300 mb-2">
-                                    point
+                                        point
                                     </label>
                                     <textarea
                                         id={`market-card-description-${index}`}
@@ -1196,7 +1254,7 @@ const CreatePage = () => {
                                     />
                                 </div>
 
-                                
+
                             </div>
                         ))}
                         <button
@@ -1208,10 +1266,10 @@ const CreatePage = () => {
                         </button>
                     </div>
                 </label>
-                
-                
-                 
-                
+
+
+
+
 
                 <button
                     type="submit"

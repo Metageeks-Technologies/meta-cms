@@ -16,7 +16,8 @@ export class AddressController {
     constructor(private readonly addressService: AddressService) { }
 
     @Post()
-    @UseGuards(AuthGuard)
+    @AllowedStoreRoles(UserStoreRoleEnum.USER, UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
     async newAddress(@Req() req: Request, @Body() addressDetails: CreateAddressDto) {
         const user = (req as any).user;
         await this.addressService.create(user._id, addressDetails);
@@ -24,7 +25,8 @@ export class AddressController {
     }
 
     @Get()
-    @UseGuards(AuthGuard)
+    @AllowedStoreRoles(UserStoreRoleEnum.USER, UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
     async getUserAllAddress(@Req() req: Request) {
         const userId = (req as any).user._id;
         const addresses = await this.addressService.getUserAllAddress(userId, false);
@@ -32,7 +34,8 @@ export class AddressController {
     }
 
     @Get(':id')
-    @UseGuards(AuthGuard)
+    @AllowedStoreRoles(UserStoreRoleEnum.USER, UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
     async getAddressById(@Param('id', ValidateId) id: string, @Req() req: Request) {
         const user = (req as any).user;
         const address = await this.addressService.getAddressById(id, user._id, user.storeRole);
@@ -40,7 +43,8 @@ export class AddressController {
     }
 
     @Put(':id')
-    @UseGuards(AuthGuard)
+    @AllowedStoreRoles(UserStoreRoleEnum.USER, UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
     async updateAddress(
         @Req() req: Request,
         @Param('id', ValidateId) addressId: string,
@@ -52,7 +56,8 @@ export class AddressController {
     }
 
     @Patch(':id')
-    @UseGuards(AuthGuard)
+    @AllowedStoreRoles(UserStoreRoleEnum.USER, UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
     async setDefaultAddress(@Req() req: Request, @Param('id', ValidateId) addressId: string) {
         const user = (req as any).user;
         await this.addressService.markAsDefault(addressId, user._id, user.storeRole);
@@ -60,7 +65,8 @@ export class AddressController {
     }
 
     @Delete(':id')
-    @UseGuards(AuthGuard)
+    @AllowedStoreRoles(UserStoreRoleEnum.USER, UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
     async deleteAddress(@Req() req: Request, @Param('id', ValidateId) addressId: string) {
         const user = (req as any).user;
         await this.addressService.delete(addressId, user._id, user.storeRole)

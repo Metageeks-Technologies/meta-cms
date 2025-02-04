@@ -5,6 +5,12 @@ import { MdPostAdd } from "react-icons/md";
 import { IoPricetags } from "react-icons/io5";
 import { MdOutlineComment } from "react-icons/md";
 import { RiPagesLine } from "react-icons/ri";
+import { HiTemplate } from "react-icons/hi";
+import { TiThSmallOutline } from "react-icons/ti";
+import { BiSolidCategoryAlt } from "react-icons/bi";
+
+
+
 
 export const items: MenuItem[] = [
   {
@@ -54,6 +60,44 @@ export const items: MenuItem[] = [
       },
     ]
   },
+
+  {
+    title: "Product",
+    icon: HiTemplate,
+    subMenu: [
+      {
+        title: "New Product",
+        url: "/store/newProduct",
+        icon: MdPostAdd,
+      },
+      {
+        title: "All Product",
+        url: "/store/allProduct",
+        icon: TiThSmallOutline,
+      },
+      {
+        title: "Product Category",
+        url: "/store/productCategory",
+        icon: BiSolidCategoryAlt,
+      },
+    ]
+  },
+  {
+    title: "Users",
+    url: "/store/users",
+    icon: UsersRound,
+  },
+  {
+    title: "Vendors",
+    url: "/store/vendor",
+    icon: UsersRound,
+  },
+  {
+    title: "Store Moderator",
+    url: "/store/storeModerator",
+    icon: UsersRound,
+  },
+
   {
     title: "Comments",
     url: "/allComments",
@@ -100,6 +144,10 @@ export const headerData = {
   tags: "Tags",
   newPage: "New Page",
   allPage: "All Page",
+  product:"Product",
+  allProduct:" All Product",
+  productCategory: "Product Category",
+  allProductCategory: "All Product Category",
   allComments: "All Comments",
   subscribers: "Subscribers",
   contributor: "Contributor",

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
 import { userRoles } from '@/constant/user';
 import MyRecentPosts from './MyRecentPosts';
+import StoreDashboard from '@/app/store/Dashboard/StoreDashboard';
 
 const AdminDashboard = () => {
 
@@ -14,6 +15,10 @@ const AdminDashboard = () => {
 
   const [personalDashboardData, setPersonalDashboardData] = useState();
   const [globalDashboardData, setGlobalDashboardData] = useState();
+
+
+
+  const [isBlogDashboard, setIsBlogDashboard] = useState(true); // State to toggle between dashboards
 
 
   const dashboardGlobal = async () => {
@@ -39,7 +44,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/personal`)
-      
+
       if (resp.status === 200 || resp.status === 201) {
         setPersonalDashboardData(resp?.data);
       } else {
@@ -54,8 +59,9 @@ const AdminDashboard = () => {
     }
   }
 
+
   useEffect(() => {
-    if(user.role){
+    if (user.role) {
       dashboardPersonal();
       dashboardGlobal();
     }
@@ -65,26 +71,51 @@ const AdminDashboard = () => {
 
   return (
     <div className="container mx-auto">
-      {
-        (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ?
-        <CardsRow data={globalDashboardData} />
-        :<CardsRow data={personalDashboardData} />
-      }
-      {
-        (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
-        <RecentPosts />
-      }
-      <MyRecentPosts />
 
-      <div className={`
-        ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" :"w-[50%]"}
-        mx-auto flex flex-row items-center gap-5 mt-20`}>
-        {
-          (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
-          <Chart heading="Global Monthly Posts" data={globalDashboardData} />
-        }
-        <Chart heading="My Monthly Posts" data={personalDashboardData} />
+
+      <div className="flex justify-start my-5">
+        <button
+          onClick={() => setIsBlogDashboard(true)}
+          className={`font-bold px-5 py-2 cursor-pointer ${isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
+          Blog Dashboard
+        </button>
+        <button
+          onClick={() => setIsBlogDashboard(false)}
+          className={`font-bold px-5 py-2 cursor-pointer ${!isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
+          Store Dashboard
+        </button>
       </div>
+
+
+      {isBlogDashboard ? (
+        <>
+          {
+            (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ?
+              <CardsRow data={globalDashboardData} />
+              : <CardsRow data={personalDashboardData} />
+          }
+          {
+            (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
+            <RecentPosts />
+          }
+          <MyRecentPosts />
+
+          <div className={`
+        ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" : "w-[50%]"}
+        mx-auto flex flex-row items-center gap-5 mt-20`}>
+            {
+              (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
+              <Chart heading="Global Monthly Posts" data={globalDashboardData} />
+            }
+            <Chart heading="My Monthly Posts" data={personalDashboardData} />
+          </div>
+        </>
+      ) : (
+        <StoreDashboard/>
+      )}
+
+
+
     </div>
   );
 };

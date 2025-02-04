@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
-import { IsArray, IsNotEmpty, IsObject, IsString, Matches, MaxLength, ValidateNested } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsObject, IsString, Matches, MaxLength, ValidateNested } from "class-validator";
+import { PageServiceEnum, PageSubServiceEnum } from "../schema/page.schema";
 
 
 class HeroSectionDto {
@@ -154,63 +155,8 @@ class MarketForecastSectionDto {
     @Type(() => MarketForecastSectionListDto)
     list: MarketForecastSectionListDto
 }
-class WhyChooseSectionCardDto {
-    @IsNotEmpty()
-    @IsString()
-    heading: string
 
-    @IsNotEmpty()
-    @IsString()
-    description: string
-}
 
-class WhyChooseSectionDto {
-    @IsNotEmpty()
-    @IsString()
-    heading: string
-
-    @IsNotEmpty()
-    @IsString()
-    description: string
-
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => WhyChooseSectionCardDto)
-    cards: WhyChooseSectionCardDto
-}
-
-class ReviewsSectionCardDto {
-    @IsNotEmpty()
-    @IsString()
-    message: string
-
-    @IsNotEmpty()
-    @IsString()
-    imageKey: string
-
-    @IsNotEmpty()
-    @IsString()
-    name: string
-
-    @IsNotEmpty()
-    @IsString()
-    company: string
-}
-
-class ReviewsSectionDto {
-    @IsNotEmpty()
-    @IsString()
-    heading: string
-
-    @IsNotEmpty()
-    @IsString()
-    description: string
-
-    @IsArray()
-    @ValidateNested({each: true})
-    @Type(() => ReviewsSectionCardDto)
-    cards: ReviewsSectionCardDto[]
-}
 
 export class CreateContentDto {
 
@@ -244,14 +190,6 @@ export class CreateContentDto {
     @ValidateNested()
     @Type(() => MarketForecastSectionDto)
     marketForecastSection: MarketForecastSectionDto
-
-    @ValidateNested()
-    @Type(() => WhyChooseSectionDto)
-    whyChooseSection: WhyChooseSectionDto
-
-    @ValidateNested()
-    @Type(() => ReviewsSectionDto)
-    reviewsSection: ReviewsSectionDto
 }
 
 export class CreatePageDto {
@@ -263,6 +201,14 @@ export class CreatePageDto {
     @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
     @MaxLength(128)
     slug: string;
+
+    @IsEnum(PageServiceEnum)
+    @IsNotEmpty()
+    service: PageServiceEnum
+
+    @IsEnum(PageSubServiceEnum)
+    @IsNotEmpty()
+    subService: PageSubServiceEnum
 
     @IsNotEmpty()
     @ValidateNested()

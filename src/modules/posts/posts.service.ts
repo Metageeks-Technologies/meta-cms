@@ -151,13 +151,15 @@ export class PostsService {
       matchStage.categories = { $in: categoriesIds };
     }
 
-    if (!website || website === WebsiteEnum.FAMPROTOCAL) {
-      matchStage.$or = [
-        { website: WebsiteEnum.FAMPROTOCAL },
-        { website: { $exists: false } }, // Include documents where the website field is not defined
-      ];
-    } else {
-      matchStage.website = website; // Match the specified website
+    if (website) {
+      if (website === WebsiteEnum.FAMPROTOCAL) {
+        matchStage.$or = [
+          { website: WebsiteEnum.FAMPROTOCAL },
+          { website: { $exists: false } }, // Include documents where the website field is not defined
+        ];
+      } else {
+        matchStage.website = website; // Match the specified website
+      }
     }
 
     // Add text search condition if searchQuery is provided
@@ -251,7 +253,7 @@ export class PostsService {
     // Match stage
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
-    
+
     if (!website || website === WebsiteEnum.FAMPROTOCAL) {
       matchStage.$or = [
         { website: WebsiteEnum.FAMPROTOCAL },
@@ -411,7 +413,7 @@ export class PostsService {
 
     }
 
-    const query = await this.Post.updateOne({ _id: _id }, { $set: updatedPost }).exec();
+    const query = await this.Post.updateOne({ _id: _id }, { $set: { ...updatedPost, isDeleted: false } }).exec();
     // No need to check here if post exists or not. we already checked above
   }
 

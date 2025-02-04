@@ -223,6 +223,28 @@ export class ProductService {
 
     }
 
+    async getLatestProduct(vendorId: string) {
+        const query = { status: ProductStatusEnum.PUBLISHED }
+        if (vendorId) {
+            query['vendor'] = vendorId
+        }
+        const products = await this.Product.find(query).sort({ createdAt: -1 }).limit(10).exec();
+        return products;
+    }
+
+
+    async getProductCount(vendorId: string) {
+        const query = {}
+        if (vendorId) {
+            query['vendor'] = new mongoose.Types.ObjectId(vendorId)
+        }
+
+        const productCount = await this.Product.countDocuments(query)
+
+        return productCount;
+    }
+
+
     async searchProduct({ query, sortBy, lastId, lastScore }: SearchProductQueryDto) {
         const pipeline: mongoose.PipelineStage[] = [];
 
@@ -303,7 +325,7 @@ export class ProductService {
         const result = await this.Product.aggregate([
             {
                 $match: {
-                    _id: mongoose.Types.ObjectId.createFromHexString(productId),
+                    _id: new mongoose.Types.ObjectId(productId),
                     ...(status !== undefined && { status }),
                     ...(isDeleted !== undefined && { isDeleted }),
                 },
@@ -353,7 +375,27 @@ export class ProductService {
             }
         }
 
-        const query = await this.Product.updateOne({ _id: productId }, { $set: productDetail }).exec();
+        const query = await this.Product.updateOne({ _id: productId }, { $set: { ...productDetail, isDeleted: false } }).exec();
+    }
+
+    async getVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string) {
+        const product = await this.Product.findById(productId);
+
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+
+        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            throw new ForbiddenException();
+        }
+
+        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
+        if (variantIndex === -1) {
+            throw new NotFoundException(`Variant not found`);
+        }
+        const variant = product.variants[variantIndex]
+
+        return variant;
     }
 
     async addVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, newVariant: CreateVariantDto) {
@@ -405,12 +447,11 @@ export class ProductService {
                 throw new NotFoundException(`Variant not found`);
             }
 
-
-
             // Update the variant with the new details
             product.variants[variantIndex] = {
                 ...product.variants[variantIndex]._doc,
                 ...variantDetails,
+                isDeleted: false
             };
 
             await product.save();
@@ -429,6 +470,11 @@ export class ProductService {
 
             if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
                 throw new ForbiddenException();
+            }
+
+            const unDeletedVariant = product.variants.filter((variant: any) => !variant.isDeleted)
+            if (unDeletedVariant.length <= 1) {
+                throw new BadRequestException('At least one product variant must remain.')
             }
 
             // Find the variant to update
@@ -498,5 +544,18 @@ export class ProductService {
         if (!product) {
             throw new NotFoundException('Product not found');
         }
+    }
+
+    async updateVariantQuantity(productId: string, variantId: string, value: number) {
+
+        const product = await this.Product.findById(productId).exec();
+
+        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
+        if (variantIndex === -1) {
+            throw new NotFoundException(`Variant not found`);
+        }
+
+        product.variants[variantIndex].quantity += value;
+        await product.save();
     }
 }

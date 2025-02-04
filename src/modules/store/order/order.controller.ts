@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { OrderService } from "./order.service";
 import { AuthGuard } from "src/modules/auth/auth.guard";
-import { CreateOrderDto } from "./dto/create-order-dto";
+import { CreateOrderDto, CreateOrderWithoutPayDto } from "./dto/create-order-dto";
 import { AllowedRoles, AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
 import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
@@ -19,9 +19,25 @@ export class OrderController {
 
     @Post()
     @UseGuards(AuthGuard)
-    async createOrder(@Req() req: Request, @Body() newOrder: CreateOrderDto) {
+    async createOrder(@Req() req: Request, @Body() newOrder: CreateOrderWithoutPayDto) {
         const user = (req as any).user
         await this.orderService.createOrder(user._id, user.storeRole, newOrder);
+        return { message: "Order Placed" }
+    }
+
+    @Post('initiate-payment')
+    @UseGuards(AuthGuard)
+    async createPayment(@Req() req: Request) {
+        const user = (req as any).user;
+        const order = await this.orderService.initiatePayment(user._id)
+        return order;
+    }
+
+    @Post('verify-create-order')
+    @UseGuards(AuthGuard)
+    async verifyPaymentAndCreateOrder(@Req() req: Request, @Body() newOrder: CreateOrderDto) {
+        const user = (req as any).user;
+        await this.orderService.verifyAndCreateOrder(user._id, user.storeRole, newOrder)
         return { message: "Order Placed" }
     }
 

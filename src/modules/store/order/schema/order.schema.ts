@@ -10,11 +10,22 @@ export enum OrderStatusEnum {
 }
 
 export enum PaymentTypeEnum {
-    CASH_ON_DELIVERY = 'cash_on_delivery',
+    CASH_ON_DELIVERY = 'cash_on_delivery', // Not from Razorpay, but keeping it for reference
     UPI = 'upi',
     CREDIT_CARD = 'credit_card',
     DEBIT_CARD = 'debit_card',
     NET_BANKING = 'net_banking',
+    WALLET = 'wallet',
+    EMI = 'emi',
+    PAY_LATER = 'pay_later',
+    CARDLESS_EMI = 'cardless_emi',
+    BANK_TRANSFER = 'bank_transfer',
+}
+
+
+export enum PaymentStatusEnum {
+    PAID = "paid",
+    UNPAID = "unpaid"
 }
 
 export interface IItem {
@@ -33,7 +44,7 @@ export interface IOrder {
     shippingAddress: mongoose.Types.ObjectId; // Shipping address for the order
     shippingStatus: string; // Status of the overall shipping ('pending', 'shipped', 'delivered')
     paymentStatus: string; // Payment status ('paid', 'unpaid')
-    paymentType: string; // Type of payment (e.g., cash_on_delivery, upi)
+    // paymentType: string; // Type of payment (e.g., cash_on_delivery, upi)
     isCancelled: boolean; // If the order has been cancelled
 }
 
@@ -88,14 +99,14 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
         },
         paymentStatus: {
             type: String,
-            enum: ['paid', 'unpaid'],
-            default: 'unpaid',
+            enum: Object.values(PaymentStatusEnum),
+            default: PaymentStatusEnum.UNPAID,
         },
-        paymentType: {
-            type: String,
-            enum: Object.values(PaymentTypeEnum),
-            default: PaymentTypeEnum.CASH_ON_DELIVERY,
-        },
+        // paymentType: {
+        //     type: String,
+        //     enum: Object.values(PaymentTypeEnum),
+        //     default: PaymentTypeEnum.CASH_ON_DELIVERY,
+        // },
         isCancelled: {
             type: Boolean,
             default: false,

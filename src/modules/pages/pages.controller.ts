@@ -7,6 +7,7 @@ import { RolesGuard } from "../auth/role.guard";
 import { CreatePageDto } from "./dto/create-page.dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
 import { UpdatePageDto } from "./dto/update-page.dto";
+import { PageServiceEnum, PageSubServiceEnum } from "./schema/page.schema";
 
 
 @Controller('pages')
@@ -23,7 +24,7 @@ export class PagesController {
     }
 
     @Get('public/:slug')
-    async getPublicPageBySlug(@Param('slug') slug: string){
+    async getPublicPageBySlug(@Param('slug') slug: string) {
         const page = await this.pagesService.getPageBySlug(slug, false);
         return page;
     }
@@ -31,7 +32,7 @@ export class PagesController {
     @Get('private/:slug')
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async getPageBySlug(@Param('slug') slug: string){
+    async getPageBySlug(@Param('slug') slug: string) {
         const page = await this.pagesService.getPageBySlug(slug);
         return page;
     }
@@ -39,7 +40,7 @@ export class PagesController {
     @Delete(':id')
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async deletePageById(@Param('id', ValidateId) id: string){
+    async deletePageById(@Param('id', ValidateId) id: string) {
         await this.pagesService.deletePageById(id)
         return { message: "Page deleted Succesfully" }
     }
@@ -47,7 +48,7 @@ export class PagesController {
     @Patch(':id/recover')
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async recoverPageById(@Param('id', ValidateId) id: string){
+    async recoverPageById(@Param('id', ValidateId) id: string) {
         await this.pagesService.recoverPage(id)
         return { message: "Page recover succesfully" }
     }
@@ -55,7 +56,7 @@ export class PagesController {
     @Patch(':id')
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async updatePage (@Param('id', ValidateId) id: string, @Body() updateContent: UpdatePageDto) {
+    async updatePage(@Param('id', ValidateId) id: string, @Body() updateContent: UpdatePageDto) {
         await this.pagesService.updatePage(id, updateContent);
         return { message: "Page updated succesfully" }
     }
@@ -63,9 +64,14 @@ export class PagesController {
     @Get('all')
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async getAllPage (): Promise<any> {
-        const allPage = this.pagesService.getAllPage()
+    async getAllPage(): Promise<any> {
+        const allPage = await this.pagesService.getAllPage()
         return allPage
     }
 
+    @Get('titles/:service/:subService')
+    async getAllPageTitle(@Param('service') service: PageServiceEnum, @Param('subService') subService: PageSubServiceEnum) {
+        const pages = await this.pagesService.getPageTitles(service, subService)
+        return pages;
+    }
 }
