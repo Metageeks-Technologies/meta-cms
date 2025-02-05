@@ -156,32 +156,32 @@ interface Product {
     name: string;
     updatedDate: string;
     imageUrl: string;
-  }
+}
 
 export const products: Product[] = [
     {
-      name: "Soja & Co. Eucalyptus",
-      updatedDate: "Mar 8, 2024",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlODRk_O003vlcnQmEpBnpU-gTHhUmhSPOhg&s"
+        name: "Soja & Co. Eucalyptus",
+        updatedDate: "Mar 8, 2024",
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlODRk_O003vlcnQmEpBnpU-gTHhUmhSPOhg&s"
     },
     {
-      name: "Necessaire Body Lotion",
-      updatedDate: "Mar 8, 2024",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdhgRzwYTa7wCJ8bK17xvSK1IjAyUpmF4HyA&s",
+        name: "Necessaire Body Lotion",
+        updatedDate: "Mar 8, 2024",
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdhgRzwYTa7wCJ8bK17xvSK1IjAyUpmF4HyA&s",
     },
     {
-      name: "Ritual of Sakura",
-      updatedDate: "Mar 8, 2024",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIOx_Jr8S8l2GD5xpj6b3GDTW3joonJLdruw&s",
+        name: "Ritual of Sakura",
+        updatedDate: "Mar 8, 2024",
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIOx_Jr8S8l2GD5xpj6b3GDTW3joonJLdruw&s",
     },
     {
-      name: "Lancome Rouge",
-      updatedDate: "Mar 8, 2024",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXqsMS5j2M4TT1YbMEU8DU1oxMktkRMEmBtQ&s",
+        name: "Lancome Rouge",
+        updatedDate: "Mar 8, 2024",
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXqsMS5j2M4TT1YbMEU8DU1oxMktkRMEmBtQ&s",
     },
     {
-      name: "Erbology Aloe Vera",
-      updatedDate: "Mar 8, 2024",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwfsgP207H7OBptwS0TFFot_4GyORQxXiupTWvgv021MGzywcCRbZJDfwHXQCC7BKwluo&usqp=CAU",
+        name: "Erbology Aloe Vera",
+        updatedDate: "Mar 8, 2024",
+        imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwfsgP207H7OBptwS0TFFot_4GyORQxXiupTWvgv021MGzywcCRbZJDfwHXQCC7BKwluo&usqp=CAU",
     },
-  ];
+];

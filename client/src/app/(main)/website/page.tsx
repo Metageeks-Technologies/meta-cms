@@ -1,27 +1,28 @@
 "use client"
 import * as React from "react"
-import {SortingState,flexRender,getCoreRowModel,getFilteredRowModel,getPaginationRowModel,getSortedRowModel,useReactTable,} from "@tanstack/react-table"
+import { SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table"
 import { MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import {DropdownMenu,DropdownMenuContent, DropdownMenuItem,DropdownMenuLabel,DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 
+import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
 import { usePostContext } from "@/context/postContext"
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,} from "@/components/ui/alert-dialog"
-// import AddCategory from "./component/AddCategory"
-import AddProductCategory from "@/app/store/productCategory/component/AddProductCategory"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
 import { getURL } from "@/utils/AWS_Config"
 import toast from "react-hot-toast"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axiosCall from "@/utils/ApiCall"
 import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
 import { StoreRole } from "@/constant/store"
+import { useWebsiteContext } from "@/context/websiteContext"
+import AddWebsite from "./component/AddWebsite"
 
 const columns = [
   {
@@ -32,133 +33,51 @@ const columns = [
     ),
   },
   {
-    accessorKey: "bannerImageKey",
-    header: "Image",
-    cell: ({ row }: any) => {
-      const imagekey = row.getValue("bannerImageKey");
-
-      return (
-        <div className="flex items-center justify-start">
-          {imagekey ? (
-            <img
-              src={getURL(imagekey)}
-
-              alt=" product Category Image"
-              className="h-20 w-32 object-cover rounded-md"
-            />
-          ) : (
-            <span className="text-gray-500">No image</span>
-          )}
-        </div>
-      );
-    }
-  },
-  {
-    accessorKey: "description",
-    header: () => <div className="">Description</div>,
+    accessorKey: "key",
+    header: "Website key",
     cell: ({ row }: any) => (
-      <div className="">{row.getValue("description")}</div>
+      <div className="">{row.getValue("key")}</div>
     ),
   },
-  // {
-  //   accessorKey: "code",
-  //   header: "Code",  
-  //   cell: ({ row }: any) => (
-  //     <div className="">{row.getValue("code")}</div> 
-  //   ),
-  // },
   {
+    accessorKey: "isDeleted",
+    header: "Status",
+    cell: ({ row }: any) => {
+      const status = row.getValue("isDeleted")
+      return <div className="">{status ? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
+    },
+  },
+  {
+    header: "Action",
     id: "actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
       const [isOpen, setIsOpen] = useState(false);
-      const [productCategory, setProductCategory] = useState(row.original);
-      const { deleteProductCategory, fetchProductCategories } = usePostContext();
-      const { user, setLoading }: any = useUserContext();
+      const [website, setWebsite] = useState(row.original);
+      const { user }: any = useUserContext();
+      const { deleteWebsite, recoverWebsite, updateWebsite } = useWebsiteContext();
+      const [clickedItem, setClickedItem] = useState(0);
 
       const handleNonSuperAdminClick = () => {
-        toast.error("Only superadmin has permission for this");
-      };
-
-      const setImageKey = (key: string) => {
-        setProductCategory({ ...productCategory, bannerImageKey: key });
-      };
-
-      const uploadNewFile = async (fileList: FileList | null) => {
-        setLoading(true);
-        try {
-          const payload = {
-            folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY,
-            fileName: fileList?.[0].name,
-            contentType: fileList?.[0].type
-          }
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-
-          if (resp.status === 200 || resp.status === 201) {
-            uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY, null, setImageKey);
-          } else {
-            toast.error(resp.data.message, { duration: 2000 });
-          }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-
-      const updateCategory = async (e: any) => {
-        if (!productCategory.name.trim() || !productCategory.description.trim() ) {
-          toast.error("Please fill in all fields correctly.", {
-            duration: 2000,
-          });
-          setLoading(false);
-          return;
-        }
-
-        e.preventDefault();
-        setLoading(true);
-        try {
-          const payload = {
-            name: productCategory.name,
-            description: productCategory.description,
-            bannerImageKey: productCategory.bannerImageKey
-          }
-          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${productCategory._id}`, payload);
-
-          if (resp.status === 200 || resp.status === 201) {
-            toast.success(resp.data.message, {
-              duration: 2000,
-            });
-            fetchProductCategories();
-            setIsOpen(false);
-          } else {
-            toast.error(resp.data.message, {
-              duration: 2000,
-            });
-          }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setLoading(false);
-        }
+        toast.error("Only Superadmin has permission for this");
       };
 
       const handleCancel = () => {
-        setProductCategory(row.original);
+        setWebsite(row.original);
         setIsOpen(false);
-      };
+      }
 
       useEffect(() => {
-        setProductCategory(row.original);
+        setWebsite(row.original);
       }, [row.original]);
+
 
       return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialog>
             {
-              user?.storeRole === StoreRole.SUPERADMIN ? (
+              user?.role === userRoles.SUPERADMIN && user?.storeRole === StoreRole.SUPERADMIN ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -170,94 +89,91 @@ const columns = [
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-gray-800" />
 
-                    <AlertDialogTrigger>
-                      <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                        <RiDeleteBin6Line className="text-red-500" />
-                        Delete category
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
+                    {
+                      website.isDeleted ?
+                        <AlertDialogTrigger>
+                          <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3" onClick={() => setClickedItem(1)}>
+                            <RiDeleteBin6Line className="" />
+                            Recover website
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        :
+                        <AlertDialogTrigger>
+                          <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3" onClick={() => setClickedItem(2)}>
+                            <RiDeleteBin6Line className="text-red-500" />
+                            Delete website
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                    }
 
                     <DialogTrigger asChild>
                       <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
                         <MdOutlineUpdate />
-                        Update category
+                        Update website
                       </DropdownMenuItem>
                     </DialogTrigger>
+
+
+
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
+                // for the non superadmin role
                 <div className="text-gray-500">
                   <MoreHorizontal onClick={handleNonSuperAdminClick} />
                 </div>
               )
             }
 
+
             <AlertDialogContent className='bg-black border-gray-800'>
               <AlertDialogHeader>
                 <AlertDialogTitle></AlertDialogTitle>
-                <AlertDialogDescription className='h-24'>
+                <AlertDialogDescription className='h-24' >
                   <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
                 </AlertDialogDescription>
                 <AlertDialogDescription className='w-full text-center mb-5 text-lg text-white'>
-                  Delete Category
+                  Are you sure ?
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => deleteProductCategory(productCategory._id)} className='bg-red-500 hover:bg-red-600'>Delete</AlertDialogAction>
+                <AlertDialogAction
+                  onClick={
+                    clickedItem === 1 ?
+                      () => recoverWebsite(website._id)
+                      : clickedItem === 2 ?
+                        () => deleteWebsite(website._id)
+                        : () => { }
+                  }
+                  className={`${website.isDeleted ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"}`}>{website.isDeleted ? "Recover" : "Delete"}</AlertDialogAction>
               </AlertDialogFooter>
+
             </AlertDialogContent>
           </AlertDialog>
 
+
+
+
           <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">
             <DialogHeader>
-              <DialogTitle className='text-2xl'>Create Category</DialogTitle>
+              <DialogTitle className='text-2xl'>Update website</DialogTitle>
             </DialogHeader>
-            <form className="py-4" onSubmit={updateCategory}>
+            <form className="py-4" onSubmit={(e) => updateWebsite(e, website, setIsOpen)}>
               <div className="mb-4">
                 <Label htmlFor="name" className="text-right">
-                  Category name
+                  Name
                 </Label>
                 <Input
                   id="name"
-                  value={productCategory.name}
-                  placeholder='Enter Name'
-                  onChange={(e) => setProductCategory({ ...productCategory, name: e.target.value })}
+                  value={website.name}
+                  placeholder='Enter Website Name'
+                  className=""
+                  onChange={(e) => setWebsite({ ...website, name: e.target.value })}
                   required
                 />
               </div>
-              <div className="mb-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Input
-                  id="description"
-                  value={productCategory.description}
-                  placeholder='Enter description'
-                  onChange={(e) => setProductCategory({ ...productCategory, description: e.target.value })}
-                  required
-                />
-              </div>
-          
-
-              <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
-                <Label htmlFor="img" className="text-right w-full ">
-                  Select Image
-                </Label>
-                <input
-                  type="file"
-                  id="img"
-                  onChange={(e: any) => uploadNewFile(e.target.files)}
-                  className='hidden'
-                />
-              </div>
-
-              {productCategory.bannerImageKey && (
-                <div className='w-[100px] h-[70px]'>
-                  <img src={getURL(productCategory.bannerImageKey)} alt="" className='w-full h-full object-cover' />
-                </div>
-              )}
 
               <DialogFooter>
                 <Button type="button" onClick={handleCancel}>Cancel</Button>
@@ -266,41 +182,45 @@ const columns = [
             </form>
           </DialogContent>
         </Dialog>
-      );
+      )
     },
   },
-];
-
-
-
-
-
+]
 
 function Category() {
   const [sorting, setSorting] = useState<SortingState>([])
+  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
+  // const [rowSelection, setRowSelection] = React.useState({})
 
-
-  const { productCategories, fetchProductCategories }: any = usePostContext()
   const { user }: any = useUserContext();
+  const { websiteData, fetchWebsiteData } = useWebsiteContext()
 
+
+  // console.log(categories);
 
   const table = useReactTable({
-    data: productCategories,
+    data: websiteData,
     columns,
     onSortingChange: setSorting,
+    // onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-
+    // onColumnVisibilityChange: setColumnVisibility,
+    // onRowSelectionChange: setRowSelection,
     state: {
       sorting,
+      // columnFilters,
+      // columnVisibility,
+      // rowSelection,
     },
   });
 
 
   useEffect(() => {
-    fetchProductCategories();
+    fetchWebsiteData();
   }, []);
 
 
@@ -319,8 +239,8 @@ function Category() {
           />
 
           {
-            user?.storeRole === StoreRole.SUPERADMIN &&
-            <AddProductCategory />
+            user?.role === userRoles.SUPERADMIN &&
+            <AddWebsite />
           }
 
         </div>

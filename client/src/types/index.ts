@@ -244,3 +244,71 @@ export interface Address {
  export interface ProductCardProps {
     product: ProductDetails;
 }
+
+
+export interface SectionContent {
+  subHeading: string;
+  heading: string;
+  description: string;
+  imageKey: string | null;
+}
+
+export interface Card {
+  imageKey: string | null;
+  heading: string;
+  description: string;
+}
+
+export interface Caad {
+  imageKey: string | null;
+  name: string;
+  company: string;
+  message: string;
+}
+
+export interface Feature {
+  imageKey: string | null;
+  heading: string;
+  description: string;
+}
+
+export interface ServicesSection {
+  heading: string;
+  description: string;
+  cards: Card[];
+}
+
+export interface ProcessSection {
+  heading: string;
+  cards: { heading: string; description: string }[];
+}
+
+export interface FeatureSection {
+  heading: string;
+  features: Feature[];
+}
+
+export interface ForecastContent {
+  subHeading: string;
+  heading: string;
+  imageKey: string | null;
+  list: { point: string }[];
+}
+
+export interface PageContent {
+  _id?: any;
+  title: string;
+  slug: string;
+  website: string;
+  service: string;
+  subService: string;
+  content: {
+      heroSection: SectionContent;
+      solutionSection1: SectionContent;
+      servicesSection: ServicesSection;
+      processSection: ProcessSection;
+      solutionSection2: SectionContent;
+      featureSection: FeatureSection;
+      marketForecastSection: ForecastContent;
+  };
+}

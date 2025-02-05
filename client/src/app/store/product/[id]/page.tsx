@@ -82,6 +82,8 @@ const ProductCard: React.FC = () => {
       return; // Prevent further execution if sku is missing
     }
 
+
+
     const existingVariantId = product.variants.find((variant: any) => variant.variantId === newVariant.variantId);
     if (existingVariantId) {
       toast.error('Variant ID already exists', {
@@ -97,6 +99,11 @@ const ProductCard: React.FC = () => {
         duration: 2000,
       });
       return;
+    }
+
+    if (!newVariant.price && (!newVariant.color || !newVariant.size)) {
+      toast.error("Price, Color, and Size are required!", { duration: 2000 });
+      return; // Prevent moving forward
     }
 
 
@@ -242,6 +249,13 @@ const ProductCard: React.FC = () => {
 
   const handleDeleteVariant = async (variantId: string) => {
     try {
+      const updatedVariants = product?.variants.filter((variant: any) => variant.variantId !== variantId);
+
+      // Check if there is only one variant left
+      if (updatedVariants.length === 0) {
+        toast.error("At least one variant must remain.");
+        return; // Prevent further deletion
+      }
       const response = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}/${variantId}`);
       if (response.status === 200) {
         const updatedVariants = product?.variants.filter((variant: any) => variant.variantId !== variantId);
@@ -250,8 +264,10 @@ const ProductCard: React.FC = () => {
           variants: updatedVariants,
         }));
         if (selectedVariant.variantId === variantId) {
-          setSelectedVariant(null);
-          setSelectedImage("");
+          const nextVariant = updatedVariants[0] || null;
+          setSelectedVariant(nextVariant);
+          setSelectedImage(nextVariant?.imageKeys[0] || "");
+  
         }
         toast.success(response.data.message);
       }

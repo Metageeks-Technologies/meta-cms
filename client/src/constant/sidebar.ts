@@ -8,6 +8,7 @@ import { RiPagesLine } from "react-icons/ri";
 import { HiTemplate } from "react-icons/hi";
 import { TiThSmallOutline } from "react-icons/ti";
 import { BiSolidCategoryAlt } from "react-icons/bi";
+import { FaGlobe } from "react-icons/fa6";
 
 
 
@@ -81,6 +82,11 @@ export const items: MenuItem[] = [
         icon: BiSolidCategoryAlt,
       },
     ]
+  },
+  {
+    title: "Websites",
+    url: "/website",
+    icon: FaGlobe,
   },
   {
     title: "Users",

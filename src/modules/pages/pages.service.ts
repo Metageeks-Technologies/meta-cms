@@ -32,14 +32,18 @@ export class PagesService {
         }
     }
 
-    async getPageBySlug(slug: string, isDeleted?: boolean) {
+    async getPageBySlug(slug: string, website?: string, isDeleted?: boolean) {
 
         const matchCondition: any = {
             slug: slug
         };
-    
+
         if (isDeleted !== undefined) {
             matchCondition.isDeleted = isDeleted;
+        }
+
+        if (website) {
+            matchCondition['website'] = website;
         }
 
         const result = await this.Page.aggregate([
@@ -101,9 +105,31 @@ export class PagesService {
         return allPage
     }
 
-    async getPageTitles(service: PageServiceEnum, subService: PageSubServiceEnum) {
-        const pages = await this.Page.find({service, subService}, {title: 1, slug: 1});
-        return pages
+    async getPageTitles(service: PageServiceEnum, website?: string) {
+        const query = {service}
+
+        if(website){
+            query['website'] = website;
+        }
+
+        const pages = await this.Page.find(query, { subService: 1, title: 1, slug: 1 });
+
+        const result: Record<string, Record<string, { title: string; slug: string }[]>> = {
+            [service]: {},
+        };
+
+        for (const page of pages) {
+            const { subService, title, slug } = page;
+
+            if (!result[service][subService]) {
+                result[service][subService] = [];
+            }
+
+            result[service][subService].push({ title, slug });
+        }
+
+        return result;
     }
+
 
 }

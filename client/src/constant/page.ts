@@ -1,24 +1,69 @@
-export const INITIAL_PAGE_CONTENT = {
+import { PageContent } from "@/types";
+
+export const INITIAL_PAGE_CONTENT: PageContent = {
     title: '',
     slug: '',
-    content:
-        `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Document</title>
-<style>
-    h1 {
-        color: red;
-    }
-</style>
-</head>
-<body>
-    <h1>Hello, World!</h1>
-</body>
-</html>`
-}
+    website: '',
+    service: '',
+    subService: '',
+    content: {
+        heroSection: {
+            subHeading: '',
+            heading: '',
+            description: '',
+            imageKey: ''
+        },
+        solutionSection1: {
+            subHeading: '',
+            heading: '',
+            description: '',
+            imageKey: ''
+        },
+        servicesSection: {
+            heading: '',
+            description: '',
+            cards: [
+                {
+                    imageKey: '',
+                    heading: '',
+                    description: ''
+                }
+            ]
+        },
+        processSection: {
+            heading: '',
+            cards: [{
+                heading: '',
+                description: ''
+            }]
+        },
+        solutionSection2: {
+            subHeading: '',
+            heading: '',
+            description: '',
+            imageKey: ''
+        },
+        featureSection: {
+            heading: '',
+            features: [
+                {
+                    imageKey: '',
+                    heading: '',
+                    description: ''
+                }
+            ]
+        },
+        marketForecastSection: {
+            subHeading: '',
+            heading: '',
+            imageKey: '',
+            list: [{
+                point: '',
+            }]
+        },
+    },
+    _id: ''
+};
 
 export const PageService = [
     {

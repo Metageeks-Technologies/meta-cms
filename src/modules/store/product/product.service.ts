@@ -224,7 +224,7 @@ export class ProductService {
     }
 
     async getLatestProduct(vendorId: string) {
-        const query = { status: ProductStatusEnum.PUBLISHED }
+        const query = { status: ProductStatusEnum.PUBLISHED, isDeleted: false }
         if (vendorId) {
             query['vendor'] = vendorId
         }

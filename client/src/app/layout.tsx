@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { UserProvider } from "../context/userContext";
 import { PostProvider } from "@/context/postContext";
 import { ProductProvider } from "@/context/productContext";
+import { WebsiteProvider } from "@/context/websiteContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,12 +37,14 @@ export default function RootLayout({
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
           <UserProvider>
-          <ProductProvider>
-            <main className="w-full bg-[#06040B] text-gray-200">
-              <Toaster />
-              {children}
-            </main>
-            </ProductProvider>
+            <WebsiteProvider>
+              <ProductProvider>
+                <main className="w-full bg-[#06040B] text-gray-200">
+                  <Toaster />
+                  {children}
+                </main>
+              </ProductProvider>
+            </WebsiteProvider>
           </UserProvider>
         </body>
       </html>

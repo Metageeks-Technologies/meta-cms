@@ -18,6 +18,7 @@ const App: React.FC = () => {
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
+  const [websiteArr, setWebsiteArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
   const [tagInput, setTagInput] = useState('');
   const [formData, setFormData] = useState<NewPostFormData>({
@@ -51,9 +52,28 @@ const App: React.FC = () => {
     }
   };
 
+  const fetchWebsites = async () => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+      if (resp.status === 200 || resp.status === 201) {
+        setWebsiteArr(resp?.data);
+      } else {
+        toast.error(resp.data.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // Fetch categories on mount
   useEffect(() => {
-    if (user.role) fetchCategory();
+    if (user.role) {
+      fetchCategory();
+      fetchWebsites()
+    }
   }, [user]);
 
   // Handle image selection from MediaPage modal
@@ -344,10 +364,11 @@ const App: React.FC = () => {
               className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
             >
               <option value="">-- Select --</option>
-              <option value={WebsiteEnum.METAGEEKS}>Metageeks</option>
-              <option value={WebsiteEnum.FAMPROTOCAL}>Fam Protocal</option>
-              <option value={WebsiteEnum.CLUSTERPROTOCAL}>Cluster Protocal</option>
-              <option value={WebsiteEnum.GAMETERMINAL}>Game Terminal</option>
+              {
+                websiteArr.map((website: any, index: number) => (
+                  <option key={index} value={website?.key}>{website?.name}</option>
+                ))
+              }
             </select>
           </div>
 
