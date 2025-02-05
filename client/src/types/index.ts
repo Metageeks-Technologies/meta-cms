@@ -185,14 +185,14 @@ export interface PostContextType {
 export type ProductContextType = {
   productCategories: any[];  // Update this with correct type if needed
   filterBy: string;
-  setFilterBy: React.Dispatch<React.SetStateAction<string>>;
+  setFilterBy: (filter: string) => void;
   sortBy: string;
-  setSortBy: React.Dispatch<React.SetStateAction<string>>;
+  setSortBy: (filter: string) => void;
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
 
   selectedProductCategory: string;
-  setSelectedProductCategory: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedProductCategory: (filter: string) => void;
   fetchProductCategories: () => Promise<void>;
   deleteProductCategory: (id: string) => Promise<void>;
 };
