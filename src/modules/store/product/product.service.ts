@@ -375,7 +375,7 @@ export class ProductService {
             }
         }
 
-        const query = await this.Product.updateOne({ _id: productId }, { $set: productDetail }).exec();
+        const query = await this.Product.updateOne({ _id: productId }, { $set: { ...productDetail, isDeleted: false } }).exec();
     }
 
     async getVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string) {
@@ -447,12 +447,11 @@ export class ProductService {
                 throw new NotFoundException(`Variant not found`);
             }
 
-
-
             // Update the variant with the new details
             product.variants[variantIndex] = {
                 ...product.variants[variantIndex]._doc,
                 ...variantDetails,
+                isDeleted: false
             };
 
             await product.save();
@@ -474,7 +473,7 @@ export class ProductService {
             }
 
             const unDeletedVariant = product.variants.filter((variant: any) => !variant.isDeleted)
-            if(unDeletedVariant.length <= 1){
+            if (unDeletedVariant.length <= 1) {
                 throw new BadRequestException('At least one product variant must remain.')
             }
 
@@ -547,7 +546,8 @@ export class ProductService {
         }
     }
 
-    async updateVariantQuantity(productId: string, variantId: string, newQuantity: number) {
+    async updateVariantQuantity(productId: string, variantId: string, value: number) {
+
         const product = await this.Product.findById(productId).exec();
 
         const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
@@ -555,7 +555,7 @@ export class ProductService {
             throw new NotFoundException(`Variant not found`);
         }
 
-        product.variants[variantIndex].quantity = newQuantity;
+        product.variants[variantIndex].quantity += value;
         await product.save();
     }
 }

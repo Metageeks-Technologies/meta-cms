@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { CreatePageDto } from "./dto/create-page.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
-import { IPage } from "./schema/page.schema";
+import { IPage, PageServiceEnum, PageSubServiceEnum } from "./schema/page.schema";
 import { UpdatePageDto } from "./dto/update-page.dto";
 
 
@@ -99,6 +99,11 @@ export class PagesService {
         if (!allPage.length) throw new NotFoundException('No page found')
 
         return allPage
+    }
+
+    async getPageTitles(service: PageServiceEnum, subService: PageSubServiceEnum) {
+        const pages = await this.Page.find({service, subService}, {title: 1, slug: 1});
+        return pages
     }
 
 }

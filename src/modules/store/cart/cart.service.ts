@@ -59,6 +59,9 @@ export class CartService {
 
         if (existingItemIndex !== -1) {
             // Update the quantity of the existing item
+            if(cart.items[existingItemIndex].quantity + quantity > productData.variants[variantIndex].quantity){
+                throw new BadRequestException('Insufficient stock available for this variant');
+            }
             cart.items[existingItemIndex].quantity += quantity;
         } else {
             // Add the new item to the cart

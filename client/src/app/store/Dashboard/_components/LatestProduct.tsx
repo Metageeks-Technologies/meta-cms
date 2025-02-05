@@ -16,11 +16,11 @@ const LatestProducts = ({data}: any) => {
   return (
     <div>      <h3 className="text-lg font-bold mb-6">Latest Products</h3>
       <ul className="space-y-6">
-        {data.map((product: any, index: number) => (
+        {data.slice(0, 5).map((product: any, index: number) => (
           <li key={index} className="flex items-center justify-between">
             <div className="flex items-center">
               <img
-                src={getURL(product?.variants[0].imageKeys[0])}
+                src={getURL(product?.variants[0]?.imageKeys[0])}
                 alt={product.name}
                 className="w-16 h-16 rounded-lg mr-4 border border-gray-700"
               />

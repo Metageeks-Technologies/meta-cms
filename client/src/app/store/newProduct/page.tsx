@@ -202,14 +202,13 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
           return variant;
         });
       });
-      // Also update the formData to ensure the correct imageKeys are part of the payload
       setFormData((prevFormData) => ({
         ...prevFormData,
         variants: prevFormData.variants.map((variant) => {
           if (variant.variantId === variantId) {
             return {
               ...variant,
-              imageKeys: [...variant.imageKeys, ...imageKeys],  // Ensure that the formData has the correct image keys
+              imageKeys: [...variant.imageKeys, ...imageKeys],  
             };
           }
           return variant;
@@ -236,14 +235,38 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
   }
 
   const handleCreateProduct = async () => {
-    if (!formData.title.trim()|| !formData.subDescription.trim() || !formData.description.trim() || !formData.brand.trim() ) {
-      toast.error("Please fill in all fields correctly.", {
-        duration: 2000,
-      });
-      setLoading(false);
+ 
+   if (!formData.title.trim()) {
+      toast.error('Product title is required.', { duration: 2000 });
+      return;
+    }
+    if (!formData.subDescription.trim()) {
+      toast.error('Product subDescription is required.', { duration: 2000 });
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      toast.error('Product description is required.', { duration: 2000 });
       return;
     }
     
+    if (!formData.category.trim()) {
+      toast.error('At least one category must be selected.', { duration: 2000 });
+      return;
+    }
+
+    if (!Array.isArray(formData.variants) || formData.variants.length === 0) {
+      toast.error('Add at least one variant', { duration: 2000 });
+      return;
+    }
+
+    if (!formData.brand.trim()) {
+      toast.error('product brand is required.', { duration: 2000 });
+      return;
+    }
+
+    
+
     setLoading(true);
     try {
       const payload: PayloadType = {
@@ -453,14 +476,9 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
         console.error("Invalid hex color");
       }
     }}
-    className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
+    className="w-full  rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
   />
   
-  {/* Color display box */}
-  <div
-    className="mt-2 w-12 h-12 border rounded"
-    style={{ backgroundColor: variant.color }}
-  />
 </div>
 
 
@@ -507,7 +525,11 @@ const handleVariantImageChange = async (variantId: string, event: React.ChangeEv
     id="productStatus"
     className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
     value={productStatus}
-    onChange={(e) => setFormData({...formData,status: e.target.value})}
+    onChange={(e) => {
+      const newStatus = e.target.value;
+      setProductStatus(newStatus); // update the status
+      setFormData({ ...formData, status: newStatus }); // update formData status
+    }}
   >
     <option value="draft">Draft</option>
     <option value="published">Published</option>

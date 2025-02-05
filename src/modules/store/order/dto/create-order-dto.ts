@@ -24,10 +24,6 @@ export class CreateOrderDto {
     @IsNotEmpty()
     @IsString()
     razorpay_signature: string;
-
-    @IsNotEmpty()
-    @IsEnum(PaymentTypeEnum)
-    payment_type: PaymentTypeEnum
 }
 
 export class CreateOrderWithoutPayDto {

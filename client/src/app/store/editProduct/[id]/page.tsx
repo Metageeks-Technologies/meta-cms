@@ -9,22 +9,23 @@ import { Check } from 'lucide-react';
 import axios from 'axios';
 import { useParams, useRouter } from "next/navigation";
 import DatePicker from 'react-datepicker';
+import { FaArrowLeft } from 'react-icons/fa6';
 
 const EditProduct: React.FC = () => {
     const [variantImages, setVariantImages] = useState<{ [key: string]: File[] }>({});
     const [productStatus, setProductStatus] = useState('DRAFT');
     const [attributes, setAttributes] = useState<{ name: string, value: string | number }[]>([{ name: '', value: '' }]); // Add one default attribute
     const [variants, setVariants] = useState<ProductVariant[]>([  // Add one default variant
-      {
-        variantId: '',
-        sku: '',
-        price: 0,
-        discountedPrice: 0,
-        quantity: 0,
-        size: '',
-        color: '',
-        imageKeys: [],
-      },
+        {
+            variantId: '',
+            sku: '',
+            price: 0,
+            discountedPrice: 0,
+            quantity: 0,
+            size: '',
+            color: '',
+            imageKeys: [],
+        },
     ]);
     const editorRef = useRef<any>(null);
     const params = useParams();
@@ -86,11 +87,11 @@ const EditProduct: React.FC = () => {
         try {
             const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`);
 
-            console.log(response.data)
+            // console.log(response.data)
 
             if (response.status === 200 || response.status === 201) {
                 console.log('Attributes:', response.data.attributes); // Check attributes
-                console.log('Variants:', response.data.variants); 
+                console.log('Variants:', response.data.variants);
                 setProduct(response.data);
                 setFormData({
                     title: response.data.title,
@@ -316,6 +317,9 @@ const EditProduct: React.FC = () => {
 
     return (
         <div className='border-1 border-dashed border-gray-900 p-4 relative'>
+            <div className='text-2xl cursor-pointer text-white -mt-2 mb-5' onClick={() => router.push('/store/allProduct')}>
+                <FaArrowLeft />
+            </div>
             <div className="bg-[#0A090F] border-[#414141] p-6 space-y-6 flex flex-col sm:flex-row gap-8 mx-auto">
                 {/* Left side (Product title, description, and tags) */}
                 <div className="w-full sm:w-[70%] flex flex-col space-y-9">
@@ -354,7 +358,7 @@ const EditProduct: React.FC = () => {
                                 skin: "oxide-dark",
                                 content_css: "dark",
                                 plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen', 'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'],
-                                toolbar:'undo redo | blocks | ' +'bold italic forecolor | alignleft aligncenter ' +'alignright alignjustify | bullist numlist outdent indent | ' +'removeformat | help | embed',
+                                toolbar: 'undo redo | blocks | ' + 'bold italic forecolor | alignleft aligncenter ' + 'alignright alignjustify | bullist numlist outdent indent | ' + 'removeformat | help | embed',
                                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                                 verify_html: false,
                             }}
@@ -364,7 +368,7 @@ const EditProduct: React.FC = () => {
                         />
                     </div>
                     {/* Dynamic Attributes */}
-                    <div>
+                    {/* <div>
                         <h2>Attributes</h2>
                         {attributes.map((attribute, index) => (
                             <div key={index} className="mb-4">
@@ -388,14 +392,13 @@ const EditProduct: React.FC = () => {
                             </div>
                         ))}
                         <button onClick={addAttribute} className="bg-blue-600 text-white px-4 py-2 rounded-md">+ Add Attribute</button>
-                    </div>
+                    </div> */}
 
                     {/* Variants */}
-                    <div>
+                    {/* <div>
                         <h2>Variants</h2>
                         {variants.map((variant, index) => (
                             <div key={index}>
-                                {/* Pair 1 */}
                                 <div className="flex gap-4 mb-4">
                                     <input
                                         type="text"
@@ -413,7 +416,6 @@ const EditProduct: React.FC = () => {
                                     />
                                 </div>
 
-                                {/* Pair 2 */}
                                 <div className="flex gap-4 mb-4">
                                     <input
                                         type="number"
@@ -432,7 +434,6 @@ const EditProduct: React.FC = () => {
                                     />
                                 </div>
 
-                                {/* Pair 3 */}
                                 <div className="flex gap-4 mb-4">
                                     <input
                                         type="number"
@@ -451,10 +452,9 @@ const EditProduct: React.FC = () => {
                                     />
                                 </div>
 
-                                {/* Pair 4 */}
 
                                 <div className="flex gap-6 mb-6">
-                                    {/* Color picker section */}
+
                                     <div className="flex flex-col items-center w-1/2">
                                         <label className="block text-white mb-2">Select Color</label>
                                         <input
@@ -470,14 +470,14 @@ const EditProduct: React.FC = () => {
                                             }}
                                             className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
                                         />
-                                        {/* Color display box */}
+
                                         <div
                                             className="mt-2 w-12 h-12 border rounded"
                                             style={{ backgroundColor: variant.color }}
                                         />
                                     </div>
 
-                                    {/* Variant Images Section */}
+
                                     <div className="flex-1">
                                         <label className="block text-white mb-2">Variant Images</label>
                                         <input
@@ -487,7 +487,7 @@ const EditProduct: React.FC = () => {
                                             onChange={(e) => handleVariantImageChange(variant.variantId, e)}
                                             className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white focus:outline-none"
                                         />
-                                        {/* Display selected images */}
+
                                         {variantImages[variant.variantId]?.length > 0 && (
                                             <div className="flex flex-wrap gap-2 mt-2">
                                                 {variantImages[variant.variantId].map((image, idx) => (
@@ -506,7 +506,7 @@ const EditProduct: React.FC = () => {
                             </div>
                         ))}
                         <button onClick={addVariant} className="bg-blue-600 text-white px-2 py-1 rounded-md mt-4">+ Add Variant</button>
-                    </div>
+                    </div> */}
 
                 </div>
                 {/* Right side (Post status, visibility, category) */}
@@ -514,15 +514,21 @@ const EditProduct: React.FC = () => {
                     <div>
                         <label htmlFor="productStatus" className="text-white">Product Status</label>
                         <select
-    id="productStatus"
-    className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
-    value={productStatus}
-    onChange={(e) => setFormData({...formData,status: e.target.value})}
-  >
-    <option value="draft">Draft</option>
-    <option value="published">Published</option>
+                            id="productStatus"
+                            className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
+                            value={productStatus}
+                            onChange={(e) => {
+                                const newStatus = e.target.value;
+                                setProductStatus(newStatus); // update the status
+                                setFormData({ ...formData, status: newStatus }); // update formData status
+                            }}
+                        >
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                        </select>
 
-  </select>
+
+
                     </div>
                     {productStatus === "SCHEDULED" && (
                         <div>
@@ -573,7 +579,7 @@ const EditProduct: React.FC = () => {
                     onClick={handleEditProduct}
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full sm:w-auto"
                 >
-                    Create Product
+                    Submit
                 </button>
             </div>
         </div>

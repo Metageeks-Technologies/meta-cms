@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { IOrder, OrderStatusEnum, PaymentStatusEnum, PaymentTypeEnum } from "./schema/order.schema";
@@ -34,7 +34,6 @@ export class OrderService {
             throw new BadRequestException('Cart is empty!');
         }
 
-        // console.log("Cart",cart)
 
         const vendorMap = new Map();
 
@@ -47,26 +46,29 @@ export class OrderService {
         }
 
         for (const [vendorId, items] of vendorMap) {
-
             let totalPrice = 0;
 
-            items.forEach((item: any) => {
+            for (const item of items) {
                 // console.log(item.product.variants, "Variants")
-                item.product.variants.forEach((variant: any) => {
+                for (const variant of item.product.variants) {
                     if (variant.variantId === item.variantId) {
 
-                        if(item.quantity > variant.quantity){
-                            throw new BadRequestException('Insufficient stock available')
+                        if (item.quantity > variant.quantity) {
+                            throw new BadRequestException({
+                                message: 'Insufficient stock available',
+                                product: item.product.title
+                            })
                         }
 
                         if (variant.discountedPrice) {
                             totalPrice += variant.discountedPrice * item.quantity
-                            return
+                        } else {
+                            totalPrice += variant.price * item.quantity;
                         }
-                        totalPrice += variant.price * item.quantity;
+                        await this.productService.updateVariantQuantity(item?.product._id, item.variantId, -item.quantity);
                     }
-                })
-            });
+                }
+            };
 
             await this.Order.create({
                 user: userId,
@@ -78,11 +80,15 @@ export class OrderService {
             //   orders.push(order);
         }
 
+
+
         await this.cartService.clearCart(userId, userStoreRole);
     }
 
 
     async initiatePayment(userId: string) {
+
+        const user = await this.userService.findById(userId);
 
         // Get cart details
         const cart = await this.cartService.getCart(userId);
@@ -93,18 +99,27 @@ export class OrderService {
 
         // Calculate total amount
         let totalAmount = 0;
-        cart.items.forEach((item: any) => {
-            // console.log(item.product.variants, "Variants")
-            item.product.variants.forEach((variant: any) => {
+
+        for (const item of cart.items) {
+
+            for (const variant of item.product.variants) {
                 if (variant.variantId === item.variantId) {
+
+                    if (item.quantity > variant.quantity) {
+                        throw new BadRequestException({
+                            message: 'Insufficient stock available',
+                            product: item.product.title
+                        })
+                    }
+
                     if (variant.discountedPrice) {
                         totalAmount += variant.discountedPrice * item.quantity
                         return
                     }
                     totalAmount += variant.price * item.quantity;
                 }
-            })
-        });
+            }
+        };
 
         const order = await this.paymentService.createOrder(totalAmount);
 
@@ -112,6 +127,8 @@ export class OrderService {
             orderId: order.id,
             amount: order.amount,
             currency: order.currency,
+            name: user.name,
+            email: user.email,
         };
     }
 
@@ -121,9 +138,11 @@ export class OrderService {
         userStoreRole: UserStoreRoleEnum,
         newOrderDetails: CreateOrderDto,
     ) {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, payment_type } = newOrderDetails;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = newOrderDetails;
 
         const isPaymentValid = await this.paymentService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+
+        console.log(isPaymentValid, "Is payment valid");
 
         if (!isPaymentValid.success) {
             throw new BadRequestException('Payment verification failed');
@@ -150,18 +169,27 @@ export class OrderService {
         for (const [vendorId, items] of vendorMap) {
             let totalPrice = 0;
 
-            items.forEach((item: any) => {
+            for (const item of items) {
                 // console.log(item.product.variants, "Variants")
-                item.product.variants.forEach((variant: any) => {
+                for (const variant of item.product.variants) {
                     if (variant.variantId === item.variantId) {
+
+                        if (item.quantity > variant.quantity) {
+                            throw new BadRequestException({
+                                message: 'Insufficient stock available',
+                                product: item.product.title
+                            })
+                        }
+
                         if (variant.discountedPrice) {
                             totalPrice += variant.discountedPrice * item.quantity
-                            return
+                        } else {
+                            totalPrice += variant.price * item.quantity;
                         }
-                        totalPrice += variant.price * item.quantity;
+                        await this.productService.updateVariantQuantity(item?.product._id, item.variantId, -item.quantity);
                     }
-                })
-            });
+                }
+            };
 
             await this.Order.create({
                 user: userId,
@@ -170,7 +198,6 @@ export class OrderService {
                 totalAmount: totalPrice,
                 shippingAddress: addressId,
                 paymentStatus: PaymentStatusEnum.PAID,
-                paymentType: payment_type,
                 razorpayOrderId: razorpay_order_id,
                 razorpayPaymentId: razorpay_payment_id,
             });
@@ -226,7 +253,7 @@ export class OrderService {
 
     async getlastOrder(vendorId: string) {
         const query = {}
-        if(vendorId){
+        if (vendorId) {
             query['vendor'] = vendorId;
         }
         const order = await this.Order.find(query).sort({ createdAt: -1 }).limit(10).populate({
@@ -302,12 +329,12 @@ export class OrderService {
 
     async getTotalOrderCount(vendorId: string) {
         const query = {}
-        if(vendorId){
+        if (vendorId) {
             query['vendor'] = new mongoose.Types.ObjectId(vendorId);
         }
 
         const orderCount = await this.Order.countDocuments(query);
-        
+
         return orderCount;
     }
 
@@ -408,6 +435,16 @@ export class OrderService {
 
         if (vendorId) {
             query['vendor'] = vendorId;
+        }
+
+        const order = await this.Order.findOne({ _id: orderId }).populate('items.product').exec();
+
+        if (!order) {
+            throw new NotFoundException('Order not found.');
+        }
+
+        for (const item of order.items) {
+            await this.productService.updateVariantQuantity(item.product._id.toString(), item.variantId, item.quantity)
         }
 
         await this.updateOrderStatus(query, OrderStatusEnum.CANCELLED);

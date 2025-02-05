@@ -91,7 +91,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const response = await axiosCall('GET',`${process.env.NEXT_PUBLIC_BASE_URL}/users/all-store-${storeRole}` );
     
-            // console.log(response, "userfetch res");
+           // console.log(response, "userfetch res");
     
             if (response?.status === 200 || response?.status === 201) {
                 // Dynamically update the state based on storeRole
@@ -148,9 +148,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 _id: userId,
                 newRole
             });
-            console.log(response);
+           // console.log(response);
             if (response.status === 200 || response.status === 201) {
-                await fetchStoreRole(currentRole); // Refresh the list for the current storeRole
+                await fetchStoreRole(currentRole); 
                 toast.success(response.data.message);
             } else {
                 throw new Error(response.data.message);

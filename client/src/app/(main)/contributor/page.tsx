@@ -73,6 +73,22 @@ const columns = [
     ),
   },
   {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }: any) => {
+      const user = row.original;
+      return (
+        <div
+          className={`${
+            user.block ? "text-red-500" : "text-green-500"
+          } font-semibold`}
+        >
+          {user.block ? "Inactive" : "Active"}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "role",
     header: () => <div className="text-right">Role</div>,
     cell: ({ row }: any) => (
@@ -101,7 +117,7 @@ const columns = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
               <DropdownMenuSeparator className="bg-gray-800" />
 
                 {/* Show options based on user's block status */}

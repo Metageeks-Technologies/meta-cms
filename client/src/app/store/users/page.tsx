@@ -72,17 +72,32 @@ const columns = [
       <div className="capitalize">{row.getValue("phoneNo")}</div>
     ),
   },
-
-
+  // New Status Column
   {
-
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }: any) => {
+      const user = row.original;
+      return (
+        <div
+          className={`${
+            user.block ? "text-red-500" : "text-green-500"
+          } font-semibold`}
+        >
+          {user.block ? "Inactive" : "Active"}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "Actions",
     id: "actions",
     enableHiding: false,
     cell: ({ row }: any) => {
-
       const user = row.original;
-      const [clickedItem, setClickedItem] = useState(0)
-      const { changeStoreRole, blockUser, unblockUser }: any = useUserContext();
+      const [clickedItem, setClickedItem] = useState(0);
+      const { changeStoreRole, blockUser, unblockUser }: any =
+        useUserContext();
 
       const [isOpen, setIsOpen] = useState(false);
 
@@ -97,13 +112,10 @@ const columns = [
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
                 <DropdownMenuSeparator className="bg-gray-800" />
-
                 <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                  <DialogTrigger className="w-full text-left">
-                    User Details
-                  </DialogTrigger>
+                  <DialogTrigger className="w-full text-left">User Details</DialogTrigger>
                 </DropdownMenuItem>
 
                 {/* options base option */}
@@ -116,26 +128,18 @@ const columns = [
                 ) : (
                   <>
                     <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                      <AlertDialogTrigger className="w-full text-left">
-                        Promote to Vendor
-                      </AlertDialogTrigger>
+                      <AlertDialogTrigger className="w-full text-left">Promote to Vendor</AlertDialogTrigger>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                      <AlertDialogTrigger className="w-full text-left">
-                        Promote to Moderator
-                      </AlertDialogTrigger>
+                      <AlertDialogTrigger className="w-full text-left">Promote to Moderator</AlertDialogTrigger>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
-                      <AlertDialogTrigger className="w-full text-left">
-                        Block User
-                      </AlertDialogTrigger>
+                      <AlertDialogTrigger className="w-full text-left">Block User</AlertDialogTrigger>
                     </DropdownMenuItem>
                   </>
                 )}
-
-
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -146,7 +150,7 @@ const columns = [
                   <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
                 </AlertDialogDescription>
                 <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
-                  Are you sure ?
+                  Are you sure?
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -154,30 +158,30 @@ const columns = [
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={
-                    clickedItem === 1 ?
-                      () => changeStoreRole(user._id, user.storeRole, StoreRole.VENDOR)
-                      : clickedItem === 2 ?
-                        () => changeStoreRole(user._id, user.storeRole, StoreRole.STOREMODERATOR)
-                        : clickedItem === 3
-                          ? () => unblockUser(user._id)
-                          : clickedItem === 4
-                            ? () => blockUser(user._id)
-                            : () => { }
+                    clickedItem === 1
+                      ? () => changeStoreRole(user._id, user.storeRole, StoreRole.VENDOR)
+                      : clickedItem === 2
+                      ? () => changeStoreRole(user._id, user.storeRole, StoreRole.STOREMODERATOR)
+                      : clickedItem === 3
+                      ? () => unblockUser(user._id)
+                      : clickedItem === 4
+                      ? () => blockUser(user._id)
+                      : () => {}
                   }
                 >
                   Continue
                 </AlertDialogAction>
               </AlertDialogFooter>
-
             </AlertDialogContent>
           </AlertDialog>
 
-          <UserDetails user={user} setIsOpen={setIsOpen}/>
+          <UserDetails user={user} setIsOpen={setIsOpen} />
         </Dialog>
-      )
+      );
     },
   },
-]
+];
+
 
 
 
@@ -191,7 +195,6 @@ function User() {
     data: storeUser,
     columns,
     onSortingChange: setSorting,
-    // onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),

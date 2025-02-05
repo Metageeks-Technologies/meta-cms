@@ -73,8 +73,26 @@ const columns = [
       <div className="capitalize">{row.getValue("phoneNo")}</div>
     ),
   },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }: any) => {
+      const user = row.original;
+      return (
+        <div
+          className={`${
+            user.block ? "text-red-500" : "text-green-500"
+          } font-semibold`}
+        >
+          {user.block ? "Inactive" : "Active"}
+        </div>
+      );
+    },
+  },
 
   {
+    accessorKey: "Actions",
+
     id: "actions",
     enableHiding: false,
     cell: ({ row }: any) => {
@@ -96,7 +114,7 @@ const columns = [
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
                 <DropdownMenuSeparator className="bg-gray-800" />
 
 
