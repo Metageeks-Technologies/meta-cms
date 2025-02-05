@@ -37,7 +37,7 @@ export class PagesService {
         const matchCondition: any = {
             slug: slug
         };
-    
+
         if (isDeleted !== undefined) {
             matchCondition.isDeleted = isDeleted;
         }
@@ -101,9 +101,25 @@ export class PagesService {
         return allPage
     }
 
-    async getPageTitles(service: PageServiceEnum, subService: PageSubServiceEnum) {
-        const pages = await this.Page.find({service, subService}, {title: 1, slug: 1});
-        return pages
+    async getPageTitles(service: PageServiceEnum) {
+        const pages = await this.Page.find({ service }, { subService: 1, title: 1, slug: 1 });
+
+        const result: Record<string, Record<string, { title: string; slug: string }[]>> = {
+            [service]: {},
+        };
+
+        for (const page of pages) {
+            const { subService, title, slug } = page;
+
+            if (!result[service][subService]) {
+                result[service][subService] = []; 
+            }
+
+            result[service][subService].push({ title, slug });
+        }
+
+        return result;
     }
+
 
 }

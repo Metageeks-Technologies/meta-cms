@@ -69,9 +69,9 @@ export class PagesController {
         return allPage
     }
 
-    @Get('titles/:service/:subService')
-    async getAllPageTitle(@Param('service') service: PageServiceEnum, @Param('subService') subService: PageSubServiceEnum) {
-        const pages = await this.pagesService.getPageTitles(service, subService)
+    @Get('titles/:service')
+    async getAllPageTitle(@Param('service') service: PageServiceEnum) {
+        const pages = await this.pagesService.getPageTitles(service)
         return pages;
     }
 }
