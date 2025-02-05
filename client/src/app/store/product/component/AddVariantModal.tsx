@@ -70,21 +70,30 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
         <form>
           {/* Variant Pair 1 */}
           <div className="flex gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Variant ID"
-              value={newVariant.variantId}
-              onChange={(e) => setNewVariant({ ...newVariant, variantId: e.target.value })}
-              className="w-1/2 bg-gray-600 p-2 border rounded-md mb-2"
-            />
-            <input
-              type="text"
-              placeholder="SKU"
-              value={newVariant.sku}
-              onChange={(e) => setNewVariant({ ...newVariant, sku: e.target.value })}
-              className="w-1/2 bg-gray-600 p-2 border rounded-md mb-2"
-            />
-          </div>
+  <input
+    type="text"
+    placeholder="Variant ID"
+    value={newVariant.variantId}
+    onChange={(e) => {
+      if (e.target.value.length <= 128) {
+        setNewVariant({ ...newVariant, variantId: e.target.value });
+      }
+    }}
+    className="w-1/2 bg-gray-600 p-2 border rounded-md mb-2"
+  />
+  <input
+    type="text"
+    placeholder="SKU"
+    value={newVariant.sku}
+    onChange={(e) => {
+      if (e.target.value.length <= 128) {
+        setNewVariant({ ...newVariant, sku: e.target.value });
+      }
+    }}
+    className="w-1/2 bg-gray-600 p-2 border rounded-md mb-2"
+  />
+</div>
+
 
           {/* Variant Pair 2 */}
           <div className="flex gap-4 mb-4">
@@ -94,6 +103,7 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
               value={newVariant.price || ""}
               onChange={(e) => setNewVariant({ ...newVariant, price: Number(e.target.value) })}
               className="w-1/2 bg-gray-600 p-2 border rounded-md mb-2"
+              
             />
             <input
               type="number"
@@ -172,6 +182,7 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
               type="button"
               onClick={handleAddVariant}
               className="bg-blue-600 text-white px-4 py-2 rounded-md"
+              
             >
               Save
             </button>

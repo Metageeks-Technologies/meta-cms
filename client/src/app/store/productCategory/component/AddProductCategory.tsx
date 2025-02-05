@@ -53,12 +53,7 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
             return;
         }
 
-        if (!createForm.code.trim()) {
-            toast.error('Code is required', {
-                duration: 2000,
-            });
-            return;
-        }
+       
 
         setLoading(true);
         try {
@@ -66,7 +61,6 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
                 name: createForm.name,
                 description: createForm.description,
                 bannerImageKey: createForm.bannerImageKey,
-                code: createForm.code, 
             }
 
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`, payload);
@@ -80,7 +74,6 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
                     name: '',
                     description: '',
                     bannerImageKey: null,
-                    code: '', // reset code
                 });
                 fetchProductCategories();
                 setIsOpen(false);
@@ -108,8 +101,9 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
 
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
 
+
             if (resp.status === 200 || resp.status === 201) {
-                uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY, null, setImageKey);
+                uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY, null, setImageKey);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000

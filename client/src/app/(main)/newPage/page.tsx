@@ -7,74 +7,9 @@ import { getURL } from '@/utils/AWS_Config';
 import axios from 'axios';
 import { list } from 'postcss';
 import { PageService, PageSubService } from '@/constant/page';
-
-interface SectionContent {
-    subHeading: string;
-    heading: string;
-    description: string;
-    imageKey: string | null;
-}
-
-interface Card {
-    imageKey: string | null;
-    heading: string;
-    description: string;
-}
-
-interface Caad {
-    imageKey: string | null;
-    name: string;
-    company: string;
-    message: string;
-}
-
-interface Feature {
-    imageKey: string | null;
-    heading: string;
-    description: string;
-}
-
-interface ServicesSection {
-    heading: string;
-    description: string;
-    cards: Card[];
-}
-
-interface ProcessSection {
-    heading: string;
-    cards: { heading: string; description: string }[];
-}
-
-interface FeatureSection {
-    heading: string;
-    features: Feature[];
-}
-
-interface ForecastContent {
-    subHeading: string;
-    heading: string;
-    imageKey: string | null;
-    list: { point: string }[];
-}
+import { Card, Feature, PageContent } from '@/types';
 
 
-
-interface PageContent {
-    title: string;
-    slug: string;
-    service: string;
-    subService: string;
-    content: {
-        heroSection: SectionContent;
-        solutionSection1: SectionContent;
-        servicesSection: ServicesSection;
-        processSection: ProcessSection;
-        solutionSection2: SectionContent;
-        featureSection: FeatureSection;
-        marketForecastSection: ForecastContent;
-
-    };
-}
 
 const INITIAL_PAGE_CONTENT: PageContent = {
     title: '',
@@ -143,7 +78,7 @@ const INITIAL_PAGE_CONTENT: PageContent = {
 const CreatePage = () => {
     const { setLoading } = useUserContext();
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
-    console.log(formData)
+    // console.log(formData)
     const [subServiceArr, setSubServiceArr] = useState<any>([])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
