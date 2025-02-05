@@ -394,79 +394,97 @@ const CreateProduct: React.FC = () => {
 
           {/* Variants */}
           <div>
-            <h2>Variants</h2>
+            <h1 className='mb-4'>Variants</h1>
             {variants.map((variant, index) => (
               <div key={index}>
                 {/* Pair 1 */}
                 <div className="flex gap-4 mb-4">
-                  <input
-                    type="text"
-                    placeholder="Variant ID"
-                    value={variant.variantId}
-                    onChange={(e) => handleVariantChange(index, 'variantId', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="SKU"
-                    value={variant.sku}
-                    onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Variant ID</label>
+                    <input
+                      type="text"
+                      placeholder="Variant ID"
+                      value={variant.variantId}
+                      onChange={(e) => handleVariantChange(index, 'variantId', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">SKU</label>
+                    <input
+                      type="text"
+                      placeholder="SKU"
+                      value={variant.sku}
+                      onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
                 </div>
 
                 {/* Pair 2 */}
                 <div className="flex gap-4 mb-4">
-                  <input
-                    type="number"
-                    placeholder="Price"
-                    value={variant.price || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Prevent negative numbers and characters
-                      if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
-                        handleVariantChange(index, 'price', value);
-                      }
-                    }}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Discount Price"
-                    value={variant.discountedPrice || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Prevent negative numbers and characters
-                      if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
-                        handleVariantChange(index, 'discountedPrice', value);
-                      }
-                    }}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                </div>
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Price</label>
+                    <input
+                      type="number"
+                      placeholder="Price"
+                      value={variant.price || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Prevent negative numbers and characters
+                        if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
+                          handleVariantChange(index, 'price', value);
+                        }
+                      }}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
 
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Discount Price</label>
+                    <input
+                      type="number"
+                      placeholder="Discount Price"
+                      value={variant.discountedPrice || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Prevent negative numbers and characters
+                        if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
+                          handleVariantChange(index, 'discountedPrice', value);
+                        }
+                      }}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
+                </div>
 
                 {/* Pair 3 */}
                 <div className="flex gap-4 mb-4">
-                  <input
-                    type="number"
-                    placeholder="Quantity"
-                    value={variant.quantity || ""}
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Quantity</label>
+                    <input
+                      type="number"
+                      placeholder="Quantity"
+                      value={variant.quantity || ""}
+                      onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
 
-                    onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Size"
-                    value={variant.size}
-                    onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Size</label>
+                    <input
+                      type="text"
+                      placeholder="Size"
+                      value={variant.size}
+                      onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
                 </div>
 
                 {/* Pair 4 */}
-
                 <div className="flex gap-6 mb-6">
                   {/* Color picker section */}
                   <div className="flex flex-col items-center w-1/2">
@@ -483,11 +501,9 @@ const CreateProduct: React.FC = () => {
                           console.error("Invalid hex color");
                         }
                       }}
-                      className="w-full  rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
+                      className="w-full rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
                     />
-
                   </div>
-
 
                   {/* Variant Images Section */}
                   <div className="flex-1">
@@ -515,12 +531,15 @@ const CreateProduct: React.FC = () => {
                   </div>
                 </div>
 
-
+                {/* Remove Variant Button */}
                 <button onClick={() => removeVariant(index)} className="text-red-500 px-2">-</button>
               </div>
             ))}
+
+            {/* Add Variant Button */}
             <button onClick={addVariant} className="bg-blue-600 text-white px-2 py-1 rounded-md mt-4">+ Add Variant</button>
           </div>
+
 
         </div>
 
