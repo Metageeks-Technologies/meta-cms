@@ -25,7 +25,7 @@ export class ProductCategoriesService {
     } catch(error) {
       if (error.code === 11000) {
         // Duplicate key error
-        throw new ConflictException('Category Name or Code already exists');
+        throw new ConflictException('Category Name already exists');
       }
       
       // Re-throw the error if it's not a duplicate key error

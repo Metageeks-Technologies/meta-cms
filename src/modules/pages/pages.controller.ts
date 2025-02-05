@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { PagesService } from "./pages.service";
 import { AllowedRoles } from "src/common/decorators/allowed-roles.decorator";
 import { UserRoleEnum } from "../users/schema/user.schema";
@@ -8,6 +8,7 @@ import { CreatePageDto } from "./dto/create-page.dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
 import { UpdatePageDto } from "./dto/update-page.dto";
 import { PageServiceEnum, PageSubServiceEnum } from "./schema/page.schema";
+import { GetPageQueryDto } from "./dto/get-page-dto";
 
 
 @Controller('pages')
@@ -24,8 +25,8 @@ export class PagesController {
     }
 
     @Get('public/:slug')
-    async getPublicPageBySlug(@Param('slug') slug: string) {
-        const page = await this.pagesService.getPageBySlug(slug, false);
+    async getPublicPageBySlug(@Param('slug') slug: string, @Query() query: GetPageQueryDto) {
+        const page = await this.pagesService.getPageBySlug(slug, query.website, false);
         return page;
     }
 
@@ -70,8 +71,8 @@ export class PagesController {
     }
 
     @Get('titles/:service')
-    async getAllPageTitle(@Param('service') service: PageServiceEnum) {
-        const pages = await this.pagesService.getPageTitles(service)
+    async getAllPageTitle(@Param('service') service: PageServiceEnum, @Query() query: GetPageQueryDto) {
+        const pages = await this.pagesService.getPageTitles(service, query.website)
         return pages;
     }
 }

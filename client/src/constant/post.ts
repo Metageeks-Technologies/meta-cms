@@ -61,7 +61,6 @@ export const defaultNewPostData: NewPostFormData = {
   website: ''
 }
 
-
 export enum WebsiteEnum {
   METAGEEKS = "metageeks",
   FAMPROTOCAL = "famprotocal",

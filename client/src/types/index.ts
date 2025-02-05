@@ -296,8 +296,10 @@ export interface ForecastContent {
 }
 
 export interface PageContent {
+  _id?: any;
   title: string;
   slug: string;
+  website: string;
   service: string;
   subService: string;
   content: {
