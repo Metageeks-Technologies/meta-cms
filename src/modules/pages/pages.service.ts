@@ -106,9 +106,9 @@ export class PagesService {
     }
 
     async getPageTitles(service: PageServiceEnum, website?: string) {
-        const query = {service}
+        const query = { service, isDeleted: false }
 
-        if(website){
+        if (website) {
             query['website'] = website;
         }
 

@@ -93,7 +93,7 @@ const columns = [
                       website.isDeleted ?
                         <AlertDialogTrigger>
                           <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3" onClick={() => setClickedItem(1)}>
-                            <RiDeleteBin6Line className="" />
+                            <MdOutlineUpdate className="" />
                             Recover website
                           </DropdownMenuItem>
                         </AlertDialogTrigger>
