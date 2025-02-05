@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import {DropdownMenu,DropdownMenuContent, DropdownMenuItem,DropdownMenuLabel,DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 
-import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
 import { usePostContext } from "@/context/postContext"
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -22,6 +21,7 @@ import { Label } from "@/components/ui/label"
 import axiosCall from "@/utils/ApiCall"
 import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
+import { StoreRole } from "@/constant/store"
 
 const columns = [
   {
@@ -106,9 +106,10 @@ const columns = [
           setLoading(false);
         }
       };
+      
 
       const updateCategory = async (e: any) => {
-        if (!productCategory.name.trim() || !productCategory.description.trim() || !productCategory.code.trim()) {
+        if (!productCategory.name.trim() || !productCategory.description.trim() ) {
           toast.error("Please fill in all fields correctly.", {
             duration: 2000,
           });
@@ -157,7 +158,7 @@ const columns = [
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialog>
             {
-              user?.role === userRoles.SUPERADMIN ? (
+              user?.storeRole === StoreRole.SUPERADMIN ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -318,7 +319,7 @@ function Category() {
           />
 
           {
-            user?.role === userRoles.SUPERADMIN &&
+            user?.storeRole === StoreRole.SUPERADMIN &&
             <AddProductCategory />
           }
 

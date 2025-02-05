@@ -24,7 +24,7 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
 
       for (const imageKey of editedVariant.imageKeys) {
         if (imageKey) {
-          const imageUrl = getURL(imageKey); // Use your getURL function to get the image URL
+          const imageUrl = getURL(imageKey); 
           previews.push(imageUrl);
         }
       }
@@ -38,6 +38,9 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    if (name === "variantId" || name === "sku") {
+      if (value.length > 128) return; // Stop if length exceeds limit
+    }
     const parsedValue = (name === "quantity" || name === "price" || name === "discountedPrice")
       ? (value === "" ? 0 : parseFloat(value))
       : value;
@@ -106,7 +109,7 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
               <label className="block text-sm font-semibold">Id</label>
               <input
                 type="text"
-                name="id"
+                name="variantId"
                 value={editedVariant.variantId}
                 onChange={handleInputChange}
                 className="w-full bg-gray-600 p-2 border rounded-md"

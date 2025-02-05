@@ -24,8 +24,6 @@ const AdminAllProduct = () => {
     const [searchText, setSearchText] = useState('');
 
     // Product-specific status filters
-   
-
     async function fetchAllProducts(lastId?: string) {
         if (isFetching) return;
         setIsFetching(true);
@@ -167,12 +165,7 @@ const AdminAllProduct = () => {
         fetchCategory();
     }, []);
 
-    useEffect(() => {
-        // Set default filter to 'all' on initial load
-        if (!filterBy) {
-            setFilterBy('all');
-        }
-    }, []);
+ 
     
 
     return (
