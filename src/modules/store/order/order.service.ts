@@ -393,7 +393,7 @@ export class OrderService {
 
         const topItems = await Promise.all(
             result.map(async (item: any) => {
-                const product = await this.productService.getProductById(item.productId, undefined, undefined);
+                const product = await this.productService.getProductById(item.productId, undefined, undefined, undefined);
                 delete item.productId;
                 item['product'] = product;
                 return item;

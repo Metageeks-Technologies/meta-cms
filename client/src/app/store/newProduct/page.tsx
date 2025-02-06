@@ -47,8 +47,6 @@ const CreateProduct: React.FC = () => {
     variants: [],
   });
 
-  console.log(formData, "Form data");
-
   // Fetch product categories
   const fetchCategory = async () => {
     setLoading(true);
@@ -246,6 +244,7 @@ const CreateProduct: React.FC = () => {
     description: string;
     category: string;
     status: string;
+    website: string;
     brand: string;
     attributes: ProductAttribute;
     publishedDate?: Date;
@@ -294,6 +293,7 @@ const CreateProduct: React.FC = () => {
         category: formData.category,
         brand: formData.brand,
         status: formData.status,
+        website: formData.website,
         ...(formData.publishDate && { publishedDate: formData.publishDate }),
         attributes: formData.attributes,
         variants: formData.variants,
@@ -579,6 +579,7 @@ const CreateProduct: React.FC = () => {
                 setProductStatus(newStatus); // update the status
                 setFormData({ ...formData, status: newStatus }); // update formData status
               }}
+              required
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
@@ -586,14 +587,15 @@ const CreateProduct: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="productStatus" className="text-white">Website</label>
+            <label htmlFor="website" className="text-white">Website</label>
             <select
-              id="productStatus"
+              id="website"
               className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
               value={formData.website}
               onChange={(e) => {
                 setFormData({ ...formData, website: e.target.value }); // update formData status
               }}
+              required
             >
               <option value="">--Select website--</option>
               {

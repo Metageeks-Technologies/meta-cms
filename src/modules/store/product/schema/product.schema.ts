@@ -28,6 +28,7 @@ export interface IProduct {
     description: string;
     category: mongoose.Types.ObjectId;
     brand?: string;
+    website: string;
     //   imageKeys?: string[];
     status: string;
     size?: string;
@@ -111,6 +112,10 @@ export const ProductSchema = new mongoose.Schema(
         brand: {
             type: String,
             trim: true,
+        },
+        website: {
+            type: String,
+            required: true,
         },
         status: {
             type: String,

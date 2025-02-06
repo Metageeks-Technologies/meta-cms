@@ -249,19 +249,29 @@ export class PostsService {
   async searchPosts({ query, sortBy, lastId, lastScore, website }: SearchPostsQueryDto) {
     const pipeline: mongoose.PipelineStage[] = [];
 
+
     /////////////////////////////////////////
-    // Match stage
+    // Match stage second
+    /////////////////////////////////////////
+    if (!website || website === WebsiteEnum.FAMPROTOCAL) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { website: WebsiteEnum.FAMPROTOCAL },
+            { website: { $exists: false } } // Include documents where the website field is not defined
+          ]
+        }
+      });
+    } else {
+      pipeline.push({
+        $match: { website }
+      });
+    }
+
+    /////////////////////////////////////////
+    // Match stage second
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
-
-    if (!website || website === WebsiteEnum.FAMPROTOCAL) {
-      matchStage.$or = [
-        { website: WebsiteEnum.FAMPROTOCAL },
-        { website: { $exists: false } }, // Include documents where the website field is not defined
-      ];
-    } else {
-      matchStage.website = website; // Match the specified website
-    }
 
     matchStage.$text = {
       $search: query
