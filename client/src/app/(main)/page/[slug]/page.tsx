@@ -13,7 +13,7 @@ const page = () => {
     const { setLoading, user } = useUserContext();
     const [pageData, setPageData] = useState<any>(null);
 
-    console.log(pageData);
+    // console.log(pageData);
 
     const router = useRouter();
     const params = useParams();

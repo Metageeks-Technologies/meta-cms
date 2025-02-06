@@ -24,16 +24,14 @@ const AdminAllProduct = () => {
     const [searchText, setSearchText] = useState('');
 
     // Product-specific status filters
-   
-
     async function fetchAllProducts(lastId?: string) {
         if (isFetching) return;
         setIsFetching(true);
         page === 1 && setLoading(true);
-    
+
         try {
             const param = new URLSearchParams();
-            
+
             // Check filter for deleted products
             if (filterBy) {
                 if (filterBy === 'deleted') {
@@ -71,15 +69,15 @@ const AdminAllProduct = () => {
                     param.append('isDeleted', 'false');
                 }
             }
-    
+
             // Default behavior for active products
             if (sortBy) param.append('sortBy', sortBy);
             if (lastId) param.append('lastId', lastId);
-            if (selectedCategory) param.append('categoryId', selectedCategory);  
+            if (selectedCategory) param.append('categoryId', selectedCategory);
             if (searchText) param.append('searchQuery', searchText);
-    
+
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all?${param.toString()}`);
-    
+
             if (resp.status === 200 || resp.status === 201) {
                 const newProducts = resp?.data;
                 if (newProducts.length < 10) setHasMore(false);
@@ -103,7 +101,7 @@ const AdminAllProduct = () => {
             setIsFetching(false);
         }
     }
-    
+
 
     const fetchCategory = async () => {
         setLoading(true);
@@ -167,6 +165,9 @@ const AdminAllProduct = () => {
         fetchCategory();
     }, []);
 
+
+
+
     return (
         <div>
             <div className='w-full flex flex-row flex-wrap gap-2 sm:gap-4 lg:gap-8 px-2 ms:px-8 mt-6 md:mt-12'>
@@ -199,10 +200,10 @@ const AdminAllProduct = () => {
                 <div className='flex flex-row items-center'>
                     <select
                         value={selectedCategory}
-                        name="" id="" 
+                        name="" id=""
 
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                    
+
 
                         className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'
                     >
@@ -213,7 +214,7 @@ const AdminAllProduct = () => {
                     </select>
                 </div>
 
-                {filterBy === ''  && (
+                {filterBy === '' && (
                     <div>
                         <input
                             type="text"

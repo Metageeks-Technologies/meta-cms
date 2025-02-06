@@ -54,7 +54,6 @@ const ProfilePage: React.FC = () => {
 
       if (response.data && response.data.length > 0) {
         const address = response.data[0]; // Assuming you need the first address
-        console.log
         setUserAddress({
           house: address.house,
           street: address.street,

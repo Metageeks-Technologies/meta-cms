@@ -202,6 +202,10 @@ export class CreatePageDto {
     @MaxLength(128)
     slug: string;
 
+    @IsNotEmpty()
+    @IsString()
+    website: string;
+
     @IsEnum(PageServiceEnum)
     @IsNotEmpty()
     service: PageServiceEnum

@@ -25,6 +25,7 @@ import { AddressModule } from './modules/store/addresses/addresses.module';
 import { ProductModule } from './modules/store/product/product.module';
 import { CartModule } from './modules/store/cart/cart.module';
 import { OrderModule } from './modules/store/order/order.module';
+import { WebsiteModule } from './modules/website/website.module';
 
 
 @Module({
@@ -50,7 +51,8 @@ import { OrderModule } from './modules/store/order/order.module';
     AddressModule,
     ProductModule,
     CartModule,
-    OrderModule
+    OrderModule,
+    WebsiteModule
   ],
   controllers: [AppController],
   providers: [

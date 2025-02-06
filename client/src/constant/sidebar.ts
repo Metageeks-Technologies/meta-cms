@@ -8,6 +8,7 @@ import { RiPagesLine } from "react-icons/ri";
 import { HiTemplate } from "react-icons/hi";
 import { TiThSmallOutline } from "react-icons/ti";
 import { BiSolidCategoryAlt } from "react-icons/bi";
+import { FaGlobe } from "react-icons/fa6";
 
 
 
@@ -83,6 +84,11 @@ export const items: MenuItem[] = [
     ]
   },
   {
+    title: "Websites",
+    url: "/website",
+    icon: FaGlobe,
+  },
+  {
     title: "Users",
     url: "/store/users",
     icon: UsersRound,
@@ -145,9 +151,14 @@ export const headerData = {
   newPage: "New Page",
   allPage: "All Page",
   product:"Product",
+  newProduct: "New Product",
+
   allProduct:" All Product",
   productCategory: "Product Category",
   allProductCategory: "All Product Category",
+  users: "Users",
+  vendor: "Vendors",
+  storeModerator: "Store Moderator",
   allComments: "All Comments",
   subscribers: "Subscribers",
   contributor: "Contributor",

@@ -23,7 +23,7 @@ export class CartService {
     async addItemToCart(userId: string, storeRole: UserStoreRoleEnum, newItem: AddNewItemInCartDto) {
         const { product, variantId, sku, quantity } = newItem;
 
-        const productData = await this.porductService.getProductById(product, undefined, undefined);
+        const productData = await this.porductService.getProductById(product, undefined, undefined, undefined);
 
         if (productData?.status !== ProductStatusEnum.PUBLISHED) {
             throw new ForbiddenException();

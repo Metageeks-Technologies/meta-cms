@@ -53,6 +53,7 @@ export interface NewPostFormData {
     subDescription: string;
     description: string;
     category: string ; // Can be an enum or union type depending on the use case
+    website: string;
     brand: string;
     status: string; // Status types are good
     publishDate: Date | null;
@@ -185,14 +186,14 @@ export interface PostContextType {
 export type ProductContextType = {
   productCategories: any[];  // Update this with correct type if needed
   filterBy: string;
-  setFilterBy: React.Dispatch<React.SetStateAction<string>>;
+  setFilterBy: (filter: string) => void;
   sortBy: string;
-  setSortBy: React.Dispatch<React.SetStateAction<string>>;
+  setSortBy: (filter: string) => void;
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
 
   selectedProductCategory: string;
-  setSelectedProductCategory: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedProductCategory: (filter: string) => void;
   fetchProductCategories: () => Promise<void>;
   deleteProductCategory: (id: string) => Promise<void>;
 };
@@ -243,4 +244,72 @@ export interface Address {
 
  export interface ProductCardProps {
     product: ProductDetails;
+}
+
+
+export interface SectionContent {
+  subHeading: string;
+  heading: string;
+  description: string;
+  imageKey: string | null;
+}
+
+export interface Card {
+  imageKey: string | null;
+  heading: string;
+  description: string;
+}
+
+export interface Caad {
+  imageKey: string | null;
+  name: string;
+  company: string;
+  message: string;
+}
+
+export interface Feature {
+  imageKey: string | null;
+  heading: string;
+  description: string;
+}
+
+export interface ServicesSection {
+  heading: string;
+  description: string;
+  cards: Card[];
+}
+
+export interface ProcessSection {
+  heading: string;
+  cards: { heading: string; description: string }[];
+}
+
+export interface FeatureSection {
+  heading: string;
+  features: Feature[];
+}
+
+export interface ForecastContent {
+  subHeading: string;
+  heading: string;
+  imageKey: string | null;
+  list: { point: string }[];
+}
+
+export interface PageContent {
+  _id?: any;
+  title: string;
+  slug: string;
+  website: string;
+  service: string;
+  subService: string;
+  content: {
+      heroSection: SectionContent;
+      solutionSection1: SectionContent;
+      servicesSection: ServicesSection;
+      processSection: ProcessSection;
+      solutionSection2: SectionContent;
+      featureSection: FeatureSection;
+      marketForecastSection: ForecastContent;
+  };
 }

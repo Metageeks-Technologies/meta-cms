@@ -33,6 +33,7 @@ const EditProduct: React.FC = () => {
     const id = params.id;
     const [product, setProduct] = useState<ProductTypes | null>(null);
     const { setLoading, user } = useUserContext();
+    const [websiteArr, setWebsiteArr] = useState([]);
     const [categoryArr, setCategoryArr] = useState([]);
     const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
     const [formData, setFormData] = useState<CreateProductFormData>({
@@ -41,12 +42,16 @@ const EditProduct: React.FC = () => {
         description: '',
         category: '',
         brand: '',
+        website: '',
         status: 'draft',
         publishDate: null,
 
         attributes: {},
         variants: [],
     });
+
+    // console.log(formData, "form data");
+
     // Fetch product categories
     const fetchCategory = async () => {
         setLoading(true);
@@ -65,8 +70,27 @@ const EditProduct: React.FC = () => {
         }
     };
 
+    const fetchWebsites = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+            if (resp.status === 200 || resp.status === 201) {
+                setWebsiteArr(resp?.data);
+            } else {
+                toast.error(resp.data.message, { duration: 2000 });
+            }
+        } catch (error) {
+            console.log("Error in fetching website data in new product section : ", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
-        if (user.role) fetchCategory();
+        if (user.role) {
+            fetchCategory();
+            fetchWebsites();
+        }
     }, [user]);
 
     const toggleCategory = (id: string) => {
@@ -90,8 +114,8 @@ const EditProduct: React.FC = () => {
             // console.log(response.data)
 
             if (response.status === 200 || response.status === 201) {
-                console.log('Attributes:', response.data.attributes); // Check attributes
-                console.log('Variants:', response.data.variants);
+                // console.log('Attributes:', response.data.attributes); // Check attributes
+                // console.log('Variants:', response.data.variants);
                 setProduct(response.data);
                 setFormData({
                     title: response.data.title,
@@ -99,6 +123,7 @@ const EditProduct: React.FC = () => {
                     description: response.data.description,
                     category: response.data.category,
                     brand: response.data.brand,
+                    website: response.data.website,
                     status: response.data.status,
                     publishDate: response.data.publishedDate ? new Date(response.data.publishedDate) : null,
                     attributes: response.data.attributes || {},
@@ -261,6 +286,7 @@ const EditProduct: React.FC = () => {
         description: string;
         category: string;
         status: string;
+        website: string;
         publishedDate?: Date,
         brand: string;
         attributes: ProductAttribute;
@@ -278,6 +304,7 @@ const EditProduct: React.FC = () => {
                 description: formData.description,
                 category: formData.category,
                 brand: formData.brand,
+                website: formData.website,
                 status: formData.status,
                 attributes: formData.attributes,
                 variants: formData.variants,
@@ -295,6 +322,7 @@ const EditProduct: React.FC = () => {
                     description: '',
                     category: '',
                     brand: '',
+                    website: '',
                     status: 'draft',
                     publishDate: null,
                     attributes: {},
@@ -526,11 +554,29 @@ const EditProduct: React.FC = () => {
                             <option value="draft">Draft</option>
                             <option value="published">Published</option>
                         </select>
-
-
-
                     </div>
-                    {productStatus === "SCHEDULED" && (
+
+                    <div>
+                        <label htmlFor="website" className="text-white">Website</label>
+                        <select
+                            id="website"
+                            className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
+                            value={formData.website}
+                            onChange={(e) => {
+                                setFormData({ ...formData, website: e.target.value }); // update formData status
+                            }}
+                            required
+                        >
+                            <option value="">--Select website--</option>
+                            {
+                                websiteArr.map((website: any, index: number) => (
+                                    <option key={index} value={website.key}>{website.name}</option>
+                                ))
+                            }
+                        </select>
+                    </div>
+
+                    {/* {productStatus === "SCHEDULED" && (
                         <div>
                             <label htmlFor="publishDate" className="text-white block">Publish Date</label>
                             <DatePicker
@@ -542,7 +588,7 @@ const EditProduct: React.FC = () => {
                                 placeholderText="Select a publish date"
                             />
                         </div>
-                    )}
+                    )} */}
                     <div>
                         <label htmlFor="brand" className="text-white block mb-2">Brand</label>
                         <input

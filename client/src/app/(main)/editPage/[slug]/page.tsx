@@ -8,7 +8,8 @@ import { getURL } from '@/utils/AWS_Config';
 import { useParams, useRouter } from 'next/navigation';
 import { FaArrowLeft } from "react-icons/fa";
 import axios from 'axios';
-import { PageService, PageSubService } from '@/constant/page';
+import { INITIAL_PAGE_CONTENT, PageService, PageSubService } from '@/constant/page';
+import { PageContent } from '@/types';
 
 interface SectionContent {
     subHeading: string;
@@ -60,91 +61,6 @@ interface ForecastContent {
 }
 
 
-
-interface PageContent {
-    _id: any;
-    title: string;
-    slug: string;
-    service: string;
-    subService: string;
-    content: {
-        heroSection: SectionContent;
-        solutionSection1: SectionContent;
-        servicesSection: ServicesSection;
-        processSection: ProcessSection;
-        solutionSection2: SectionContent;
-        featureSection: FeatureSection;
-        marketForecastSection: ForecastContent;
-
-    };
-}
-
-const INITIAL_PAGE_CONTENT: PageContent = {
-    title: '',
-    slug: '',
-    service: '',
-    subService: '',
-    content: {
-        heroSection: {
-            subHeading: '',
-            heading: '',
-            description: '',
-            imageKey: ''
-        },
-        solutionSection1: {
-            subHeading: '',
-            heading: '',
-            description: '',
-            imageKey: ''
-        },
-        servicesSection: {
-            heading: '',
-            description: '',
-            cards: [
-                {
-                    imageKey: '',
-                    heading: '',
-                    description: ''
-                }
-            ]
-        },
-        processSection: {
-            heading: '',
-            cards: [{
-                heading: '',
-                description: ''
-            }]
-        },
-        solutionSection2: {
-            subHeading: '',
-            heading: '',
-            description: '',
-            imageKey: ''
-        },
-        featureSection: {
-            heading: '',
-            features: [
-                {
-                    imageKey: '',
-                    heading: '',
-                    description: ''
-                }
-            ]
-        },
-        marketForecastSection: {
-            subHeading: '',
-            heading: '',
-            imageKey: '',
-            list: [{
-                point: '',
-            }]
-        },
-
-    },
-    _id: '',
-};
-
-
 const EditPage = () => {
     const router = useRouter();
 
@@ -152,8 +68,10 @@ const EditPage = () => {
     const params = useParams();
     const slug = params.slug;
 
-
+    
+    const [websiteArr, setWebsiteArr] = useState([]);
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
+    // console.log(formData, "Form data")
 
     const handleChange = (e: any) => {
         const { id, value } = e.target;
@@ -511,9 +429,6 @@ const EditPage = () => {
 
 
 
-
-
-
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
@@ -573,17 +488,13 @@ const EditPage = () => {
             toast.error(`Feature section image image is required`, { duration: 2000 });
             return;
         }
-
-
-
-
-
         setLoading(true);
         try {
 
             const payload = {
                 title: formData.title,
                 slug: formData.slug,
+                website: formData.website,
                 content: formData.content,
             };
 
@@ -631,7 +542,7 @@ const EditPage = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setFormData(resp?.data);
-                console.log(resp);
+                // console.log(resp);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
@@ -645,8 +556,26 @@ const EditPage = () => {
         }
     }
 
+    const fetchWebsites = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+
+            if (resp.status === 200 || resp.status === 201) {
+                setWebsiteArr(resp?.data);
+            } else {
+                toast.error(resp?.data?.message, { duration: 2000 });
+            }
+        } catch (error) {
+            console.log("Error in fetching websites data in new page section: ", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         fetchPage();
+        fetchWebsites();
     }, []);
 
 
@@ -668,24 +597,40 @@ const EditPage = () => {
                     />
                 </label>
 
-                <label className="w-full flex flex-col gap-2 mb-5">
-                    <span>Enter Slug</span>
-                    <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
-                    <input
-                        type="text"
-                        id="slug"
-                        className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
-                        placeholder="Enter slug"
-                        value={formData.slug}
-                        onChange={handleChange}
-                        required
-                    />
-                </label>
+                <div className='flex flex-row gap-5 items-center'>
+
+                    <label className="w-full flex flex-col gap-2 mb-5">
+                        <span>Enter Slug</span>
+                        <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+                        <input
+                            type="text"
+                            id="slug"
+                            className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
+                            placeholder="Enter slug"
+                            value={formData.slug}
+                            onChange={handleChange}
+                            required
+                        />
+                    </label>
+
+                    <label className="w-full flex flex-col gap-2 mb-5">
+                        <span>Website</span>
+                        <select onChange={(e) => { setFormData((prev) => ({ ...prev, website: e.target.value})) }} name="" id="" value={formData.website} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
+                            <option value="">--Select website--</option>
+                            {
+                                websiteArr.map((website: any, index: number) => (
+                                    <option key={index} value={website.key}>{website.name}</option>
+                                ))
+                            }
+                        </select>
+                    </label>
+
+                </div>
 
                 <div className='flex flex-row gap-5 items-center'>
                     <label className="w-full flex flex-col gap-2 mb-5">
                         <span>Service</span>
-                        <select onChange={(e) => {setFormData((prev) => ({...prev, service: e.target.value, subService: ""}))}} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
+                        <select onChange={(e) => { setFormData((prev) => ({ ...prev, service: e.target.value, subService: "" })) }} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
                             <option value="">--Select service--</option>
                             {
                                 PageService.map((service, index) => (
@@ -1334,7 +1279,7 @@ const EditPage = () => {
                     type="submit"
                     className="px-6 py-3 mb-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
-                    update Page
+                    Update Page
                 </button>
             </form>
         </div>

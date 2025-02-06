@@ -26,6 +26,10 @@ export class UpdateProductDto {
     @IsOptional()
     brand?: string
 
+    @IsString()
+    @IsOptional()
+    website: string
+
     @IsEnum(ProductStatusEnum)
     @IsOptional()
     status: ProductStatusEnum

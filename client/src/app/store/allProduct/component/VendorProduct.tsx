@@ -36,10 +36,9 @@ const VendorProduct = () => {
             
             // Check filter for deleted products
             if (filterBy) {
-
-                param.append('isDeleted', 'true');  // Add isDeleted filter as true
-
                 if (filterBy === 'deleted') {
+                    param.append('isDeleted', 'true');  // Add isDeleted filter as true
+
                     if (selectedProductCategory) {
                         param.append('categoryId', selectedProductCategory);  // Add categoryId if selected
                     }
@@ -164,6 +163,13 @@ const VendorProduct = () => {
     useEffect(() => {
         fetchCategory();
     }, []);
+
+       useEffect(() => {
+            // Set default filter to 'all' on initial load
+            if (!filterBy) {
+                setFilterBy('all');
+            }
+        }, []);
 
     return (
         <div>
