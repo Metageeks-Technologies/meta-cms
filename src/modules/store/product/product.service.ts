@@ -77,6 +77,7 @@ export class ProductService {
         categoryId: string,
         sortBy: string,
         lastId: string,
+        website: string | undefined,
         searchQuery?: string,
     ) {
 
@@ -103,6 +104,10 @@ export class ProductService {
 
         if (categoryId) {
             matchStage.category = mongoose.Types.ObjectId.createFromHexString(categoryId);
+        }
+
+        if (website) {
+            matchStage.website = website;
         }
 
         // Add text search condition if searchQuery is provided
@@ -245,12 +250,23 @@ export class ProductService {
     }
 
 
-    async searchProduct({ query, sortBy, lastId, lastScore }: SearchProductQueryDto) {
+    async searchProduct({ query, sortBy, lastId, lastScore, website }: SearchProductQueryDto) {
         const pipeline: mongoose.PipelineStage[] = [];
 
         /////////////////////////////////////////
-        // Match stage
+        // Match stage first
         /////////////////////////////////////////
+
+        if (website) {
+            pipeline.push({
+                $match: { website }
+            });
+        }
+
+        /////////////////////////////////////////
+        // Match stage second
+        /////////////////////////////////////////
+
         const matchStage: Record<string, any> = {};
 
         matchStage.$text = {
@@ -320,12 +336,13 @@ export class ProductService {
 
     }
 
-    async getProductById(productId: string, status: ProductStatusEnum, isDeleted: boolean) {
+    async getProductById(productId: string, status: ProductStatusEnum, isDeleted: boolean, website: string) {
 
         const result = await this.Product.aggregate([
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(productId),
+                    ...(website !== undefined && { status }),
                     ...(status !== undefined && { status }),
                     ...(isDeleted !== undefined && { isDeleted }),
                 },
@@ -342,13 +359,13 @@ export class ProductService {
         return product;
     }
 
-    async getPublicProductById(productId: string) {
-        const product = await this.getProductById(productId, ProductStatusEnum.PUBLISHED, false);
+    async getPublicProductById(productId: string, website: string) {
+        const product = await this.getProductById(productId, ProductStatusEnum.PUBLISHED, false, website);
         return product;
     }
 
     async getAnyProductById(productId: string, userId: string, userStoreRole: UserStoreRoleEnum) {
-        const product = await this.getProductById(productId, undefined, undefined);
+        const product = await this.getProductById(productId, undefined, undefined, undefined);
 
         if (userId && userStoreRole) {
             if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {

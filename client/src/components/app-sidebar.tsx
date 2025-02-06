@@ -128,7 +128,7 @@ export function AppSidebar() {
             </div>
           </SidebarGroupLabel>
           <Separator className="bg-gray-800" />
-          <SidebarGroupContent className="p-2">
+          <SidebarGroupContent className="p-2 mb-20">
             <SidebarMenu>
               {filteredItems.map((item, index) => (
                 <div key={index}>

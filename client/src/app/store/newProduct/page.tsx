@@ -30,6 +30,7 @@ const CreateProduct: React.FC = () => {
   const { setLoading, user } = useUserContext();
 
   const [categoryArr, setCategoryArr] = useState([]);
+  const [websiteArr, setWebsiteArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
 
   const [formData, setFormData] = useState<CreateProductFormData>({
@@ -37,6 +38,7 @@ const CreateProduct: React.FC = () => {
     subDescription: '',
     description: '',
     category: '',
+    website: '',
     brand: '',
     status: 'draft',
     publishDate: null,
@@ -63,8 +65,27 @@ const CreateProduct: React.FC = () => {
     }
   };
 
+  const fetchWebsites = async () => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+      if (resp.status === 200 || resp.status === 201) {
+        setWebsiteArr(resp?.data);
+      } else {
+        toast.error(resp.data.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log("Error in fetching website data in new product section : ", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    if (user.role) fetchCategory();
+    if (user.role){
+      fetchCategory();
+      fetchWebsites();
+    } 
   }, [user]);
 
   const toggleCategory = (id: string) => {
@@ -223,6 +244,7 @@ const CreateProduct: React.FC = () => {
     description: string;
     category: string;
     status: string;
+    website: string;
     brand: string;
     attributes: ProductAttribute;
     publishedDate?: Date;
@@ -271,6 +293,7 @@ const CreateProduct: React.FC = () => {
         category: formData.category,
         brand: formData.brand,
         status: formData.status,
+        website: formData.website,
         ...(formData.publishDate && { publishedDate: formData.publishDate }),
         attributes: formData.attributes,
         variants: formData.variants,
@@ -288,9 +311,9 @@ const CreateProduct: React.FC = () => {
           description: '',
           category: '',
           brand: '',
+          website: '',
           status: 'draft',
           publishDate: null,
-
           attributes: {},
           variants: [],
         });
@@ -394,79 +417,97 @@ const CreateProduct: React.FC = () => {
 
           {/* Variants */}
           <div>
-            <h2>Variants</h2>
+            <h1 className='mb-4'>Variants</h1>
             {variants.map((variant, index) => (
               <div key={index}>
                 {/* Pair 1 */}
                 <div className="flex gap-4 mb-4">
-                  <input
-                    type="text"
-                    placeholder="Variant ID"
-                    value={variant.variantId}
-                    onChange={(e) => handleVariantChange(index, 'variantId', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="SKU"
-                    value={variant.sku}
-                    onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Variant ID</label>
+                    <input
+                      type="text"
+                      placeholder="Variant ID"
+                      value={variant.variantId}
+                      onChange={(e) => handleVariantChange(index, 'variantId', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">SKU</label>
+                    <input
+                      type="text"
+                      placeholder="SKU"
+                      value={variant.sku}
+                      onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
                 </div>
 
                 {/* Pair 2 */}
                 <div className="flex gap-4 mb-4">
-                  <input
-                    type="number"
-                    placeholder="Price"
-                    value={variant.price || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Prevent negative numbers and characters
-                      if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
-                        handleVariantChange(index, 'price', value);
-                      }
-                    }}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Discount Price"
-                    value={variant.discountedPrice || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Prevent negative numbers and characters
-                      if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
-                        handleVariantChange(index, 'discountedPrice', value);
-                      }
-                    }}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                </div>
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Price</label>
+                    <input
+                      type="number"
+                      placeholder="Price"
+                      value={variant.price || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Prevent negative numbers and characters
+                        if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
+                          handleVariantChange(index, 'price', value);
+                        }
+                      }}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
 
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Discount Price</label>
+                    <input
+                      type="number"
+                      placeholder="Discount Price"
+                      value={variant.discountedPrice || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Prevent negative numbers and characters
+                        if (/^\d*\.?\d*$/.test(value) && Number(value) >= 0) {
+                          handleVariantChange(index, 'discountedPrice', value);
+                        }
+                      }}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
+                </div>
 
                 {/* Pair 3 */}
                 <div className="flex gap-4 mb-4">
-                  <input
-                    type="number"
-                    placeholder="Quantity"
-                    value={variant.quantity || ""}
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Quantity</label>
+                    <input
+                      type="number"
+                      placeholder="Quantity"
+                      value={variant.quantity || ""}
+                      onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
 
-                    onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Size"
-                    value={variant.size}
-                    onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
-                    className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                  />
+                  <div className="w-1/2">
+                    <label className="block text-white mb-2">Size</label>
+                    <input
+                      type="text"
+                      placeholder="Size"
+                      value={variant.size}
+                      onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
+                      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+                    />
+                  </div>
                 </div>
 
                 {/* Pair 4 */}
-
                 <div className="flex gap-6 mb-6">
                   {/* Color picker section */}
                   <div className="flex flex-col items-center w-1/2">
@@ -483,11 +524,9 @@ const CreateProduct: React.FC = () => {
                           console.error("Invalid hex color");
                         }
                       }}
-                      className="w-full  rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
+                      className="w-full rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
                     />
-
                   </div>
-
 
                   {/* Variant Images Section */}
                   <div className="flex-1">
@@ -515,12 +554,15 @@ const CreateProduct: React.FC = () => {
                   </div>
                 </div>
 
-
+                {/* Remove Variant Button */}
                 <button onClick={() => removeVariant(index)} className="text-red-500 px-2">-</button>
               </div>
             ))}
+
+            {/* Add Variant Button */}
             <button onClick={addVariant} className="bg-blue-600 text-white px-2 py-1 rounded-md mt-4">+ Add Variant</button>
           </div>
+
 
         </div>
 
@@ -537,13 +579,34 @@ const CreateProduct: React.FC = () => {
                 setProductStatus(newStatus); // update the status
                 setFormData({ ...formData, status: newStatus }); // update formData status
               }}
+              required
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
             </select>
           </div>
 
-          {productStatus === "SCHEDULED" && (
+          <div>
+            <label htmlFor="website" className="text-white">Website</label>
+            <select
+              id="website"
+              className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
+              value={formData.website}
+              onChange={(e) => {
+                setFormData({ ...formData, website: e.target.value }); // update formData status
+              }}
+              required
+            >
+              <option value="">--Select website--</option>
+              {
+                websiteArr.map((website: any, index: number) => (
+                  <option key={index} value={website.key}>{website.name}</option>
+                ))
+              }
+            </select>
+          </div>
+
+          {/* {productStatus === "SCHEDULED" && (
             <div>
               <label htmlFor="publishDate" className="text-white block">Publish Date</label>
               <DatePicker
@@ -555,7 +618,7 @@ const CreateProduct: React.FC = () => {
                 placeholderText="Select a publish date"
               />
             </div>
-          )}
+          )} */}
 
 
           <div>

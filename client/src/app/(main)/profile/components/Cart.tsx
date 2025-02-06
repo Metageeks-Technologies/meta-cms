@@ -222,7 +222,7 @@ const Cart = () => {
 
         const order = await createPaymentOrder();
 
-        console.log(order, "Create payment order");
+        // console.log(order, "Create payment order");
 
         if (!order) {
             alert("Failed to create order");

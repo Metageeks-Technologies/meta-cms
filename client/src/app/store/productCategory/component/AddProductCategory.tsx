@@ -11,6 +11,7 @@ import { usePostContext } from '@/context/postContext'
 import { useUserContext } from '@/context/userContext'
 import { uploadToS3 } from '@/utils/helperFunction'
 import { getURL } from '@/utils/AWS_Config'
+import axios from 'axios'
 
 const AddProductCategory = ({ categoryToUpdate = null }: any) => {
 
@@ -91,30 +92,47 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
     }
 
     const uploadNewFile = async (fileList: FileList | null) => {
+        if (!fileList?.length) return;
+    
         setLoading(true);
         try {
-            const payload = {
-                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY,
-                fileName: fileList?.[0].name,
-                contentType: fileList?.[0].type
-            }
-
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-
-
-            if (resp.status === 200 || resp.status === 201) {
-                uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY, null, setImageKey);
-            } else {
-                toast.error(resp.data.message, {
-                    duration: 2000
-                })
+            const newFiles = Array.from(fileList);
+    
+            // Loop through each file and upload it
+            for (let i = 0; i < newFiles.length; i++) {
+                const file = newFiles[i];
+    
+                const payload = {
+                    folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY,
+                    fileName: file.name,
+                    contentType: file.type,
+                };
+    
+                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+    
+                if (resp.status === 200 || resp.status === 201) {
+                    const uploadUrl = resp?.data?.uploadUrl;
+                    const key = resp?.data?.key;
+    
+                    // Upload the file to S3
+                    await axios.put(uploadUrl, file);
+    
+                    // After uploading, update the state with the image key
+                    setImageKey(key);
+                } else {
+                    toast.error(resp.data.message, {
+                        duration: 2000,
+                    });
+                }
             }
         } catch (error) {
             console.log(error);
+            toast.error('Failed to upload the file. Please try again.', { duration: 2000 });
         } finally {
             setLoading(false);
         }
-    }
+    };
+    
 
     return (
         <div>

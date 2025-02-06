@@ -7,7 +7,7 @@ import { RolesGuard, StoreRolesGuard } from "src/modules/auth/role.guard";
 import { CreateProductDto, CreateVariantDto } from "./dto/create-product-dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
 import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
-import { GetProductQueryDto } from "./dto/get-product-dto";
+import { GetProductQueryDto, GetPublicProductQueryDto } from "./dto/get-product-dto";
 import { ProductStatusEnum } from "./schema/product.schema";
 import { query } from "express";
 import { SearchProductQueryDto } from "./dto/search-product-dto";
@@ -30,7 +30,7 @@ export class PorductController {
 
 
     @Get('public')
-    async getPublicProduct(@Query() query: GetProductQueryDto) {
+    async getPublicProduct(@Query() query: GetPublicProductQueryDto) {
         const products = await this.productService.getProducts(
             ProductStatusEnum.PUBLISHED,
             false,
@@ -38,7 +38,8 @@ export class PorductController {
             query.categoryId,
             query.sortBy,
             query.lastId,
-            query.searchQuery
+            query.searchQuery,
+            query.website
         );
 
         return products;
@@ -50,10 +51,9 @@ export class PorductController {
         return produts;
     }
 
-
     @Get('public/:id')
-    async getPublicProductById(@Param('id', ValidateId) productId: string) {
-        const product = await this.productService.getPublicProductById(productId);
+    async getPublicProductById(@Param('id', ValidateId) productId: string, @Query() query: GetPublicProductQueryDto) {
+        const product = await this.productService.getPublicProductById(productId, query.website);
         return product;
     }
 

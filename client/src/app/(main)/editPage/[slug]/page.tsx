@@ -71,7 +71,7 @@ const EditPage = () => {
     
     const [websiteArr, setWebsiteArr] = useState([]);
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
-    console.log(formData, "Form data")
+    // console.log(formData, "Form data")
 
     const handleChange = (e: any) => {
         const { id, value } = e.target;
@@ -542,7 +542,7 @@ const EditPage = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setFormData(resp?.data);
-                console.log(resp);
+                // console.log(resp);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,

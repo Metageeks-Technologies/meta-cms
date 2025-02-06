@@ -23,4 +23,8 @@ export class SearchProductQueryDto {
     @IsOptional()
     @IsNumber()
     lastScore?: number;
+
+    @IsNotEmpty()
+    @IsString()
+    website: string
 }
