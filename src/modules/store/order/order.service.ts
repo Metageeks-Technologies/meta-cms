@@ -415,6 +415,11 @@ export class OrderService {
         return orders;
     }
 
+    async getAllOrders(query: GetOrderQuery){
+        const orders = await this.getOrders(undefined, undefined, query.status, query.lastId);
+        return orders;
+    }
+
     async updateOrderStatus(query: any, newStatus: OrderStatusEnum) {
         const order = await this.Order.findOneAndUpdate(query, { shippingStatus: newStatus })
 
