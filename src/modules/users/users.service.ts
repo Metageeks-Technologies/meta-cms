@@ -63,7 +63,7 @@ export class UsersService {
     let website: any;
     if (newUserDetails.role === UserRoleEnum.ADMIN) {
       try {
-        website = await this.websiteService.addWebsite({ name: newUserDetails.websiteName, premissions: newUserDetails.premissions });
+        website = await this.websiteService.addWebsite(newUser, { name: newUserDetails.websiteName, premissions: newUserDetails.premissions });
       } catch (error) {
         throw new HttpException(error.message, 400);
       }

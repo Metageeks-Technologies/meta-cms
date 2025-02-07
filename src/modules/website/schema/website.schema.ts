@@ -11,6 +11,8 @@ export interface IWebsite {
     _id: mongoose.Types.ObjectId,
     name: string,
     key: string,
+    premissions: PremissionEnum[],
+    admin: mongoose.Types.ObjectId,
     isDeleted: boolean
 }
 
@@ -32,9 +34,14 @@ export const WebsiteSchema = new mongoose.Schema({
             required: true
         }
     ],
+    admin: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
     isDeleted: {
         type: Boolean,
         required: true,
         default: false
     }
-}, { timestamps: true })
+}, { timestamps: true });

@@ -15,8 +15,9 @@ export class WebsiteService {
     ) { }
 
 
-    async addWebsite(newWebsiteDetails: AddWebSiteDto) {
+    async addWebsite(user: any, newWebsiteDetails: AddWebSiteDto) {
         const newWebsite = new this.Website(newWebsiteDetails);
+        newWebsite.admin = user._id;
         const uuid = uuidv4();
         newWebsite.key = uuid;
         try {
