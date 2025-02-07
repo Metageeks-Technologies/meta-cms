@@ -66,11 +66,11 @@ export class UsersController {
     return admins;
   }
 
-  @Get('all-user')
+  @Get('all-user/:role')
   @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllUser(@Headers('websiteKey') websiteKey: string, @Body() body: {role: UserRoleEnum}){
-    const users = await this.usersService.getAllUser(websiteKey, body.role)
+  async getAllUser(@Headers('websiteKey') websiteKey: string, @Param() role: UserRoleEnum){
+    const users = await this.usersService.getAllUser(websiteKey, role)
     return users
   }
 

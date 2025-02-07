@@ -24,11 +24,11 @@ export class DashboardService {
     return { publishedPostsCount, monthlyPublishedPostsCount };
   }
 
-  async getGlobalData() {
+  async getGlobalData(websiteKey: string) {
     const [usersCount, publishedPostsCount, monthlyPublishedPostsCount] = await Promise.all([
       this.usersService.getUsersCount(),
-      this.postsService.getPublisedPostsCount(),
-      this.postsService.getMonthlyPublishedPostCount()
+      this.postsService.getPublisedPostsCount(websiteKey),
+      this.postsService.getMonthlyPublishedPostCount(websiteKey)
     ])
 
     return { usersCount, publishedPostsCount, monthlyPublishedPostsCount };

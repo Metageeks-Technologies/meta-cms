@@ -2,7 +2,7 @@ import axios, { AxiosRequestHeaders, Method } from 'axios';
 import toast from 'react-hot-toast';
 
 
-const axiosCall = async (method: Method, url: string, data?: object, headers?: AxiosRequestHeaders ): Promise<any> => {
+const axiosCall = async (method: Method, url: string, data?: object, headers?: object ): Promise<any> => {
     const config: Record<string, any> = {
         method : method.toUpperCase(),
         url,

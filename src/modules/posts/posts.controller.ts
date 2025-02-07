@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, ForbiddenException, All } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query, ForbiddenException, All, Headers } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -21,23 +21,24 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) { }
 
   @Post()
-  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async createPost(@Req() req: Request, @Body() newPostData: CreatePostDto) {
+  async createPost(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Body() newPostData: CreatePostDto) {
     const { _id: authorId, role: authorRole } = (req as any).user;
-    await this.postsService.createPost(newPostData, authorId, authorRole);
+    await this.postsService.createPost(websiteKey, newPostData, authorId, authorRole);
     return { message: "Post created successfully" };
   }
 
   @Get('search')
-  async searchPosts(@Query() query: SearchPostsQueryDto) {
-    const posts = await this.postsService.searchPosts(query);
+  async searchPosts(@Headers('websiteKey') websiteKey: string, @Query() query: SearchPostsQueryDto) {
+    const posts = await this.postsService.searchPosts(websiteKey, query);
     return posts;
   }
 
   @Get('public')
-  async getPublicPosts(@Query() query: GetPostsQueryDto) {
+  async getPublicPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
     const publicPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.PUBLISHED,
       false,
       query.authorId,
@@ -46,151 +47,151 @@ export class PostsController {
       query.sortBy,
       query.lastId,
       query.lastLikesCount,
-      query.website,
     );
     return publicPosts;
   }
 
   @Get('public/:slug')
-  async getPublicPostById(@Param('slug') slug: string) {
-    const publicPost = await this.postsService.getPublicPostBySlug(slug);
+  async getPublicPostById(@Headers('websiteKey') websiteKey: string, @Param('slug') slug: string) {
+    const publicPost = await this.postsService.getPublicPostBySlug(websiteKey, slug);
     return publicPost;
   }
 
   @Post('public/:id/like')
   @UseGuards(AuthGuard)
-  async likePublicPost(@Param('id', ValidateId) postId: string, @Req() req: Request) {
+  async likePublicPost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) postId: string, @Req() req: Request) {
     const userId = (req as any).user._id;
-    await this.postsService.likePublicPost(postId, userId);
+    await this.postsService.likePublicPost(websiteKey, postId, userId);
     return { message: 'Liked successfully' };
   }
 
   @Delete('public/:id/unlike')
   @UseGuards(AuthGuard)
-  async unlikePublicPost(@Param('id', ValidateId) postId: string, @Req() req: Request) {
+  async unlikePublicPost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) postId: string, @Req() req: Request) {
     const userId = (req as any).user._id;
-    await this.postsService.unlikePublicPost(postId, userId);
+    await this.postsService.unlikePublicPost(websiteKey, postId, userId);
     return { message: 'Unliked successfully' };
   }
 
   @Get('public/:id/is-liked-and-bookmarked')
   @UseGuards(AuthGuard)
-  async isPostLikedByuser(@Param('id', ValidateId) postId: string, @Req() req: Request) {
+  async isPostLikedByuser(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) postId: string, @Req() req: Request) {
     const userId = (req as any).user._id;
-    const isLikedAndBookmarked = await this.postsService.isPostLikedAndBookmarkedByUser(postId, userId);
+    const isLikedAndBookmarked = await this.postsService.isPostLikedAndBookmarkedByUser(websiteKey, postId, userId);
     return isLikedAndBookmarked;
   }
 
   @Post('public/:id/bookmark')
   @UseGuards(AuthGuard)
-  async bookmarkPublicPost(@Param('id', ValidateId) postId: string, @Req() req: Request) {
+  async bookmarkPublicPost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) postId: string, @Req() req: Request) {
     const userId = (req as any).user._id;
-    await this.postsService.bookmarkPublicPost(postId, userId);
+    await this.postsService.bookmarkPublicPost(websiteKey, postId, userId);
     return { message: 'Bookmarked successfully' };
   }
 
   @Delete('public/:id/bookmark')
   @UseGuards(AuthGuard)
-  async removeBookmarkFromPublicPost(@Param('id', ValidateId) postId: string, @Req() req: Request) {
+  async removeBookmarkFromPublicPost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) postId: string, @Req() req: Request) {
     const userId = (req as any).user._id;
-    await this.postsService.removeBookmarkFromPublicPost(postId, userId);
+    await this.postsService.removeBookmarkFromPublicPost(websiteKey, postId, userId);
     return { message: 'Bookmark removed successfully' };
   }
 
   @Post('public/comment/:postId')
   @UseGuards(AuthGuard)
-  async commentPublishedPost(@Param('postId', ValidateId) postId: string, @Req() req: Request, @Body() newCommentDetails: CreateCommentDto ){
+  async commentPublishedPost(@Headers('websiteKey') websiteKey: string, @Param('postId', ValidateId) postId: string, @Req() req: Request, @Body() newCommentDetails: CreateCommentDto) {
     const userId = (req as any).user._id;
-    await this.postsService.commentPublishedPost(postId, userId, newCommentDetails.message);
+    await this.postsService.commentPublishedPost(websiteKey, postId, userId, newCommentDetails.message);
     return { message: "Comment add successfully" }
   }
 
   @Patch('comment/:postId/approve/:commentId')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async approveUsersComment(@Param('postId', ValidateId) postId: string, @Param('commentId', ValidateId) commentId: string){
-    await this.postsService.approveComment(postId, commentId);
+  async approveUsersComment(@Headers('websiteKey') websiteKey: string, @Param('postId', ValidateId) postId: string, @Param('commentId', ValidateId) commentId: string) {
+    await this.postsService.approveComment(websiteKey, postId, commentId);
     return { message: "Comment approved" }
   }
 
   @Patch('comment/reject/:commentId')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async rejectUsersComment(@Param('commentId', ValidateId) commentId: string){
-    await this.postsService.rejectComment(commentId);
+  async rejectUsersComment(@Headers('websiteKey') websiteKey: string, @Param('commentId', ValidateId) commentId: string) {
+    await this.postsService.rejectComment(websiteKey, commentId);
     return { message: "Comment rejected" }
   }
 
   @Get('comment/awaiting-approval')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAwatingApprovalComments () {
-    const comments = await this.postsService.getAwaitingApproveComment();
+  async getAwatingApprovalComments(@Headers('websiteKey') websiteKey: string,) {
+    const comments = await this.postsService.getAwaitingApproveComment(websiteKey);
     return comments;
   }
 
   @Delete('comment/:postId/delete/:commentId')
   @AllowedRoles(UserRoleEnum.SUBSCRIBER, UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteComment (@Req() req: Request, @Param('postId', ValidateId) postId: string ,@Param('commentId', ValidateId) commentId: string) {
+  async deleteComment(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Param('postId', ValidateId) postId: string, @Param('commentId', ValidateId) commentId: string) {
     const user = (req as any).user;
-    await this.postsService.deleteComment(postId, user._id, user.role, commentId);
+    await this.postsService.deleteComment(websiteKey, postId, user._id, user.role, commentId);
     return { message: "Comment deleted succesfully" }
   }
 
   @Get('public/comment/:postId')
-  async publicComments (@Param('postId', ValidateId) postId: string, @Query() query: commentQueryDto){
-    const comments = await this.postsService.getPublishedCommentOnPost(postId, query.lastId);
+  async publicComments(@Headers('websiteKey') websiteKey: string, @Param('postId', ValidateId) postId: string, @Query() query: commentQueryDto) {
+    const comments = await this.postsService.getPublishedCommentOnPost(websiteKey, postId, query.lastId);
     return comments;
   }
 
   @Get('comment/all-rejected')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async allRejectedComments(@Query() query: commentQueryDto){
-    const comments = await this.postsService.getAllRejectedComments(query.lastId);
+  async allRejectedComments(@Headers('websiteKey') websiteKey: string, @Query() query: commentQueryDto) {
+    const comments = await this.postsService.getAllRejectedComments(websiteKey, query.lastId);
     return comments;
   }
 
   @Get('comment/all-published')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async allPublishedComments(@Query() query: commentQueryDto){
-    const comments = await this.postsService.getAllPublishedComments(query.lastId);
+  async allPublishedComments(@Headers('websiteKey') websiteKey: string, @Query() query: commentQueryDto) {
+    const comments = await this.postsService.getAllPublishedComments(websiteKey, query.lastId);
     return comments;
   }
 
   @Get('comment/all-deleted')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async allDeletedComments(@Query() query: commentQueryDto){
-    const comments = await this.postsService.getAllDeletedComments(query.lastId);
+  async allDeletedComments(@Headers('websiteKey') websiteKey: string, @Query() query: commentQueryDto) {
+    const comments = await this.postsService.getAllDeletedComments(websiteKey, query.lastId);
     return comments;
   }
 
   @Patch('comment/edit/:commentId')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async editComment(@Param('commentId', ValidateId) commentId: string, @Req() req:Request, @Body() commentDetails: UpdateCommentDto){
+  async editComment(@Headers('websiteKey') websiteKey: string, @Param('commentId', ValidateId) commentId: string, @Req() req: Request, @Body() commentDetails: UpdateCommentDto) {
     const user = (req as any).user
-    await this.postsService.editComment(user._id, user.role, commentId, commentDetails?.message);
+    await this.postsService.editComment(websiteKey, user._id, user.role, commentId, commentDetails?.message);
     return { message: "Comment edit successfully" }
   }
 
   @Patch('comment/recover/:commentId')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async recoverComment(@Param('commentId', ValidateId) commentId: string){
-    await this.postsService.recoverComment(commentId);
+  async recoverComment(@Headers('websiteKey') websiteKey: string, @Param('commentId', ValidateId) commentId: string) {
+    await this.postsService.recoverComment(websiteKey, commentId);
     return { message: "Comment recover successfully" }
   }
 
   @Get('my/all')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserAllPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+  async getUserAllPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto, @Req() req: Request) {
     const authorId = (req as any).user._id;
     const myAllPosts = await this.postsService.getPosts(
+      websiteKey,
       query.status,
       false,
       authorId,
@@ -206,9 +207,10 @@ export class PostsController {
   @Get('my/draft')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserDraftPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+  async getUserDraftPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto, @Req() req: Request) {
     const authorId = (req as any).user._id;
     const draftPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.DRAFT,
       false,
       authorId,
@@ -224,9 +226,10 @@ export class PostsController {
   @Get('my/published')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserPublishedPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+  async getUserPublishedPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto, @Req() req: Request) {
     const authorId = (req as any).user._id;
     const publishedPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.PUBLISHED,
       false,
       authorId,
@@ -242,9 +245,10 @@ export class PostsController {
   @Get('my/scheduled')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserScheduledPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+  async getUserScheduledPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto, @Req() req: Request) {
     const authorId = (req as any).user._id;
     const scheduledPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.SCHEDULED,
       false,
       authorId,
@@ -260,9 +264,10 @@ export class PostsController {
   @Get('my/rejected')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserRejectedPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+  async getUserRejectedPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto, @Req() req: Request) {
     const authorId = (req as any).user._id;
     const rejectedPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.REJECTED,
       false,
       authorId,
@@ -278,9 +283,10 @@ export class PostsController {
   @Get('my/awaiting-approval')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserAwaitingApprovalPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+  async getUserAwaitingApprovalPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto, @Req() req: Request) {
     const authorId = (req as any).user._id;
     const awaitingApprovalPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.AWAITING_APPROVAL,
       false,
       authorId,
@@ -296,9 +302,10 @@ export class PostsController {
   @Get('my/deleted')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserDeletedPosts(@Query() query: GetPostsQueryDto, @Req() req: Request) {
+  async getUserDeletedPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto, @Req() req: Request) {
     const authorId = (req as any).user._id;
     const deletedPosts = await this.postsService.getPosts(
+      websiteKey,
       query.status,
       true,
       authorId,
@@ -314,9 +321,9 @@ export class PostsController {
   @Get('my/all-tags')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getUserAllTags(@Req() req:Request){
+  async getUserAllTags(@Headers('websiteKey') websiteKey: string, @Req() req: Request) {
     const authorId = (req as any).user._id;
-    const allTags = await this.postsService.getAllTags(authorId);
+    const allTags = await this.postsService.getAllTags(websiteKey, authorId);
     return allTags;
   }
 
@@ -324,8 +331,9 @@ export class PostsController {
   @Get('all-published')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllPublishedPosts(@Query() query: GetPostsQueryDto) {
+  async getAllPublishedPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
     const publishedPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.PUBLISHED,
       false,
       query.authorId,
@@ -341,8 +349,9 @@ export class PostsController {
   @Get('all-scheduled')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllScheduledPosts(@Query() query: GetPostsQueryDto) {
+  async getAllScheduledPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
     const scheduledPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.SCHEDULED,
       false,
       query.authorId,
@@ -358,8 +367,9 @@ export class PostsController {
   @Get('all-rejected')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllRejectedPosts(@Query() query: GetPostsQueryDto) {
+  async getAllRejectedPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
     const rejectedPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.REJECTED,
       false,
       query.authorId,
@@ -375,8 +385,9 @@ export class PostsController {
   @Get('all-awaiting-approval')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllAwaitingApprovalPosts(@Query() query: GetPostsQueryDto) {
+  async getAllAwaitingApprovalPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
     const awaitingApprovalPosts = await this.postsService.getPosts(
+      websiteKey,
       PostStatusEnum.AWAITING_APPROVAL,
       false,
       query.authorId,
@@ -392,8 +403,9 @@ export class PostsController {
   @Get('all-deleted')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllDeletedPosts(@Query() query: GetPostsQueryDto) {
+  async getAllDeletedPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
     const deletedPosts = await this.postsService.getPosts(
+      websiteKey,
       query.status,
       true,
       query.authorId,
@@ -411,56 +423,57 @@ export class PostsController {
   @Get(':slug')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getPostById(@Param('slug') slug: string, @Req() req: Request) {
-    const post = await this.postsService.getAnyPostBySlug(slug, (req as any).user._id, (req as any).user.role);
+  async getPostById(@Headers('websiteKey') websiteKey: string, @Param('slug') slug: string, @Req() req: Request) {
+    const post = await this.postsService.getAnyPostBySlug(websiteKey, slug, (req as any).user._id, (req as any).user.role);
     return post;
   }
 
   @Patch(':id/approve')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async approvePost(@Param('id', ValidateId) id: string) {
-    await this.postsService.approvePost(id);
+  async approvePost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string) {
+    await this.postsService.approvePost(websiteKey, id);
     return { message: "Post approved successfully" };
   }
 
   @Patch(':id/reject')
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async rejectPost(@Param('id', ValidateId) id: string) {
-    await this.postsService.changePostStatus(id, PostStatusEnum.REJECTED);
+  async rejectPost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string) {
+    await this.postsService.changePostStatus(websiteKey, id, PostStatusEnum.REJECTED);
     return { message: "Post rejected successfully" };
   }
 
   @Patch(':id')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async updatePost(@Param('id', ValidateId) id: string, @Body() updatedPost: UpdatePostDto, @Req() req: Request) {
-    await this.postsService.updatePost(id, updatedPost, (req as any).user._id, (req as any).user.role);
+  async updatePost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string, @Body() updatedPost: UpdatePostDto, @Req() req: Request) {
+    await this.postsService.updatePost(websiteKey, id, updatedPost, (req as any).user._id, (req as any).user.role);
     return { message: "Post updated successfully" };
   }
 
   @Delete(':id')
   @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async deletePost(@Param('id', ValidateId) id: string, @Req() req: Request) {
-    await this.postsService.deletePost(id, (req as any).user._id, (req as any).user.role);
+  async deletePost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string, @Req() req: Request) {
+    await this.postsService.deletePost(websiteKey, id, (req as any).user._id, (req as any).user.role);
     return { message: "Post deleted successfully" };
   }
 
   @Patch(':id/recover')
   @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async recoverPost(@Param('id', ValidateId) id: string) {
-    await this.postsService.recoverPost(id);
+  async recoverPost(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string) {
+    await this.postsService.recoverPost(websiteKey, id);
     return { message: "Post recovered successfully" };
   }
 
   @Get()
   @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllPosts(@Query() query: GetPostsQueryDto) {
+  async getAllPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
     const posts = await this.postsService.getPosts(
+      websiteKey,
       query.status,
       query.isDeleted,
       query.authorId,
@@ -469,7 +482,6 @@ export class PostsController {
       query.sortBy,
       query.lastId,
       query.lastLikesCount,
-      query.website,
       query.searchQuery
     );
     return posts;

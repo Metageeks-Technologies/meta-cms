@@ -29,7 +29,7 @@ export interface IPost extends mongoose.Document {
     isDeleted: boolean;
     slug: string;
     publishedDate: string;
-    website: WebsiteEnum;
+    websiteKey: string;
 };
 
 export const PostSchema = new mongoose.Schema({
@@ -62,9 +62,8 @@ export const PostSchema = new mongoose.Schema({
         default: "0 min read",
         require: true
     },
-    website: {
+    websiteKey: {
         type: String,
-        enum: WebsiteEnum,
         required: true
     },
     isDeleted: { type: Boolean, required: true, default: false },

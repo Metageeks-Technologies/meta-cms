@@ -24,8 +24,4 @@ export class SearchPostsQueryDto {
     @IsOptional()
     @IsNumber()
     lastScore?: number;
-
-    @IsEnum(WebsiteEnum)
-    @IsNotEmpty()
-    website: WebsiteEnum;
 }
