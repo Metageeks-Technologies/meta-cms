@@ -108,6 +108,13 @@ export interface PostTypes {
     website?: string;
 }
 
+export interface IWebsite {
+  name: string; 
+  key: string; 
+  permissions: []; 
+  admin: string; 
+  isDeleted: boolean; 
+}
 
 export interface UserProfile {
     id?: string; 
@@ -118,6 +125,7 @@ export interface UserProfile {
     role: string;
     storeRole: string;
     imageKey?:string;
+    websites?: IWebsite;
     block?: boolean;
     socialLinks?: {
       linkedIn?: string;

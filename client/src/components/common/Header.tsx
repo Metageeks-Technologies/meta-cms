@@ -27,29 +27,29 @@ import { getURL } from '@/utils/AWS_Config';
 const Header = () => {
 
     const { toggleSidebar } = useSidebar();
-    const {user} = useUserContext();
+    const { user } = useUserContext();
 
 
     const router = useRouter()
     const pathname = usePathname();
     const paramArr = pathname.split('/');
     const param = paramArr[paramArr.length - 1];
-    const {setLoading, setUser} = useUserContext();
+    const { setLoading, setUser } = useUserContext();
 
     const handleLogOut = async () => {
         setLoading(true);
         try {
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/auth/logout`);
             // console.log(resp, "response")
-    
-            if(resp.status === 200 || resp.status === 201){
+
+            if (resp.status === 200 || resp.status === 201) {
                 toast.success(resp.data.message, { duration: 2000 });
                 setUser(INITIAL_USER);
                 router.push('/');
-            }else{
-                toast.error(resp.data.message, { duration: 2000});
+            } else {
+                toast.error(resp.data.message, { duration: 2000 });
             }
-    
+
         } catch (error) {
             console.log(error);
         } finally {
@@ -66,23 +66,44 @@ const Header = () => {
                 </span>
             </div>
 
-            <DropdownMenu>
-                <DropdownMenuTrigger>
-                    <Avatar>
-                        <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className='bg-[#06040B] text-gray-200 border-gray-800 -translate-x-2 md:-translate-x-8'>
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator className='bg-gray-800' />
-                    <DropdownMenuItem onClick={() => router.push('/profile')} className='cursor-pointer'>Profile</DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogOut} className='cursor-pointer'>Log out</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
 
+            <div className='flex items-center gap-4 ml-auto'>
+                {/* New Dropdown placed before the account section */}
+               {
+                user.role === 'superadmin' && (
+                    <div className='relative'>
+                    <select
+                        className='bg-[#06040B] text-gray-200 border-gray-800 p-2 rounded-md'
+                    >
+                        <option value="" disabled selected>
+                            Choose Website
+                        </option>
+                        <option value="Website 1">Website 1</option>
+                        <option value="Website 2">Website 2</option>
+                        <option value="Website 3">Website 3</option>
+                    </select>
+                </div>
+                )
+               }
 
+                {/* Account Dropdown */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <Avatar>
+                            <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
+                            <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className='bg-[#06040B] text-gray-200 border-gray-800 -translate-x-2 md:-translate-x-8'>
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator className='bg-gray-800' />
+                        <DropdownMenuItem onClick={() => router.push('/profile')} className='cursor-pointer'>Profile</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogOut} className='cursor-pointer'>Log out</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
         </div>
+
     )
 }
 

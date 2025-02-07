@@ -9,6 +9,7 @@ import { HiTemplate } from "react-icons/hi";
 import { TiThSmallOutline } from "react-icons/ti";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaGlobe } from "react-icons/fa6";
+import { RxBorderSplit } from "react-icons/rx";
 
 
 
@@ -80,6 +81,11 @@ export const items: MenuItem[] = [
         title: "Product Category",
         url: "/store/productCategory",
         icon: BiSolidCategoryAlt,
+      },
+      {
+        title: "Orders",
+        url: "/store/order",
+        icon: RxBorderSplit,
       },
     ]
   },
@@ -156,6 +162,7 @@ export const headerData = {
   allProduct:" All Product",
   productCategory: "Product Category",
   allProductCategory: "All Product Category",
+  order:"Orders",
   users: "Users",
   vendor: "Vendors",
   storeModerator: "Store Moderator",

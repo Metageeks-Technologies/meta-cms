@@ -86,7 +86,7 @@ export function AppSidebar() {
 
               // Collect all exclusions for STORE MODERATOR
               if (userStoreRole === StoreRole.STOREMODERATOR) {
-                ["New Product", "All Product", "Product Category"].forEach((title) => includedSubItems.add(title));
+                ["New Product", "All Product", "Product Category","Orders"].forEach((title) => includedSubItems.add(title));
               }
 
               // Collect all exclusions for CONTRIBUTOR
@@ -96,7 +96,7 @@ export function AppSidebar() {
 
               // Collect all exclusions for VENDOR
               if (userStoreRole === StoreRole.VENDOR) {
-                ["New Product", "All Product"].forEach((title) => includedSubItems.add(title));
+                ["New Product", "All Product","Orders"].forEach((title) => includedSubItems.add(title));
               }
 
               return includedSubItems.has(subItem.title);

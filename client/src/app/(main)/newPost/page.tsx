@@ -217,10 +217,34 @@ const App: React.FC = () => {
   };
 
   const handleEditSlug = (value: string) => {
-    if (value.length <= 128) {
-      setFormData({ ...formData, slug: value })
+    // Remove spaces, special characters, and convert to lowercase
+    const cleanedValue = value
+      .toLowerCase()              // Convert to lowercase
+      .replace(/[^a-z0-9-]/g, '') // Remove any character that is not a lowercase letter, number, or hyphen
+  
+    setFormData({ ...formData, slug: cleanedValue });
+  };
+  
+
+   // Function to generate slug from title
+   const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
+      .replace(/(^-|-$)+/g, '');     // Remove leading/trailing hyphens
+  };
+
+  // Automatically generate slug when title changes
+  useEffect(() => {
+    if (formData.postTitle) {
+      const generatedSlug = generateSlug(formData.postTitle);
+      setFormData((prevData) => ({
+        ...prevData,
+        slug: generatedSlug
+      }));
     }
-  }
+  }, [formData.postTitle]);
+
 
 
   return (
@@ -239,6 +263,18 @@ const App: React.FC = () => {
               placeholder="Enter post title"
               className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
             />
+                  {/* Slug */}
+          <label className='w-full flex flex-col gap-2'>
+            <span> Slug</span>
+            <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+            <input
+              type="text"
+              className='w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none'
+              placeholder='Enter slug'
+              value={formData.slug}
+              onChange={(e) => handleEditSlug(e.target.value)}
+            />
+          </label>
           </div>
           {/* Preview image input */}
           <div>
@@ -390,7 +426,7 @@ const App: React.FC = () => {
 
 
           {/* Slug */}
-          <label className='w-full flex flex-col gap-2'>
+          {/* <label className='w-full flex flex-col gap-2'>
             <span>Create Slug</span>
             <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
             <input
@@ -400,7 +436,7 @@ const App: React.FC = () => {
               value={formData.slug}
               onChange={(e) => handleEditSlug(e.target.value)}
             />
-          </label>
+          </label> */}
 
           {/* Category Selection */}
           <div className="space-y-2">

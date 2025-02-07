@@ -48,6 +48,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const[storeUser, setStoreUser] = useState([]);
     const[vendor, setVendor] = useState([]);
     const[storeModerator, setStoreModerator] = useState([]);
+    const[websiteKey, setWebsiteKey] = useState<any>('');
+    const [websiteData, setWebsiteData] = useState([]);
+
 
 
 
@@ -84,6 +87,62 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+
+    // const fetchUsers = async (role: string) => {
+    //     setLoading(true);
+    //     setIsLoading(true);
+    
+    //     try {
+    //         const response = await axiosCall(
+    //             'GET', // Using GET because it's your backend's expected method
+    //             `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-user/${userRoles.MODERATOR}`,
+    //             undefined,
+    //             { websiteKey } // Website key in headers
+    //         );
+    
+    //         console.log(response.data, "respobcytchchg")
+    //         // Handle the response based on the role
+    //         if (response?.status === 200 || response?.status === 201) {
+    //             if (role === userRoles.SUBSCRIBER) {
+    //                 setSubscribers(response?.data?.users);
+    //             }
+    //             if (role === userRoles.CONTRIBUTOR) {
+    //                 setContributors(response?.data?.users);
+    //             }
+    //             if (role === userRoles.MODERATOR) {
+    //                 setModerators(response?.data?.users);
+    //             }
+    //         } else {
+    //             throw new Error(response?.data?.message || `Failed to fetch ${role}s`);
+    //         }
+    //     } catch (error) {
+    //         console.error(`Error fetching ${role}s:`, error);
+    //         toast.error(`Failed to fetch ${role}s!`);
+    //     } finally {
+    //         setIsLoading(false);
+    //         setLoading(false);
+    //     }
+    // };
+    
+    const fetchWebsiteData = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`)
+
+            if (resp.status === 200 || resp.status === 201) {
+                setWebsiteData(resp?.data);
+            } else {
+                toast.error(resp?.data?.message, { duration: 2000 })
+            }
+
+        } catch (error) {
+            console.log("Error in fetching websites : ", error);
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
 
     const fetchStoreRole = async (storeRole: string) => {
         setLoading(true);
@@ -174,9 +233,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 router.push('/');
             }
 
-            
             const userData: UserProfile = response.data;
             setUser(userData);
+            setWebsiteKey(userData?.websites?.key);
             setIsAuthenticated(true);
         } catch (error) {
             console.log('Error fetching user profile:', error);
