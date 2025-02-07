@@ -215,3 +215,6 @@ body {
 .tinymce-content li {
   @apply text-base;
 }
+.tinymce-content a {
+  @apply text-blue-600 underline hover:text-blue-800;
+}

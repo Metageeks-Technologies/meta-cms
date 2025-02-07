@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
-import { IsEmail, IsEmpty, IsNotEmpty, IsNumberString, IsOptional, IsString, IsStrongPassword, IsUrl, Length, MaxLength, MinLength, ValidateIf, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEmail, IsEmpty, IsEnum, IsMongoId, IsNotEmpty, IsNumberString, IsOptional, IsString, IsStrongPassword, IsUrl, Length, MaxLength, MinLength, ValidateIf, ValidateNested } from "class-validator";
+import { UserRoleEnum } from "../schema/user.schema";
 
 export class SocialLinksDto {
     @ValidateIf((object, value) => value !== '')
@@ -36,6 +37,10 @@ export class CreateUserDto {
     @IsNotEmpty()
     email: string;
 
+    @IsEnum(UserRoleEnum)
+    @IsOptional()
+    role: UserRoleEnum
+
     @IsString()
     @IsNotEmpty()
     @MinLength(8, { message: "Password should be atleast 8 characters long" })
@@ -62,5 +67,14 @@ export class CreateUserDto {
     @ValidateNested()
     @IsOptional()
     socialLinks?: SocialLinksDto;
+
+    @IsOptional()
+    @IsString()
+    websiteName?: string;
+
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsString({ each: true })
+    premissions: string[]
 }
 

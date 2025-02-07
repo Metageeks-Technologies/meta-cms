@@ -44,9 +44,9 @@ export class AuthService {
 
   }
 
-  async signup(newUserDetails: CreateUserDto) {
-    await this.usersService.create(newUserDetails);
-  }
+  // async signup(newUserDetails: CreateUserDto) {
+  //   await this.usersService.create(newUserDetails);
+  // }
 
   async resetPasswordOtp(userDetails: generateResetPasswordDto) {
     const { email } = userDetails;

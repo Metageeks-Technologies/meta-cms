@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
 
+export enum PremissionEnum {
+    BLOG = "blog",
+    PAGE = "page",
+    STORE = "store"
+}
+
 export interface IWebsite {
     _id: mongoose.Types.ObjectId,
     name: string,
@@ -12,13 +18,20 @@ export interface IWebsite {
 export const WebsiteSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
     },
     key: {
         type: String,
         required: true,
-        unique: true
     },
+    premissions: [
+        {
+            type: String,
+            enum: Object.values(PremissionEnum),
+            required: true
+        }
+    ],
     isDeleted: {
         type: Boolean,
         required: true,

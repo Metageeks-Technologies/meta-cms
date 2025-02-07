@@ -259,7 +259,6 @@ const page = () => {
     }, [comments]);
 
     useEffect(() => {
-
         // Find all the script tags within the content
         const scripts = post?.description?.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/g);
 

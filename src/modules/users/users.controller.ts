@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Req, Res, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Req, Res, Query, Header, Headers } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { AllowedRoles, AllowedStoreRoles } from 'src/common/decorators/allowed-roles.decorator';
@@ -9,14 +9,36 @@ import { Request, Response } from 'express';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-  
+  constructor(private readonly usersService: UsersService) { }
+
+
+  @Post('create')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async createNewUser(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Body() newUserDetails: CreateUserDto) {
+    const user = (req as any).user;
+    await this.usersService.create(websiteKey, user, newUserDetails);
+    return { message: "User create successfully" };
+  }
+
+  @Post('create/admin')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async createNewAdmin(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Body() newUserDetails: CreateUserDto) {
+    const user = (req as any).user;
+    newUserDetails.role = UserRoleEnum.ADMIN;
+    await this.usersService.create(websiteKey, user, newUserDetails);
+    return { message: "Admin create successfully" };
+  }
+
+
   @Get('profile')
   @UseGuards(AuthGuard)
-  async getCurrentUserProfile(@Req() req: Request){
+  async getCurrentUserProfile(@Req() req: Request) {
     const user = await this.usersService.findById((req as any).user._id);
     return user;
   }
@@ -27,7 +49,7 @@ export class UsersController {
     const bookmarks = await this.usersService.getUserBookmarks((req as any).user._id, query);
     return bookmarks;
   }
-  
+
   @Patch('profile')
   @UseGuards(AuthGuard)
   async upadteProfile(@Req() req: Request, @Body() updatedUserProfile: UpdateUserDto) {
@@ -36,13 +58,29 @@ export class UsersController {
     return { message: "Profile updated successfully" };
   }
 
+  @Get('all-admin')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getAllAdmin() {
+    const admins = await this.usersService.getAllAdmin()
+    return admins;
+  }
+
+  @Get('all-user')
+  @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  async getAllUser(@Headers('websiteKey') websiteKey: string, @Body() body: {role: UserRoleEnum}){
+    const users = await this.usersService.getAllUser(websiteKey, body.role)
+    return users
+  }
+
   @Get('all-moderator')
   @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllModerators() {
     const users = await this.usersService.getAllModerator()
-    return { 
-      message: "All moderators fetched successfully", 
+    return {
+      message: "All moderators fetched successfully",
       users
     };
   }
@@ -52,7 +90,7 @@ export class UsersController {
   @UseGuards(AuthGuard, RolesGuard)
   async getAllContributor() {
     const users = await this.usersService.getAllContributor()
-    return { 
+    return {
       message: "All contributor fetched successfully",
       users
     };
@@ -63,7 +101,7 @@ export class UsersController {
   @UseGuards(AuthGuard, RolesGuard)
   async getAllSubscribers() {
     const users = await this.usersService.getAllSubscribers()
-    return { 
+    return {
       message: "All subscribers fetched successfully",
       users
     };
@@ -74,7 +112,7 @@ export class UsersController {
   @UseGuards(AuthGuard, StoreRolesGuard)
   async getAllStoreUser() {
     const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.USER)
-    return { 
+    return {
       message: "All Users fetched successfully",
       users
     };
@@ -85,7 +123,7 @@ export class UsersController {
   @UseGuards(AuthGuard, StoreRolesGuard)
   async getAllStoreVendor() {
     const vendors = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.VENDOR)
-    return { 
+    return {
       message: "All Vendors fetched successfully",
       vendors
     };
@@ -96,12 +134,12 @@ export class UsersController {
   @UseGuards(AuthGuard, StoreRolesGuard)
   async getAllStoreModerator() {
     const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.MODERATOR)
-    return { 
+    return {
       message: "All Moderator fetched successfully",
       users
     };
   }
-  
+
   @Get(':id')
   async findById(@Param('id', ValidateId) id: string) {
     return this.usersService.findById(id);
@@ -113,7 +151,7 @@ export class UsersController {
   async changeRole(@Body() changeRoleDto: ChangeRoleDto) {
     const { _id, newRole } = changeRoleDto;
     await this.usersService.changeRole(_id, newRole);
-    return { message: "User role changed successfully" }; 
+    return { message: "User role changed successfully" };
   }
 
   @Put('change-store-role')
@@ -122,13 +160,13 @@ export class UsersController {
   async changeStoreRole(@Body() changeRoleDto: ChangeStoreRole) {
     const { _id, newRole } = changeRoleDto;
     await this.usersService.changeStoreRole(_id, newRole);
-    return { message: "User role changed successfully" }; 
+    return { message: "User role changed successfully" };
   }
 
   @Patch('block/:id')
   @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async blockUser(@Param('id', ValidateId) userId: string){
+  async blockUser(@Param('id', ValidateId) userId: string) {
     await this.usersService.blockUser(userId)
     return { message: "User block succesfully" }
   }
@@ -136,7 +174,7 @@ export class UsersController {
   @Patch('unBlock/:id')
   @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async unBlockUser(@Param('id', ValidateId) userId: string){
+  async unBlockUser(@Param('id', ValidateId) userId: string) {
     await this.usersService.unBlockUser(userId)
     return { message: "User unblock succesfully" }
   }

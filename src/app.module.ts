@@ -26,6 +26,7 @@ import { ProductModule } from './modules/store/product/product.module';
 import { CartModule } from './modules/store/cart/cart.module';
 import { OrderModule } from './modules/store/order/order.module';
 import { WebsiteModule } from './modules/website/website.module';
+import { PremissionModule } from './modules/premission/premission.module';
 
 
 @Module({
@@ -52,7 +53,8 @@ import { WebsiteModule } from './modules/website/website.module';
     ProductModule,
     CartModule,
     OrderModule,
-    WebsiteModule
+    WebsiteModule,
+    PremissionModule
   ],
   controllers: [AppController],
   providers: [
