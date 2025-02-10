@@ -377,13 +377,9 @@ export class PostsService {
     return post;
   }
 
-  async getPublicPostBySlug(websiteKey: string, slug: string) {
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
-      throw new BadRequestException("Invalid website key");
-    }
-
-    const post = await this.getPostBySlug(websiteKey, slug, PostStatusEnum.PUBLISHED, false);
+  async getPublicPostBySlug(slug: string) {
+  
+    const post = await this.getPostBySlug(undefined, slug, PostStatusEnum.PUBLISHED, false);
     return post;
   }
 

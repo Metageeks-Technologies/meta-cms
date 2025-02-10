@@ -52,8 +52,8 @@ export class PostsController {
   }
 
   @Get('public/:slug')
-  async getPublicPostById(@Headers('websiteKey') websiteKey: string, @Param('slug') slug: string) {
-    const publicPost = await this.postsService.getPublicPostBySlug(websiteKey, slug);
+  async getPublicPostById(@Param('slug') slug: string) {
+    const publicPost = await this.postsService.getPublicPostBySlug(slug);
     return publicPost;
   }
 
