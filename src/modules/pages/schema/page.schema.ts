@@ -30,7 +30,7 @@ export interface IPage extends mongoose.Document {
     title: string;
     service: string;
     subService: string;
-    website: string;
+    websiteKey: string;
     slug: string;
     authorId: mongoose.Types.ObjectId;
     content: {
@@ -102,7 +102,7 @@ export const PageSchema = new mongoose.Schema<IPage>({
         type: String,
         enum: Object.values(PageSubServiceEnum)
     },  
-    website: {
+    websiteKey: {
         type: String,
         required: true
     },

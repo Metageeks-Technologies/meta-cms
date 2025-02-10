@@ -124,25 +124,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     //     }
     // };
     
-    const fetchWebsiteData = async () => {
-        setLoading(true);
-        try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`)
-
-            if (resp.status === 200 || resp.status === 201) {
-                setWebsiteData(resp?.data);
-            } else {
-                toast.error(resp?.data?.message, { duration: 2000 })
-            }
-
-        } catch (error) {
-            console.log("Error in fetching websites : ", error);
-        } finally {
-            setLoading(false)
-        }
-    }
-
-
 
     const fetchStoreRole = async (storeRole: string) => {
         setLoading(true);
@@ -222,6 +203,25 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }
 
+
+    const fetchWebsiteData = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`)
+
+            if (resp.status === 200 || resp.status === 201) {
+                setWebsiteData(resp?.data);
+            } else {
+                toast.error(resp?.data?.message, { duration: 2000 })
+            }
+
+        } catch (error) {
+            console.log("Error in fetching websites : ", error);
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const getUserProfile = async () => {
         setLoading(true);
         try {
@@ -236,6 +236,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const userData: UserProfile = response.data;
             setUser(userData);
             setWebsiteKey(userData?.websites?.key);
+
+            if(userData.role === userRoles.SUPERADMIN){
+                fetchWebsiteData();
+            }
+            
             setIsAuthenticated(true);
         } catch (error) {
             console.log('Error fetching user profile:', error);
@@ -246,7 +251,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-
 
     const blockUser = async (userId: string) => {
         setLoading(true);
@@ -303,7 +307,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }else{
             document.body.style.overflow = '';
         }
-
         return () => {
             document.body.style.overflow = '';
         }
