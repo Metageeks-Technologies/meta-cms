@@ -46,6 +46,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { VscPreview } from "react-icons/vsc";
 import { usePageContext } from "@/context/pageContext"
+import { useUserContext } from "@/context/userContext"
 
 
 
@@ -159,11 +160,12 @@ const page = () => {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
+  const {websiteKey} = useUserContext();
   const { pageData, fetchPageData } = usePageContext();
 
   useEffect(() => {
-    fetchPageData();
-  }, [])
+    if(websiteKey) fetchPageData();
+  }, [websiteKey])
 
 
   const table = useReactTable({

@@ -100,11 +100,9 @@ export class PagesService {
         // }
 
         const page = await this.Page.findOne({ _id: id }, { isDeleted: 1 }).lean().exec();
-
         if (!page) {
             throw new NotFoundException('Page not found');
         }
-
         if (!page.isDeleted) {
             throw new BadRequestException('Page not deleted yet');
         }
@@ -126,16 +124,13 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
-    async getAllPage(): Promise<any> {
-        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        // if (!website) {
-        //   throw new BadRequestException("Invalid website key");
-        // }
+    async getAllPage(websiteKey: string): Promise<any> {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new BadRequestException("Invalid website key");
+        }
 
-        const allPage = await this.Page.find().sort({ createdAt: -1 }).lean().exec();
-
-        if (!allPage.length) throw new NotFoundException('No page found')
-
+        const allPage = await this.Page.find({ website: websiteKey }).sort({ createdAt: -1 }).lean().exec();
         return allPage
     }
 
