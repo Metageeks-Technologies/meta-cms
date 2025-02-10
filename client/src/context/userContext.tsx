@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import axiosCall from '@/utils/ApiCall';
 import { UserProfile } from '@/types';
 import { INITIAL_USER, userRoles } from '@/constant/user';
-import {StoreRole} from '@/constant/store';
+import { StoreRole } from '@/constant/store';
 interface UserContextType {
     user: UserProfile;
     subscribers: UserProfile[];
@@ -19,7 +19,7 @@ interface UserContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     fetchUsers: (role: string) => Promise<void>;
-    fetchStoreRole:(storeRole: string) => Promise<void>;
+    fetchStoreRole: (storeRole: string) => Promise<void>;
     changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
     changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
     getUserProfile: () => Promise<void>;
@@ -27,7 +27,12 @@ interface UserContextType {
     blockUser: (userId: string) => Promise<void>;
     unblockUser: (userId: string) => Promise<void>;
     loading: boolean;
-    setLoading : (loading: boolean) => void;
+    setLoading: (loading: boolean) => void;
+    website: any;
+    websiteKey: string;
+    setWebsiteKey: (key: string) => void;
+    websiteData: any[];
+    setWebsiteData: (data: any[]) => void;
 };
 
 // Context Creation
@@ -45,13 +50,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [contributors, setContributors] = useState([]);
     const [moderators, setModerators] = useState([]);
 
-    const[storeUser, setStoreUser] = useState([]);
-    const[vendor, setVendor] = useState([]);
-    const[storeModerator, setStoreModerator] = useState([]);
-    const[websiteKey, setWebsiteKey] = useState<any>('');
-    const [websiteData, setWebsiteData] = useState([]);
+    const [storeUser, setStoreUser] = useState([]);
+    const [vendor, setVendor] = useState([]);
+    const [storeModerator, setStoreModerator] = useState([]);
+    const [websiteKey, setWebsiteKey] = useState<any>('');
+    const [website, setWebsite] = useState<any>();
+    const [websiteData, setWebsiteData] = useState<any[]>([]);
 
 
+    // console.log(websiteData, "webiste data")
 
 
     // API Calls
@@ -61,19 +68,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
 
         try {
-            const response = await axiosCall('GET',`${process.env.NEXT_PUBLIC_BASE_URL}/users/all-${role}`
+            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-${role}`
             );
-
             // console.log(response, "userfetch res")
 
             if (response?.status === 200 || response?.status === 201) {
-                if(role === userRoles.SUBSCRIBER){
+                if (role === userRoles.SUBSCRIBER) {
                     setSubscribers(response?.data?.users);
                 }
-                if(role === userRoles.CONTRIBUTOR){
+                if (role === userRoles.CONTRIBUTOR) {
                     setContributors(response?.data?.users);
                 }
-                if(role === userRoles.MODERATOR){
+                if (role === userRoles.MODERATOR) {
                     setModerators(response?.data?.users);
                 }
             } else {
@@ -82,7 +88,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error) {
             console.error(`Error fetching ${role}s:`, error);
             toast.error(`Failed to fetch ${role}s!`);
-        }finally{
+        } finally {
             setIsLoading(false);
             setLoading(false);
         }
@@ -91,7 +97,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // const fetchUsers = async (role: string) => {
     //     setLoading(true);
     //     setIsLoading(true);
-    
+
     //     try {
     //         const response = await axiosCall(
     //             'GET', // Using GET because it's your backend's expected method
@@ -99,7 +105,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     //             undefined,
     //             { websiteKey } // Website key in headers
     //         );
-    
+
     //         console.log(response.data, "respobcytchchg")
     //         // Handle the response based on the role
     //         if (response?.status === 200 || response?.status === 201) {
@@ -123,22 +129,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     //         setLoading(false);
     //     }
     // };
-    
+
 
     const fetchStoreRole = async (storeRole: string) => {
         setLoading(true);
         setIsLoading(true);
         try {
-            const response = await axiosCall('GET',`${process.env.NEXT_PUBLIC_BASE_URL}/users/all-store-${storeRole}` );
-    
-           // console.log(response, "userfetch res");
-    
+            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-store-${storeRole}`);
+
+            // console.log(response, "userfetch res");
+
             if (response?.status === 200 || response?.status === 201) {
                 // Dynamically update the state based on storeRole
                 if (storeRole === StoreRole.USER) {
                     setStoreUser(response?.data?.users);
                 }
-                
+
                 if (storeRole === StoreRole.VENDOR) {
                     setVendor(response?.data?.vendors);
                 }
@@ -156,7 +162,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-    
+
 
     const changeUserRole = async (userId: string, currentRole: string, newRole: string) => {
         setLoading(true);
@@ -172,7 +178,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
                 throw new Error(response.data.message);
             }
-            
+
         } catch (error) {
             console.error('Error changing user role:', error);
             toast.error('Failed to update user role');
@@ -181,28 +187,27 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const changeStoreRole =async (userId: string, currentRole: string, newRole: string)=>{
+    const changeStoreRole = async (userId: string, currentRole: string, newRole: string) => {
         setLoading(true);
-        try{
+        try {
             const response = await axiosCall('PUT', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-store-role`, {
                 _id: userId,
                 newRole
             });
-           // console.log(response);
+            // console.log(response);
             if (response.status === 200 || response.status === 201) {
-                await fetchStoreRole(currentRole); 
+                await fetchStoreRole(currentRole);
                 toast.success(response.data.message);
             } else {
                 throw new Error(response.data.message);
             }
-        }catch (error) {
+        } catch (error) {
             console.error('Error changing user role:', error);
             toast.error('Failed to update user role');
         } finally {
             setLoading(false);
         }
     }
-
 
     const fetchWebsiteData = async () => {
         setLoading(true);
@@ -211,6 +216,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (resp.status === 200 || resp.status === 201) {
                 setWebsiteData(resp?.data);
+                setWebsiteKey(resp?.data[0].key)
             } else {
                 toast.error(resp?.data?.message, { duration: 2000 })
             }
@@ -222,12 +228,29 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }
 
+    const fetchWebsite = async (key: string) => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website/any/${key}`)
+
+            if (resp.status === 200 || resp.status === 201) {
+                setWebsite(resp?.data);
+            } else {
+                // toast.error(resp?.data?.message, { duration: 2000 })
+            }
+        } catch (error) {
+            console.log("Error in fetching website : ", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const getUserProfile = async () => {
         setLoading(true);
         try {
             const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`);
-            if (response.status !== 200 ) {
-                if(response.status !== 401){
+            if (response.status !== 200) {
+                if (response.status !== 401) {
                     throw new Error('Failed to fetch user profile');
                 }
                 router.push('/');
@@ -235,12 +258,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             const userData: UserProfile = response.data;
             setUser(userData);
-            setWebsiteKey(userData?.websites?.key);
+            setWebsiteKey(userData?.website?.key);
 
-            if(userData.role === userRoles.SUPERADMIN){
+            if (userData.role === userRoles.SUPERADMIN) {
                 fetchWebsiteData();
             }
-            
+
             setIsAuthenticated(true);
         } catch (error) {
             console.log('Error fetching user profile:', error);
@@ -256,12 +279,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
             const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/block/${userId}`);
-            
+
             if (response.status === 200) {
                 toast.success(response.data.message);
                 await fetchUsers(userRoles.CONTRIBUTOR);
                 await fetchUsers(userRoles.MODERATOR);
-                await fetchUsers(userRoles.SUBSCRIBER); 
+                await fetchUsers(userRoles.SUBSCRIBER);
                 await fetchStoreRole(StoreRole.USER);
                 await fetchStoreRole(StoreRole.VENDOR);
                 await fetchStoreRole(StoreRole.STOREMODERATOR);
@@ -276,17 +299,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-    
+
     const unblockUser = async (userId: string) => {
         setLoading(true);
         try {
             const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/unBlock/${userId}`);
-            
+
             if (response.status === 200) {
                 toast.success(response.data.message);
-                await fetchUsers(userRoles.CONTRIBUTOR); 
+                await fetchUsers(userRoles.CONTRIBUTOR);
                 await fetchUsers(userRoles.MODERATOR);
-                await fetchUsers(userRoles.SUBSCRIBER); 
+                await fetchUsers(userRoles.SUBSCRIBER);
                 await fetchStoreRole(StoreRole.USER);
                 await fetchStoreRole(StoreRole.VENDOR);
                 await fetchStoreRole(StoreRole.STOREMODERATOR);
@@ -302,15 +325,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
     useEffect(() => {
-        if(loading){
+        fetchWebsite(websiteKey);
+    }, [websiteKey])
+
+    useEffect(() => {
+        if (loading) {
             document.body.style.overflow = 'hidden';
-        }else{
+        } else {
             document.body.style.overflow = '';
         }
         return () => {
             document.body.style.overflow = '';
         }
-    },[loading]);
+    }, [loading]);
 
     const contextValue: UserContextType = {
         user,
@@ -332,6 +359,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         vendor,
         storeModerator,
         storeUser,
+        website,
+        websiteKey,
+        setWebsiteKey,
+        websiteData,
+        setWebsiteData
     };
 
     return (

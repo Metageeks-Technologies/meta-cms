@@ -12,7 +12,7 @@ import { usePostContext } from '@/context/postContext';
 
 const AdminAllPost = () => {
 
-    const { user } = useUserContext();
+    const { user, websiteKey } = useUserContext();
 
     const { filterBy, sortBy, setFilterBy, setSortBy, selectedCategory, setSelectedCategory } = usePostContext();
 
@@ -37,7 +37,7 @@ const AdminAllPost = () => {
                 if (lastId) param.append('lastId', lastId);
                 if (selectedCategory) param.append('categories', selectedCategory);
                 param.append('isDeleted', 'false');
-                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/draft?${param.toString()}`);
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/draft?${param.toString()}`, undefined,  {websiteKey});
 
                 if (resp.status === 200 || resp.status === 201) {
                     const newPost = resp?.data;
@@ -78,7 +78,7 @@ const AdminAllPost = () => {
                 if (selectedCategory) param.append('categories', selectedCategory);
                 if (searchText) param.append('searchQuery', searchText);
 
-                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`);
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`, undefined, {websiteKey});
                 // console.log(resp)
 
                 if (resp.status === 200 || resp.status === 201) {
@@ -153,20 +153,20 @@ const AdminAllPost = () => {
 
 
     useEffect(() => {
-        if (hasMore && user.role) {
+        if (hasMore && websiteKey) {
             fetchAllPosts(lastId);
         }
     }, [page, hasMore]);
 
     useEffect(() => {
-        if (user.role) {
+        if (websiteKey) {
             setPostData([]);
             setPage(1);
             setLastId('');
             setHasMore(true);
             fetchAllPosts();
         }
-    }, [filterBy, sortBy, selectedCategory, searchText]);
+    }, [filterBy, sortBy, selectedCategory, searchText, websiteKey]);
 
     useEffect(() => {
         setLastId(postData?.[postData.length - 1]?._id || null);

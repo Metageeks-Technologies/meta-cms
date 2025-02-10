@@ -11,7 +11,7 @@ import StoreDashboard from '@/app/store/Dashboard/StoreDashboard';
 
 const AdminDashboard = () => {
 
-  const { user, setLoading } = useUserContext();
+  const { user, setLoading, website, websiteKey } = useUserContext();
 
   const [personalDashboardData, setPersonalDashboardData] = useState();
   const [globalDashboardData, setGlobalDashboardData] = useState();
@@ -24,7 +24,7 @@ const AdminDashboard = () => {
   const dashboardGlobal = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/global`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/global`, undefined, { websiteKey: websiteKey });
 
       if (resp.status === 200 || resp.status === 201) {
         setGlobalDashboardData(resp?.data);
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
   const dashboardPersonal = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/personal`)
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/personal`, undefined, { websiteKey: websiteKey })
 
       if (resp.status === 200 || resp.status === 201) {
         setPersonalDashboardData(resp?.data);
@@ -60,18 +60,19 @@ const AdminDashboard = () => {
   }
 
 
+
   useEffect(() => {
-    if (user.role) {
+    if (websiteKey) {
       dashboardPersonal();
       dashboardGlobal();
     }
-  }, [user]);
-
+  }, [websiteKey]);
 
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto p-2">
 
+      <h1 className='text-3xl font-bold my-4'>{website?.name}</h1>
 
       <div className="flex justify-start my-5">
         <button
@@ -111,7 +112,7 @@ const AdminDashboard = () => {
           </div>
         </>
       ) : (
-        <StoreDashboard/>
+        <StoreDashboard />
       )}
 
 

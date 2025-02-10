@@ -59,4 +59,3 @@ export const uploadToS3 = async (uploadUrl: string, file: File | undefined, key:
         setLoaing(false)
     }
 }
-

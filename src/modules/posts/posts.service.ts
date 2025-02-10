@@ -137,6 +137,8 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
+    // console.log(website, "Website data")
+
     const pipeline: mongoose.PipelineStage[] = [];
 
     /////////////////////////////////////////
@@ -591,17 +593,17 @@ export class PostsService {
     }
   }
 
-  async getPublisedPostsCount(websiteKey: string, userId?: string) {
+  async getPublisedPostsCount(userId?: string) {
 
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
-      throw new BadRequestException("Invalid website key");
-    }
+    // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    // if (!website) {
+    //   throw new BadRequestException("Invalid website key");
+    // }
 
     // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
     // Assuming userId exists and is coming from JWT
     const count = await this.Post.countDocuments({
-      websiteKey: websiteKey,
+      // websiteKey: websiteKey,
       status: postStatuEnum.PUBLISHED,
       isDeleted: false,
       ...(userId && { authorId: mongoose.Types.ObjectId.createFromHexString(userId) })
@@ -609,12 +611,12 @@ export class PostsService {
     return count;
   }
 
-  async getMonthlyPublishedPostCount(websiteKey: string, userId?: string) {
+  async getMonthlyPublishedPostCount(userId?: string) {
 
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
-      throw new BadRequestException("Invalid website key");
-    }
+    // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    // if (!website) {
+    //   throw new BadRequestException("Invalid website key");
+    // }
 
     // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
     // Assuming userId exists and is coming from JWT
@@ -624,7 +626,7 @@ export class PostsService {
     lastYearDate.setMonth(currentDate.getMonth() - 12);
 
     const matchFilter: Record<string, any> = {
-      websiteKey: websiteKey,
+      // websiteKey: websiteKey,
       status: 'published',
       createdAt: { $gte: lastYearDate }
     };

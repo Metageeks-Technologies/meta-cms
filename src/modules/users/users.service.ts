@@ -30,11 +30,11 @@ export class UsersService {
 
   async create(websiteKey: string, user: any, newUserDetails: CreateUserDto) {
 
-    if(user.role !== UserRoleEnum.SUPERADMIN && !websiteKey){
+    if (user.role !== UserRoleEnum.SUPERADMIN && !websiteKey) {
       throw new BadRequestException("Website key must be required")
     }
 
-    if(!newUserDetails.role){
+    if (!newUserDetails.role) {
       throw new BadRequestException("Role must be required")
     }
 
@@ -44,10 +44,10 @@ export class UsersService {
 
     if (newUserDetails.role === UserRoleEnum.ADMIN && !newUserDetails.websiteName) {
       throw new BadRequestException("Website name must be required");
-    } 
+    }
 
-    const userExist = await this.User.findOne({email: newUserDetails.email});
-    if(userExist){
+    const userExist = await this.User.findOne({ email: newUserDetails.email });
+    if (userExist) {
       throw new BadRequestException('Email alredy exists')
     }
 
@@ -190,18 +190,18 @@ export class UsersService {
     return bookmarks;
   }
 
-  async getAllAdmin(): Promise<IUser[]>{
-    const admins = await this.User.find({role: UserRoleEnum.ADMIN}).sort({createdAt: -1}).select('-hash').populate('website').lean().exec();
+  async getAllAdmin(): Promise<IUser[]> {
+    const admins = await this.User.find({ role: UserRoleEnum.ADMIN }).sort({ createdAt: -1 }).select('-hash').populate('website').lean().exec();
     return admins;
   }
 
   async getAllUser(websiteKey: string, role: UserRoleEnum): Promise<IUser[]> {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if(!website){
+    if (!website) {
       throw new BadRequestException("Invalid website key");
     }
 
-    const user = await this.User.find({role: role, website: website._id}).sort({createdAt: -1}).select('-hash').populate('website').lean().exec();
+    const user = await this.User.find({ role: role, website: website._id }).sort({ createdAt: -1 }).select('-hash').populate('website').lean().exec();
     return user;
   }
 
@@ -233,17 +233,30 @@ export class UsersService {
   }
 
   async getUsersCount() {
-    const result = await this.User.aggregate([{
-      $group: {
-        _id: "$role",
-        count: { $count: {} }
-      }
-    },
-    {
-      $project: {
-        count: 1
-      }
-    }]).exec();
+
+    // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    // if (!website) {
+    //   throw new BadRequestException("Invalid website key");
+    // }
+
+
+    const result = await this.User.aggregate([
+      {
+        $match: {
+          // websiteKey: websiteKey
+        }
+      },
+      {
+        $group: {
+          _id: "$role",
+          count: { $count: {} }
+        }
+      },
+      {
+        $project: {
+          count: 1
+        }
+      }]).exec();
 
     const counts = {};
     for (const key in result) {

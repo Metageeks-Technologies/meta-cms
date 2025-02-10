@@ -1,4 +1,4 @@
-import axios, { AxiosRequestHeaders, Method } from 'axios';
+import axios, { Method } from 'axios';
 import toast from 'react-hot-toast';
 
 
@@ -7,17 +7,16 @@ const axiosCall = async (method: Method, url: string, data?: object, headers?: o
         method : method.toUpperCase(),
         url,
         withCredentials: true,
+        headers: headers || {}
     };
 
     if (data) {
         config.data = data;
     }
 
-    if (headers) {
-        config.headers = headers;
-    }
-
     try {
+
+        console.log(config, "Config");
         const response = await axios(config);
         return response; // Return the data from the response
     } catch (error: any) {

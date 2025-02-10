@@ -22,12 +22,10 @@ import { headerData } from '@/constant/sidebar';
 import { getURL } from '@/utils/AWS_Config';
 
 
-
-
 const Header = () => {
 
     const { toggleSidebar } = useSidebar();
-    const { user } = useUserContext();
+    const { user, websiteKey, setWebsiteKey, websiteData } = useUserContext();
 
 
     const router = useRouter()
@@ -69,22 +67,24 @@ const Header = () => {
 
             <div className='flex items-center gap-4 ml-auto'>
                 {/* New Dropdown placed before the account section */}
-               {
-                user.role === 'superadmin' && (
-                    <div className='relative'>
-                    <select
-                        className='bg-[#06040B] text-gray-200 border-gray-800 p-2 rounded-md'
-                    >
-                        <option value="" disabled selected>
-                            Choose Website
-                        </option>
-                        <option value="Website 1">Website 1</option>
-                        <option value="Website 2">Website 2</option>
-                        <option value="Website 3">Website 3</option>
-                    </select>
-                </div>
-                )
-               }
+                {
+                    user.role === 'superadmin' && (
+                        <div className='relative'>
+                            <select
+                                className='bg-[#06040B] text-gray-200 border-gray-800 p-2 rounded-md'
+                                value={websiteKey}
+                                onChange={(e) => setWebsiteKey(e.target.value)}
+                            >
+                                <option value="" disabled selected>--Choose Website--</option>
+                                {
+                                    websiteData?.map((data: any, index: number) => (
+                                        <option key={index} value={data?.key}>{data?.name}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                    )
+                }
 
                 {/* Account Dropdown */}
                 <DropdownMenu>
