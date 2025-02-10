@@ -17,15 +17,15 @@ export class PagesService {
     ) { }
 
 
-    async createPage(websiteKey: string, newPageDetails: CreatePageDto, authorId: string) {
+    async createPage(newPageDetails: CreatePageDto, authorId: string) {
 
-        const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if (!website) {
-          throw new BadRequestException("Invalid website key");
-        }
+        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        // if (!website) {
+        //   throw new BadRequestException("Invalid website key");
+        // }
 
         const newPage = new this.Page(newPageDetails);
-        newPage.websiteKey = websiteKey;
+        // newPage.websiteKey = websiteKey;
         newPage.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
 
         try {
@@ -40,15 +40,15 @@ export class PagesService {
         }
     }
 
-    async getPageBySlug(websiteKey: string, slug: string, isDeleted?: boolean) {
+    async getPageBySlug(slug: string, isDeleted?: boolean) {
 
-        const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if (!website) {
-          throw new BadRequestException("Invalid website key");
-        }
+        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        // if (!website) {
+        //   throw new BadRequestException("Invalid website key");
+        // }
 
         const matchCondition: any = {
-            websiteKey: websiteKey,
+            // websiteKey: websiteKey,
             slug: slug
         };
 
@@ -56,9 +56,9 @@ export class PagesService {
             matchCondition.isDeleted = isDeleted;
         }
 
-        if (website) {
-            matchCondition['website'] = website;
-        }
+        // if (website) {
+        //     matchCondition['website'] = website;
+        // }
 
         const result = await this.Page.aggregate([
             {
@@ -74,13 +74,13 @@ export class PagesService {
     }
 
 
-    async deletePageById(websiteKey: string, id: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if (!website) {
-          throw new BadRequestException("Invalid website key");
-        }
+    async deletePageById(id: string) {
+        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        // if (!website) {
+        //   throw new BadRequestException("Invalid website key");
+        // }
 
-        const page = await this.Page.findOne({ _id: id, websiteKey: websiteKey }, { isDeleted: 1 }).lean().exec();
+        const page = await this.Page.findOne({ _id: id }, { isDeleted: 1 }).lean().exec();
 
         if (!page) {
             throw new NotFoundException('Page not found');
@@ -93,13 +93,13 @@ export class PagesService {
     }
 
 
-    async recoverPage(websiteKey: string, id: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if (!website) {
-          throw new BadRequestException("Invalid website key");
-        }
+    async recoverPage(id: string) {
+        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        // if (!website) {
+        //   throw new BadRequestException("Invalid website key");
+        // }
 
-        const page = await this.Page.findOne({ _id: id, websiteKey: websiteKey }, { isDeleted: 1 }).lean().exec();
+        const page = await this.Page.findOne({ _id: id }, { isDeleted: 1 }).lean().exec();
 
         if (!page) {
             throw new NotFoundException('Page not found');
@@ -111,13 +111,13 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { isDeleted: false }).exec();
     }
 
-    async updatePage(websiteKey: string, id: string, updatePageDetails: UpdatePageDto) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if (!website) {
-          throw new BadRequestException("Invalid website key");
-        }
+    async updatePage(id: string, updatePageDetails: UpdatePageDto) {
+        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        // if (!website) {
+        //   throw new BadRequestException("Invalid website key");
+        // }
 
-        const page = await this.Page.findOne({ _id: id, websiteKey: websiteKey }, { title: 1 }).exec();
+        const page = await this.Page.findOne({ _id: id }, { title: 1 }).exec();
 
         if (!page.title) {
             throw new NotFoundException('Page not found');
@@ -126,26 +126,26 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
-    async getAllPage(websiteKey: string): Promise<any> {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if (!website) {
-          throw new BadRequestException("Invalid website key");
-        }
+    async getAllPage(): Promise<any> {
+        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        // if (!website) {
+        //   throw new BadRequestException("Invalid website key");
+        // }
 
-        const allPage = await this.Page.find({websiteKey: websiteKey}).sort({ createdAt: -1 }).lean().exec();
+        const allPage = await this.Page.find().sort({ createdAt: -1 }).lean().exec();
 
         if (!allPage.length) throw new NotFoundException('No page found')
 
         return allPage
     }
 
-    async getPageTitles(websiteKey: string, service: PageServiceEnum) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if (!website) {
-          throw new BadRequestException("Invalid website key");
-        }
+    async getPageTitles(service: PageServiceEnum) {
+        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        // if (!website) {
+        //   throw new BadRequestException("Invalid website key");
+        // }
 
-        const query = { websiteKey: websiteKey, service, isDeleted: false }
+        const query = { service, isDeleted: false }
 
         const pages = await this.Page.find(query, { subService: 1, title: 1, slug: 1 });
 
