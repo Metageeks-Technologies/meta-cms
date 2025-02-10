@@ -36,9 +36,9 @@ export class PostsController {
   }
 
   @Get('public')
-  async getPublicPosts(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
+  async getPublicPosts(@Query() query: GetPostsQueryDto) {
     const publicPosts = await this.postsService.getPosts(
-      websiteKey,
+      query.website,
       PostStatusEnum.PUBLISHED,
       false,
       query.authorId,

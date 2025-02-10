@@ -120,7 +120,7 @@ export class PostsService {
   }
 
   async getPosts(
-    websiteKey: string,
+    website: string,
     status: PostStatusEnum,
     isDeleted: boolean,
     authorId: string,
@@ -132,8 +132,8 @@ export class PostsService {
     searchQuery?: string,
   ) {
 
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
+    const websiteData = await this.websiteService.getWebsiteByKey(website);
+    if (!websiteData) {
       throw new BadRequestException("Invalid website key");
     }
 
@@ -146,8 +146,8 @@ export class PostsService {
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
 
-    if (websiteKey) {
-      matchStage.websiteKey = websiteKey;
+    if (website) {
+      matchStage.website = website;
     }
 
     if (status) {

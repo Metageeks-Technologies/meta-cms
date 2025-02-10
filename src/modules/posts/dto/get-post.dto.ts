@@ -66,4 +66,8 @@ export class GetPostsQueryDto {
   @IsString()
   @IsOptional()
   searchQuery?: string
+
+  @IsString()
+  @IsOptional()
+  website: string
 }
