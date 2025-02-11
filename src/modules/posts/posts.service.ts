@@ -376,7 +376,7 @@ export class PostsService {
   }
 
   async getPublicPostBySlug(websiteKey: string, slug: string) {
-  
+
     const post = await this.getPostBySlug(websiteKey, slug, PostStatusEnum.PUBLISHED, false);
     return post;
   }
@@ -587,7 +587,7 @@ export class PostsService {
     }
   }
 
-  async getPublisedPostsCount(websiteKey: string, userId?: string) {
+  async getPostsCount(websiteKey: string, userId: string, status: string) {
 
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
@@ -596,12 +596,23 @@ export class PostsService {
 
     // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
     // Assuming userId exists and is coming from JWT
-    const count = await this.Post.countDocuments({
+
+    const query = {
       website: websiteKey,
-      status: postStatuEnum.PUBLISHED,
       isDeleted: false,
-      ...(userId && { authorId: mongoose.Types.ObjectId.createFromHexString(userId) })
-    }).exec();
+    }
+
+    if (status) {
+      query['status'] = status;
+    } else {
+      query['status'] = { $ne: postStatuEnum.DRAFT }
+    }
+
+    if (userId) {
+      query['authorId'] = mongoose.Types.ObjectId.createFromHexString(userId)
+    }
+
+    const count = await this.Post.countDocuments(query).exec();
     return count;
   }
 
@@ -824,7 +835,7 @@ export class PostsService {
     if (!website) {
       throw new BadRequestException("Invalid website key");
     }
-    
+
     await this.commentService.recoverComment(commentId)
   }
 

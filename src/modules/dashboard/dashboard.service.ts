@@ -4,6 +4,7 @@ import { PostsService } from '../posts/posts.service';
 import { UsersService } from '../users/users.service';
 import { OrderService } from '../store/order/order.service';
 import { ProductService } from '../store/product/product.service';
+import { postStatuEnum } from 'client/src/constant/post';
 
 @Injectable()
 export class DashboardService {
@@ -16,22 +17,24 @@ export class DashboardService {
 
   async getPersonalData(websiteKey: string, userId: string, userRole: UserRoleEnum) {
     // Assuming userId is verified and is coming from jwt
-    const [publishedPostsCount, monthlyPublishedPostsCount] = await Promise.all([
-      this.postsService.getPublisedPostsCount(websiteKey, userId),
+    const [publishedPostsCount, totalPostCount, monthlyPublishedPostsCount] = await Promise.all([
+      this.postsService.getPostsCount(websiteKey, userId, postStatuEnum.PUBLISHED),
+      this.postsService.getPostsCount(websiteKey, userId, undefined),
       this.postsService.getMonthlyPublishedPostCount(websiteKey, userId)
     ])
 
-    return { publishedPostsCount, monthlyPublishedPostsCount };
+    return { publishedPostsCount, totalPostCount, monthlyPublishedPostsCount };
   }
 
   async getGlobalData(websiteKey: string) {
-    const [usersCount, publishedPostsCount, monthlyPublishedPostsCount] = await Promise.all([
+    const [usersCount, publishedPostsCount, totalPostCount, monthlyPublishedPostsCount] = await Promise.all([
       this.usersService.getUsersCount(websiteKey),
-      this.postsService.getPublisedPostsCount(websiteKey),
+      this.postsService.getPostsCount(websiteKey, undefined, postStatuEnum.PUBLISHED),
+      this.postsService.getPostsCount(websiteKey, undefined, undefined),
       this.postsService.getMonthlyPublishedPostCount(websiteKey)
     ])
 
-    return { usersCount, publishedPostsCount, monthlyPublishedPostsCount };
+    return { usersCount, publishedPostsCount, totalPostCount, monthlyPublishedPostsCount };
   }
 
   async getStoreAdminData() {

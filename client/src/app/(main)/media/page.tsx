@@ -64,11 +64,15 @@ const page = () => {
 
     useEffect(() => {
         if (hasMoreMedia && websiteKey) fetchMedia(lastId);
-    }, [websiteKey, page]);
+    }, [, page]);
 
     useEffect(() => {
         setLastId(media?.[media.length - 1]?._id || null);
     }, [media]);
+
+    useEffect(() => {
+        if(websiteKey) fetchMedia();
+    },[websiteKey])
 
 
 

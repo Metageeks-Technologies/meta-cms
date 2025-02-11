@@ -16,7 +16,6 @@ const AdminDashboard = () => {
   const [personalDashboardData, setPersonalDashboardData] = useState();
   const [globalDashboardData, setGlobalDashboardData] = useState();
 
-
   const [isBlogDashboard, setIsBlogDashboard] = useState(true); // State to toggle between dashboards
 
 
@@ -91,7 +90,7 @@ const AdminDashboard = () => {
         <>
           {
             (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ?
-              <CardsRow data={globalDashboardData} />
+              <CardsRow data={globalDashboardData} personalData={personalDashboardData}/>
               : <CardsRow data={personalDashboardData} />
           }
           {
