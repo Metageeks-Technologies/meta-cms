@@ -111,6 +111,9 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchMedia = async (lastId: string) => {
         if (isFetching) return;
         setIsFetching(true);
+        if(!lastId){
+            setMedia([]);
+        }
         try {
             const param = new URLSearchParams();
             if (lastId) param.append('lastId', lastId);

@@ -27,24 +27,7 @@ const page = () => {
     const [image, setImage] = useState('');
 
     const { user, loading, websiteKey } = useUserContext();
-    const { media, fetchMedia, hasMoreMedia } = usePostContext();
-
-    // const handleFilter = (value: string) => {
-    //     if (value === 'all') {
-    //         setFilterBy('all');
-    //         // setMediaData(dummyMedia);
-    //         return;
-    //     }
-
-    //     // const filteredData = dummyMedia?.filter((data) => data.type === value);
-    //     // setMediaData(filteredData);
-    //     setFilterBy(value);
-    // }
-
-
-    // useEffect(() => {
-    //     fetchMedia();
-    // }, []);
+    const { media, setMedia, fetchMedia, hasMoreMedia } = usePostContext();
 
     const handleScroll = () => {
         if (
@@ -71,8 +54,10 @@ const page = () => {
     }, [media]);
 
     useEffect(() => {
-        if(websiteKey) fetchMedia();
-    },[websiteKey])
+        if (websiteKey) {
+            fetchMedia();
+        }
+    }, [websiteKey])
 
 
 
@@ -97,7 +82,7 @@ const page = () => {
 
                 <DialogContent className="min-w-[800px] h-auto max-h-[80%] bg-gray-950 border-none p-0">
                     <DialogTitle></DialogTitle>
-                    <img src={getURL(image)} alt="" className='w-full h-auto object-cover'/>
+                    <img src={getURL(image)} alt="" className='w-full h-auto object-cover' />
                 </DialogContent>
 
                 {

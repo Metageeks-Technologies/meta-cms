@@ -196,7 +196,7 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { user, moderators, fetchUsers } = useUserContext();
+  const { user, moderators, fetchUsers, websiteKey } = useUserContext();
 
 
   const table = useReactTable({
@@ -220,8 +220,8 @@ function User() {
 
 
   useEffect(() => {
-    if (user.role) fetchUsers(userRoles.MODERATOR);
-  }, [user]);
+    if (websiteKey) fetchUsers(userRoles.MODERATOR);
+  }, [websiteKey]);
 
 
 

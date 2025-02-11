@@ -14,9 +14,7 @@ const CardsRow = ({ data }: any) => {
   const router = useRouter();
 
   return (
-    <div className="mx-auto p-4 flex flex-wrap "
-    >
-
+    <div className="mx-auto p-4 flex flex-wrap">
       <div className="w-full sm:w-[49%] md:w-[24%] p-2 md:px-4 lg:px-6 md:py-4 border-[1px] border-gray-800 rounded-lg mx-auto  cursor-pointer" onClick={() => router.push('/allPost')}>
         <div className='flex flex-row items-center justify-between mb-2 text-gray-300'
         >
