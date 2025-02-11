@@ -43,6 +43,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import AddModerator from "./components/AddModerator"
 
 
 
@@ -226,7 +227,7 @@ function User() {
 
   return (
     <div className="w-full container mx-auto px-4">
-      <div className="flex flex-col py-4">
+      <div className="flex flex-row justify-between items-center py-4">
         <Input
           placeholder="Search email..."
           value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -235,6 +236,8 @@ function User() {
           }
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
+
+        <AddModerator/>
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">

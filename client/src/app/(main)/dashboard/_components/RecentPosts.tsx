@@ -13,7 +13,7 @@ const RecentPosts = () => {
 
     const router = useRouter();
 
-    const {setLoading, user} = useUserContext();
+    const {setLoading, user, websiteKey} = useUserContext();
 
     const [posts, setPosts] = useState<any>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -37,10 +37,9 @@ const RecentPosts = () => {
         setIsLoading(true);
         try {
             const param = new URLSearchParams();
-            param.append('status', postStatuEnum.PUBLISHED);
-            param.append('sortBy', postSortByEnum.RECENT);
+            param.append('website', websiteKey);
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public?${param.toString()}`);
             // console.log(resp, "response")
 
             if (resp.status === 200 || resp.status === 201) {
@@ -58,8 +57,8 @@ const RecentPosts = () => {
 
 
     useEffect(()=> {
-        if(user.role) fetchAllRecentPublishedPosts();
-    }, [user]);
+        if(websiteKey) fetchAllRecentPublishedPosts();
+    }, [websiteKey]);
 
     return (
         <div className="w-[97%] text-white p-6 rounded-lg mx-auto border-[1px] border-gray-800 mt-5">

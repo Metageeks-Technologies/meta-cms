@@ -8,17 +8,17 @@ import toast from 'react-hot-toast';
 const page = () => {
 
     const [tags, setTags] = useState([]);
-    const {setLoading} = useUserContext();
+    const { setLoading, websiteKey } = useUserContext();
 
     const fetchAllTags = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/all-tags`);
-            
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/all-tags`, undefined, { websiteKey });
+
             // console.log(resp, "response");
-            if(resp.status === 200 || resp.status === 201){
+            if (resp.status === 200 || resp.status === 201) {
                 setTags(resp?.data)
-            }else{
+            } else {
                 toast.error(resp?.data?.message, { duration: 2000 });
             }
         } catch (error) {
@@ -29,8 +29,8 @@ const page = () => {
     }
 
     useEffect(() => {
-        fetchAllTags();
-    }, []);
+        if (websiteKey) fetchAllTags();
+    }, [websiteKey]);
 
 
 

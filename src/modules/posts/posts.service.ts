@@ -87,8 +87,8 @@ export class PostsService {
     // Also assuming ids in categories are valid
     // If they are not valid, they will be filtered out during category lookup
 
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
+    const websiteData = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!websiteData) {
       throw new BadRequestException("Invalid website key");
     }
 
@@ -96,7 +96,7 @@ export class PostsService {
     newPost.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
     // newPost.slug = await this.createUniqueSlugFromTitle(newPost.title);
 
-    newPost.websiteKey = websiteKey;
+    newPost.website = websiteKey;
 
     const stats = readingTime(newPostData.description);
     newPost.readTime = stats.text;
@@ -120,7 +120,7 @@ export class PostsService {
   }
 
   async getPosts(
-    website: string,
+    websiteKey: string,
     status: PostStatusEnum,
     isDeleted: boolean,
     authorId: string,
@@ -132,12 +132,10 @@ export class PostsService {
     searchQuery?: string,
   ) {
 
-    const websiteData = await this.websiteService.getWebsiteByKey(website);
+    const websiteData = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!websiteData) {
       throw new BadRequestException("Invalid website key");
     }
-
-    // console.log(website, "Website data")
 
     const pipeline: mongoose.PipelineStage[] = [];
 
@@ -146,8 +144,8 @@ export class PostsService {
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
 
-    if (website) {
-      matchStage.website = website;
+    if (websiteKey) {
+      matchStage.website = websiteKey;
     }
 
     if (status) {
@@ -360,7 +358,7 @@ export class PostsService {
     const aggregation = await this.Post.aggregate([
       {
         $match: {
-          websiteKey: websiteKey,
+          website: websiteKey,
           slug: slug,
           // Include these fields in condition only when they are defined
           ...(status && { status: status }),
@@ -589,17 +587,17 @@ export class PostsService {
     }
   }
 
-  async getPublisedPostsCount(userId?: string) {
+  async getPublisedPostsCount(websiteKey: string, userId?: string) {
 
-    // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    // if (!website) {
-    //   throw new BadRequestException("Invalid website key");
-    // }
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
 
     // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
     // Assuming userId exists and is coming from JWT
     const count = await this.Post.countDocuments({
-      // websiteKey: websiteKey,
+      website: websiteKey,
       status: postStatuEnum.PUBLISHED,
       isDeleted: false,
       ...(userId && { authorId: mongoose.Types.ObjectId.createFromHexString(userId) })
@@ -607,7 +605,7 @@ export class PostsService {
     return count;
   }
 
-  async getMonthlyPublishedPostCount(userId?: string) {
+  async getMonthlyPublishedPostCount(websiteKey: string, userId?: string) {
 
     // const website = await this.websiteService.getWebsiteByKey(websiteKey);
     // if (!website) {
@@ -622,7 +620,7 @@ export class PostsService {
     lastYearDate.setMonth(currentDate.getMonth() - 12);
 
     const matchFilter: Record<string, any> = {
-      // websiteKey: websiteKey,
+      website: websiteKey,
       status: 'published',
       createdAt: { $gte: lastYearDate }
     };
@@ -686,7 +684,7 @@ export class PostsService {
     // assume user login for this service
     try {
       const result = await this.Post.aggregate([
-        { $match: { websiteKey: websiteKey, authorId: new mongoose.Types.ObjectId(authorId), isDeleted: false } },
+        { $match: { website: websiteKey, authorId: new mongoose.Types.ObjectId(authorId), isDeleted: false } },
         { $match: { tags: { $ne: "" } } },
 
         { $unwind: '$tags' },

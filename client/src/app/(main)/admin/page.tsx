@@ -16,65 +16,65 @@ import { Input } from "@/components/ui/input";
 import axiosCall from "@/utils/ApiCall";
 
 const columns = [
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }: any) => <div className="capitalize">{row.getValue("name")}</div>,
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }: any) => <div className="capitalize">{row.getValue("name")}</div>,
+  },
+  {
+    accessorKey: "websiteName",
+    header: "Website Name",
+    cell: ({ row }: any) => {
+      const website = row.original.website;  // Access `website` from the original row object
+      return <div className="capitalize">{website?.name || "N/A"}</div>; // Display website name or N/A
     },
-    {
-      accessorKey: "websiteName",
-      header: "Website Name",
-      cell: ({ row }: any) => {
-        const website = row.original.website;  // Access `website` from the original row object
-        return <div className="capitalize">{website?.name || "N/A"}</div>; // Display website name or N/A
-      },
+  },
+  {
+    accessorKey: "websiteKey",
+    header: "Website Key",
+    cell: ({ row }: any) => {
+      const website = row.original.website;  // Access `website` from the original row object
+      return <div className="capitalize">{website?.key || "N/A"}</div>; // Display website key or N/A
     },
-    {
-      accessorKey: "websiteKey",
-      header: "Website Key",
-      cell: ({ row }: any) => {
-        const website = row.original.website;  // Access `website` from the original row object
-        return <div className="capitalize">{website?.key || "N/A"}</div>; // Display website key or N/A
-      },
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }: any) => <div className="capitalize">{row.getValue("email")}</div>,
+  },
+
+
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }: any) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-gray-800" />
+            <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+              <RiDeleteBin6Line className="text-red-500" />
+              Delete
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+              <MdOutlineUpdate />
+              Edit Admin
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
     },
-    {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }: any) => <div className="capitalize">{row.getValue("email")}</div>,
-    },
-  
-    
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }: any) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-800" />
-              <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                <RiDeleteBin6Line className="text-red-500" />
-                Delete
-              </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                <MdOutlineUpdate />
-                Edit Admin
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
-  
-  
+  },
+];
+
+
 
 function Admin() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -87,7 +87,7 @@ function Admin() {
     setLoading(true);
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
-      console.log(resp.data)
+      // console.log(resp.data)
 
       if (resp?.status === 200 || resp?.status === 201) {
         setAdminData(resp?.data);

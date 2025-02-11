@@ -28,7 +28,6 @@ export interface NewPostFormData {
     tags: string[];
     publishDate: Date | null;
     previewImg: File | string |null;
-    website: string;
 }
   
   export interface ProductAttribute {
@@ -179,6 +178,7 @@ export interface PostContextType {
     deleteProductCategory: (id: string) => Promise<void>;
     fetchMedia: (lastId: string) => Promise<void>;
     media: MediaType[];
+    setMedia: (arr: MediaType[]) => void,
     hasMoreMedia: boolean;
     isFetching: boolean;
     filterBy: string;

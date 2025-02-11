@@ -369,7 +369,7 @@ const ProfilePage: React.FC = () => {
                 type="text"
                 name="storeRole"
                 id="storeRole"
-                value={userProfile?.storeRole.replace(/^\w/, (c) => c.toUpperCase())}
+                value={userProfile?.storeRole?.replace(/^\w/, (c) => c.toUpperCase())}
                 disabled
                 className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
               />

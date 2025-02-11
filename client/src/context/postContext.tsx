@@ -11,17 +11,17 @@ const postContext = createContext<any>(null);
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const { setLoading } = useUserContext();
+    const { setLoading, websiteKey } = useUserContext();
 
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('')
 
-    const[selectedProductCategory, setSelectedProductCategory] = useState('');
+    const [selectedProductCategory, setSelectedProductCategory] = useState('');
 
     const [categories, setCategeories] = useState([]);
 
-    const[productCategories,setProductCategories] = useState([]);
+    const [productCategories, setProductCategories] = useState([]);
 
     const [media, setMedia] = useState<any>([]);
     const [hasMoreMedia, setHasMoreMedia] = useState(true);
@@ -30,7 +30,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey })
             if (resp?.status === 200 || resp?.status === 201) {
                 setCategeories(resp?.data);
             } else {
@@ -66,7 +66,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const deleteCategory = async (id: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${id}`);
+            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${id}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp?.status === 201) {
                 toast.success(resp?.data?.message, {
@@ -89,7 +89,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const deleteProductCategory = async (id: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${id}`);
+            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${id}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp?.status === 201) {
                 toast.success(resp?.data?.message, {
@@ -114,7 +114,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const param = new URLSearchParams();
             if (lastId) param.append('lastId', lastId);
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/media?${param.toString()}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/media?${param.toString()}`, undefined, { websiteKey });
 
             // console.log(resp, "Response");
 
@@ -139,6 +139,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         deleteCategory,
         fetchMedia,
         media,
+        setMedia,
         hasMoreMedia,
         isFetching,
         filterBy,
@@ -150,7 +151,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         selectedProductCategory,
         setSelectedProductCategory,
         fetchProductCategories,
-         deleteProductCategory,
+        deleteProductCategory,
     }
 
     return (

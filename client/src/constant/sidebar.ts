@@ -95,6 +95,11 @@ export const items: MenuItem[] = [
     icon: FaGlobe,
   },
   {
+    title: "Admin",
+    url: "/admin",
+    icon: UsersRound,
+  },
+  {
     title: "Users",
     url: "/store/users",
     icon: UsersRound,
@@ -158,7 +163,6 @@ export const headerData = {
   allPage: "All Page",
   product:"Product",
   newProduct: "New Product",
-
   allProduct:" All Product",
   productCategory: "Product Category",
   allProductCategory: "All Product Category",
@@ -172,5 +176,13 @@ export const headerData = {
   moderator: "Moderator",
   media: "Media",
   notification: "Notification",
-  profile: "Settings"
+  profile: "Settings",
+  admin: "Admin"
+}
+
+
+export const PermissionEnum = {
+  BLOG : "blog",
+  PAGE : "page",
+  STORE : "store"
 }

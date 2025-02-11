@@ -17,15 +17,15 @@ export class PagesService {
     ) { }
 
 
-    async createPage(newPageDetails: CreatePageDto, authorId: string) {
+    async createPage(websiteKey: string, newPageDetails: CreatePageDto, authorId: string) {
 
-        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        // if (!website) {
-        //   throw new BadRequestException("Invalid website key");
-        // }
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new BadRequestException("Invalid website key");
+        }
 
         const newPage = new this.Page(newPageDetails);
-        // newPage.websiteKey = websiteKey;
+        newPage.website = websiteKey;
         newPage.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
 
         try {
@@ -40,25 +40,21 @@ export class PagesService {
         }
     }
 
-    async getPageBySlug(slug: string, isDeleted?: boolean) {
+    async getPageBySlug(websiteKey: string, slug: string, isDeleted?: boolean) {
 
-        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        // if (!website) {
-        //   throw new BadRequestException("Invalid website key");
-        // }
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new BadRequestException("Invalid website key");
+        }
 
         const matchCondition: any = {
-            // websiteKey: websiteKey,
+            website: websiteKey,
             slug: slug
         };
 
         if (isDeleted !== undefined) {
             matchCondition.isDeleted = isDeleted;
         }
-
-        // if (website) {
-        //     matchCondition['website'] = website;
-        // }
 
         const result = await this.Page.aggregate([
             {
@@ -74,13 +70,13 @@ export class PagesService {
     }
 
 
-    async deletePageById(id: string) {
-        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        // if (!website) {
-        //   throw new BadRequestException("Invalid website key");
-        // }
+    async deletePageById(websiteKey: string, id: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new BadRequestException("Invalid website key");
+        }
 
-        const page = await this.Page.findOne({ _id: id }, { isDeleted: 1 }).lean().exec();
+        const page = await this.Page.findOne({ _id: id, website: websiteKey }, { isDeleted: 1 }).lean().exec();
 
         if (!page) {
             throw new NotFoundException('Page not found');
@@ -93,13 +89,13 @@ export class PagesService {
     }
 
 
-    async recoverPage(id: string) {
-        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        // if (!website) {
-        //   throw new BadRequestException("Invalid website key");
-        // }
+    async recoverPage(websiteKey: string, id: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new BadRequestException("Invalid website key");
+        }
 
-        const page = await this.Page.findOne({ _id: id }, { isDeleted: 1 }).lean().exec();
+        const page = await this.Page.findOne({ _id: id, website: websiteKey }, { isDeleted: 1 }).lean().exec();
         if (!page) {
             throw new NotFoundException('Page not found');
         }
@@ -109,13 +105,13 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { isDeleted: false }).exec();
     }
 
-    async updatePage(id: string, updatePageDetails: UpdatePageDto) {
-        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        // if (!website) {
-        //   throw new BadRequestException("Invalid website key");
-        // }
+    async updatePage(websiteKey: string, id: string, updatePageDetails: UpdatePageDto) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new BadRequestException("Invalid website key");
+        }
 
-        const page = await this.Page.findOne({ _id: id }, { title: 1 }).exec();
+        const page = await this.Page.findOne({ _id: id, website: websiteKey }, { title: 1 }).exec();
 
         if (!page.title) {
             throw new NotFoundException('Page not found');
@@ -134,13 +130,13 @@ export class PagesService {
         return allPage
     }
 
-    async getPageTitles(service: PageServiceEnum) {
-        // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        // if (!website) {
-        //   throw new BadRequestException("Invalid website key");
-        // }
+    async getPageTitles(websiteKey: string, service: PageServiceEnum) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+          throw new BadRequestException("Invalid website key");
+        }
 
-        const query = { service, isDeleted: false }
+        const query = { website: websiteKey, service, isDeleted: false }
 
         const pages = await this.Page.find(query, { subService: 1, title: 1, slug: 1 });
 

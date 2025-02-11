@@ -37,7 +37,7 @@ const AdminAllPost = () => {
                 if (lastId) param.append('lastId', lastId);
                 if (selectedCategory) param.append('categories', selectedCategory);
                 param.append('isDeleted', 'false');
-                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/draft?${param.toString()}`, undefined,  {websiteKey});
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/draft?${param.toString()}`, undefined, { websiteKey });
 
                 if (resp.status === 200 || resp.status === 201) {
                     const newPost = resp?.data;
@@ -78,7 +78,7 @@ const AdminAllPost = () => {
                 if (selectedCategory) param.append('categories', selectedCategory);
                 if (searchText) param.append('searchQuery', searchText);
 
-                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`, undefined, {websiteKey});
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`, undefined, { websiteKey });
                 // console.log(resp)
 
                 if (resp.status === 200 || resp.status === 201) {
@@ -112,7 +112,7 @@ const AdminAllPost = () => {
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey })
 
             // console.log(resp);
             if (resp.status === 200 || resp.status === 201) {
@@ -208,9 +208,9 @@ const AdminAllPost = () => {
 
                 <div className='flex flex-row items-center'>
                     <select value={selectedCategory}
-                     onChange={(e) => setSelectedCategory(e.target.value)}
-                      name="" id="" 
-                      className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        name="" id=""
+                        className='w-60 bg-[#06040B] border-[1px] border-gray-800 px-2 py-1 sm:p-3 rounded-lg outline-none'>
                         <option value="">-- Select Category --</option>
                         {
                             category.map((cat: any) => (

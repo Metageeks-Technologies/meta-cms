@@ -26,7 +26,7 @@ const page = () => {
     const [lastId, setLastId] = useState('');
     const [image, setImage] = useState('');
 
-    const { user, loading } = useUserContext();
+    const { user, loading, websiteKey } = useUserContext();
     const { media, fetchMedia, hasMoreMedia } = usePostContext();
 
     // const handleFilter = (value: string) => {
@@ -63,8 +63,8 @@ const page = () => {
 
 
     useEffect(() => {
-        if (hasMoreMedia) fetchMedia(lastId);
-    }, [page]);
+        if (hasMoreMedia && websiteKey) fetchMedia(lastId);
+    }, [websiteKey, page]);
 
     useEffect(() => {
         setLastId(media?.[media.length - 1]?._id || null);

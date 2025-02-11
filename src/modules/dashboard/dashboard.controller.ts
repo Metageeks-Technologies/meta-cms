@@ -11,20 +11,20 @@ export class DashboardController {
 
 
   @Get('admin/personal')
-  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getPersonalAdminDashboard(@Headers('websiteKey') websiteKey: string, @Req() req: Request) {
     const userId = (req as any).user._id;
     const userRole = (req as any).user.role;
-    const dashboardData = await this.dashboardService.getPersonalData(userId, userRole);
+    const dashboardData = await this.dashboardService.getPersonalData(websiteKey, userId, userRole);
     return dashboardData;
   }
 
   @Get('admin/global')
-  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getGlobalAdminDashboard(@Headers('websiteKey') websiteKey: string) {
-    const dashboardData = await this.dashboardService.getGlobalData();
+    const dashboardData = await this.dashboardService.getGlobalData(websiteKey);
     return dashboardData;
   }
 

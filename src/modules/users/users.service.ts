@@ -201,6 +201,8 @@ export class UsersService {
       throw new BadRequestException("Invalid website key");
     }
 
+    console.log(website, "websitedata");
+
     const user = await this.User.find({ role: role, website: website._id }).sort({ createdAt: -1 }).select('-hash').populate('website').lean().exec();
     return user;
   }
@@ -232,18 +234,18 @@ export class UsersService {
     return users
   }
 
-  async getUsersCount() {
+  async getUsersCount(websiteKey: string) {
 
-    // const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    // if (!website) {
-    //   throw new BadRequestException("Invalid website key");
-    // }
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
 
 
     const result = await this.User.aggregate([
       {
         $match: {
-          // websiteKey: websiteKey
+          website: website?._id
         }
       },
       {

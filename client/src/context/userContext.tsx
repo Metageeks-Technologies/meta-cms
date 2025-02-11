@@ -57,6 +57,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [website, setWebsite] = useState<any>();
     const [websiteData, setWebsiteData] = useState<any[]>([]);
 
+    // console.log(contributors, "Contributors")
+
 
     // console.log(websiteData, "webiste data")
 
@@ -68,19 +70,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
 
         try {
-            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-${role}`
-            );
-            // console.log(response, "userfetch res")
+            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-user/${role}`, undefined, {websiteKey: websiteKey});
+            // console.log(response, "userfetch res");
 
             if (response?.status === 200 || response?.status === 201) {
                 if (role === userRoles.SUBSCRIBER) {
-                    setSubscribers(response?.data?.users);
+                    setSubscribers(response?.data);
                 }
                 if (role === userRoles.CONTRIBUTOR) {
-                    setContributors(response?.data?.users);
+                    setContributors(response?.data);
                 }
                 if (role === userRoles.MODERATOR) {
-                    setModerators(response?.data?.users);
+                    setModerators(response?.data);
                 }
             } else {
                 throw new Error(response?.data?.message || `Failed to fetch ${role}s`);
@@ -93,42 +94,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-
-    // const fetchUsers = async (role: string) => {
-    //     setLoading(true);
-    //     setIsLoading(true);
-
-    //     try {
-    //         const response = await axiosCall(
-    //             'GET', // Using GET because it's your backend's expected method
-    //             `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-user/${userRoles.MODERATOR}`,
-    //             undefined,
-    //             { websiteKey } // Website key in headers
-    //         );
-
-    //         console.log(response.data, "respobcytchchg")
-    //         // Handle the response based on the role
-    //         if (response?.status === 200 || response?.status === 201) {
-    //             if (role === userRoles.SUBSCRIBER) {
-    //                 setSubscribers(response?.data?.users);
-    //             }
-    //             if (role === userRoles.CONTRIBUTOR) {
-    //                 setContributors(response?.data?.users);
-    //             }
-    //             if (role === userRoles.MODERATOR) {
-    //                 setModerators(response?.data?.users);
-    //             }
-    //         } else {
-    //             throw new Error(response?.data?.message || `Failed to fetch ${role}s`);
-    //         }
-    //     } catch (error) {
-    //         console.error(`Error fetching ${role}s:`, error);
-    //         toast.error(`Failed to fetch ${role}s!`);
-    //     } finally {
-    //         setIsLoading(false);
-    //         setLoading(false);
-    //     }
-    // };
 
 
     const fetchStoreRole = async (storeRole: string) => {

@@ -45,6 +45,7 @@ import axiosCall from "@/utils/ApiCall"
 import toast from "react-hot-toast"
 import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
+import AddContributor from "./components/AddContributor"
 
 
 
@@ -198,10 +199,10 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { contributors, fetchUsers, isLoading }: any = useUserContext();
+  const { contributors, fetchUsers, isLoading, websiteKey }: any = useUserContext();
 
   const table = useReactTable({
-    data: contributors,
+    data: contributors || [],
     columns,
     onSortingChange: setSorting,
     // onColumnFiltersChange: setColumnFilters,
@@ -220,12 +221,12 @@ function User() {
   });
 
   useEffect(() => {
-    fetchUsers(userRoles.CONTRIBUTOR);
-  }, []);
+    if(websiteKey) fetchUsers(userRoles.CONTRIBUTOR);
+  }, [websiteKey]);
 
   return (
     <div className="w-full container mx-auto px-4">
-      <div className="flex flex-col py-4">
+      <div className="flex flex-row items-center justify-between py-4">
         <Input
           placeholder="Search email..."
           value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -234,6 +235,7 @@ function User() {
           }
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
+        <AddContributor/>
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">

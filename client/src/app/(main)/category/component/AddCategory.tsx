@@ -22,6 +22,8 @@ import axios from 'axios'
 
 const AddCategory = () => {
 
+    const { websiteKey } = useUserContext();
+
     const [createForm, setCreateForm] = useState<any>({
         name: '',
         description: '',
@@ -68,7 +70,7 @@ const AddCategory = () => {
                 bannerImageKey: createForm.bannerImageKey
             }
 
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, payload);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, payload, { websiteKey });
 
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp?.data?.message, {
@@ -96,30 +98,30 @@ const AddCategory = () => {
 
     const uploadNewFile = async (fileList: FileList | null) => {
         if (!fileList?.length) return;
-    
+
         setLoading(true);
         try {
             const newFiles = Array.from(fileList);
-    
+
             // Loop through each file and upload it
             for (let i = 0; i < newFiles.length; i++) {
                 const file = newFiles[i];
-    
+
                 const payload = {
                     folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY,
                     fileName: file.name,
                     contentType: file.type,
                 };
-    
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-    
+
+                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
+
                 if (resp.status === 200 || resp.status === 201) {
                     const uploadUrl = resp?.data?.uploadUrl;
                     const key = resp?.data?.key;
-    
+
                     // Upload the file to S3
                     await axios.put(uploadUrl, file);
-    
+
                     // After uploading, update the state with the image key
                     setImageKey(key);
                 } else {

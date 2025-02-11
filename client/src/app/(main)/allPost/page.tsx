@@ -15,7 +15,7 @@ const page = () => {
     return (
         <div>
             {
-                user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR ?
+                user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user?.role === userRoles.MODERATOR ?
                     <AdminAllPost />
                     :
                     <ContributorAllPost />

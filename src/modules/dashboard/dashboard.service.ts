@@ -14,21 +14,21 @@ export class DashboardService {
     private productService: ProductService,
   ) { }
 
-  async getPersonalData(userId: string, userRole: UserRoleEnum) {
+  async getPersonalData(websiteKey: string, userId: string, userRole: UserRoleEnum) {
     // Assuming userId is verified and is coming from jwt
     const [publishedPostsCount, monthlyPublishedPostsCount] = await Promise.all([
-      this.postsService.getPublisedPostsCount(userId),
-      this.postsService.getMonthlyPublishedPostCount(userId)
+      this.postsService.getPublisedPostsCount(websiteKey, userId),
+      this.postsService.getMonthlyPublishedPostCount(websiteKey, userId)
     ])
 
     return { publishedPostsCount, monthlyPublishedPostsCount };
   }
 
-  async getGlobalData() {
+  async getGlobalData(websiteKey: string) {
     const [usersCount, publishedPostsCount, monthlyPublishedPostsCount] = await Promise.all([
-      this.usersService.getUsersCount(),
-      this.postsService.getPublisedPostsCount(),
-      this.postsService.getMonthlyPublishedPostCount()
+      this.usersService.getUsersCount(websiteKey),
+      this.postsService.getPublisedPostsCount(websiteKey),
+      this.postsService.getMonthlyPublishedPostCount(websiteKey)
     ])
 
     return { usersCount, publishedPostsCount, monthlyPublishedPostsCount };

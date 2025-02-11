@@ -1,21 +1,21 @@
 "use client"
 import * as React from "react"
-import {SortingState,flexRender,getCoreRowModel,getFilteredRowModel,getPaginationRowModel,getSortedRowModel,useReactTable,} from "@tanstack/react-table"
+import { SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table"
 import { MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import {DropdownMenu,DropdownMenuContent, DropdownMenuItem,DropdownMenuLabel,DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 
 import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
 import { usePostContext } from "@/context/postContext"
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,} from "@/components/ui/alert-dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
 import AddCategory from "./component/AddCategory"
 import { getURL } from "@/utils/AWS_Config"
 import toast from "react-hot-toast"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axiosCall from "@/utils/ApiCall"
@@ -67,7 +67,7 @@ const columns = [
       const [isOpen, setIsOpen] = useState(false);
       const [category, setCategory] = useState(row.original);
       const { deleteCategory, fetchCategories } = usePostContext();
-      const { user, setLoading }: any = useUserContext();
+      const { user, setLoading, websiteKey }: any = useUserContext();
 
 
       const handleNonSuperAdminClick = () => {
@@ -87,10 +87,10 @@ const columns = [
             fileName: fileList?.[0].name,
             contentType: fileList?.[0].type
           }
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
 
           if (resp.status === 200 || resp.status === 201) {
-            uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY, null, setImageKey);
+            uploadToS3(websiteKey, resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY, null, setImageKey);
           } else {
             toast.error(resp.data.message, {
               duration: 2000
@@ -105,15 +105,15 @@ const columns = [
 
       const updateCategory = async (e: any) => {
 
-        if (!category.name.trim() || !category.description.trim() ) {
+        if (!category.name.trim() || !category.description.trim()) {
           toast.error("Please fill in all fields correctly.", {
-              duration: 2000,
+            duration: 2000,
           });
           setLoading(false);
-          return; 
-      }
+          return;
+        }
 
-      
+
         e.preventDefault();
         setLoading(true);
         try {
@@ -124,20 +124,20 @@ const columns = [
           }
           const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${category._id}`, payload);
 
-          if(resp.status === 200 || resp.status === 201){
+          if (resp.status === 200 || resp.status === 201) {
             toast.success(resp.data.message, {
               duration: 2000,
             });
             fetchCategories();
             setIsOpen(false);
-          }else{
+          } else {
             toast.error(resp.data.message, {
               duration: 2000,
             });
           }
         } catch (error) {
           console.log(error);
-        }finally{
+        } finally {
           setLoading(false);
         }
       }
@@ -155,7 +155,7 @@ const columns = [
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialog>
             {
-              user?.role === userRoles.SUPERADMIN ? (
+              (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN) ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -292,7 +292,7 @@ function Category() {
   // const [rowSelection, setRowSelection] = React.useState({})
 
   const { categories, fetchCategories }: any = usePostContext()
-  const { user }: any = useUserContext();
+  const { user, websiteKey }: any = useUserContext();
 
   // console.log(categories);
 
@@ -317,8 +317,8 @@ function Category() {
 
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    if (websiteKey) fetchCategories();
+  }, [websiteKey]);
 
 
 
@@ -336,7 +336,7 @@ function Category() {
           />
 
           {
-            user?.role === userRoles.SUPERADMIN &&
+            (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN) &&
             <AddCategory />
           }
 

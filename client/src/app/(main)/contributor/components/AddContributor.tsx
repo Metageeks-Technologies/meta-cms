@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -15,53 +15,27 @@ import { PremissionEnum } from '@/constant/admin'
 import axios from 'axios';
 import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
+import { useUserContext } from '@/context/userContext'
+import { userRoles } from '@/constant/user'
 
-const AddAdmin = () => {
+
+
+const AddContributor = () => {
+
+    const { loading, setLoading, user, fetchUsers, websiteKey } = useUserContext();
 
     const [createForm, setCreateForm] = useState<any>({
         name: '',
         email: '',
-        websiteName: '',
-        premissions: [],  
-        password: ''
+        password: '',
+        role: userRoles.CONTRIBUTOR,
+        websiteName: user?.website?.name,
+        premissions: user?.website?.permissions,
     });
 
     const [isOpen, setIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false); // Loading state
-      const [adminData, setAdminData] = useState<any[]>([]); // State to hold admin data
-    
 
-    const handlePermissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value, checked } = e.target;
-        setCreateForm((prevForm: any) => {
-            const updatedPermissions = checked
-                ? [...prevForm.premissions, value] 
-                : prevForm.premissions.filter((perm: string) => perm !== value); 
-            return { ...prevForm, premissions: updatedPermissions }; 
-        });
-    }
-
-    const fetchAdmins = async () => {
-        setLoading(true);
-        try {
-          const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
-        //   console.log(resp.data)
-    
-          if (resp?.status === 200 || resp?.status === 201) {
-            setAdminData(resp?.data);
-          } else {
-            toast.error(resp?.data?.message, {
-              duration: 2000,
-            });
-          }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-    const handleCreateAdmin = async (e: React.FormEvent) => {
+    const handleCreateContributor = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Basic validation
@@ -85,28 +59,23 @@ const AddAdmin = () => {
             return;
         }
 
-        setLoading(true); // Show loading state
+        setLoading(true);
         try {
-            const payload = {
-                name: createForm.name,
-                email: createForm.email,
-                websiteName: createForm.websiteName,
-                premissions: createForm.premissions,  
-                password: createForm.password
-            }
+            const payload = { ...createForm }
 
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/users/create/admin`, payload);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/users/create`, payload, { websiteKey: websiteKey });
 
             if (resp?.status === 200 || resp?.status === 201) {
-                toast.success('Admin created successfully!', { duration: 2000 });
+                toast.success('Moderator created successfully!', { duration: 2000 });
                 setCreateForm({
                     name: '',
                     email: '',
+                    role: userRoles.MODERATOR,
+                    password: '',
                     websiteName: '',
-                    premissions: [], 
-                    password: ''
+                    premissions: [],
                 });
-                fetchAdmins();
+                fetchUsers(userRoles.CONTRIBUTOR);
                 setIsOpen(false);
             } else {
                 toast.error(resp?.data?.message || 'Error creating admin', { duration: 2000 });
@@ -115,22 +84,35 @@ const AddAdmin = () => {
             console.error('Error creating admin:', error);
             toast.error('Error creating admin. Please try again.', { duration: 2000 });
         } finally {
-            setLoading(false); // Hide loading state
+            setLoading(false);
         }
     }
+
+    useEffect(() => {
+        setCreateForm({
+            name: '',
+            email: '',
+            password: '',
+            role: userRoles.CONTRIBUTOR,
+            websiteName: user?.website?.name,
+            premissions: user?.website?.permissions,
+        })
+    }, [user]);
+
+
 
     return (
         <div>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="default" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Add Admin +</Button>
+                    <Button variant="default" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Add Contributor +</Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-[600px] bg-black border-gray-800 text-white">
+                <DialogContent className="sm:max-w-[450px] bg-black border-gray-800 text-white">
                     <DialogHeader>
-                        <DialogTitle className='text-2xl'>Add Admin</DialogTitle>
+                        <DialogTitle className='text-2xl'>Add Contributor</DialogTitle>
                     </DialogHeader>
-                    <form onSubmit={handleCreateAdmin} className="py-4">
+                    <form onSubmit={handleCreateContributor} className="py-4">
                         <div className="mb-4">
                             <Label htmlFor="name" className="text-right">
                                 Name
@@ -154,38 +136,6 @@ const AddAdmin = () => {
                                 onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
                                 required
                             />
-                        </div>
-                        <div className="mb-4">
-                            <Label htmlFor="website" className="text-right">
-                                Website
-                            </Label>
-                            <Input
-                                id="website"
-                                value={createForm.websiteName}
-                                placeholder='Enter website'
-                                onChange={(e) => setCreateForm({ ...createForm, websiteName: e.target.value })}
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <Label className="text-right">Premissions</Label>
-                            <div className="flex flex-wrap gap-4"> {/* Flexbox for horizontal layout */}
-                                {Object.values(PremissionEnum).map((permission) => (
-                                    <div key={permission} className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            id={permission}
-                                            value={permission}
-                                            checked={createForm.premissions.includes(permission)}  
-                                            onChange={handlePermissionChange}
-                                            className="h-4 w-4"
-                                        />
-                                        <Label htmlFor={permission} className="text-right">
-                                            {permission.charAt(0).toUpperCase() + permission.slice(1)}
-                                        </Label>
-                                    </div>
-                                ))}
-                            </div>
                         </div>
 
                         <div className="mb-4">
@@ -213,4 +163,4 @@ const AddAdmin = () => {
     )
 }
 
-export default AddAdmin;
+export default AddContributor

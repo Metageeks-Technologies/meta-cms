@@ -57,6 +57,7 @@ const Header = () => {
 
     return (
         <div className='w-full h-16 bg-[#06040B] text-gray-200 border-b-[1px] border-gray-800 flex flex-row items-center justify-between sticky top-0 px-2 md:px-8 z-10'>
+
             <div className='flex flex-row items-center gap-3'>
                 <button onClick={toggleSidebar}><AlignJustify /></button>
                 <span className='text-white'>
@@ -75,7 +76,7 @@ const Header = () => {
                                 value={websiteKey}
                                 onChange={(e) => setWebsiteKey(e.target.value)}
                             >
-                                <option value="" disabled selected>--Choose Website--</option>
+                                <option value="">--Choose Website--</option>
                                 {
                                     websiteData?.map((data: any, index: number) => (
                                         <option key={index} value={data?.key}>{data?.name}</option>
@@ -102,6 +103,7 @@ const Header = () => {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+            
         </div>
 
     )

@@ -14,11 +14,10 @@ import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum, WebsiteEnum } from '@/constant/post';
 
 const App: React.FC = () => {
-  const { setLoading, user } = useUserContext();
+  const { setLoading, user, websiteKey } = useUserContext();
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
-  const [websiteArr, setWebsiteArr] = useState([]);
   const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
   const [tagInput, setTagInput] = useState('');
   const [formData, setFormData] = useState<NewPostFormData>({
@@ -30,7 +29,6 @@ const App: React.FC = () => {
     tags: [],
     publishDate: null,
     previewImg: '',
-    website: ''
   });
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
@@ -38,7 +36,7 @@ const App: React.FC = () => {
   const fetchCategory = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
@@ -52,29 +50,12 @@ const App: React.FC = () => {
     }
   };
 
-  const fetchWebsites = async () => {
-    setLoading(true);
-    try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
-      if (resp.status === 200 || resp.status === 201) {
-        setWebsiteArr(resp?.data);
-      } else {
-        toast.error(resp.data.message, { duration: 2000 });
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   // Fetch categories on mount
   useEffect(() => {
-    if (user.role) {
+    if (websiteKey) {
       fetchCategory();
-      fetchWebsites()
     }
-  }, [user]);
+  }, [websiteKey]);
 
   // Handle image selection from MediaPage modal
   const handlePreviewImageChange = (imageKey: string) => {
@@ -91,7 +72,6 @@ const App: React.FC = () => {
     categories: string[];
     status: string;
     publishedDate?: Date;
-    website: string;
   }
 
   // Handle post creation
@@ -131,8 +111,8 @@ const App: React.FC = () => {
       return;
     }
 
-    if (!formData.website) {
-      toast.error('Please selete website', { duration: 2000 })
+    if (!websiteKey) {
+      toast.error('Website key required', { duration: 2000 })
     }
 
     setLoading(true);
@@ -146,10 +126,9 @@ const App: React.FC = () => {
         categories: formData.category,
         status: formData.postStatus,
         ...(formData.publishDate && { publishedDate: formData.publishDate }),
-        website: formData.website
       };
 
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload);
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload, { websiteKey });
 
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
@@ -164,7 +143,6 @@ const App: React.FC = () => {
           tags: [],
           publishDate: null,
           previewImg: '',
-          website: '',
         });
         setTagInput('');
         //  editorRef.current?.setContent(''); // Reset TinyMCE editor content
@@ -221,13 +199,13 @@ const App: React.FC = () => {
     const cleanedValue = value
       .toLowerCase()              // Convert to lowercase
       .replace(/[^a-z0-9-]/g, '') // Remove any character that is not a lowercase letter, number, or hyphen
-  
+
     setFormData({ ...formData, slug: cleanedValue });
   };
-  
 
-   // Function to generate slug from title
-   const generateSlug = (title: string) => {
+
+  // Function to generate slug from title
+  const generateSlug = (title: string) => {
     return title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
@@ -243,9 +221,14 @@ const App: React.FC = () => {
         slug: generatedSlug
       }));
     }
+    else {
+      // If title is empty, clear the slug as well
+      setFormData((prevData) => ({
+        ...prevData,
+        slug: '',
+      }));
+    }
   }, [formData.postTitle]);
-
-
 
   return (
     <div className='border-1 border-dashed border-gray-900 p-4 relative'>
@@ -263,37 +246,18 @@ const App: React.FC = () => {
               placeholder="Enter post title"
               className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
             />
-                  {/* Slug */}
-          <label className='w-full flex flex-col gap-2'>
-            <span> Slug</span>
-            <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
-            <input
-              type="text"
-              className='w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none'
-              placeholder='Enter slug'
-              value={formData.slug}
-              onChange={(e) => handleEditSlug(e.target.value)}
-            />
-          </label>
-          </div>
-          {/* Preview image input */}
-          <div>
-            <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
-            <div
-              onClick={() => setIsMediaModalOpen(true)}
-              className="cursor-pointer w-full flex justify-center items-center p-4 bg-[#1A1A1A] rounded-md text-white border-collapse"
-            >
-              {formData.previewImg ? (
-                <img
-                  src={typeof formData.previewImg === 'string' ? getURL(formData.previewImg) : URL.createObjectURL(formData.previewImg)}
-                  alt="Preview"
-                  className="w-20 h-20 object-cover rounded-md"
-                />
-              ) : (
-                <span className="text-xl">+  Upload your preview Image</span> // Placeholder for no image selected
-              )}
-
-            </div>
+            {/* Slug */}
+            <label className='w-full flex flex-col gap-2'>
+              <span> Slug</span>
+              <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+              <input
+                type="text"
+                className='w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none'
+                placeholder='Enter slug'
+                value={formData.slug}
+                onChange={(e) => handleEditSlug(e.target.value)}
+              />
+            </label>
           </div>
           {/* Post Description (TinyMCE Editor) */}
           <div>
@@ -386,27 +350,10 @@ const App: React.FC = () => {
             >
               <option value={postStatuEnum.DRAFT}>Draft</option>
               <option value={postStatuEnum.PUBLISHED}>Published</option>
-              {/* <option value={postStatuEnum.SCHEDULED}>Scheduled</option> */}
+              <option value={postStatuEnum.SCHEDULED}>Scheduled</option>
             </select>
           </div>
 
-          {/* Post for website */}
-          <div>
-            <label htmlFor="websiteName" className="text-white">Website</label>
-            <select
-              id="websiteName"
-              value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-              className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
-            >
-              <option value="">-- Select --</option>
-              {
-                websiteArr.map((website: any, index: number) => (
-                  <option key={index} value={website?.key}>{website?.name}</option>
-                ))
-              }
-            </select>
-          </div>
 
           {/* Publish Date */}
           {
@@ -457,6 +404,31 @@ const App: React.FC = () => {
               ))}
             </div>
           </div>
+
+
+          {/* preview image  */}
+
+          <div className='space-y-2'>
+            <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
+            <div
+              onClick={() => setIsMediaModalOpen(true)}
+              className="cursor-pointer w-full flex justify-center items-center p-2 bg-[#1A1A1A] rounded-md text-white border-2 border-dashed border-gray-400 h-48"
+            >
+              {formData.previewImg ? (
+                <img
+                  src={typeof formData.previewImg === 'string' ? getURL(formData.previewImg) : URL.createObjectURL(formData.previewImg)}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-md"
+                />
+              ) : (
+                <span className="sm:text-xs md:text-sm lg:text-lg xl:text-xl">+ Upload your preview Image</span> // Placeholder for no image selected
+              )}
+            </div>
+          </div>
+
+
+
+
 
         </div>
       </div>
