@@ -375,9 +375,9 @@ export class PostsService {
     return post;
   }
 
-  async getPublicPostBySlug(slug: string) {
+  async getPublicPostBySlug(websiteKey: string, slug: string) {
   
-    const post = await this.getPostBySlug(undefined, slug, PostStatusEnum.PUBLISHED, false);
+    const post = await this.getPostBySlug(websiteKey, slug, PostStatusEnum.PUBLISHED, false);
     return post;
   }
 

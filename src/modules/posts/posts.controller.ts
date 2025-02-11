@@ -52,8 +52,8 @@ export class PostsController {
   }
 
   @Get('public/:slug')
-  async getPublicPostById(@Param('slug') slug: string) {
-    const publicPost = await this.postsService.getPublicPostBySlug(slug);
+  async getPublicPostById(@Param('slug') slug: string, @Query() query: {website: string}) {
+    const publicPost = await this.postsService.getPublicPostBySlug( query.website, slug);
     return publicPost;
   }
 
