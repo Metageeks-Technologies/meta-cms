@@ -28,6 +28,9 @@ export interface NewPostFormData {
     tags: string[];
     publishDate: Date | null;
     previewImg: File | string |null;
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
 }
   
   export interface ProductAttribute {
