@@ -40,8 +40,8 @@ const RecentPosts = () => {
             param.append('website', websiteKey);
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public?${param.toString()}`);
-            // console.log(resp, "response")
 
+            
             if (resp.status === 200 || resp.status === 201) {
                 setPosts(resp?.data?.slice(0,10));
             } else {

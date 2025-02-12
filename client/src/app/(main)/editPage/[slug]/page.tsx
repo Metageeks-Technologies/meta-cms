@@ -68,10 +68,11 @@ const EditPage = () => {
     const params = useParams();
     const slug = params.slug;
 
-    
+
     const [websiteArr, setWebsiteArr] = useState([]);
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
-    // console.log(formData, "Form data")
+    const [keywordValue, setKeywordValue] = useState('');
+    const { websiteKey } = useUserContext();
 
     const handleChange = (e: any) => {
         const { id, value } = e.target;
@@ -197,7 +198,7 @@ const EditPage = () => {
             };
 
             try {
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
                 if (resp.status === 200 || resp.status === 201) {
                     const response = await axios.put(resp?.data?.uploadUrl, file);
                     if (response.status === 200 || response.status === 201) {
@@ -429,6 +430,14 @@ const EditPage = () => {
 
 
 
+    const handleKeywordchange = (value: string) => {
+        setKeywordValue(value);
+        const keywordArr = value.split(',').map((keyword: string) => keyword.trim()).filter((keyword) => keyword.length > 0);
+        setFormData(prev => ({ ...prev, keywords: keywordArr }));
+    }
+
+
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
@@ -488,6 +497,11 @@ const EditPage = () => {
             toast.error(`Feature section image image is required`, { duration: 2000 });
             return;
         }
+
+        if (!websiteKey) {
+            return toast.error('Website key required', { duration: 2000 })
+        }
+
         setLoading(true);
         try {
 
@@ -496,10 +510,13 @@ const EditPage = () => {
                 slug: formData.slug,
                 website: formData.website,
                 content: formData.content,
+                metaTitle: formData.metaTitle,
+                metaDescription: formData.metaDescription,
+                keywords: formData.keywords
             };
 
             // Send PATCH request to update page
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${formData._id}`, payload);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${formData._id}`, payload, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success(resp.data.message, { duration: 2000 });
@@ -509,7 +526,7 @@ const EditPage = () => {
 
 
                 const fetchUpdatedPage = async () => {
-                    const pageResp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${formData.slug}`);
+                    const pageResp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${formData.slug}`, undefined, { websiteKey });
 
                     if (pageResp.status === 200) {
 
@@ -538,11 +555,11 @@ const EditPage = () => {
     const fetchPage = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/private/${slug}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/private/${slug}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 setFormData(resp?.data);
-                // console.log(resp);
+                setKeywordValue(resp?.data?.keywords.join(", "));
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
@@ -556,27 +573,9 @@ const EditPage = () => {
         }
     }
 
-    const fetchWebsites = async () => {
-        setLoading(true);
-        try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
-
-            if (resp.status === 200 || resp.status === 201) {
-                setWebsiteArr(resp?.data);
-            } else {
-                toast.error(resp?.data?.message, { duration: 2000 });
-            }
-        } catch (error) {
-            console.log("Error in fetching websites data in new page section: ", error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     useEffect(() => {
-        fetchPage();
-        fetchWebsites();
-    }, []);
+        if (websiteKey) fetchPage();
+    }, [websiteKey]);
 
 
     return (
@@ -597,35 +596,20 @@ const EditPage = () => {
                     />
                 </label>
 
-                <div className='flex flex-row gap-5 items-center'>
 
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Enter Slug</span>
-                        <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
-                        <input
-                            type="text"
-                            id="slug"
-                            className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
-                            placeholder="Enter slug"
-                            value={formData.slug}
-                            onChange={handleChange}
-                            required
-                        />
-                    </label>
-
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Website</span>
-                        <select onChange={(e) => { setFormData((prev) => ({ ...prev, website: e.target.value})) }} name="" id="" value={formData.website} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
-                            <option value="">--Select website--</option>
-                            {
-                                websiteArr.map((website: any, index: number) => (
-                                    <option key={index} value={website.key}>{website.name}</option>
-                                ))
-                            }
-                        </select>
-                    </label>
-
-                </div>
+                <label className="w-full flex flex-col gap-2 mb-5">
+                    <span>Enter Slug</span>
+                    <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+                    <input
+                        type="text"
+                        id="slug"
+                        className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
+                        placeholder="Enter slug"
+                        value={formData.slug}
+                        onChange={handleChange}
+                        required
+                    />
+                </label>
 
                 <div className='flex flex-row gap-5 items-center'>
                     <label className="w-full flex flex-col gap-2 mb-5">
@@ -1270,6 +1254,56 @@ const EditPage = () => {
                         >
                             Add More
                         </button>
+                    </div>
+                </label>
+
+                {/* meta data */}
+
+                <label className="block text-white mb-5">
+                    <span className='text-xl'>Meta Details</span>
+
+                    <div className='bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2'>
+
+                        <div className="mb-4">
+                            <label htmlFor="metaTitle" className="block  text-gray-300 mb-2">
+                                Meta Title
+                            </label>
+                            <input
+                                type="text"
+                                id="metaTitle"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Title"
+                                value={formData.metaTitle}
+                                onChange={(e) => setFormData((prev => ({ ...prev, metaTitle: e.target.value })))}
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="metaDescription" className="block  text-gray-300 mb-2">
+                                Meta Description
+                            </label>
+                            <textarea
+                                id="metaDescription"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Description"
+                                value={formData.metaDescription}
+                                onChange={(e) => setFormData(prev => ({ ...prev, metaDescription: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="heading" className="block  text-gray-300 mb-2">
+                                Keywords <span className='text-sm italic text-gray-400'>(separated by commas)</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="heading"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Keywords"
+                                value={keywordValue}
+                                onChange={(e) => handleKeywordchange(e.target.value)}
+                            />
+                        </div>
                     </div>
                 </label>
 

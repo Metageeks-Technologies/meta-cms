@@ -26,7 +26,6 @@ export const uploadToS3 = async (websiteKey: string, uploadUrl: string, file: Fi
     setLoaing(true);
     try {
         const response = await axios.put(uploadUrl, file);
-        // console.log(response, "upload to s3");
 
         if (response.status === 200 || response.status === 201) {
             const payload = {

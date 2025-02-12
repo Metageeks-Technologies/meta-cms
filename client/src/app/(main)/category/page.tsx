@@ -80,7 +80,7 @@ const columns = [
 
       const uploadNewFile = async (fileList: FileList | null) => {
         setLoading(true);
-        // console.log(fileList, "file list");
+
         try {
           const payload = {
             folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CATEGORY,
@@ -294,7 +294,6 @@ function Category() {
   const { categories, fetchCategories }: any = usePostContext()
   const { user, websiteKey }: any = useUserContext();
 
-  // console.log(categories);
 
   const table = useReactTable({
     data: categories,

@@ -96,7 +96,7 @@ const columns = [
     cell: ({ row }: any) => {
 
       const user = row.original;
-      // console.log(user);
+
       const [clickedItem, setClickedItem] = useState(0);
       const { changeStoreRole, blockUser, unblockUser }: any = useUserContext();
 

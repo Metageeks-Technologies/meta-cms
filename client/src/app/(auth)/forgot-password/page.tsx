@@ -37,7 +37,7 @@ const ForgotPasswordPage = () => {
                 `${process.env.NEXT_PUBLIC_BASE_URL}/auth/send-reset-password-otp`,
                 { email },
             );
-            //   console.log(response)
+
             if (response?.status === 200 || response?.status === 201) {
                 toast.success(response.data.message);
                 setIsEmailSent(true);
@@ -77,7 +77,7 @@ const ForgotPasswordPage = () => {
                 `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
                 { email, otp , password: newPassword },
             );
-            //   console.log(response)
+            
             if (response?.status === 200 || response?.status === 201) {
                 toast.success(response.data.message);
                 router.push('/login');

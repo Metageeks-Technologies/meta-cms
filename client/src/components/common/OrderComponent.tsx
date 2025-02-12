@@ -17,7 +17,6 @@ const OrderComponent = ({user} : any) => {
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/${user._id}`)
 
-            // console.log(resp, "Response in orders")
 
             if (resp.status === 200 || resp.status === 201) {
                 setOrders(resp?.data)

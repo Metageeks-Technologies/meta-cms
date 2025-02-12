@@ -13,7 +13,6 @@ const page = () => {
     const { setLoading, user, websiteKey } = useUserContext();
     const [pageData, setPageData] = useState<any>(null);
 
-    // console.log(pageData);
 
     const router = useRouter();
     const params = useParams();
@@ -26,7 +25,6 @@ const page = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setPageData(resp?.data);
-                // console.log(resp);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,

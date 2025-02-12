@@ -49,7 +49,6 @@ const EditProduct: React.FC = () => {
         variants: [],
     });
 
-    // console.log(formData, "form data");
 
     // Fetch product categories
     const fetchCategory = async () => {
@@ -110,11 +109,8 @@ const EditProduct: React.FC = () => {
         try {
             const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`);
 
-            // console.log(response.data)
 
             if (response.status === 200 || response.status === 201) {
-                // console.log('Attributes:', response.data.attributes); // Check attributes
-                // console.log('Variants:', response.data.variants);
                 setProduct(response.data);
                 setFormData({
                     title: response.data.title,

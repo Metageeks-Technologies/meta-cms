@@ -51,7 +51,7 @@ const ProductCard: React.FC = () => {
   const handleSaveEdit = async () => {
     try {
       const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}/${editedVariant.variantId}`, editedVariant);
-      // console.log(response)
+
       const updatedProduct = { ...product };
       updatedProduct.variants = updatedProduct.variants.map((variant: any) =>
         variant.variantId === editedVariant.variantId ? editedVariant : variant
@@ -136,7 +136,6 @@ const ProductCard: React.FC = () => {
 
   const params = useParams();
   const id = params.id;
-  // console.log(id)
 
   const fetchProductData = async () => {
     try {

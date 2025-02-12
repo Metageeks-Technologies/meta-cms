@@ -18,7 +18,6 @@ const OrderTable = () => {
   const fetchOrderData = async (url: string) => {
     try {
       const response = await axiosCall("get", url);
-      // console.log(response.data);
       if (Array.isArray(response.data)) {  // Check if the response is an array
         setOrders(response.data);
       } else {
@@ -59,7 +58,6 @@ const OrderTable = () => {
   const cancelOrder = async (orderId: string) => {
     try {
       const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/cancel/${orderId}`);
-      // console.log(response.data);
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>

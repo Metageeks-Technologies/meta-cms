@@ -29,8 +29,15 @@ const App: React.FC = () => {
     tags: [],
     publishDate: null,
     previewImg: '',
+    metaTitle: '',
+    metaDescription: '',
+    keywords: []
   });
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [keywordValue, setKeywordValue] = useState('');
+
+
+  console.log(formData, "new post form data")
 
   // Fetch categories
   const fetchCategory = async () => {
@@ -63,6 +70,14 @@ const App: React.FC = () => {
     setIsMediaModalOpen(false); // Close modal after selection
   };
 
+
+  const handleKeywordChange = (value: string) => {
+    setKeywordValue(value);
+
+    const keywordArr = value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword.length > 0);
+    setFormData(prev => ({...prev, keywords: keywordArr}));
+  }
+
   interface PayloadType {
     title: string;
     description: string;
@@ -72,6 +87,9 @@ const App: React.FC = () => {
     categories: string[];
     status: string;
     publishedDate?: Date;
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
   }
 
   // Handle post creation
@@ -126,6 +144,9 @@ const App: React.FC = () => {
         categories: formData.category,
         status: formData.postStatus,
         ...(formData.publishDate && { publishedDate: formData.publishDate }),
+        metaTitle: formData.metaTitle,
+        metaDescription: formData.metaDescription,
+        keywords: formData.keywords
       };
 
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/posts`, payload, { websiteKey });
@@ -143,6 +164,9 @@ const App: React.FC = () => {
           tags: [],
           publishDate: null,
           previewImg: '',
+          metaTitle: '',
+          metaDescription: '',
+          keywords: []
         });
         setTagInput('');
         //  editorRef.current?.setContent(''); // Reset TinyMCE editor content
@@ -335,6 +359,52 @@ const App: React.FC = () => {
               <button onClick={handleTagAdd} className='bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-md'>ADD</button>
             </div>
           </div>
+
+
+          {/* meta data */}
+
+          <div className="">
+            <label htmlFor="metaTitle" className="block text-gray-300 mb-2">
+              Meta Title
+            </label>
+            <input
+              type="text"
+              id="metaTitle"
+              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+              placeholder="Enter Title"
+              value={formData.metaTitle}
+              onChange={(e) => setFormData((prev => ({ ...prev, metaTitle: e.target.value })))}
+            />
+          </div>
+
+          <div className="">
+            <label htmlFor="metaDescription" className="block  text-gray-300 mb-2">
+              Meta Description
+            </label>
+            <textarea
+              id="metaDescription"
+              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+              placeholder="Enter Description"
+              value={formData.metaDescription}
+              onChange={(e) => setFormData(prev => ({ ...prev, metaDescription: e.target.value }))}
+            />
+          </div>
+
+          <div className="">
+            <label htmlFor="heading" className="block  text-gray-300 mb-1">
+              Keywords <span className='text-sm italic text-gray-400'>(separated by commas)</span>
+            </label>
+            <input
+              type="text"
+              id="heading"
+              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+              placeholder="Enter Keywords"
+              value={keywordValue}
+              onChange={(e) => handleKeywordChange(e.target.value)}
+            />
+          </div>
+
+
         </div>
 
         {/* Right side (Post status, visibility, category, publish date) */}
