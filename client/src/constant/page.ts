@@ -62,6 +62,9 @@ export const INITIAL_PAGE_CONTENT: PageContent = {
             }]
         },
     },
+    metaTitle: '',
+    metaDescription: '',
+    keywords: [],
     _id: ''
 };
 

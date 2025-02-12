@@ -14,6 +14,7 @@ const CreatePage = () => {
     const { setLoading, websiteKey } = useUserContext();
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
     const [subServiceArr, setSubServiceArr] = useState<any>([]);
+    const [keywordValue, setKeywordValue] = useState('');
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -380,6 +381,13 @@ const CreatePage = () => {
         }
 
         setSubServiceArr(PageSubService[value as keyof typeof PageSubService]);
+    }
+
+
+    const handleKeywordchange = (value: string) => {
+        setKeywordValue(value);
+        const keywordArr = value.split(',').map((keyword: string) => keyword.trim()).filter((keyword) => keyword.length > 0);
+        setFormData(prev => ({ ...prev, keywords: keywordArr }));
     }
 
 
@@ -1182,7 +1190,55 @@ const CreatePage = () => {
                 </label>
 
 
+                {/* meta data */}
 
+                <label className="block text-white mb-5">
+                    <span className='text-xl'>Meta Details</span>
+
+                    <div className='bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2'>
+
+                        <div className="mb-4">
+                            <label htmlFor="metaTitle" className="block  text-gray-300 mb-2">
+                                Meta Title
+                            </label>
+                            <input
+                                type="text"
+                                id="metaTitle"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Title"
+                                value={formData.metaTitle}
+                                onChange={(e) => setFormData((prev => ({ ...prev, metaTitle: e.target.value })))}
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="metaDescription" className="block  text-gray-300 mb-2">
+                                Meta Description
+                            </label>
+                            <textarea
+                                id="metaDescription"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Description"
+                                value={formData.metaDescription}
+                                onChange={(e) => setFormData(prev => ({ ...prev, metaDescription: e.target.value }))}
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="heading" className="block  text-gray-300 mb-2">
+                                Keywords <span className='text-sm italic text-gray-400'>(separated by commas)</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="heading"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Keywords"
+                                value={keywordValue}
+                                onChange={(e) => handleKeywordchange(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </label>
 
 
                 <button

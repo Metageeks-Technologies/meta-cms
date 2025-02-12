@@ -18,7 +18,6 @@ export const WebsiteProvider = ({ children }: any) => {
         setLoading(true);
         try {
             const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/website/${id}`)
-            // console.log(resp, "Response")
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp?.data?.message, { duration: 2000 });
                 fetchWebsiteData();

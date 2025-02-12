@@ -26,7 +26,7 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
     if (!websiteKey) return toast.error("Website key is required", { duration: 2000 })
     try {
       setLoading(true);
-      // console.log(fileList?.[0]);
+
       const payload = {
         folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS,
         fileName: fileList?.[0].name,
@@ -34,7 +34,6 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
       }
       const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
 
-      // console.log(resp, "generate upload url")
 
       if (resp.status === 200 || resp.status === 201) {
         setMedia([]);

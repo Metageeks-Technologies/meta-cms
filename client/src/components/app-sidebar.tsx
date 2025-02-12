@@ -19,7 +19,6 @@ export function AppSidebar() {
   const getFilteredMenuItems = (user: any): any[] => {
     if (!user) return [];
 
-    // console.log(user)
 
     const userRole = user?.role;
     const userStoreRole = user?.storeRole;

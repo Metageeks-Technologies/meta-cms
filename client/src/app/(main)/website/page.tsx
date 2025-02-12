@@ -197,8 +197,6 @@ function Category() {
   const { websiteData, fetchWebsiteData } = useWebsiteContext()
 
 
-  // console.log(categories);
-
   const table = useReactTable({
     data: websiteData,
     columns,

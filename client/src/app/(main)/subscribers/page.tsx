@@ -196,7 +196,6 @@ function User() {
   // const [rowSelection, setRowSelection] = React.useState({})
 
   const { user, subscribers, fetchUsers, isLoading } = useUserContext()
-  // console.log(subscribers);
 
   const table = useReactTable({
     data: subscribers,

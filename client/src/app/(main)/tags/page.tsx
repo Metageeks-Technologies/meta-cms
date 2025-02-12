@@ -14,8 +14,7 @@ const page = () => {
         setLoading(true);
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/all-tags`, undefined, { websiteKey });
-
-            // console.log(resp, "response");
+            
             if (resp.status === 200 || resp.status === 201) {
                 setTags(resp?.data)
             } else {

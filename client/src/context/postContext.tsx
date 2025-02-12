@@ -119,7 +119,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             if (lastId) param.append('lastId', lastId);
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/media?${param.toString()}`, undefined, { websiteKey });
 
-            // console.log(resp, "Response");
 
             if (resp.status === 200 || resp.status === 201) {
                 const newMedia = resp?.data;

@@ -320,4 +320,7 @@ export interface PageContent {
       featureSection: FeatureSection;
       marketForecastSection: ForecastContent;
   };
+  metaTitle: string,
+  metaDescription: string,
+  keywords: string[],
 }

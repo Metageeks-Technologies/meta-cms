@@ -49,7 +49,6 @@ const Cart = () => {
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/cart`)
 
-            // console.log(resp, "Response in cart component")
 
             if (resp.status === 200 || resp.status === 201) {
                 setCart(resp?.data)
@@ -99,7 +98,6 @@ const Cart = () => {
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`)
 
-            // console.log(resp, "Response in address")
 
             if (resp.status === 200 || resp.status === 201) {
                 setAddresses(resp?.data)
@@ -177,7 +175,6 @@ const Cart = () => {
         setLoading(true);
         try {
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/order/initiate-payment`);
-            // console.log(resp, "payment order");
 
             if (resp.status === 200 || resp.status === 201) {
                 return resp?.data;
@@ -222,7 +219,6 @@ const Cart = () => {
 
         const order = await createPaymentOrder();
 
-        // console.log(order, "Create payment order");
 
         if (!order) {
             alert("Failed to create order");
