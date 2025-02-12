@@ -51,9 +51,31 @@ export class PostsController {
     return publicPosts;
   }
 
+  @Get('v2/public')
+  async getPublicPostsV2(@Headers('websiteKey') websiteKey: string, @Query() query: GetPostsQueryDto) {
+    const publicPosts = await this.postsService.getPosts(
+      websiteKey,
+      PostStatusEnum.PUBLISHED,
+      false,
+      query.authorId,
+      query.tags,
+      query.categories,
+      query.sortBy,
+      query.lastId,
+      query.lastLikesCount,
+    );
+    return publicPosts;
+  }
+
   @Get('public/:slug')
   async getPublicPostById(@Param('slug') slug: string, @Query() query: {website: string}) {
     const publicPost = await this.postsService.getPublicPostBySlug( query.website, slug);
+    return publicPost;
+  }
+
+  @Get('v2/public/:slug')
+  async getPublicPostByIdV2(@Headers('websiteKey') websiteKey: string, @Param('slug') slug: string) {
+    const publicPost = await this.postsService.getPublicPostBySlug( websiteKey, slug);
     return publicPost;
   }
 

@@ -75,6 +75,6 @@ export class CreateUserDto {
     @IsArray()
     @ArrayNotEmpty()
     @IsString({ each: true })
-    premissions: string[]
+    permissions: string[]
 }
 

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 
-export enum PremissionEnum {
+export enum PermissionEnum {
     BLOG = "blog",
     PAGE = "page",
     STORE = "store"
@@ -11,7 +11,7 @@ export interface IWebsite {
     _id: mongoose.Types.ObjectId,
     name: string,
     key: string,
-    premissions: PremissionEnum[],
+    premissions: PermissionEnum[],
     admin: mongoose.Types.ObjectId,
     isDeleted: boolean
 }
@@ -27,10 +27,10 @@ export const WebsiteSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    premissions: [
+    permissions: [
         {
             type: String,
-            enum: Object.values(PremissionEnum),
+            enum: Object.values(PermissionEnum),
             required: true
         }
     ],

@@ -11,10 +11,10 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PremissionEnum } from '@/constant/admin'
 import axios from 'axios';
 import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
+import { PermissionEnum } from '@/constant/sidebar'
 
 const AddAdmin = () => {
 
@@ -22,9 +22,11 @@ const AddAdmin = () => {
         name: '',
         email: '',
         websiteName: '',
-        premissions: [],  
+        permissions: [],  
         password: ''
     });
+
+    console.log(createForm, "create admin  form")
 
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false); // Loading state
@@ -35,9 +37,9 @@ const AddAdmin = () => {
         const { value, checked } = e.target;
         setCreateForm((prevForm: any) => {
             const updatedPermissions = checked
-                ? [...prevForm.premissions, value] 
-                : prevForm.premissions.filter((perm: string) => perm !== value); 
-            return { ...prevForm, premissions: updatedPermissions }; 
+                ? [...prevForm.permissions, value] 
+                : prevForm.permissions.filter((perm: string) => perm !== value); 
+            return { ...prevForm, permissions: updatedPermissions }; 
         });
     }
 
@@ -80,8 +82,8 @@ const AddAdmin = () => {
             return;
         }
 
-        if (!Array.isArray(createForm.premissions) || createForm.premissions.length === 0) {
-            toast.error('Premissions should not be empty and must be an array of strings', { duration: 2000 });
+        if (!Array.isArray(createForm.permissions) || createForm.permissions.length === 0) {
+            toast.error('Permissions should not be empty and must be an array of strings', { duration: 2000 });
             return;
         }
 
@@ -91,7 +93,7 @@ const AddAdmin = () => {
                 name: createForm.name,
                 email: createForm.email,
                 websiteName: createForm.websiteName,
-                premissions: createForm.premissions,  
+                permissions: createForm.permissions,  
                 password: createForm.password
             }
 
@@ -103,7 +105,7 @@ const AddAdmin = () => {
                     name: '',
                     email: '',
                     websiteName: '',
-                    premissions: [], 
+                    permissions: [], 
                     password: ''
                 });
                 fetchAdmins();
@@ -168,15 +170,15 @@ const AddAdmin = () => {
                         </div>
 
                         <div className="mb-4">
-                            <Label className="text-right">Premissions</Label>
+                            <Label className="text-right">Permissions</Label>
                             <div className="flex flex-wrap gap-4"> {/* Flexbox for horizontal layout */}
-                                {Object.values(PremissionEnum).map((permission) => (
+                                {Object.values(PermissionEnum).map((permission) => (
                                     <div key={permission} className="flex items-center space-x-2">
                                         <input
                                             type="checkbox"
                                             id={permission}
                                             value={permission}
-                                            checked={createForm.premissions.includes(permission)}  
+                                            checked={createForm.permissions.includes(permission)}  
                                             onChange={handlePermissionChange}
                                             className="h-4 w-4"
                                         />

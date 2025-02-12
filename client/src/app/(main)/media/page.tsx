@@ -47,17 +47,17 @@ const page = () => {
 
     useEffect(() => {
         if (hasMoreMedia && websiteKey) fetchMedia(lastId);
-    }, [, page]);
+    }, [page, websiteKey]);
 
     useEffect(() => {
         setLastId(media?.[media.length - 1]?._id || null);
     }, [media]);
 
-    useEffect(() => {
-        if (websiteKey) {
-            fetchMedia();
-        }
-    }, [websiteKey])
+    // useEffect(() => {
+    //     if (websiteKey) {
+    //         fetchMedia();
+    //     }
+    // }, [websiteKey])
 
 
 
@@ -86,7 +86,7 @@ const page = () => {
                 </DialogContent>
 
                 {
-                    (hasMoreMedia && !loading) &&
+                    (hasMoreMedia && !loading) ?
                     <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
                         <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
                             <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
@@ -106,6 +106,7 @@ const page = () => {
                         </svg>
                         <span className="text-xl font-medium text-gray-500">Loading...</span>
                     </div>
+                    : <p className='text-2xl font-bold text-center'>No Media Found!</p>
                 }
 
 
