@@ -69,7 +69,7 @@ export class UsersController {
   @Get('all-user/:role')
   @AllowedRoles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllUser(@Headers('websiteKey') websiteKey: string, @Param('role') role: UserRoleEnum){
+  async getAllUser(@Headers('websiteKey') websiteKey: string, @Param('role') role: UserRoleEnum) {
     console.log(websiteKey, "Websitekey");
     const users = await this.usersService.getAllUser(websiteKey, role)
     return users
@@ -147,11 +147,12 @@ export class UsersController {
   }
 
   @Put('change-role')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async changeRole(@Body() changeRoleDto: ChangeRoleDto) {
+  async changeRole(@Req() req: Request, @Body() changeRoleDto: ChangeRoleDto) {
     const { _id, newRole } = changeRoleDto;
-    await this.usersService.changeRole(_id, newRole);
+    const user = (req as any).user;
+    await this.usersService.changeRole(user.role, _id, newRole);
     return { message: "User role changed successfully" };
   }
 

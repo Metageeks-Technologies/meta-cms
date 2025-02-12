@@ -152,9 +152,13 @@ export class UsersService {
     return user.storeRole;
   }
 
-  async changeRole(_id: string, newRole: UserRoleEnum) {
+  async changeRole(userRole: UserRoleEnum, _id: string, newRole: UserRoleEnum) {
     if (newRole == UserRoleEnum.SUPERADMIN) {
       throw new HttpException("Cannot change role to superadmin", 400)
+    }
+
+    if (userRole !== UserRoleEnum.SUPERADMIN && newRole === UserRoleEnum.ADMIN) {
+      throw new BadRequestException("Only Superadmin can chnage admin role")
     }
 
     const query = await this.User.updateOne({ _id: _id }, { $set: { role: newRole } }).exec();
