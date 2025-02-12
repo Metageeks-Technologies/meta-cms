@@ -3,13 +3,13 @@ import mongoose from "mongoose";
 
 
 export enum PageServiceEnum {
-    BLOCKCHAIN= "blockchain",
-    AI= 'ai',
-    GAMING= 'gaming',
-    CONSULTING= 'consulting',
-    INDUSTRIES= 'industries',
-    ABOUTUS= 'aboutus',
-    CONTACTUS= 'contactus'
+    BLOCKCHAIN = "blockchain",
+    AI = 'ai',
+    GAMING = 'gaming',
+    CONSULTING = 'consulting',
+    INDUSTRIES = 'industries',
+    ABOUTUS = 'aboutus',
+    CONTACTUS = 'contactus'
 }
 
 export enum PageSubServiceEnum {
@@ -85,6 +85,9 @@ export interface IPage extends mongoose.Document {
             }[]
         },
     }
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
     isDeleted: boolean;
     isActive: boolean;
 }
@@ -97,11 +100,11 @@ export const PageSchema = new mongoose.Schema<IPage>({
     service: {
         type: String,
         enum: Object.values(PageServiceEnum)
-    }, 
+    },
     subService: {
         type: String,
         enum: Object.values(PageSubServiceEnum)
-    },  
+    },
     website: {
         type: String,
         required: true
@@ -114,7 +117,7 @@ export const PageSchema = new mongoose.Schema<IPage>({
         type: String,
         required: true
     },
-    
+
     content: {
         heroSection: {
             subHeading: { type: String, required: true },
@@ -175,6 +178,9 @@ export const PageSchema = new mongoose.Schema<IPage>({
             ]
         },
     },
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    keywords: [{ type: String }],
     isDeleted: {
         type: Boolean,
         required: true,

@@ -30,6 +30,9 @@ export interface IPost extends mongoose.Document {
     slug: string;
     publishedDate: string;
     website: string;
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
 };
 
 export const PostSchema = new mongoose.Schema({
@@ -66,6 +69,9 @@ export const PostSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    keywords: [{ type: String }],
     isDeleted: { type: Boolean, required: true, default: false },
     slug: { type: String, required: true, unique: true },
     publishedDate: { type: Date, required: true, default: Date.now },
@@ -74,4 +80,3 @@ export const PostSchema = new mongoose.Schema({
 // Create a text index for title, description, and tags
 PostSchema.index({ title: 'text', description: 'text', tags: 'text' });
 
-  

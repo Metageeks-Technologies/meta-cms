@@ -437,7 +437,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const post = await this.Post.findOne({ _id: _id, websiteKey: websiteKey }, { authorId: 1 }).lean().exec();
+    const post = await this.Post.findOne({ _id: _id, website: websiteKey }, { authorId: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException('Post not found');
     }

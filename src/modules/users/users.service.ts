@@ -152,7 +152,12 @@ export class UsersService {
     return user.storeRole;
   }
 
-  async changeRole(userRole: UserRoleEnum, _id: string, newRole: UserRoleEnum) {
+  async changeRole(websiteKey: string, userRole: UserRoleEnum, _id: string, newRole: UserRoleEnum) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     if (newRole == UserRoleEnum.SUPERADMIN) {
       throw new HttpException("Cannot change role to superadmin", 400)
     }
@@ -161,7 +166,7 @@ export class UsersService {
       throw new BadRequestException("Only Superadmin can chnage admin role")
     }
 
-    const query = await this.User.updateOne({ _id: _id }, { $set: { role: newRole } }).exec();
+    const query = await this.User.updateOne({ _id: _id, website: website._id }, { $set: { role: newRole } }).exec();
     if (query.matchedCount == 0) {
       throw new NotFoundException("User ID not found");
     }
@@ -205,7 +210,6 @@ export class UsersService {
       throw new BadRequestException("Invalid website key");
     }
 
-    console.log(website, "websitedata");
 
     const user = await this.User.find({ role: role, website: website._id }).sort({ createdAt: -1 }).select('-hash').populate('website').lean().exec();
     return user;
@@ -344,7 +348,12 @@ export class UsersService {
   }
 
 
-  async blockUser(userId: string) {
+  async blockUser(websiteKey: string, userId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const user = await this.User.findByIdAndUpdate(userId, { block: true }, { new: true })
 
     if (!user.name) {
@@ -352,7 +361,12 @@ export class UsersService {
     }
   }
 
-  async unBlockUser(userId: string) {
+  async unBlockUser(websiteKey: string, userId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const user = await this.User.findByIdAndUpdate(userId, { block: false }, { new: true })
 
     if (!user.name) {
