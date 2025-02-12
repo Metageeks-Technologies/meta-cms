@@ -131,11 +131,11 @@ const columns = [
                     </AlertDialogTrigger>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  {/* <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
                     <AlertDialogTrigger className="w-full text-left">
                       Demote to Subscriber
                     </AlertDialogTrigger>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
 
                   <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
                     <AlertDialogTrigger className="w-full text-left">
@@ -170,9 +170,9 @@ const columns = [
                     : clickedItem === 2 ?
                       () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
                       : clickedItem === 3
-                        ? () => unblockUser(user._id)
+                        ? () => unblockUser(user._id,user.role)
                         : clickedItem === 4
-                          ? () => blockUser(user._id)
+                          ? () => blockUser(user._id,user.role)
                           : () => { }
                 }
               >

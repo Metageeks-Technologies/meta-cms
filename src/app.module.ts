@@ -26,7 +26,11 @@ import { ProductModule } from './modules/store/product/product.module';
 import { CartModule } from './modules/store/cart/cart.module';
 import { OrderModule } from './modules/store/order/order.module';
 import { WebsiteModule } from './modules/website/website.module';
+import { ServiceModule } from './modules/services/service.module';
+import { SubserviceModule } from './modules/subservices/subservice.module';
 import { PremissionModule } from './modules/premission/premission.module';
+
+
 
 
 @Module({
@@ -54,7 +58,11 @@ import { PremissionModule } from './modules/premission/premission.module';
     CartModule,
     OrderModule,
     WebsiteModule,
-    PremissionModule
+    ServiceModule,
+    SubserviceModule,
+    WebsiteModule,
+    PremissionModule,
+    
   ],
   controllers: [AppController],
   providers: [

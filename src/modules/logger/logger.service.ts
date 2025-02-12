@@ -6,7 +6,6 @@ export class LoggerService {
 	private readonly logger: winston.Logger;
 
 	constructor() {
-		// Console logging format
 		const consoleLogFormat = winston.format.printf(
 			({ level, message, timestamp, ...meta }) => {
 				return '------------------------------------------------------------------------\n' +

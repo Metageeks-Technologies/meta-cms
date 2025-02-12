@@ -20,7 +20,7 @@ import { FaArrowLeft } from 'react-icons/fa6';
 
 const App: React.FC = () => {
 
-  const { setLoading, websiteKey } = useUserContext();
+  const { setLoading } = useUserContext();
   const params = useParams();
   const slug = params.id;
   const router = useRouter();
@@ -55,7 +55,7 @@ const App: React.FC = () => {
   const fetchCategory = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey });
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
@@ -78,7 +78,7 @@ const App: React.FC = () => {
   const fetchPost = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`, undefined, { websiteKey });
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
       if (resp.status === 200 || resp.status === 201) {
         setPost(resp.data); // Store the fetched post
         setFormData({
@@ -162,10 +162,6 @@ const App: React.FC = () => {
       return;
     }
 
-    if (!websiteKey) {
-      return toast.error('Website key required', { duration: 2000 });
-    }
-
     setLoading(true);
     try {
       const payload: PayloadType = {
@@ -181,10 +177,10 @@ const App: React.FC = () => {
         keywords: formData.keywords
       };
 
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload, { websiteKey });
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload);
       if (resp.status === 200 || resp.status === 201) {
         toast.success('Post updated successfully!', { duration: 2000 });
-        router.push(`/post/${payload.slug}`);
+       router.push(`/post/${payload.slug}`);
 
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -238,11 +234,10 @@ const App: React.FC = () => {
 
 
   useEffect(() => {
-    if (websiteKey) {
-      fetchCategory();
-      fetchPost();
-    }
-  }, [websiteKey]);
+    fetchCategory();
+    fetchPost();
+
+  }, []);
 
 
   return (
@@ -298,7 +293,7 @@ const App: React.FC = () => {
                 promotion: false,
                 height: 400,
                 skin: "oxide-dark",
-                content_css: "dark", valid_elements: '*[*]', // Allows all elements
+                content_css: "dark",valid_elements: '*[*]', // Allows all elements
                 extended_valid_elements: 'script[src|type]',
                 external_plugins: {
                   embed: "/api/embed?requestType=plugin",

@@ -327,3 +327,69 @@ export interface PageContent {
   metaDescription: string,
   keywords: string[],
 }
+
+
+export interface aboutCard{
+  heading: string;
+  description: string;
+}
+export interface StudyAbout{
+  heading: string;
+  description: string;
+  aboutCards: aboutCard[];
+  
+}
+export interface Content {
+  imageKey: string | null;
+  heading: string;
+  description: string;
+}
+
+export interface Item{
+  list:string
+}
+
+export interface StudyCard{
+  heading: string;
+ cardList:Item[]; 
+}
+
+export interface process {
+ heading: string;
+ cards:StudyCard[];
+}
+
+export interface studyWebsite{
+  heading: string;
+  imageKey: string | null;
+}
+
+export interface studyChallange{
+  heading: string;
+  description: string;
+  StudyChallangeList:aboutCard[]
+
+}
+
+export interface heroSection{
+  imageKey: string | null;
+}
+
+
+export interface caseStudyContent {
+  _id?: any;
+  title: string;
+  slug: string;
+  website: string;
+  service: string;
+
+  content: {
+    heroSection:heroSection;
+    aboutSection:StudyAbout;
+    uiSection1: string | null;
+    serviceSection:Content;
+    processSection:process;
+    uiSection2: studyWebsite;
+    challengesSection:studyChallange;
+  };
+}

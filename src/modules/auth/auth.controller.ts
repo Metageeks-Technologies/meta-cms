@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.dto';
 
@@ -42,6 +42,7 @@ export class AuthController {
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     });
+    
     res.status(200).json({ message: 'Login successful' });
   }
 

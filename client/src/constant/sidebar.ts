@@ -60,6 +60,16 @@ export const items: MenuItem[] = [
         url: "/allPage",
         icon: ScrollText,
       },
+      {
+        title: "New CaseStudy",
+        url: "/newCaseStudy",
+        icon: MdPostAdd,
+      },
+      {
+        title: "All CaseStudy",
+        url: "/allPage",
+        icon: ScrollText,
+      },
     ]
   },
 
@@ -161,6 +171,8 @@ export const headerData = {
   tags: "Tags",
   newPage: "New Page",
   allPage: "All Page",
+  newCaseStudy: "New CaseStudy",
+  allCaseStudy: "All CaseStudy",
   product:"Product",
   newProduct: "New Product",
   allProduct:" All Product",

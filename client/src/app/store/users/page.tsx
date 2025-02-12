@@ -163,9 +163,9 @@ const columns = [
                       : clickedItem === 2
                       ? () => changeStoreRole(user._id, user.storeRole, StoreRole.STOREMODERATOR)
                       : clickedItem === 3
-                      ? () => unblockUser(user._id)
+                      ? () => unblockUser(user._id,user.storeRole)
                       : clickedItem === 4
-                      ? () => blockUser(user._id)
+                      ? () => blockUser(user._id, user.storeRole)
                       : () => {}
                   }
                 >

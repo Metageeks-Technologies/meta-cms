@@ -19,10 +19,24 @@ const CreatePage = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [id]: value
-        }));
+        if (id === 'slug') {
+            // Remove spaces, special characters, and convert to lowercase
+            const cleanedValue = value
+                .toLowerCase()              // Convert to lowercase
+                .replace(/[^a-z0-9-]/g, ''); // Remove any character that is not a lowercase letter, number, or hyphen
+            
+            setFormData((prev) => ({
+                ...prev,
+                [id]: cleanedValue,  // Update slug with cleaned value
+            }));
+        } else {
+            // For other fields, update the state normally
+            setFormData((prev) => ({
+                ...prev,
+                [id]: value,
+            }));
+        }
+    
     };
 
     const handleSectionChange = (
@@ -508,6 +522,7 @@ const CreatePage = () => {
     useEffect(() => {
         setFormData((prev) => ({ ...prev, website: websiteKey }));
     }, [websiteKey]);
+
 
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
