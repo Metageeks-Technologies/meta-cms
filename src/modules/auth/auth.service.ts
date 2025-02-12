@@ -6,9 +6,12 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserRoleEnum, UserStoreRoleEnum } from '../users/schema/user.schema';
 import { generateResetPasswordDto, resetPasswordDto } from './dto/resetPassword.dto';
+import { Request } from '@nestjs/common';
 import { sendEmail } from 'src/utils/emailService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
+
 
 
 const revokedTokens = new Set<string>();
