@@ -79,7 +79,7 @@ const AdminAllPost = () => {
                 if (searchText) param.append('searchQuery', searchText);
 
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts?${param.toString()}`, undefined, { websiteKey });
-                // console.log(resp)
+
 
                 if (resp.status === 200 || resp.status === 201) {
                     const newPost = resp?.data;
@@ -114,7 +114,6 @@ const AdminAllPost = () => {
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey })
 
-            // console.log(resp);
             if (resp.status === 200 || resp.status === 201) {
                 setCategory(resp.data);
             }

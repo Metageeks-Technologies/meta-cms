@@ -28,7 +28,7 @@ const page = () => {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    // console.log(value)
+    
     if (value === "") {
       setFormData({ ...formData, fullName: "" });
       return

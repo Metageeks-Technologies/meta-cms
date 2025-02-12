@@ -18,7 +18,6 @@ const axiosCall = async (method: Method, url: string, data?: object, headers?: o
     }
 
     try {
-        // console.log(config, "Config");
         const response = await axios(config);
         return response; // Return the data from the response
     } catch (error: any) {

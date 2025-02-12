@@ -26,8 +26,6 @@ const AddAdmin = () => {
         password: ''
     });
 
-    console.log(createForm, "create admin  form")
-
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false); // Loading state
       const [adminData, setAdminData] = useState<any[]>([]); // State to hold admin data
@@ -47,8 +45,8 @@ const AddAdmin = () => {
         setLoading(true);
         try {
           const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
-        //   console.log(resp.data)
-    
+
+          
           if (resp?.status === 200 || resp?.status === 201) {
             setAdminData(resp?.data);
           } else {
