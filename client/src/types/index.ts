@@ -28,7 +28,6 @@ export interface NewPostFormData {
     tags: string[];
     publishDate: Date | null;
     previewImg: File | string |null;
-    website: string;
 }
   
   export interface ProductAttribute {
@@ -108,6 +107,13 @@ export interface PostTypes {
     website?: string;
 }
 
+export interface IWebsite {
+  name: string; 
+  key: string; 
+  permissions: string[]; 
+  admin: string; 
+  isDeleted: boolean; 
+}
 
 export interface UserProfile {
     id?: string; 
@@ -118,6 +124,7 @@ export interface UserProfile {
     role: string;
     storeRole: string;
     imageKey?:string;
+    website?: IWebsite;
     block?: boolean;
     socialLinks?: {
       linkedIn?: string;
@@ -171,6 +178,7 @@ export interface PostContextType {
     deleteProductCategory: (id: string) => Promise<void>;
     fetchMedia: (lastId: string) => Promise<void>;
     media: MediaType[];
+    setMedia: (arr: MediaType[]) => void,
     hasMoreMedia: boolean;
     isFetching: boolean;
     filterBy: string;

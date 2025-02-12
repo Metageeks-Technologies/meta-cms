@@ -43,6 +43,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import AddModerator from "./components/AddModerator"
 
 
 
@@ -195,7 +196,7 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { user, moderators, fetchUsers } = useUserContext();
+  const { user, moderators, fetchUsers, websiteKey } = useUserContext();
 
 
   const table = useReactTable({
@@ -219,14 +220,14 @@ function User() {
 
 
   useEffect(() => {
-    if (user.role) fetchUsers(userRoles.MODERATOR);
-  }, [user]);
+    if (websiteKey) fetchUsers(userRoles.MODERATOR);
+  }, [websiteKey]);
 
 
 
   return (
     <div className="w-full container mx-auto px-4">
-      <div className="flex flex-col py-4">
+      <div className="flex flex-row justify-between items-center py-4">
         <Input
           placeholder="Search email..."
           value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -235,6 +236,8 @@ function User() {
           }
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
+
+        <AddModerator/>
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">

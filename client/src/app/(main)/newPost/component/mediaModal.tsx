@@ -17,12 +17,13 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const { loading, setLoading } = useUserContext();
-  const { media, fetchMedia, hasMoreMedia, isFetching } = usePostContext();
+  const { loading, setLoading, websiteKey } = useUserContext();
+  const { media, setMedia, fetchMedia, hasMoreMedia, isFetching } = usePostContext();
 
 
 
   const uploadNewFile = async (fileList: FileList | null) => {
+    if (!websiteKey) return toast.error("Website key is required", { duration: 2000 })
     try {
       setLoading(true);
       // console.log(fileList?.[0]);
@@ -31,12 +32,13 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
       }
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
 
       // console.log(resp, "generate upload url")
 
       if (resp.status === 200 || resp.status === 201) {
-        uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS, fetchMedia);
+        setMedia([]);
+        uploadToS3(websiteKey, resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS, fetchMedia);
 
       } else {
         toast.error(resp.data.message, {
@@ -70,7 +72,7 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
     const container = containerRef.current;
     if (container) {
       const { scrollTop, clientHeight, scrollHeight } = container;
-      
+
       // Trigger fetch if the user is within 50px of the bottom
       if (scrollHeight - scrollTop - clientHeight <= 50) {
         fetchMoreMedia();

@@ -1,11 +1,12 @@
 import { JwtService } from '@nestjs/jwt';
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 import { sendEmail } from 'src/utils/emailService';
 
 export enum UserRoleEnum {
   SUBSCRIBER = 'subscriber',
   CONTRIBUTOR = 'contributor',
   MODERATOR = 'moderator',
+  ADMIN= 'admin',
   SUPERADMIN = 'superadmin',
 };
 
@@ -34,6 +35,7 @@ export interface IUser extends mongoose.Document {
   block: boolean;
   role: UserRoleEnum;
   storeRole: UserStoreRoleEnum;
+  website: string;
   socialLinks?: ISocialLinks;
 };
 
@@ -55,12 +57,17 @@ export const UserSchema = new mongoose.Schema({
     default: UserRoleEnum.SUBSCRIBER,
     required: true
   },
-  storeRole: {
-    type: String,
-    enum: Object.values(UserStoreRoleEnum),
-    default: UserStoreRoleEnum.USER,
-    required: true
+  website: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Website",
+    required: true,
   },
+  // storeRole: {
+  //   type: String,
+  //   enum: Object.values(UserStoreRoleEnum),
+  //   default: UserStoreRoleEnum.USER,
+  //   required: true
+  // },
   socialLinks: {
     linkedIn: { type: String },
     instagram: { type: String },

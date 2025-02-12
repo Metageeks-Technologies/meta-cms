@@ -45,7 +45,6 @@ const EditProduct: React.FC = () => {
         website: '',
         status: 'draft',
         publishDate: null,
-
         attributes: {},
         variants: [],
     });

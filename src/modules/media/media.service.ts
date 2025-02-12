@@ -8,6 +8,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetMediaQueryDto } from './dto/get-media.dto';
 import { v4 } from 'uuid';
 import { GetSignedUploadUrlDTO } from './dto/get-signed-upload-url.dto';
+import { WebsiteService } from '../website/website.service';
 
 @Injectable()
 export class MediaService {
@@ -28,9 +29,18 @@ export class MediaService {
   ];
   private readonly MEDIA_BATCH_LIMIT = 10;
 
-  constructor(@InjectModel('Media') private Media: Model<IMedia>) { }
+  constructor(
+    @InjectModel('Media') private Media: Model<IMedia>,
+    private readonly websiteService: WebsiteService
+  ) { }
 
-  async getSignedUploadUrl({ folderName, fileName, contentType }: GetSignedUploadUrlDTO) {
+  async getSignedUploadUrl(websiteKey: string, { folderName, fileName, contentType }: GetSignedUploadUrlDTO) {
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException('Invalid Website key')
+    }
+
     // Throw exception if contentType is not allowed
     if (!this.allowedContentTypes.includes(contentType)) {
       throw new BadRequestException(`File type ${contentType} is not allowed.`);
@@ -55,8 +65,13 @@ export class MediaService {
     return { uploadUrl, key };
   }
 
-  async addMedia({ folderName, fileName, contentType, key }: CreateMediaDto) {
-    const newMedia = new this.Media({ folderName, fileName, contentType, key });
+  async addMedia(websiteKey: string, { folderName, fileName, contentType, key }: CreateMediaDto) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException('Invalid Website key')
+    }
+
+    const newMedia = new this.Media({ folderName, fileName, contentType, key, websiteKey });
     try {
       await newMedia.save();
     } catch (error) {
@@ -71,9 +86,14 @@ export class MediaService {
     }
   }
 
-  async getMedia( { lastId } : GetMediaQueryDto): Promise<any[]>{
-    const query: any = {};
-    
+  async getMedia(websiteKey: string, { lastId }: GetMediaQueryDto): Promise<any[]> {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException('Invalid Website key')
+    }
+
+    const query: any = { websiteKey };
+
     // If `lastId` is provided, fetch media created before it
     if (lastId) {
       query._id = { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) };

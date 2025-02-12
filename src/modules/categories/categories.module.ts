@@ -5,12 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CategorySchema } from './schema/category.schema';
 import { UsersModule } from '../users/users.module';
 import { RedisModule } from '../redis/redis.module';
+import { WebsiteModule } from '../website/website.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Category', schema: CategorySchema }]),
     UsersModule,
     RedisModule,
+    WebsiteModule,
   ],
   controllers: [CategoriesController],
   providers: [CategoriesService],

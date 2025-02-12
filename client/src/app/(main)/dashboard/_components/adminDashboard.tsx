@@ -11,12 +11,10 @@ import StoreDashboard from '@/app/store/Dashboard/StoreDashboard';
 
 const AdminDashboard = () => {
 
-  const { user, setLoading } = useUserContext();
+  const { user, setLoading, website, websiteKey } = useUserContext();
 
   const [personalDashboardData, setPersonalDashboardData] = useState();
   const [globalDashboardData, setGlobalDashboardData] = useState();
-
-
 
   const [isBlogDashboard, setIsBlogDashboard] = useState(true); // State to toggle between dashboards
 
@@ -24,7 +22,7 @@ const AdminDashboard = () => {
   const dashboardGlobal = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/global`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/global`, undefined, { websiteKey: websiteKey });
 
       if (resp.status === 200 || resp.status === 201) {
         setGlobalDashboardData(resp?.data);
@@ -43,7 +41,7 @@ const AdminDashboard = () => {
   const dashboardPersonal = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/personal`)
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/admin/personal`, undefined, { websiteKey: websiteKey })
 
       if (resp.status === 200 || resp.status === 201) {
         setPersonalDashboardData(resp?.data);
@@ -60,18 +58,19 @@ const AdminDashboard = () => {
   }
 
 
+
   useEffect(() => {
-    if (user.role) {
+    if (websiteKey) {
       dashboardPersonal();
       dashboardGlobal();
     }
-  }, [user]);
-
+  }, [websiteKey]);
 
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto p-2">
 
+      <h1 className='text-3xl font-bold my-4'>{website?.name}</h1>
 
       <div className="flex justify-start my-5">
         <button
@@ -90,28 +89,28 @@ const AdminDashboard = () => {
       {isBlogDashboard ? (
         <>
           {
-            (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ?
-              <CardsRow data={globalDashboardData} />
+            (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ?
+              <CardsRow data={globalDashboardData} personalData={personalDashboardData}/>
               : <CardsRow data={personalDashboardData} />
           }
           {
-            (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
+            (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
             <RecentPosts />
           }
           <MyRecentPosts />
 
           <div className={`
-        ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" : "w-[50%]"}
+        ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" : "w-[50%]"}
         mx-auto flex flex-row items-center gap-5 mt-20`}>
             {
-              (user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) &&
+              (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
               <Chart heading="Global Monthly Posts" data={globalDashboardData} />
             }
             <Chart heading="My Monthly Posts" data={personalDashboardData} />
           </div>
         </>
       ) : (
-        <StoreDashboard/>
+        <StoreDashboard />
       )}
 
 

@@ -4,6 +4,7 @@ import { Model } from "mongoose";
 import { IWebsite } from "./schema/website.schema";
 import { AddWebSiteDto } from "./dto/create-website-dto";
 import { UpdateWebsiteDto } from "./dto/update-website-dto";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -14,15 +15,18 @@ export class WebsiteService {
     ) { }
 
 
-    async addWebsite(newWebsiteDetails: AddWebSiteDto) {
+    async addWebsite(user: any, newWebsiteDetails: AddWebSiteDto) {
         const newWebsite = new this.Website(newWebsiteDetails);
-
+        newWebsite.admin = user._id;
+        const uuid = uuidv4();
+        newWebsite.key = uuid;
         try {
-            await newWebsite.save()
+            const website = await newWebsite.save()
+            return website;
         } catch (error) {
             if (error.code === 11000) {
                 // Duplicate key error
-                throw new ConflictException('Website key already exists');
+                throw new ConflictException('Website name already exists');
             }
 
             // Re-throw the error if it's not a duplicate key error
@@ -40,7 +44,7 @@ export class WebsiteService {
     }
 
     async getWebsiteByKey(key: string) {
-        const website = await this.Website.find({key}).lean().exec();
+        const website = await this.Website.findOne({key}).lean().exec();
         return website;
     }
 

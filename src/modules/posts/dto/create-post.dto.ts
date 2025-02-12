@@ -42,8 +42,4 @@ export class CreatePostDto {
     @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
     @MaxLength(128)
     slug: string;
-
-    @IsEnum(WebsiteEnum)
-    @IsNotEmpty()
-    website: string;
 }

@@ -1,118 +1,128 @@
 'use client';
-import { ChevronRight, } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { useRouter } from "next/navigation";
-import { Separator } from "@/components/ui/separator"
 import { useEffect, useState } from "react";
-import { items } from "@/constant/sidebar";
-import { MenuItem } from "@/types";
+import { useRouter } from "next/navigation";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { items, PermissionEnum } from "@/constant/sidebar";
 import { useUserContext } from "@/context/userContext";
 import { userRoles } from "@/constant/user";
 import SidebarSubmenu from "./sidebar-submenu";
 import { StoreRole } from "@/constant/store";
 
-
-
 export function AppSidebar() {
-
   const router = useRouter();
-
-  const [postSubMenu, setPostSubMenu] = useState(false);
-
   const { user } = useUserContext();
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const getFilteredMenuItems = (userRole: string, userStoreRole: string): MenuItem[] => {
+
+  const getFilteredMenuItems = (user: any): any[] => {
+    if (!user) return [];
+
+    // console.log(user)
+
+    const userRole = user?.role;
+    const userStoreRole = user?.storeRole;
+
     return items
       .filter((item) => {
-        if (userRole === userRoles.SUPERADMIN || userStoreRole === StoreRole.SUPERADMIN) {
-          return true; // Superadmin sees all items
+        if (userRole === userRoles.SUPERADMIN) {
+          return true;
         }
 
-        const includedItems = new Set<string>();
+        const includedItems = new Set<string>(["Dashboard", "Notification", "Settings"]);
 
-        // Collect all exclusions for MODERATOR
+        if (userRole === userRoles.ADMIN) {
+          if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+            ["Post", "Comments", "Media"].forEach((title) => includedItems.add(title));
+          }
+          if (user?.website?.permissions?.includes(PermissionEnum.PAGE)) {
+            includedItems.add("Page");
+          }
+          if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+            includedItems.add("Product");
+          }
+          ["Moderator", "Contributor"].forEach((title) => includedItems.add(title));
+        }
+
         if (userRole === userRoles.MODERATOR) {
-          ["Dashboard", "Post", "Comments", "Media", "Notification", "Settings"].forEach((title) => includedItems.add(title));
+          if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+            ["Post", "Comments", "Media"].forEach((title) => includedItems.add(title));
+          }
+          if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+            includedItems.add("Product");
+          }
         }
 
-        // Collect all exclusions for STORE MODERATOR
-        if (userStoreRole === StoreRole.STOREMODERATOR) {
-          ["Dashboard", "Product", "Notification", "Settings"].forEach((title) => includedItems.add(title));
-        }
-
-        // Collect all exclusions for CONTRIBUTOR
         if (userRole === userRoles.CONTRIBUTOR) {
-          ["Dashboard", "Post", "Comments", "Media", "Notification", "Settings"].forEach((title) => includedItems.add(title));
+          if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+            ["Post", "Media"].forEach((title) => includedItems.add(title));
+          }
+          if (user.website?.permissions?.includes(PermissionEnum.STORE)) {
+            includedItems.add("Product");
+          }
         }
 
-        // Collect all exclusions for VENDOR
-        if (userStoreRole === StoreRole.VENDOR) {
-          ["Dashboard", "Product", "Notification", "Settings"].forEach((title) => includedItems.add(title));
-        }
         return includedItems.has(item.title);
       })
       .map((item) => {
         if (item.subMenu) {
-          return {
-            ...item,
-            subMenu: item.subMenu.filter((subItem) => {
-              const includedSubItems = new Set<string>();
+          const filteredSubMenu = item.subMenu.filter((subItem) => {
+            const includedSubItems = new Set<string>();
 
-              if (userRole === userRoles.SUPERADMIN || userStoreRole === StoreRole.SUPERADMIN) {
-                return true; // Superadmin sees all items
-              }
+            if (userRole === userRoles.SUPERADMIN || userStoreRole === StoreRole.SUPERADMIN) {
+              return true;
+            }
 
-              // Collect all exclusions for MODERATOR
-              if (userRole === userRoles.MODERATOR) {
+            if (userRole === userRoles.ADMIN) {
+              if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
                 ["New Post", "All Post", "Category", "Tags"].forEach((title) => includedSubItems.add(title));
               }
-
-              // Collect all exclusions for STORE MODERATOR
-              if (userStoreRole === StoreRole.STOREMODERATOR) {
-                ["New Product", "All Product", "Product Category"].forEach((title) => includedSubItems.add(title));
+              if (user?.website?.permissions?.includes(PermissionEnum.PAGE)) {
+                ["New Page", "All Page"].forEach((title) => includedSubItems.add(title));
               }
+              if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+                ["New Product", "All Product", "Product Category", "Orders"].forEach((title) => includedSubItems.add(title));
+              }
+            }
 
-              // Collect all exclusions for CONTRIBUTOR
-              if (userRole === userRoles.CONTRIBUTOR) {
+            if (userRole === userRoles.MODERATOR) {
+              if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+                ["New Post", "All Post", "Category", "Tags"].forEach((title) => includedSubItems.add(title));
+              }
+              if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+                ["New Product", "All Product", "Product Category", "Orders"].forEach((title) => includedSubItems.add(title));
+              }
+            }
+
+            if (userRole === userRoles.CONTRIBUTOR) {
+              if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
                 ["New Post", "All Post", "Tags"].forEach((title) => includedSubItems.add(title));
               }
-
-              // Collect all exclusions for VENDOR
-              if (userStoreRole === StoreRole.VENDOR) {
-                ["New Product", "All Product"].forEach((title) => includedSubItems.add(title));
+              if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+                ["New Product", "All Product", "Orders"].forEach((title) => includedSubItems.add(title));
               }
+            }
 
-              return includedSubItems.has(subItem.title);
-            }),
-          };
+            return includedSubItems.has(subItem.title);
+          });
+
+          return filteredSubMenu.length > 0 ? { ...item, subMenu: filteredSubMenu } : null;
         }
+
         return item;
-      });
+      })
+      .filter(Boolean);
   };
 
+  useEffect(() => {
+    if (user) {
+      setFilteredItems(getFilteredMenuItems(user));
+      setIsLoading(false);
+    }
+  }, [user]);
 
-
-  const filteredItems = getFilteredMenuItems(user.role, user?.storeRole);
-
-
-
+  if (isLoading) return null; // Or a loading spinner
 
   return (
     <Sidebar className="border-gray-800">
@@ -130,26 +140,30 @@ export function AppSidebar() {
           <Separator className="bg-gray-800" />
           <SidebarGroupContent className="p-2 mb-20">
             <SidebarMenu>
-              {filteredItems.map((item, index) => (
+              {filteredItems.map((item: any, index: number) => (
                 <div key={index}>
-                  {
-                    item.title == "Post" || item.title == "Page" || item.title == "Product" ?
+                  {/* ✅ Check user role & conditionally render */}
+                  {user?.role === userRoles.ADMIN && item.title === "Settings" ? null : (
+                    item.title === "Post" || item.title === "Page" || item.title === "Product" ? (
                       <SidebarSubmenu item={item} />
-
-                      : <div>
-                        <SidebarMenuItem key={item.title}>
-                          <SidebarMenuButton
-                            asChild
-                            onClick={(e) => { e.preventDefault(); router.push(item.url!) }} className="py-6 cursor-pointer text-base"
-                          >
-                            <div>
-                              <item.icon />
-                              <span>{item.title}</span>
-                            </div>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      </div>
-                  }
+                    ) : (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          onClick={(e) => {
+                            e.preventDefault();
+                            router.push(item.url!);
+                          }}
+                          className="py-6 cursor-pointer text-base"
+                        >
+                          <div>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </div>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )
+                  )}
                 </div>
               ))}
             </SidebarMenu>
@@ -157,5 +171,5 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

@@ -35,7 +35,7 @@ import { BsTwitterX } from "react-icons/bs";
 
 
 const page = () => {
-    const { setLoading, user } = useUserContext();
+    const { setLoading, user, websiteKey } = useUserContext();
     const [post, setPost] = useState<PostTypes | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -57,7 +57,7 @@ const page = () => {
         setLoading(true);
         setIsLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`, undefined, { websiteKey });
             if (resp.status === 200 || resp.status === 201) {
                 setPost(resp.data);
                 if (resp.data?._id) {
@@ -84,7 +84,7 @@ const page = () => {
             if (lastId) param.append('lastId', lastId);
             param.append('page', String(page));
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public/comment/${postId}?${param.toString()}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public/comment/${postId}?${param.toString()}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 const newComments = resp.data;
@@ -113,7 +113,7 @@ const page = () => {
     const handleDeleteComment = async (commentId: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${post?._id}/delete/${commentId}`);
+            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${post?._id}/delete/${commentId}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success("Comment Deleted", { duration: 2000 });
@@ -139,7 +139,7 @@ const page = () => {
     const handleRejectPost = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/reject`);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/reject`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success("Post Rejected", {
@@ -161,7 +161,7 @@ const page = () => {
     const handleApprovePost = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/approve`);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/approve`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success("Post Approved", {
@@ -185,7 +185,7 @@ const page = () => {
     const handleDeletePost = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`);
+            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success(resp?.data?.message, {
@@ -208,7 +208,7 @@ const page = () => {
     const handleRecovePost = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover`);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success(resp?.data.message, {
@@ -233,7 +233,7 @@ const page = () => {
             const payload = {
                 status: postStatuEnum.PUBLISHED,
             }
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${id}`, payload);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${id}`, payload, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success("Post Published", { duration: 2000 });
@@ -249,17 +249,16 @@ const page = () => {
     }
 
     useEffect(() => {
-        if (user.role) {
+        if (websiteKey) {
             fetchPost();
         }
-    }, [user]);
+    }, [websiteKey]);
 
     useEffect(() => {
         setLastId(comments[comments.length - 1]?._id || '');
     }, [comments]);
 
     useEffect(() => {
-
         // Find all the script tags within the content
         const scripts = post?.description?.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/g);
 
@@ -328,7 +327,7 @@ const page = () => {
                                                         ))
                                                     }
                                                 </div>
-                                                <p className='font-bold'>{post.author.name} | {handleDate(post.publishedDate)}</p>
+                                                <p className='font-bold'>{post?.author?.name} | {handleDate(post.publishedDate)}</p>
                                             </div>
                                         </div>
                                         <div className='flex flex-row gap-2 items-center'>
@@ -343,12 +342,7 @@ const page = () => {
                                             <div className='flex flex-row items-center text-nowrap text-white'> <FaHeart className='mr-1' />  Likes : {post.likesCount}</div>
                                         </div>
                                     </div>
-
-                                    {
-                                        post?.website &&
-                                        <p className='-mt-5'>This post for {post?.website.toUpperCase()}</p>
-                                    }
-
+                                    
                                     <img src={getURL(post?.previewImageKey)} className='w-full object-contain' />
                                     {/* <img src={"/blogImg.png"} className='w-full object-contain' /> */}
                                     <div className="tinymce-content" id='postContent' dangerouslySetInnerHTML={{ __html: post?.description }}></div>
@@ -460,25 +454,25 @@ const page = () => {
 
                                                 <div className='flex flex-row items-center gap-3'>
                                                     {
-                                                        post.author?.socialLinks.facebook &&
+                                                        post.author?.socialLinks?.facebook &&
                                                         <a href={post.author?.socialLinks.facebook} target='_blank'>
                                                             <SiFacebook className='text-2xl text-blue-500' />
                                                         </a>
                                                     }
                                                     {
-                                                        post.author?.socialLinks.instagram &&
+                                                        post.author?.socialLinks?.instagram &&
                                                         <a href={post.author?.socialLinks.instagram} target='_blank'>
                                                             <RiInstagramFill className='text-3xl text-red-500' />
                                                         </a>
                                                     }
                                                     {
-                                                        post.author?.socialLinks.linkedIn &&
+                                                        post.author?.socialLinks?.linkedIn &&
                                                         <a href={post.author?.socialLinks.linkedIn} target='_blank'>
                                                             <ImLinkedin className='text-2xl text-blue-500' />
                                                         </a>
                                                     }
                                                     {
-                                                        post.author?.socialLinks.twitter &&
+                                                        post.author?.socialLinks?.twitter &&
                                                         <a href={post.author?.socialLinks.twitter} target='_blank'>
                                                             <BsTwitterX className='text-2xl text-white p-0' />
                                                         </a>

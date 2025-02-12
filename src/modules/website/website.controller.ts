@@ -14,14 +14,14 @@ export class WebsiteController {
     constructor(private readonly websiteService: WebsiteService) { }
 
 
-    @Post()
-    @AllowedRoles(UserRoleEnum.SUPERADMIN)
-    @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
-    @UseGuards(AuthGuard, RolesGuard, StoreRolesGuard)
-    async addWebsite(@Body() newWebsiteDetails: AddWebSiteDto) {
-        await this.websiteService.addWebsite(newWebsiteDetails);
-        return { message: "Website add successfully" }
-    }
+    // @Post()
+    // @AllowedRoles(UserRoleEnum.SUPERADMIN)
+    // @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
+    // @UseGuards(AuthGuard, RolesGuard, StoreRolesGuard)
+    // async addWebsite(@Body() newWebsiteDetails: AddWebSiteDto) {
+    //     await this.websiteService.addWebsite(newWebsiteDetails);
+    //     return { message: "Website add successfully" }
+    // }
 
     @Get()
     @UseGuards(AuthGuard)

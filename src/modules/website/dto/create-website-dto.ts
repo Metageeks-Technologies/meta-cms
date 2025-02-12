@@ -1,4 +1,6 @@
-import { IsNotEmpty, IsString, Matches } from "class-validator";
+import { Type } from "class-transformer";
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString, Matches, ValidateNested } from "class-validator";
+import { PermissionEnum } from "../schema/website.schema";
 
 
 
@@ -7,10 +9,9 @@ export class AddWebSiteDto {
     @IsString()
     name: string
 
-    @IsNotEmpty()
-    @IsString()
-    @Matches(/^[a-z0-9_-]+$/, {
-        message: 'Key must contain only lowercase letters, numbers, hyphens (-), and underscores (_), with no spaces or special characters.',
-    })
-    key: string;
+    @IsArray()
+    @ArrayNotEmpty() 
+    @IsString({ each: true })
+    permissions: string[]
+
 }

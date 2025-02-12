@@ -18,11 +18,11 @@ export function isValidPassword(password: string) {
 }
 
 export function isValidString(string: string): boolean {
-    const hasValidChars = /^[a-zA-Z\s]+$/.test(string); 
+    const hasValidChars = /^[a-zA-Z\s]+$/.test(string);
     return hasValidChars;
 }
 
-export const uploadToS3 = async (uploadUrl: string, file: File | undefined, key: string, setLoaing: any, folderName: any, fetchMedia?: any, setKey?: any) => {
+export const uploadToS3 = async (websiteKey: string, uploadUrl: string, file: File | undefined, key: string, setLoaing: any, folderName: any, fetchMedia?: any, setKey?: any) => {
     setLoaing(true);
     try {
         const response = await axios.put(uploadUrl, file);
@@ -36,17 +36,17 @@ export const uploadToS3 = async (uploadUrl: string, file: File | undefined, key:
                 key: key
             }
 
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media`, payload);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media`, payload, { websiteKey });
 
-            if(resp.status === 200 || resp.status === 201){
+            if (resp.status === 200 || resp.status === 201) {
                 toast.success(resp.data.message, { duration: 2000 });
-                if(fetchMedia){
+                if (fetchMedia) {
                     fetchMedia();
                 }
-                if(setKey){
+                if (setKey) {
                     setKey(key);
                 }
-            }else{
+            } else {
                 toast.error(resp.data.message, { duration: 2000 });
             }
         } else {
@@ -59,4 +59,3 @@ export const uploadToS3 = async (uploadUrl: string, file: File | undefined, key:
         setLoaing(false)
     }
 }
-

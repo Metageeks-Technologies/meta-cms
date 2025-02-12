@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Headers } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { AuthGuard } from '../auth/auth.guard';
@@ -10,28 +10,28 @@ import { RolesGuard } from '../auth/role.guard';
 
 @Controller('media')
 export class MediaController {
-  constructor(private readonly mediaService: MediaService) {}
+  constructor(private readonly mediaService: MediaService) { }
 
   @Post('signed-upload-url')
-  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getSignedUploadUrl(@Body() mediaData: GetSignedUploadUrlDTO) {
-    return this.mediaService.getSignedUploadUrl(mediaData);
+  async getSignedUploadUrl(@Headers('websiteKey') websiteKey: string, @Body() mediaData: GetSignedUploadUrlDTO) {
+    return this.mediaService.getSignedUploadUrl(websiteKey, mediaData);
   }
 
   @Post()
-  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async addMedia(@Body() mediaData: CreateMediaDto) {
-    await this.mediaService.addMedia(mediaData);
+  async addMedia(@Headers('websiteKey') websiteKey: string, @Body() mediaData: CreateMediaDto) {
+    await this.mediaService.addMedia(websiteKey, mediaData);
     return { message: "Media added successfully" };
   }
 
   @Get()
-  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getMedia(@Query() query: GetMediaQueryDto) {
-    const media = await this.mediaService.getMedia(query);
+  async getMedia(@Headers('websiteKey') websiteKey: string, @Query() query: GetMediaQueryDto) {
+    const media = await this.mediaService.getMedia(websiteKey, query);
     return media;
   }
 

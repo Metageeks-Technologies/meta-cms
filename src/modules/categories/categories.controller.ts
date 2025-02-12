@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -13,38 +13,38 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async create(@Body() newCategoryData: CreateCategoryDto) {
-    await this.categoriesService.create(newCategoryData);
+  async create(@Headers('websiteKey') websiteKey: string, @Body() newCategoryData: CreateCategoryDto) {
+    await this.categoriesService.create(websiteKey, newCategoryData);
     return { message: "Category created successfully" };
   }
 
   @Get()
-  async findAll() {
-    const categories = await this.categoriesService.findAll();
+  async findAll(@Headers('websiteKey') websiteKey: string) {
+    const categories = await this.categoriesService.findAll(websiteKey);
     return categories;
   }
 
   @Get(':id')
-  async findById(@Param('id', ValidateId) id: string) {
-    const category = await this.categoriesService.findById(id);
+  async findById(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string) {
+    const category = await this.categoriesService.findById(websiteKey, id);
     return category;
   }
 
   @Patch(':id')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async updateById(@Param('id', ValidateId) id: string, @Body() updatedCategoryData: UpdateCategoryDto) {
-    await this.categoriesService.updateById(id, updatedCategoryData);
+  async updateById(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string, @Body() updatedCategoryData: UpdateCategoryDto) {
+    await this.categoriesService.updateById(websiteKey, id, updatedCategoryData);
     return { message: "Category updated successfully" };
   }
 
   @Delete(':id')
-  @AllowedRoles(UserRoleEnum.SUPERADMIN)
+  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteById(@Param('id', ValidateId) id: string) {
-    await this.categoriesService.deleteById(id);
+  async deleteById(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) id: string) {
+    await this.categoriesService.deleteById(websiteKey, id);
     return { message: "Category deleted successfully" };
   }
 }

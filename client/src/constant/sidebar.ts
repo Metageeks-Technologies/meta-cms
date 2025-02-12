@@ -9,6 +9,7 @@ import { HiTemplate } from "react-icons/hi";
 import { TiThSmallOutline } from "react-icons/ti";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaGlobe } from "react-icons/fa6";
+import { RxBorderSplit } from "react-icons/rx";
 
 
 
@@ -81,12 +82,22 @@ export const items: MenuItem[] = [
         url: "/store/productCategory",
         icon: BiSolidCategoryAlt,
       },
+      {
+        title: "Orders",
+        url: "/store/order",
+        icon: RxBorderSplit,
+      },
     ]
   },
   {
     title: "Websites",
     url: "/website",
     icon: FaGlobe,
+  },
+  {
+    title: "Admin",
+    url: "/admin",
+    icon: UsersRound,
   },
   {
     title: "Users",
@@ -152,10 +163,10 @@ export const headerData = {
   allPage: "All Page",
   product:"Product",
   newProduct: "New Product",
-
   allProduct:" All Product",
   productCategory: "Product Category",
   allProductCategory: "All Product Category",
+  order:"Orders",
   users: "Users",
   vendor: "Vendors",
   storeModerator: "Store Moderator",
@@ -165,5 +176,13 @@ export const headerData = {
   moderator: "Moderator",
   media: "Media",
   notification: "Notification",
-  profile: "Settings"
+  profile: "Settings",
+  admin: "Admin"
+}
+
+
+export const PermissionEnum = {
+  BLOG : "blog",
+  PAGE : "page",
+  STORE : "store"
 }

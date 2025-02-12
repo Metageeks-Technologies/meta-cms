@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { LikesModule } from '../likes/likes.module';
 import { BookmarksModule } from '../bookmarks/bookmarks.module';
 import { CommentModule } from '../comment/comment.module';
+import { WebsiteModule } from '../website/website.module';
 
 @Module({
   imports: [ 
@@ -15,6 +16,7 @@ import { CommentModule } from '../comment/comment.module';
     LikesModule,
     BookmarksModule,
     CommentModule,
+    WebsiteModule
   ],
   controllers: [PostsController],
   providers: [PostsService],

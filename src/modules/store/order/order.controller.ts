@@ -81,6 +81,14 @@ export class OrderController {
         return { message: "Status updated" }
     }
 
+    @Get('all')
+    @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, StoreRolesGuard)
+    async getAllOrder(@Query() query: GetOrderQuery) {
+        const order = this.orderService.getAllOrders(query);
+        return order
+    }
+
     @Get(':id')
     @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, StoreRolesGuard)

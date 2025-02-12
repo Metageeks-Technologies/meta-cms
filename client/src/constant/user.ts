@@ -7,6 +7,7 @@ export const userRoles = {
     SUBSCRIBER: 'subscriber',
     CONTRIBUTOR: 'contributor',
     MODERATOR: 'moderator',
+    ADMIN: 'admin',
     SUPERADMIN: 'superadmin',
 }
 

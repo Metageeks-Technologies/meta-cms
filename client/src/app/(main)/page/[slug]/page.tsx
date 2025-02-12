@@ -10,7 +10,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 
 const page = () => {
-    const { setLoading, user } = useUserContext();
+    const { setLoading, user, websiteKey } = useUserContext();
     const [pageData, setPageData] = useState<any>(null);
 
     // console.log(pageData);
@@ -22,7 +22,7 @@ const page = () => {
     const fetchPage = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/private/${slug}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/private/${slug}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 setPageData(resp?.data);
@@ -51,7 +51,7 @@ const page = () => {
                     <FaArrowLeft />
                 </button>
                 {
-                    user.role === userRoles.SUPERADMIN &&
+                    (user.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN) &&
                     <button className='bg-white py-2 px-4 rounded-lg text-black font-bold flex flex-row items-center gap-2' onClick={() => router.push(`/editPage/${slug}`)}>
                         <MdEdit /> Edit
                     </button>
@@ -224,8 +224,8 @@ const page = () => {
                         <ul className='list-inside list-disc'>
                             {
                                 pageData?.content.marketForecastSection?.list?.map((item: any, index: any) => (
-                                <li key={index}>{item.point}</li>
-                            ))
+                                    <li key={index}>{item.point}</li>
+                                ))
                             }
                         </ul>
                     </div>

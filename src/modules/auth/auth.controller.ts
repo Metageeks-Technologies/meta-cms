@@ -21,11 +21,11 @@ export class AuthController {
     res.status(200).json({ message: 'Login successful' });
   }
 
-  @Post('signup')
-  async signup(@Body() newUserDetails: CreateUserDto) {
-    await this.authService.signup(newUserDetails);
-    return { message: "Sign up successfull" };
-  }
+  // @Post('signup')
+  // async signup(@Body() newUserDetails: CreateUserDto) {
+  //   await this.authService.signup(newUserDetails);
+  //   return { message: "Sign up successfull" };
+  // }
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {

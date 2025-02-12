@@ -267,7 +267,7 @@ const ProductCard: React.FC = () => {
           const nextVariant = updatedVariants[0] || null;
           setSelectedVariant(nextVariant);
           setSelectedImage(nextVariant?.imageKeys[0] || "");
-  
+
         }
         toast.success(response.data.message);
       }
@@ -453,10 +453,33 @@ const ProductCard: React.FC = () => {
       </div>
 
       {/* Product Description */}
-      <div className="w-full mt-9 border-gray-800 border rounded-xl px-4 py-4">
-        <span className="font-semibold underline text-purple-500 mb-6">Description</span>
-        <div className="tinymce-content" id='postContent' dangerouslySetInnerHTML={{ __html: description }}></div>
+      <div className="w-full mt-9 border-gray-800 border rounded-xl px-6 py-6 shadow-lg hover:shadow-2xl transition-all duration-300">
+        <span className="font-semibold text-2xl text-white text-center mb block">Description</span>
+        <hr className="border-gray-500 mb-6" />
+        <div
+          className="tinymce-content text-gray-300 leading-relaxed text-base"
+          id="postContent"
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
       </div>
+
+
+      {/* Specifications */}
+      {Object.keys(product.attributes).length > 0 && (
+        <div className="w-full mt-9  border-gray-800 border rounded-xl px-6 py-6 shadow-lg hover:shadow-2xl transition-all duration-300">
+          <span className="font-semibold text-2xl text-white text-center border-b-2 border-gray-500 pb-2 mb-6 block">Specifications</span>
+          <div>
+            {Object.entries(product.attributes).map(([key, value], index) => (
+              <div key={index} className="mb-4">
+                <span className="font-semibold text-gray-200">{key}: </span>
+                <span className="text-gray-400">{String(value)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+
 
       {/* Product status  buttons */}
 

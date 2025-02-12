@@ -12,6 +12,7 @@ import { SearchPostSortByEnum, SearchPostsQueryDto } from './dto/search-post.dto
 import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { postStatuEnum } from 'client/src/constant/post';
 import { CommentService } from '../comment/comment.service';
+import { WebsiteService } from '../website/website.service';
 const readingTime = require('reading-time');
 
 @Injectable()
@@ -69,6 +70,7 @@ export class PostsService {
     private likesService: LikesService,
     private bookmarksService: BookmarksService,
     private commentService: CommentService,
+    private websiteService: WebsiteService
   ) { }
 
   async createUniqueSlugFromTitle(title: string) {
@@ -79,19 +81,27 @@ export class PostsService {
     return `${slugify(title)}-${noOfPostWithSameTitle}`;
   }
 
-  async createPost(newPostData: CreatePostDto, authorId: string, authorRole: UserRoleEnum) {
+  async createPost(websiteKey: string, newPostData: CreatePostDto, authorId: string, authorRole: UserRoleEnum) {
     // Assumes authorId is coming from JWT and is verified by RolesGuard.
     // Hence we are not checking if id is valid or not
     // Also assuming ids in categories are valid
     // If they are not valid, they will be filtered out during category lookup
+
+    const websiteData = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!websiteData) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const newPost = new this.Post(newPostData);
     newPost.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
     // newPost.slug = await this.createUniqueSlugFromTitle(newPost.title);
 
+    newPost.website = websiteKey;
+
     const stats = readingTime(newPostData.description);
     newPost.readTime = stats.text;
 
-    // If contributor creates a post to be published/scheduled, change its status to 'awaiting approval'
+    // If contributor creates a post to be published/scheduled, change it's status to 'awaiting approval'
     if (authorRole === UserRoleEnum.CONTRIBUTOR && (newPost.status === PostStatusEnum.PUBLISHED || newPost.status === PostStatusEnum.SCHEDULED)) {
       newPost.status = PostStatusEnum.AWAITING_APPROVAL;
     }
@@ -110,6 +120,7 @@ export class PostsService {
   }
 
   async getPosts(
+    websiteKey: string,
     status: PostStatusEnum,
     isDeleted: boolean,
     authorId: string,
@@ -118,15 +129,24 @@ export class PostsService {
     sortBy: string,
     lastId: string,
     lastLikesCount: number,
-    website?: WebsiteEnum,
     searchQuery?: string,
   ) {
+
+    const websiteData = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!websiteData) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const pipeline: mongoose.PipelineStage[] = [];
 
     /////////////////////////////////////////
     // Match stage
     /////////////////////////////////////////
     const matchStage: Record<string, any> = {};
+
+    if (websiteKey) {
+      matchStage.website = websiteKey;
+    }
 
     if (status) {
       matchStage.status = status;
@@ -149,17 +169,6 @@ export class PostsService {
     if (categories && categories.length > 0) {
       const categoriesIds = categories.map((id) => mongoose.Types.ObjectId.createFromHexString(id));
       matchStage.categories = { $in: categoriesIds };
-    }
-
-    if (website) {
-      if (website === WebsiteEnum.FAMPROTOCAL) {
-        matchStage.$or = [
-          { website: WebsiteEnum.FAMPROTOCAL },
-          { website: { $exists: false } }, // Include documents where the website field is not defined
-        ];
-      } else {
-        matchStage.website = website; // Match the specified website
-      }
     }
 
     // Add text search condition if searchQuery is provided
@@ -246,25 +255,21 @@ export class PostsService {
 
 
 
-  async searchPosts({ query, sortBy, lastId, lastScore, website }: SearchPostsQueryDto) {
-    const pipeline: mongoose.PipelineStage[] = [];
+  async searchPosts(websiteKey: string, { query, sortBy, lastId, lastScore }: SearchPostsQueryDto) {
 
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
+    const pipeline: mongoose.PipelineStage[] = [];
 
     /////////////////////////////////////////
     // Match stage second
     /////////////////////////////////////////
-    if (!website || website === WebsiteEnum.FAMPROTOCAL) {
+    if (websiteKey) {
       pipeline.push({
-        $match: {
-          $or: [
-            { website: WebsiteEnum.FAMPROTOCAL },
-            { website: { $exists: false } } // Include documents where the website field is not defined
-          ]
-        }
-      });
-    } else {
-      pipeline.push({
-        $match: { website }
+        $match: { websiteKey }
       });
     }
 
@@ -344,10 +349,16 @@ export class PostsService {
     return posts;
   }
 
-  async getPostBySlug(slug: string, status: PostStatusEnum, isDeleted: boolean) {
+  async getPostBySlug(websiteKey: string, slug: string, status: PostStatusEnum, isDeleted: boolean) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const aggregation = await this.Post.aggregate([
       {
         $match: {
+          website: websiteKey,
           slug: slug,
           // Include these fields in condition only when they are defined
           ...(status && { status: status }),
@@ -364,13 +375,18 @@ export class PostsService {
     return post;
   }
 
-  async getPublicPostBySlug(slug: string) {
-    const post = await this.getPostBySlug(slug, PostStatusEnum.PUBLISHED, false);
+  async getPublicPostBySlug(websiteKey: string, slug: string) {
+
+    const post = await this.getPostBySlug(websiteKey, slug, PostStatusEnum.PUBLISHED, false);
     return post;
   }
 
-  async getAnyPostBySlug(slug: string, userId: string, userRole: UserRoleEnum) {
-    const post = await this.getPostBySlug(slug, undefined, undefined);
+  async getAnyPostBySlug(websiteKey: string, slug: string, userId: string, userRole: UserRoleEnum) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+    const post = await this.getPostBySlug(websiteKey, slug, undefined, undefined);
 
     // If contributor tries to access post of another user
     if (userRole == UserRoleEnum.CONTRIBUTOR && post.author._id != userId) {
@@ -380,15 +396,26 @@ export class PostsService {
     return post;
   }
 
-  async changePostStatus(_id: string, newStatus: PostStatusEnum) {
-    const query = await this.Post.updateOne({ _id: _id }, { $set: { status: newStatus } }).exec();
+  async changePostStatus(websiteKey: string, _id: string, newStatus: PostStatusEnum) {
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
+    const query = await this.Post.updateOne({ _id: _id, websiteKey: websiteKey }, { $set: { status: newStatus } }).exec();
     if (query.matchedCount == 0) {
       throw new NotFoundException("Post not found");
     }
   }
 
-  async approvePost(_id: string) {
-    const post = await this.Post.findOne({ _id: _id }, { status: 1, publishedDate: 1 }).lean().exec();
+  async approvePost(websiteKey: string, _id: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
+    const post = await this.Post.findOne({ _id: _id, websiteKey: websiteKey }, { status: 1, publishedDate: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException("Post not found");
     }
@@ -400,11 +427,17 @@ export class PostsService {
       newStatus = PostStatusEnum.SCHEDULED;
     }
 
-    await this.changePostStatus(_id, newStatus);
+    await this.changePostStatus(websiteKey, _id, newStatus);
   }
 
-  async updatePost(_id: string, updatedPost: UpdatePostDto, authorId: string, authorRole: UserRoleEnum) {
-    const post = await this.Post.findOne({ _id: _id }, { authorId: 1 }).lean().exec();
+  async updatePost(websiteKey: string, _id: string, updatedPost: UpdatePostDto, authorId: string, authorRole: UserRoleEnum) {
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
+    const post = await this.Post.findOne({ _id: _id, websiteKey: websiteKey }, { authorId: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException('Post not found');
     }
@@ -427,9 +460,14 @@ export class PostsService {
     // No need to check here if post exists or not. we already checked above
   }
 
-  async likePublicPost(postId: string, userId: string) {
+  async likePublicPost(websiteKey: string, postId: string, userId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // TODO: add check here to check if post is public
-    const post = await this.Post.findOne({ _id: postId }, { likesCount: 1 }).exec();
+    const post = await this.Post.findOne({ _id: postId, websiteKey: websiteKey }, { likesCount: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
@@ -442,9 +480,14 @@ export class PostsService {
     await post.save();
   }
 
-  async unlikePublicPost(postId: string, userId: string) {
+  async unlikePublicPost(websiteKey: string, postId: string, userId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // TODO: add check here to check if post is public
-    const post = await this.Post.findOne({ _id: postId }, { likesCount: 1 }).exec();
+    const post = await this.Post.findOne({ _id: postId, websiteKey: websiteKey }, { likesCount: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
@@ -457,9 +500,14 @@ export class PostsService {
     await post.save();
   }
 
-  async bookmarkPublicPost(postId: string, userId: string) {
+  async bookmarkPublicPost(websiteKey: string, postId: string, userId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // Assuming userId is valid and verified by JWT
-    const post = await this.Post.findOne({ _id: postId }, { _id: 1 }).lean().exec();
+    const post = await this.Post.findOne({ _id: postId, websiteKey: websiteKey }, { _id: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
@@ -467,18 +515,30 @@ export class PostsService {
     await this.bookmarksService.add(postId, userId);
   }
 
-  async removeBookmarkFromPublicPost(postId: string, userId: string) {
+  async removeBookmarkFromPublicPost(websiteKey: string, postId: string, userId: string) {
     // No need to validate for postId and userId here
     // If they are valid and their corresponding bookmark exists, we'll delete it
     // If their corresponding bookmark deos not exist, or even if they are invalid, a not found exception is thrown
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     await this.bookmarksService.remove(postId, userId);
   }
 
-  async isPostLikedAndBookmarkedByUser(postId: string, userId: string) {
+  async isPostLikedAndBookmarkedByUser(websiteKey: string, postId: string, userId: string) {
     // Assuming userId is valid and verified by JWT
     // Not checking existence of post here. 
     // Since if post does not exists, its corresponding like & bookmark entries will not be present
     // Just return true if correspoding entries is found, otherwise false in all other cases
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const [isLiked, isBookmarked] = await Promise.all([
       this.likesService.isPostLikedByUser(postId, userId),
       this.bookmarksService.isPostBookmarkedByUser(postId, userId)
@@ -487,8 +547,13 @@ export class PostsService {
     return { isLiked, isBookmarked };
   }
 
-  async deletePost(_id: string, userId: string, userRole: string) {
-    const post = await this.Post.findOne({ _id: _id }, { authorId: 1, isDeleted: 1 }).lean().exec();
+  async deletePost(websiteKey: string, _id: string, userId: string, userRole: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
+    const post = await this.Post.findOne({ _id: _id, websiteKey: websiteKey }, { authorId: 1, isDeleted: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException('Post ID not found');
     }
@@ -505,9 +570,14 @@ export class PostsService {
     const query = await this.Post.updateOne({ _id: _id }, { isDeleted: true }).exec();
   }
 
-  async recoverPost(_id: string) {
+  async recoverPost(websiteKey: string, _id: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // This can only be done by superadmin
-    const query = await this.Post.updateOne({ _id: _id }, { isDeleted: false }).exec();
+    const query = await this.Post.updateOne({ _id: _id, websiteKey: websiteKey }, { isDeleted: false }).exec();
     if (query.matchedCount == 0) {
       throw new NotFoundException('Post ID not found');
     }
@@ -517,18 +587,42 @@ export class PostsService {
     }
   }
 
-  async getPublisedPostsCount(userId?: string) {
+  async getPostsCount(websiteKey: string, userId: string, status: string) {
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
     // Assuming userId exists and is coming from JWT
-    const count = await this.Post.countDocuments({
-      status: postStatuEnum.PUBLISHED,
+
+    const query = {
+      website: websiteKey,
       isDeleted: false,
-      ...(userId && { authorId: mongoose.Types.ObjectId.createFromHexString(userId) })
-    }).exec();
+    }
+
+    if (status) {
+      query['status'] = status;
+    } else {
+      query['status'] = { $ne: postStatuEnum.DRAFT }
+    }
+
+    if (userId) {
+      query['authorId'] = mongoose.Types.ObjectId.createFromHexString(userId)
+    }
+
+    const count = await this.Post.countDocuments(query).exec();
     return count;
   }
 
-  async getMonthlyPublishedPostCount(userId?: string) {
+  async getMonthlyPublishedPostCount(websiteKey: string, userId?: string) {
+
+    // const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    // if (!website) {
+    //   throw new BadRequestException("Invalid website key");
+    // }
+
     // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
     // Assuming userId exists and is coming from JWT
 
@@ -537,6 +631,7 @@ export class PostsService {
     lastYearDate.setMonth(currentDate.getMonth() - 12);
 
     const matchFilter: Record<string, any> = {
+      website: websiteKey,
       status: 'published',
       createdAt: { $gte: lastYearDate }
     };
@@ -590,12 +685,17 @@ export class PostsService {
   }
 
 
-  async getAllTags(authorId?: string) {
+  async getAllTags(websiteKey: string, authorId?: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // get user all unique tags 
     // assume user login for this service
     try {
       const result = await this.Post.aggregate([
-        { $match: { authorId: new mongoose.Types.ObjectId(authorId), isDeleted: false } },
+        { $match: { website: websiteKey, authorId: new mongoose.Types.ObjectId(authorId), isDeleted: false } },
         { $match: { tags: { $ne: "" } } },
 
         { $unwind: '$tags' },
@@ -616,7 +716,12 @@ export class PostsService {
   }
 
 
-  async commentPublishedPost(postId: string, userId: string, message: string) {
+  async commentPublishedPost(websiteKey: string, postId: string, userId: string, message: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // TODO: add check here to check if post is public
     const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
     if (!post) {
@@ -626,7 +731,12 @@ export class PostsService {
     await this.commentService.createNewComment(postId, userId, message);
   }
 
-  async approveComment(postId: string, commentId: string) {
+  async approveComment(websiteKey: string, postId: string, commentId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     // TODO: add check here to check if post is public
     const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
     if (!post) {
@@ -637,16 +747,31 @@ export class PostsService {
 
   }
 
-  async rejectComment(commentId: string) {
+  async rejectComment(websiteKey: string, commentId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     await this.commentService.rejectComment(commentId);
   }
 
-  async getAwaitingApproveComment() {
+  async getAwaitingApproveComment(websiteKey: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const comments = await this.commentService.awaitingApproveComment();
     return comments;
   }
 
-  async deleteComment(postId: string, userId: string, userRole: string, commentId: string) {
+  async deleteComment(websiteKey: string, postId: string, userId: string, userRole: string, commentId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
@@ -656,31 +781,61 @@ export class PostsService {
 
   }
 
-  async getPublishedCommentOnPost(postId: string, lastId?: string) {
+  async getPublishedCommentOnPost(websiteKey: string, postId: string, lastId?: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const comments = await this.commentService.allPublishedCommentOnPost(postId, lastId);
     return comments;
   }
 
-  async getAllRejectedComments(lastId?: string) {
+  async getAllRejectedComments(websiteKey: string, lastId?: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const comments = await this.commentService.allRejectedComment(lastId);
     return comments;
   }
 
-  async getAllPublishedComments(lastId?: string) {
+  async getAllPublishedComments(websiteKey: string, lastId?: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const comments = await this.commentService.allPublishedComment(lastId);
     return comments;
   }
 
-  async getAllDeletedComments(lastId?: string) {
+  async getAllDeletedComments(websiteKey: string, lastId?: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     const comments = await this.commentService.allDeletedComment(lastId);
     return comments
   }
 
-  async editComment(userId: string, userRole: string, commentId: string, message: string) {
+  async editComment(websiteKey, userId: string, userRole: string, commentId: string, message: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     await this.commentService.editComment(userId, userRole, commentId, message)
   }
 
-  async recoverComment(commentId: string) {
+  async recoverComment(websiteKey: string, commentId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new BadRequestException("Invalid website key");
+    }
+
     await this.commentService.recoverComment(commentId)
   }
 

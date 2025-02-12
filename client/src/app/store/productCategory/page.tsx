@@ -75,7 +75,7 @@ const columns = [
       const [isOpen, setIsOpen] = useState(false);
       const [productCategory, setProductCategory] = useState(row.original);
       const { deleteProductCategory, fetchProductCategories } = usePostContext();
-      const { user, setLoading }: any = useUserContext();
+      const { user, setLoading, websiteKey }: any = useUserContext();
 
       const handleNonSuperAdminClick = () => {
         toast.error("Only superadmin has permission for this");
@@ -96,7 +96,7 @@ const columns = [
           const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
 
           if (resp.status === 200 || resp.status === 201) {
-            uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY, null, setImageKey);
+            uploadToS3(websiteKey, resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY, null, setImageKey);
           } else {
             toast.error(resp.data.message, { duration: 2000 });
           }

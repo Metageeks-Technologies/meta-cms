@@ -13,7 +13,7 @@ import { getURL } from '@/utils/AWS_Config';
 const MyRecentPosts = () => {
 
     const router = useRouter();
-    const {setLoading, user} = useUserContext();
+    const {setLoading, user, websiteKey} = useUserContext();
     const [posts, setPosts] = useState<any>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -39,7 +39,7 @@ const MyRecentPosts = () => {
             param.append('status', postStatuEnum.PUBLISHED);
             param.append('sortBy', postSortByEnum.RECENT);
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/all?${param.toString()}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/all?${param.toString()}`, undefined, {websiteKey});
 
             if (resp.status === 200 || resp.status === 201) {
                 setPosts(resp?.data?.slice(0,10));
@@ -58,8 +58,8 @@ const MyRecentPosts = () => {
     }
 
     useEffect(() => {
-        if(user.role) fetchUserAllRecentPublishedPosts();
-    }, [user])
+        if(websiteKey) fetchUserAllRecentPublishedPosts();
+    }, [websiteKey])
 
 
     return (

@@ -67,7 +67,7 @@ export class GetPostsQueryDto {
   @IsOptional()
   searchQuery?: string
 
-  @IsEnum(WebsiteEnum)
+  @IsString()
   @IsOptional()
-  website: WebsiteEnum
+  website: string
 }

@@ -11,11 +11,10 @@ import { Card, Feature, PageContent } from '@/types';
 
 
 const CreatePage = () => {
-    const { setLoading } = useUserContext();
+    const { setLoading, websiteKey } = useUserContext();
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
-    // console.log(formData)
-    const [websiteArr, setWebsiteArr] = useState([]);
-    const [subServiceArr, setSubServiceArr] = useState<any>([])
+    const [subServiceArr, setSubServiceArr] = useState<any>([]);
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
@@ -125,6 +124,8 @@ const CreatePage = () => {
         section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection',
         index?: number
     ) => {
+        if (!websiteKey) return toast.error("Website key required");
+
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const payload = {
@@ -134,7 +135,7 @@ const CreatePage = () => {
             };
 
             try {
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
                 if (resp.status === 200 || resp.status === 201) {
                     const response = await axios.put(resp?.data?.uploadUrl, file);
                     if (response.status === 200 || response.status === 201) {
@@ -382,25 +383,11 @@ const CreatePage = () => {
     }
 
 
-    const fetchWebsites = async () => {
-        setLoading(true);
-        try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
-
-            if (resp.status === 200 || resp.status === 201) {
-                setWebsiteArr(resp?.data);
-            } else {
-                toast.error(resp?.data?.message, { duration: 2000 });
-            }
-        } catch (error) {
-            console.log("Error in fetching websites data in new page section: ", error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!websiteKey) return toast.error("Website key required", { duration: 2000 })
+
         if (!formData.title) {
             toast.error("Title is required", { duration: 2000 });
             return;
@@ -438,7 +425,6 @@ const CreatePage = () => {
             return;
         }
 
-
         const missingImageIndex = formData.content.servicesSection?.cards.findIndex(
             (card: any) => !card.imageKey
         );
@@ -457,12 +443,9 @@ const CreatePage = () => {
             return;
         }
 
-
-
-
         setLoading(true);
         try {
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/pages`, formData);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/pages`, formData, { websiteKey });
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp.data.message, { duration: 2000 });
                 setFormData(INITIAL_PAGE_CONTENT);
@@ -477,9 +460,46 @@ const CreatePage = () => {
     };
 
 
+    const handleEditSlug = (value: string) => {
+        // Remove spaces, special characters, and convert to lowercase
+        const cleanedValue = value
+            .toLowerCase()              // Convert to lowercase
+            .replace(/[^a-z0-9-]/g, '') // Remove any character that is not a lowercase letter, number, or hyphen
+
+        setFormData({ ...formData, slug: cleanedValue });
+    };
+
+
+    // Function to generate slug from title
+    const generateSlug = (title: string) => {
+        return title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
+            .replace(/(^-|-$)+/g, '');     // Remove leading/trailing hyphens
+    };
+
+    // Automatically generate slug when title changes
     useEffect(() => {
-        fetchWebsites();
-    }, []);
+        if (formData.title) {
+            const generatedSlug = generateSlug(formData.title);
+            setFormData((prevData) => ({
+                ...prevData,
+                slug: generatedSlug
+            }));
+        }
+        else {
+            // If title is empty, clear the slug as well
+            setFormData((prevData) => ({
+                ...prevData,
+                slug: '',
+            }));
+        }
+    }, [formData.title]);
+
+
+    useEffect(() => {
+        setFormData((prev) => ({ ...prev, website: websiteKey }));
+    }, [websiteKey]);
 
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
@@ -499,34 +519,20 @@ const CreatePage = () => {
                     />
                 </label>
 
-                <div className='flex flex-row gap-5 items-end'>
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Enter Slug</span>
-                        <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
-                        <input
-                            type="text"
-                            id="slug"
-                            className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
-                            placeholder="Enter slug"
-                            value={formData.slug}
-                            onChange={handleChange}
-                            required
-                        />
-                    </label>
+                <label className="w-full flex flex-col gap-2 mb-5">
+                    <span>Enter Slug</span>
+                    <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+                    <input
+                        type="text"
+                        id="slug"
+                        className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
+                        placeholder="Enter slug"
+                        value={formData.slug}
+                        onChange={(e) => handleEditSlug(e.target.value)}
+                        required
+                    />
+                </label>
 
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Website</span>
-                        <select onChange={(e) => setFormData((prev) => ({...prev, website: e.target.value}))} name="" id="" value={formData.website} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
-                            <option value="">--Select website--</option>
-                            {
-                                websiteArr.map((website: any, index: number) => (
-                                    <option key={index} value={website.key}>{website.name}</option>
-                                ))
-                            }
-                        </select>
-                    </label>
-
-                </div>
 
                 <div className='flex flex-row gap-5 items-center'>
                     <label className="w-full flex flex-col gap-2 mb-5">
@@ -563,7 +569,7 @@ const CreatePage = () => {
                 </div>
 
                 <label className="block text-white mb-5">
-                    <span>Hero Section</span>
+                    <span className='text-xl'>Hero Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         {/* Hero Section Fields */}
                         <div className="mb-4">
@@ -641,7 +647,7 @@ const CreatePage = () => {
 
                 {/* Solution Section 1*/}
                 <label className="block text-white mb-5">
-                    <span>Solution Section 1</span>
+                    <span className='text-xl'>Solution Section 1</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
                             <label htmlFor="subHeading" className="block text-gray-300 mb-2">
@@ -718,7 +724,7 @@ const CreatePage = () => {
 
                 {/* Service Section */}
                 <label className="block text-white mb-5">
-                    <span>Service Section</span>
+                    <span className='text-xl'>Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
                             <label htmlFor="heading" className="block text-gray-300 mb-2">
@@ -761,6 +767,7 @@ const CreatePage = () => {
                                     <span className="text-xl">×</span> {/* "×" is the close icon */}
                                 </button>
                                 <div className="mb-4">
+                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
                                     <label htmlFor={`service-card-heading-${index}`} className="block text-gray-300 mb-2">
                                         Heading
                                     </label>
@@ -828,7 +835,7 @@ const CreatePage = () => {
 
                 {/* Process Section */}
                 <label className="block text-white mb-5">
-                    <span>Process Section</span>
+                    <span className='text-xl'>Process Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
                             <label htmlFor="processSectionHeading" className="block text-gray-300 mb-2">
@@ -856,6 +863,7 @@ const CreatePage = () => {
                                     <span className="text-xl">×</span> {/* "×" is the close icon */}
                                 </button>
                                 <div className="mb-4">
+                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
                                     <label htmlFor={`process-card-heading-${index}`} className="block text-gray-300 mb-2">
                                         Heading
                                     </label>
@@ -898,7 +906,7 @@ const CreatePage = () => {
 
                 {/* Solution Section 2*/}
                 <label className="block text-white mb-5">
-                    <span>Solution Section 2</span>
+                    <span className='text-xl'>Solution Section 2</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
                             <label htmlFor="subHeading" className="block text-gray-300 mb-2">
@@ -975,7 +983,7 @@ const CreatePage = () => {
 
                 {/* Feature Section */}
                 <label className="block text-white mb-5">
-                    <span>Feature Section</span>
+                    <span className='text-xl'>Feature Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
                             <label htmlFor="heading" className="block text-gray-300 mb-2">
@@ -1005,6 +1013,7 @@ const CreatePage = () => {
                                     <span className="text-xl">×</span> {/* "×" is the close icon */}
                                 </button>
                                 <div className="mb-4">
+                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
                                     <label htmlFor={`features-feature-heading-${index}`} className="block text-gray-300 mb-2">
                                         Heading
                                     </label>
@@ -1072,7 +1081,7 @@ const CreatePage = () => {
 
                 {/* market forecast Section  */}
                 <label className="block text-white mb-5">
-                    <span>Market Forecast Section</span>
+                    <span className='text-xl'>Market Forecast Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
 
                         <div className="mb-4">
@@ -1146,7 +1155,7 @@ const CreatePage = () => {
 
                                 <div className="mb-4">
                                     <label htmlFor={`market-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        point
+                                        Point-{index + 1}
                                     </label>
                                     <textarea
                                         id={`market-card-description-${index}`}

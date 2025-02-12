@@ -20,7 +20,7 @@ import { FaArrowLeft } from 'react-icons/fa6';
 
 const App: React.FC = () => {
 
-  const { setLoading } = useUserContext();
+  const { setLoading, websiteKey } = useUserContext();
   const params = useParams();
   const slug = params.id;
   const router = useRouter();
@@ -41,7 +41,6 @@ const App: React.FC = () => {
     tags: [],
     publishDate: null,
     previewImg: '',
-    website: ""
   });
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
@@ -49,7 +48,7 @@ const App: React.FC = () => {
   const fetchCategory = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
@@ -72,7 +71,7 @@ const App: React.FC = () => {
   const fetchPost = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`, undefined, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         setPost(resp.data); // Store the fetched post
         setFormData({
@@ -84,7 +83,6 @@ const App: React.FC = () => {
           tags: resp.data.tags || [],
           publishDate: resp.data.publishedDate ? new Date(resp.data.publishedDate) : null,
           previewImg: resp.data.previewImageKey,
-          website: resp.data.website,
         });
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -142,6 +140,10 @@ const App: React.FC = () => {
       return;
     }
 
+    if (!websiteKey) {
+      return toast.error('Website key required', { duration: 2000 });
+    }
+
     setLoading(true);
     try {
       const payload: PayloadType = {
@@ -154,10 +156,10 @@ const App: React.FC = () => {
         status: formData.postStatus,
       };
 
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload);
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         toast.success('Post updated successfully!', { duration: 2000 });
-       router.push(`/post/${payload.slug}`);
+        router.push(`/post/${payload.slug}`);
 
       } else {
         toast.error(resp.data.message, { duration: 2000 });
@@ -211,10 +213,11 @@ const App: React.FC = () => {
 
 
   useEffect(() => {
-    fetchCategory();
-    fetchPost();
-
-  }, []);
+    if (websiteKey) {
+      fetchCategory();
+      fetchPost();
+    }
+  }, [websiteKey]);
 
 
   return (
@@ -270,7 +273,7 @@ const App: React.FC = () => {
                 promotion: false,
                 height: 400,
                 skin: "oxide-dark",
-                content_css: "dark",valid_elements: '*[*]', // Allows all elements
+                content_css: "dark", valid_elements: '*[*]', // Allows all elements
                 extended_valid_elements: 'script[src|type]',
                 external_plugins: {
                   embed: "/api/embed?requestType=plugin",

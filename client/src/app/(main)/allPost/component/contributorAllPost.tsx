@@ -1,6 +1,6 @@
 'use client'
 import axiosCall from '@/utils/ApiCall';
-import { Check } from 'lucide-react';
+import { Check, Underline } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react'
 import Card from './card';
 import toast from 'react-hot-toast';
@@ -11,7 +11,7 @@ import { usePostContext } from '@/context/postContext';
 
 const ContributorAllPost = () => {
 
-    const { loading, setLoading, user } = useUserContext();
+    const { loading, setLoading, user, websiteKey } = useUserContext();
 
     const { filterBy, setFilterBy, sortBy, setSortBy, selectedCategory, setSelectedCategory } = usePostContext();
 
@@ -21,13 +21,13 @@ const ContributorAllPost = () => {
 
     const [isFetching, setIsFetching] = useState(false);
     const [postData, setPostData] = useState<any>(null);
-
     const [category, setCategory] = useState([]);
 
 
     const fetchPostByStatus = async (status: string, param: URLSearchParams,) => {
+        if (websiteKey) return toast.error("Website key required", { duration: 2000 });
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/${status}?${param.toString()}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/${status}?${param.toString()}`, undefined, { websiteKey });
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
                 if (newPost.length < 10) setHasMore(false);
@@ -81,7 +81,7 @@ const ContributorAllPost = () => {
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey });
 
             // console.log(resp);
             if (resp.status === 200 || resp.status === 201) {
@@ -112,8 +112,8 @@ const ContributorAllPost = () => {
 
 
     useEffect(() => {
-        if (hasMore && user.role) fetchPosts(lastId);
-    }, [page, hasMore]);
+        if (hasMore && websiteKey) fetchPosts(lastId);
+    }, [page, hasMore, websiteKey]);
 
     useEffect(() => {
         if (user.role) {
@@ -130,8 +130,8 @@ const ContributorAllPost = () => {
     }, [postData]);
 
     useEffect(() => {
-        fetchCategory();
-    }, [])
+        if (websiteKey) fetchCategory();
+    }, [websiteKey])
 
     return (
         <div>
