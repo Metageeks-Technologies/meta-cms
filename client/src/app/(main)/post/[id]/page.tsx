@@ -342,12 +342,7 @@ const page = () => {
                                             <div className='flex flex-row items-center text-nowrap text-white'> <FaHeart className='mr-1' />  Likes : {post.likesCount}</div>
                                         </div>
                                     </div>
-
-                                    {
-                                        post?.website &&
-                                        <p className='-mt-5'>This post for {post?.website.toUpperCase()}</p>
-                                    }
-
+                                    
                                     <img src={getURL(post?.previewImageKey)} className='w-full object-contain' />
                                     {/* <img src={"/blogImg.png"} className='w-full object-contain' /> */}
                                     <div className="tinymce-content" id='postContent' dangerouslySetInnerHTML={{ __html: post?.description }}></div>
