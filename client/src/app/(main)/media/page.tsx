@@ -47,18 +47,18 @@ const page = () => {
 
     useEffect(() => {
         if (hasMoreMedia && websiteKey) fetchMedia(lastId);
-    }, [page, websiteKey]);
+    }, [page]);
 
     useEffect(() => {
         setLastId(media?.[media.length - 1]?._id || null);
     }, [media]);
 
-    // useEffect(() => {
-    //     if (websiteKey) {
-    //         fetchMedia();
-    //     }
-    // }, [websiteKey])
-
+    useEffect(() => {
+        if(websiteKey){
+            setMedia([]);
+            fetchMedia();
+        }
+    }, [websiteKey]);
 
 
     return (

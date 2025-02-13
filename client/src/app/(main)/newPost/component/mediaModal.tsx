@@ -36,7 +36,6 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
 
 
       if (resp.status === 200 || resp.status === 201) {
-        setMedia([]);
         uploadToS3(websiteKey, resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS, fetchMedia);
 
       } else {
@@ -97,6 +96,13 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
       }
     };
   }, [media, hasMoreMedia, isFetching]);
+
+  useEffect(() => {
+    if(websiteKey){
+      setMedia([]);
+      fetchMedia();
+    } 
+  }, [websiteKey])
 
 
   return (

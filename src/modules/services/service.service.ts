@@ -80,7 +80,7 @@ export class ServiceService {
 
     const query = await this.Service.updateOne(
       { _id: serviceId, websiteKey },
-      { isDeleted: true },
+      { isDeleted: false },
     );
 
     if (query.matchedCount === 0) {
