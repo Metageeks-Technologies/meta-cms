@@ -118,11 +118,7 @@ const AddCategory = () => {
                 if (resp.status === 200 || resp.status === 201) {
                     const uploadUrl = resp?.data?.uploadUrl;
                     const key = resp?.data?.key;
-
-                    // Upload the file to S3
                     await axios.put(uploadUrl, file);
-
-                    // After uploading, update the state with the image key
                     setImageKey(key);
                 } else {
                     toast.error(resp.data.message, {

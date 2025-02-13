@@ -8,10 +8,13 @@ import axios from 'axios';
 import { list } from 'postcss';
 import { INITIAL_PAGE_CONTENT, PageService, PageSubService } from '@/constant/page';
 import { Card, Feature, PageContent } from '@/types';
+import { userRoles } from '@/constant/user';
+import AddNewService from './components/AddNewService';
+import AddNewSubService from './components/AddNewSubService';
 
 
 const CreatePage = () => {
-    const { setLoading, websiteKey } = useUserContext();
+    const { setLoading, websiteKey, user } = useUserContext();
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
     const [subServiceArr, setSubServiceArr] = useState<any>([]);
     const [keywordValue, setKeywordValue] = useState('');
@@ -558,37 +561,49 @@ const CreatePage = () => {
 
 
                 <div className='flex flex-row gap-5 items-center'>
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Service</span>
-                        <select onChange={handleSelectService} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
-                            <option value="">--Select service--</option>
-                            {
-                                PageService.map((service, index) => (
-                                    <option key={index} value={service.key}>{service.title}</option>
-                                ))
-                            }
-                        </select>
-                    </label>
+                    <div className='w-full flex flex-row gap-2 items-end mb-5'>
+                        <label className="w-full flex flex-col gap-2">
+                            <span>Service</span>
+                            <select onChange={handleSelectService} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
+                                <option value="">--Select service--</option>
+                                {
+                                    PageService.map((service, index) => (
+                                        <option key={index} value={service.key}>{service.title}</option>
+                                    ))
+                                }
+                            </select>
+                        </label>
+                        {
+                            (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) &&
+                            <AddNewService />
+                        }
+                    </div>
 
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Sub Service</span>
-                        <select
-                            name=""
-                            id="subService"
-                            value={formData.subService}
-                            onChange={(e) => setFormData((prev) => ({ ...prev, subService: e.target.value }))}
-                            className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none"
-                            disabled={formData.service === "" ? true : false}
-                            required
-                        >
-                            <option value="">--Select sub service--</option>
-                            {
-                                subServiceArr.map((service: any, index: any) => (
-                                    <option key={index} value={service.key}>{service.title}</option>
-                                ))
-                            }
-                        </select>
-                    </label>
+                    <div className='w-full flex flex-row gap-2 items-end mb-5'>
+                        <label className="w-full flex flex-col gap-2">
+                            <span>Sub Service</span>
+                            <select
+                                name=""
+                                id="subService"
+                                value={formData.subService}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, subService: e.target.value }))}
+                                className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none"
+                                disabled={formData.service === "" ? true : false}
+                                required
+                            >
+                                <option value="">--Select sub service--</option>
+                                {
+                                    subServiceArr.map((service: any, index: any) => (
+                                        <option key={index} value={service.key}>{service.title}</option>
+                                    ))
+                                }
+                            </select>
+                        </label>
+                        {
+                            (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) && formData.service &&
+                            <AddNewSubService />
+                        }
+                    </div>
                 </div>
 
                 <label className="block text-white mb-5">

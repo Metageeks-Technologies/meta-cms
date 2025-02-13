@@ -266,21 +266,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const blockUser = async (userId: string,role:string) => {
+    const blockUser = async (userId: string, role: string) => {
         setLoading(true);
         try {
-            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/block/${userId}` ,undefined, {websiteKey: websiteKey});
-
+            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/block/${userId}`, undefined, { websiteKey: websiteKey });
+    
             if (response.status === 200) {
-                toast.success(response.data.message);
-                if(role===userRoles.ADMIN) await fetchAdmins();
-                if(role === userRoles.CONTRIBUTOR) await fetchUsers(userRoles.CONTRIBUTOR);
-                if(role === userRoles.MODERATOR) await fetchUsers(userRoles.MODERATOR);
-                if(role === userRoles.SUBSCRIBER) await fetchUsers(userRoles.SUBSCRIBER);
-                if(role === StoreRole.USER) await fetchStoreRole(StoreRole.USER);
-                if(role === StoreRole.VENDOR) await fetchStoreRole(StoreRole.VENDOR);
-                if(role === StoreRole.STOREMODERATOR) await fetchStoreRole(StoreRole.STOREMODERATOR);
-                // Refresh the 
+                toast.success(response.data.message);     
+                if (role === userRoles.ADMIN) {
+                    await fetchAdmins();
+                } else if (role === userRoles.CONTRIBUTOR) {
+                    await fetchUsers(userRoles.CONTRIBUTOR);
+                } else if (role === userRoles.MODERATOR) {
+                    await fetchUsers(userRoles.MODERATOR);
+                } else if (role === userRoles.SUBSCRIBER) {
+                    await fetchUsers(userRoles.SUBSCRIBER);
+                } else if (role === StoreRole.USER) {
+                    await fetchStoreRole(StoreRole.USER);
+                } else if (role === StoreRole.VENDOR) {
+                    await fetchStoreRole(StoreRole.VENDOR);
+                } else if (role === StoreRole.STOREMODERATOR) {
+                    await fetchStoreRole(StoreRole.STOREMODERATOR);
+                }
             } else {
                 throw new Error(response.data.message);
             }
@@ -290,21 +297,30 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+    
 
-    const unblockUser = async (userId: string,role:string) => {
+    const unblockUser = async (userId: string, role: string) => {
         setLoading(true);
         try {
-            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/unBlock/${userId}`, undefined, {websiteKey: websiteKey});
-
+            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/unBlock/${userId}`, undefined, { websiteKey: websiteKey });
+    
             if (response.status === 200) {
                 toast.success(response.data.message);
-                if(role===userRoles.ADMIN) await fetchAdmins();
-                if(role === userRoles.CONTRIBUTOR) await fetchUsers(userRoles.CONTRIBUTOR);
-                if(role === userRoles.MODERATOR) await fetchUsers(userRoles.MODERATOR);
-                if(role === userRoles.SUBSCRIBER) await fetchUsers(userRoles.SUBSCRIBER);
-                if(role === StoreRole.USER) await fetchStoreRole(StoreRole.USER);
-                if(role === StoreRole.VENDOR) await fetchStoreRole(StoreRole.VENDOR);
-                if(role === StoreRole.STOREMODERATOR) await fetchStoreRole(StoreRole.STOREMODERATOR);
+                if (role === userRoles.ADMIN) {
+                    await fetchAdmins();
+                } else if (role === userRoles.CONTRIBUTOR) {
+                    await fetchUsers(userRoles.CONTRIBUTOR);
+                } else if (role === userRoles.MODERATOR) {
+                    await fetchUsers(userRoles.MODERATOR);
+                } else if (role === userRoles.SUBSCRIBER) {
+                    await fetchUsers(userRoles.SUBSCRIBER);
+                } else if (role === StoreRole.USER) {
+                    await fetchStoreRole(StoreRole.USER);
+                } else if (role === StoreRole.VENDOR) {
+                    await fetchStoreRole(StoreRole.VENDOR);
+                } else if (role === StoreRole.STOREMODERATOR) {
+                    await fetchStoreRole(StoreRole.STOREMODERATOR);
+                }
             } else {
                 throw new Error(response.data.message);
             }
@@ -314,6 +330,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+    
 
 
     useEffect(() => {
@@ -367,7 +384,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 };
 
-// Custom Hook
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (!context) {

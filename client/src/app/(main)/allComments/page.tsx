@@ -14,6 +14,10 @@ const CommentsPage: React.FC = () => {
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingMessage, setEditingMessage] = useState<string>('');
 
+
+        const { loading, user, websiteKey } = useUserContext();
+    
+
     const fetchComments = async (status: string, lastId: string | null) => {
         setLoading(true);
         try {
@@ -24,7 +28,8 @@ const CommentsPage: React.FC = () => {
                 'deleted': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-deleted${lastId ? `?lastId=${lastId}` : ''}`
             };
 
-            const resp = await axiosCall('get', endpointMap[status]);
+    const resp = await axiosCall('get', endpointMap[status], undefined,  { websiteKey } );
+
 
             if (Array.isArray(resp.data)) {
                 if (lastId) {
@@ -52,6 +57,14 @@ const CommentsPage: React.FC = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (websiteKey) {
+            fetchComments(filter, null);
+        } else {
+            console.log('Website key is not available');
+        }
+    }, [filter, websiteKey]);
 
     useEffect(() => {
         setLastCommentId(null); // Reset lastCommentId for new fetch

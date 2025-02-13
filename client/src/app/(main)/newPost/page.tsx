@@ -36,9 +36,6 @@ const App: React.FC = () => {
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [keywordValue, setKeywordValue] = useState('');
 
-
-  console.log(formData, "new post form data")
-
   // Fetch categories
   const fetchCategory = async () => {
     setLoading(true);

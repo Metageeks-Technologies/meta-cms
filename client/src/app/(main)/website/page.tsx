@@ -105,16 +105,6 @@ const columns = [
                           </DropdownMenuItem>
                         </AlertDialogTrigger>
                     }
-
-                    <DialogTrigger asChild>
-                      <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                        <MdOutlineUpdate />
-                        Update website
-                      </DropdownMenuItem>
-                    </DialogTrigger>
-
-
-
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
@@ -189,9 +179,7 @@ const columns = [
 
 function Category() {
   const [sorting, setSorting] = useState<SortingState>([])
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
-  // const [rowSelection, setRowSelection] = React.useState({})
+
 
   const { user }: any = useUserContext();
   const { websiteData, fetchWebsiteData } = useWebsiteContext()
@@ -201,18 +189,13 @@ function Category() {
     data: websiteData,
     columns,
     onSortingChange: setSorting,
-    // onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
-    // onRowSelectionChange: setRowSelection,
+  
     state: {
       sorting,
-      // columnFilters,
-      // columnVisibility,
-      // rowSelection,
     },
   });
 
@@ -236,10 +219,10 @@ function Category() {
             className="max-w-sm border-[1px] border-gray-800 text-base"
           />
 
-          {
+          {/* {
             user?.role === userRoles.SUPERADMIN &&
             <AddWebsite />
-          }
+          } */}
 
         </div>
       </div>

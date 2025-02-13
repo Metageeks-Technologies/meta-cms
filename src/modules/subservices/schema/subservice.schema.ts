@@ -1,22 +1,38 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
-@Schema({ timestamps: true })
-export class Subservice extends Document {
-  @Prop({ required: true })
+
+
+export interface ISubservice {
   name: string;
-
-  @Prop({ required: true })
   description: string;
-
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Service' })
-  serviceId: string;  // Reference to the parent service
-
-  @Prop({ type: String, ref: 'User', required: true })  
+  service: mongoose.Types.ObjectId;
   websiteKey: string;
-
-  @Prop({ type: Date, default: null })  // Soft delete timestamp
-  deletedAt: Date;
+  isDeleted: boolean;
 }
 
-export const SubserviceSchema = SchemaFactory.createForClass(Subservice);
+
+export const SubserviceSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  service: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Service",
+    required: true
+  },
+  websiteKey: {
+    type: String,
+    required: true,
+  },
+  isDeleted: {
+    type: Boolean,
+    required: true,
+    default: true
+  }
+}, { timestamps: true });

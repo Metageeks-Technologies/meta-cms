@@ -130,11 +130,11 @@ export const items: MenuItem[] = [
     url: "/allComments",
     icon: MdOutlineComment
   },
-  {
-    title: "Subscribers",
-    url: "/subscribers",
-    icon: UsersRound,
-  },
+  // {
+  //   title: "Subscribers",
+  //   url: "/subscribers",
+  //   icon: UsersRound,
+  // },
   {
     title: "Contributor",
     url: "/contributor",
@@ -183,7 +183,7 @@ export const headerData = {
   vendor: "Vendors",
   storeModerator: "Store Moderator",
   allComments: "All Comments",
-  subscribers: "Subscribers",
+  // subscribers: "Subscribers",
   contributor: "Contributor",
   moderator: "Moderator",
   media: "Media",

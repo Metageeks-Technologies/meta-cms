@@ -42,7 +42,7 @@ const CreateCaseStudy = () => {
             ...prev,
             content: {
                 ...prev.content,
-                about: {
+                aboutSection: {
                     ...prev.content.aboutSection,
                     aboutCards: [...prev.content.aboutSection.aboutCards, newCard]
                 }
@@ -59,7 +59,7 @@ const CreateCaseStudy = () => {
             ...prev,
             content: {
                 ...prev.content,
-                challange: {
+                challengesSection: {
                     ...prev.content.challengesSection,
                     StudyChallangeList: [...prev.content.challengesSection.StudyChallangeList, newCard]
                 }
@@ -82,7 +82,7 @@ const CreateCaseStudy = () => {
                 ...prev,
                 content: {
                     ...prev.content,
-                    about: {
+                    aboutSection: {
                         ...prev.content.aboutSection,
                         aboutCards: updatedCards,  // Correctly update aboutCards
                     },
@@ -110,7 +110,7 @@ const CreateCaseStudy = () => {
                 ...prev,
                 content: {
                     ...prev.content,
-                    challange: {
+                    challengesSection: {
                         ...prev.content.challengesSection,
                         StudyChallangeList: updatedCards,  // Correctly update StudyChallangeList
                     },
@@ -283,14 +283,14 @@ const CreateCaseStudy = () => {
 
     const handleCardChange = (
         index: number,
-        section: 'about' | 'processSection' | 'challange',
+        section: 'aboutSection' | 'processSection' | 'challengesSection',
         field: 'heading' | 'description' | 'list',
         value: string
     ) => {
         let updatedCards: any;
         let updatedList: any;
 
-        if (section === 'about') {
+        if (section === 'aboutSection') {
             // Handling the `aboutCards` array inside `about`
             updatedCards = [...formData.content.aboutSection.aboutCards];
             updatedCards[index] = {
@@ -301,7 +301,7 @@ const CreateCaseStudy = () => {
                 ...prev,
                 content: {
                     ...prev.content,
-                    about: {
+                    aboutSection: {
                         ...prev.content.aboutSection,
                         aboutCards: updatedCards
                     }
@@ -334,7 +334,7 @@ const CreateCaseStudy = () => {
                     }
                 }
             }));
-        }  else if (section === 'challange') {
+        }  else if (section === 'challengesSection') {
             updatedList = [...formData.content.challengesSection.StudyChallangeList];
             updatedList[index] = {
                 ...updatedList[index],
@@ -525,7 +525,7 @@ const CreateCaseStudy = () => {
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Heading"
                                         value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'about', 'heading', e.target.value)}
+                                        onChange={(e) => handleCardChange(index, 'aboutSection', 'heading', e.target.value)}
                                         required
                                     />
                                 </div>
@@ -539,7 +539,7 @@ const CreateCaseStudy = () => {
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Description"
                                         value={card.description}
-                                        onChange={(e) => handleCardChange(index, 'about', 'description', e.target.value)}
+                                        onChange={(e) => handleCardChange(index, 'aboutSection', 'description', e.target.value)}
                                         rows={3}
                                         required
                                     />
@@ -851,7 +851,7 @@ const CreateCaseStudy = () => {
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Heading"
                                         value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'challange', 'heading', e.target.value)}
+                                        onChange={(e) => handleCardChange(index, 'challengesSection', 'heading', e.target.value)}
                                         required
                                     />
                                 </div>
@@ -865,7 +865,7 @@ const CreateCaseStudy = () => {
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Description"
                                         value={card.description}
-                                        onChange={(e) => handleCardChange(index, 'challange', 'description', e.target.value)}
+                                        onChange={(e) => handleCardChange(index, 'challengesSection', 'description', e.target.value)}
                                         rows={3}
                                         required
                                     />
@@ -887,7 +887,7 @@ const CreateCaseStudy = () => {
                     type="submit"
                     className="px-6 py-3 mb-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
-                    Create Page
+                    Create CaseStudy
                 </button>
 
             </form>
