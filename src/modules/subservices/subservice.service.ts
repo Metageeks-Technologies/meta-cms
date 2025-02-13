@@ -24,7 +24,12 @@ export class SubserviceService {
       throw new ConflictException('Subservice name already exists')
     }
 
-    const createdSubservice = new this.Subservice({ ...newSubservice, websiteKey: websiteKey });
+    const createdSubservice = new this.Subservice(
+      {
+        ...newSubservice,
+        key: newSubservice.name.trim().toLowerCase().replace(/\s+/g, '_'),
+        websiteKey: websiteKey
+      });
 
     await createdSubservice.save();
 
@@ -41,9 +46,11 @@ export class SubserviceService {
       throw new ConflictException('Subservice name already exists')
     }
 
+    subServiceDeatail['key'] = subServiceDeatail.name.trim().toLowerCase().replace(/\s+/g, '_');
+
     const query = await this.Subservice.updateOne({ _id: subserviceId, websiteKey }, { $set: subServiceDeatail }).exec()
 
-    if(query.matchedCount === 0){
+    if (query.matchedCount === 0) {
       throw new NotFoundException('Subservice not found');
     }
   }
@@ -98,8 +105,15 @@ export class SubserviceService {
     return subservices;
   }
 
-  async findByServiceId(serviceId: string) {
-    return this.Subservice.find({ serviceId }).exec();
+  async findByServiceId(websiteKey: string, serviceId: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey);
+    if (!website) {
+      throw new NotFoundException('Invalid website key')
+    }
+
+    const subservices = await this.Subservice.find({ websiteKey, service: serviceId }).lean().exec()
+    return subservices;
+
   }
 
 

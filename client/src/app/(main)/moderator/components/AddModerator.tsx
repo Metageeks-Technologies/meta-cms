@@ -90,8 +90,6 @@ const AddModerator = () => {
     }
 
 
-
-
     useEffect(() => {
         setCreateForm({
             name: '',
