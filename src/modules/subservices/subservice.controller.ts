@@ -27,18 +27,18 @@ export class SubserviceController {
     return subServices;
   }
 
-  @Get('all')
+  @Get('total/:id')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getallSubservice(@Headers("websiteKey") websiteKey: string) {
-    const subServices = await this.subserviceService.findAll(websiteKey)
+  async getallSubservice(@Headers("websiteKey") websiteKey: string, @Param('id', ValidateId) serviceId: string) {
+    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId)
     return subServices;
   }
 
   @Get('all/:id')
   @UseGuards(AuthGuard)
   async getallSubserviceByServiceId(@Headers("websiteKey") websiteKey: string, @Param('id', ValidateId) serviceId: string) {
-    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId);
+    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, false);
     return subServices;
   }
 

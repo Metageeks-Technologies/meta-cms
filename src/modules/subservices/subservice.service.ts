@@ -105,13 +105,19 @@ export class SubserviceService {
     return subservices;
   }
 
-  async findByServiceId(websiteKey: string, serviceId: string) {
+  async findByServiceId(websiteKey: string, serviceId: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new NotFoundException('Invalid website key')
     }
 
-    const subservices = await this.Subservice.find({ websiteKey, service: serviceId }).lean().exec()
+    const query = {websiteKey, service: serviceId}
+
+    if(isDeleted !== undefined){
+      query['isDeleted'] = isDeleted
+    }
+
+    const subservices = await this.Subservice.find(query).lean().exec()
     return subservices;
 
   }
