@@ -8,7 +8,4 @@ export class CreateServiceDto {
   @IsString()
   @IsNotEmpty()
   readonly description: string;
-
-  readonly subservices: string[];
-  
 }
