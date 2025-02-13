@@ -6,6 +6,7 @@ import mongoose, { Document } from 'mongoose';
 export interface ISubservice {
   name: string;
   description: string;
+  key: string;
   service: mongoose.Types.ObjectId;
   websiteKey: string;
   isDeleted: boolean;
@@ -18,6 +19,10 @@ export const SubserviceSchema = new mongoose.Schema({
     required: true,
   },
   description: {
+    type: String,
+    required: true,
+  },
+  key: {
     type: String,
     required: true,
   },

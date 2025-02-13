@@ -27,6 +27,7 @@ export class ServiceService {
 
     const createdService = new this.Service({
       ...newService,
+      key: newService.name.trim().toLowerCase().replace(/\s+/g, '_'),
       websiteKey: websiteKey
     });
 
@@ -43,6 +44,8 @@ export class ServiceService {
     if (service) {
       throw new ConflictException('Service name already exists');
     }
+
+    serviceDetails['key'] = serviceDetails.name.trim().toLowerCase().replace(/\s+/g, '_');
 
     const query = await this.Service.updateOne({ _id: serviceId, websiteKey }, { $set: { ...serviceDetails } });
 
@@ -117,6 +120,5 @@ export class ServiceService {
     const service = this.Service.findOne({ websiteKey, name }).exec();
     return service;
   }
-
 
 }

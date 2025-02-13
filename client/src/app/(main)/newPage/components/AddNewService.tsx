@@ -13,13 +13,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
-import { usePostContext } from '@/context/postContext'
 import { useUserContext } from '@/context/userContext'
-import { uploadToS3 } from '@/utils/helperFunction'
-import { getURL } from '@/utils/AWS_Config'
-import axios from 'axios'
 
-const AddNewService = () => {
+
+const AddNewService = ({fetchServices}: any) => {
 
     const [isOpen, setIsOpen] = useState(false);
     const { websiteKey, user, setLoading } = useUserContext();
@@ -27,15 +24,30 @@ const AddNewService = () => {
     const [createForm, setCreateForm] = useState<any>({
         name: '',
         description: '',
-        bannerImageKey: '',
     });
 
-   
-    const handleSubmit = (e: any) => {
+
+    const handleSubmit = async (e: any) => {
+        e.stopPropagation();
         e.preventDefault();
+        
         setLoading(true);
         try {
-            
+            const payload = { ...createForm }
+
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/services`, payload, { websiteKey: websiteKey });
+
+            if (resp?.status === 200 || resp?.status === 201) {
+                toast.success('Service add successfully!', { duration: 2000 });
+                fetchServices();
+                setCreateForm({
+                    name: '',
+                    description: '',
+                });
+                setIsOpen(false);
+            } else {
+                toast.error(resp?.data?.message || 'Error in add new service', { duration: 2000 });
+            }
         } catch (error) {
             console.log("Error in creating service : ", error);
         } finally {
@@ -48,7 +60,7 @@ const AddNewService = () => {
         <div>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="default" className='text-nowrap bg-blue-600 py-5 px-2 rounded-lg'>Add new </Button>
+                    <Button variant="default" className='text-nowrap bg-blue-600 hover:bg-blue-700 py-5 px-2 rounded-lg'>Add new </Button>
                 </DialogTrigger>
 
                 <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">

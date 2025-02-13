@@ -16,8 +16,10 @@ import AddNewSubService from './components/AddNewSubService';
 const CreatePage = () => {
     const { setLoading, websiteKey, user } = useUserContext();
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
-    const [subServiceArr, setSubServiceArr] = useState<any>([]);
     const [keywordValue, setKeywordValue] = useState('');
+    const [services, setServices] = useState([]);
+    const [subServices, setSubservices] = useState([]); 
+    const [selectedService, setSeletedSubService] = useState<any>('');
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -385,19 +387,11 @@ const CreatePage = () => {
 
     const handleSelectService = (e: any) => {
         const { value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            service: value,
-            subService: ""
-        }));
-
-        if (!value) {
-            setSubServiceArr([]);
-            return
-        }
-
-        setSubServiceArr(PageSubService[value as keyof typeof PageSubService]);
+        setFormData((prev) => ({...prev, service: value}));
+        
+        services.forEach((service: any) => {
+            if(service.key === value) setSeletedSubService(service)
+        })  
     }
 
 
@@ -527,6 +521,48 @@ const CreatePage = () => {
     }, [websiteKey]);
 
 
+    const fetchServices = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/services`, undefined, { websiteKey: websiteKey });
+
+            if (resp?.status === 200 || resp?.status === 201) {
+               setServices(resp?.data);
+            } else {
+                toast.error(resp?.data?.message || 'Error in add new service', { duration: 2000 });
+            }
+        } catch (error) {
+            console.log("Error in fetching services");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchSubServices = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/all/${selectedService._id}`, undefined, { websiteKey: websiteKey });
+
+            if (resp?.status === 200 || resp?.status === 201) {
+                setSubservices(resp?.data);
+            } else {
+                toast.error(resp?.data?.message || 'Error in add new service', { duration: 2000 });
+            }
+        } catch (error) {
+            console.log("Error in fetching subservice : ", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if(websiteKey) fetchServices();
+    }, [websiteKey]);
+
+    useEffect(() => {
+        if(selectedService._id && websiteKey) fetchSubServices();
+    }, [selectedService]);
+
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
             <form onSubmit={handleSubmit}>
@@ -567,15 +603,15 @@ const CreatePage = () => {
                             <select onChange={handleSelectService} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
                                 <option value="">--Select service--</option>
                                 {
-                                    PageService.map((service, index) => (
-                                        <option key={index} value={service.key}>{service.title}</option>
+                                    services.map((service: any, index: any) => (
+                                        <option key={index} value={service.key}>{service.name}</option>
                                     ))
                                 }
                             </select>
                         </label>
                         {
                             (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) &&
-                            <AddNewService />
+                            <AddNewService fetchServices={fetchServices}/>
                         }
                     </div>
 
@@ -593,15 +629,15 @@ const CreatePage = () => {
                             >
                                 <option value="">--Select sub service--</option>
                                 {
-                                    subServiceArr.map((service: any, index: any) => (
-                                        <option key={index} value={service.key}>{service.title}</option>
+                                    subServices.map((service: any, index: any) => (
+                                        <option key={index} value={service?.key}>{service?.name}</option>
                                     ))
                                 }
                             </select>
                         </label>
                         {
                             (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) && formData.service &&
-                            <AddNewSubService />
+                            <AddNewSubService fetchSubServices={fetchSubServices} serviceId={selectedService?._id}/>
                         }
                     </div>
                 </div>
