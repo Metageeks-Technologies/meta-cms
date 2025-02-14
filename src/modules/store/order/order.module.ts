@@ -7,6 +7,8 @@ import { CartModule } from "../cart/cart.module";
 import { UsersModule } from "src/modules/users/users.module";
 import { ProductModule } from "../product/product.module";
 import { PaymentModule } from "../payment/payment.module";
+import { WebsiteService } from "src/modules/website/website.service";
+import { WebsiteModule } from "src/modules/website/website.module";
 
 
 
@@ -16,7 +18,8 @@ import { PaymentModule } from "../payment/payment.module";
         ProductModule,
         CartModule,
         UsersModule,
-        PaymentModule
+        PaymentModule,
+        WebsiteModule
     ],
     controllers: [OrderController],
     providers: [OrderService],

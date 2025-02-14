@@ -5,12 +5,14 @@ import { RedisModule } from '../../redis/redis.module';
 import { ProductCategorySchema } from './schema/productCategory.schema';
 import { ProductCategoriesController } from './productCategories.controller';
 import { ProductCategoriesService } from './productCategories.service';
+import { WebsiteModule } from 'src/modules/website/website.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'ProductCategory', schema: ProductCategorySchema }]),
     UsersModule,
     RedisModule,
+    WebsiteModule
   ],
   controllers: [ProductCategoriesController],
   providers: [ProductCategoriesService],

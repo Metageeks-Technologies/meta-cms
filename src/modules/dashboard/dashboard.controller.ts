@@ -32,7 +32,7 @@ export class DashboardController {
   @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, StoreRolesGuard)
   async getStoreAdminDashboard(@Headers('websiteKey') websiteKey: string) {
-    const dashboardData = await this.dashboardService.getStoreAdminData();
+    const dashboardData = await this.dashboardService.getStoreAdminData(websiteKey);
     return dashboardData;
   }
 
@@ -42,7 +42,7 @@ export class DashboardController {
   @UseGuards(AuthGuard, StoreRolesGuard)
   async getStoreVendorDashboard(@Headers('websiteKey') websiteKey: string, @Req() req: Request) {
     const user = (req as any).user;
-    const dashboardData = await this.dashboardService.getStoreVendorData(user._id);
+    const dashboardData = await this.dashboardService.getStoreVendorData(websiteKey, user._id);
     return dashboardData;
   }
 }

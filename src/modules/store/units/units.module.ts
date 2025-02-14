@@ -4,13 +4,15 @@ import { UnitService } from "./units.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { UnitSchema } from "./schema/unit.schema";
 import { RedisModule } from "src/modules/redis/redis.module";
+import { WebsiteModule } from "src/modules/website/website.module";
 
 
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: 'Unit', schema: UnitSchema}]),
-        RedisModule
+        RedisModule,
+        WebsiteModule
     ],
     controllers: [UnitController],
     providers: [UnitService]

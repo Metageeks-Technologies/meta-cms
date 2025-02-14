@@ -1,16 +1,17 @@
 import mongoose from "mongoose";
 
 export interface ICartItem {
-    product: mongoose.Types.ObjectId; 
-    variantId: string; 
+    product: mongoose.Types.ObjectId;
+    variantId: string;
     sku: string;
-    quantity: number; 
+    quantity: number;
 }
 
 export interface ICart {
-    user: mongoose.Types.ObjectId; 
-    items: ICartItem[]; 
-    isActive: boolean; 
+    user: mongoose.Types.ObjectId;
+    items: ICartItem[];
+    websiteKey: string;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -57,6 +58,10 @@ export const CartSchema = new mongoose.Schema(
                 },
                 message: "Duplicate product and variant combinations are not allowed in the cart.",
             },
+        },
+        websiteKey: {
+            type: String,
+            required: true
         },
         isActive: {
             type: Boolean,

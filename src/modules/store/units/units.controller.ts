@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
 import { UnitService } from "./units.service";
-import { StoreRolesGuard } from "src/modules/auth/role.guard";
-import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { RolesGuard, StoreRolesGuard } from "src/modules/auth/role.guard";
+import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
 import { AuthGuard } from "src/modules/auth/auth.guard";
-import { AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
+import { AllowedRoles, AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
 import { CreateUnitDto } from "./dto/create-unit-dto";
 import { UpdateUnitDto } from "./dto/update-unit-dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
@@ -15,50 +15,62 @@ export class UnitController {
     constructor(private readonly unitService: UnitService) { }
 
     @Post()
-    @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
-    @UseGuards(AuthGuard, StoreRolesGuard)
-    async createUnit(@Body() unitDetails: CreateUnitDto) {
-        await this.unitService.create(unitDetails);
+    @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
+    async createUnit(
+        @Headers('websiteKey') websiteKey: string,
+        @Body() unitDetails: CreateUnitDto
+    ) {
+        await this.unitService.create(websiteKey, unitDetails);
         return { message: "Unit create successfully" }
     }
 
 
     @Patch(':id')
-    @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
-    @UseGuards(AuthGuard, StoreRolesGuard)
-    async updateUnit(@Param('id', ValidateId) unitId: string, @Body() unitsDetails: UpdateUnitDto) {
-        await this.unitService.updateById(unitId, unitsDetails)
+    @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
+    async updateUnit(
+        @Headers('websiteKey') websiteKey: string,
+        @Param('id', ValidateId) unitId: string,
+        @Body() unitsDetails: UpdateUnitDto
+    ) {
+        await this.unitService.updateById(websiteKey, unitId, unitsDetails)
         return { message: "Unit updated successfully" }
     }
 
     @Get()
     @UseGuards(AuthGuard)
-    async getUnits() {
-        const units = await this.unitService.getAll(false);
+    async getUnits(@Headers('websiteKey') websiteKey: string) {
+        const units = await this.unitService.getAll(websiteKey, false);
         return units;
     }
 
     @Get('all')
     @UseGuards(AuthGuard)
-    async getAllUnits() {
-        const units = await this.unitService.getAll();
+    async getAllUnits(@Headers('websiteKey') websiteKey: string) {
+        const units = await this.unitService.getAll(websiteKey);
         return units;
     }
 
     @Delete(':id')
     @UseGuards(AuthGuard)
-    async deleteUnit(@Param('id', ValidateId) unitId: string) {
-        await this.unitService.deleteUnit(unitId);
+    async deleteUnit(
+        @Headers('websiteKey') websiteKey: string,
+        @Param('id', ValidateId) unitId: string
+    ) {
+        await this.unitService.deleteUnit(websiteKey, unitId);
         return { message: "Unit delete succesfully" }
     }
 
     @Patch('recover/:id')
-    @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
-    @UseGuards(AuthGuard, StoreRolesGuard)
-    async recoverUnit(@Param('id', ValidateId) unitId: string) {
-        await this.unitService.recoverUnit(unitId);
+    @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
+    async recoverUnit(
+        @Headers('websiteKey') websiteKey: string,
+        @Param('id', ValidateId) unitId: string
+    ) {
+        await this.unitService.recoverUnit(websiteKey, unitId);
         return { message: "Unit recover successfully" }
     }
-
 
 }

@@ -55,7 +55,7 @@ export class SubserviceController {
   @UseGuards(AuthGuard, RolesGuard)
   async recover(@Headers("websiteKey") websiteKey: string, @Param('id', ValidateId) id: string) {
     await this.subserviceService.recoverSubservice(websiteKey, id);
-    return { message: "Delete successfully" }
+    return { message: "Recover successfully" }
   }
 
   @Put(':id')
