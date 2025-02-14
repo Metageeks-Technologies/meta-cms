@@ -9,6 +9,7 @@ export enum CommentStatusEnum {
 export interface IComment extends mongoose.Document {
     userId : mongoose.Schema.Types.ObjectId,
     postId: mongoose.Schema.Types.ObjectId,
+    websiteKey: string,
     message: string,
     status: CommentStatusEnum,
     isDeleted: boolean,
@@ -24,6 +25,10 @@ export const CommentSchema = new mongoose.Schema({
     postId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
+        required: true,
+    },
+    websiteKey: {
+        type: String,
         required: true,
     },
     message: {

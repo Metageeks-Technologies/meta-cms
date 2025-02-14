@@ -45,8 +45,8 @@ export class UsersController {
 
   @Get('bookmarks')
   @UseGuards(AuthGuard)
-  async getUserBookmarks(@Req() req: Request, @Query() query: GetUserBookmarksQueryDto) {
-    const bookmarks = await this.usersService.getUserBookmarks((req as any).user._id, query);
+  async getUserBookmarks(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Query() query: GetUserBookmarksQueryDto) {
+    const bookmarks = await this.usersService.getUserBookmarks(websiteKey, (req as any).user._id, query);
     return bookmarks;
   }
 

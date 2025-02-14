@@ -78,6 +78,8 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
     }
   };
 
+
+  
   useEffect(() => {
     // Initial fetch when the component mounts
     fetchMoreMedia();
@@ -96,6 +98,7 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
       }
     };
   }, [media, hasMoreMedia, isFetching]);
+
 
   useEffect(() => {
     if(websiteKey){

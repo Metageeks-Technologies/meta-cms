@@ -193,9 +193,15 @@ export class UsersService {
     }
   }
 
-  async getUserBookmarks(userId: string, query: GetUserBookmarksQueryDto) {
+  async getUserBookmarks(websiteKey: string, userId: string, query: GetUserBookmarksQueryDto) {
     // Assuming userId is valid and verified by JWT
-    const bookmarks = await this.bookmarksService.getUserBookmarks(userId, query);
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey)
+    if(!website){
+      throw new BadRequestException('Invalid website key')
+    }
+
+    const bookmarks = await this.bookmarksService.getUserBookmarks(websiteKey, userId, query);
     return bookmarks;
   }
 

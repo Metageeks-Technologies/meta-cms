@@ -8,9 +8,9 @@ import { ILike } from './schema/like.schema';
 export class LikesService {
   constructor(@InjectModel('Like') private Like: Model<ILike>) { }
 
-  async createLike(postId: string, userId: string) {
+  async createLike(websiteKey: string, postId: string, userId: string) {
     // Assumes postId & userId exist and already verified by the caller
-    const newLike = new this.Like({ userId, postId });
+    const newLike = new this.Like({ userId, postId, websiteKey });
     try {
       await newLike.save();
     } catch(error) {
@@ -24,13 +24,14 @@ export class LikesService {
     }
   }
 
-  async removeLike(postId: string, userId: string) {
+  async removeLike(websiteKey: string, postId: string, userId: string) {
     // No need to validate for postId and userId here
     // If they are valid and their corresponding like exists, we'll delete it
     // If their corresponding like does not exist, or even if they are invalid, a not found exception is thrown
     const query = await this.Like.deleteOne({ 
       userId: userId,
-      postId: postId
+      postId: postId,
+      websiteKey
     }).exec();
 
     if(query.deletedCount == 0){
@@ -38,11 +39,11 @@ export class LikesService {
     }
   }
 
-  async isPostLikedByUser(postId: string, userId: string) {
+  async isPostLikedByUser(websiteKey: string, postId: string, userId: string) {
     // No need to validate for postId and userId here
     // If they are valid and their corresponding like exists, we'll delete it
     // If their corresponding like does not exist, or even if they are invalid, a not found exception is thrown
-    const like = await this.Like.findOne({ postId: postId, userId: userId }, { _id: 1}).lean().exec();
+    const like = await this.Like.findOne({ postId: postId, userId: userId, websiteKey }, { _id: 1}).lean().exec();
     if(like)
       return true;
     else

@@ -4,6 +4,7 @@ export interface IBookmark extends mongoose.Document {
   _id: string;
   userId: string;
   postId: string;
+  websiteKey: string;
 }
 
 export const BookmarkSchema = new mongoose.Schema({
@@ -17,6 +18,10 @@ export const BookmarkSchema = new mongoose.Schema({
     ref: 'Post',
     required: true,
   },
+  websiteKey: {
+    type: String,
+    required: true
+  }
 }, { timestamps: true });
 
 BookmarkSchema.index( { userId: 1, postId: 1 }, { unique: true } );
