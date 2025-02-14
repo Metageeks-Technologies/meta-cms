@@ -294,284 +294,315 @@ const ProductCard: React.FC = () => {
   const stockStatus = selectedVariant?.quantity > 0 ? "In Stock" : "Out of Stock";
 
   return (
-    <div className="text-gray-200 p-3 sm:p-8"> <div className='my-3 flex justify-start'>
-      <ArrowLeft className='w-5 sm:w-8 h-4 sm:h-8 cursor-pointer' onClick={() => router.push('/store/allProduct')} />
-
-    </div>
-      <div className="flex flex-col sm:flex-row gap-8">
-        {/* Image Section */}
-        <div className="flex flex-col w-full sm:w-1/2 pr-4">
-          <div className="w-full overflow-hidden rounded-lg relative">
-            <img alt="Product" loading="lazy" width="400" height="600"
-              src={getURL(selectedImage)}
-              className="w-[95%] h-[500px] object-cover rounded-lg shadow-lg"
-            />
-          </div>
-
-          {/* Thumbnails */}
-          <div className="flex mt-4 space-x-2">
-            {selectedVariant?.imageKeys.map((image: string, index: number) => (
+      <div className="text-gray-200 p-3 sm:p-8">
+          <div className="my-3">
               <button
-                key={index}
-                onClick={() => setSelectedImage(image)}
-                className={`w-16 h-16 border rounded-md ${selectedImage === image ? "border-blue-500" : "border-gray-300"}`}
+                  onClick={() => router.push('/store/allProduct')}
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
               >
-                <img
-                  src={getURL(image)}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover rounded-md"
-                />
+                  <ArrowLeft className="w-5 sm:w-6 h-5 sm:h-6" />
+                  <span>Back to Products</span>
               </button>
-            ))}
           </div>
-        </div>
 
-        {/* Product Details */}
-        <div className="w-full sm:w-1/2">
-          <div className="mt-4">
-            <div className="flex items-center justify-between">
-              <span className={`text-sm font-semibold px-3 py-1 rounded-full ${stockStatus === "In Stock" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
-                {stockStatus}
-              </span>
-            </div>
-
-            <h4 className="text-2xl font-bold mt-2">{title}</h4>
-            <p className="text-sm text-gray-500 mt-1">{subDescription}</p>
-
-            <div className="text-xl font-bold mt-2">
-              {selectedVariant?.discountedPrice ? (
-                <>
-                  <span className="line-through text-zinc-700">
-                    ₹{selectedVariant?.price}
-                  </span>{" "}
-                  <span className="text-blue-600">₹{selectedVariant?.discountedPrice}</span>
-                </>
-              ) : (
-                <span className="text-blue-600">₹{selectedVariant?.price}</span>
-              )}
-            </div>
+          <div className="flex flex-col lg:flex-row gap-4 ">
+              {/* Image Section */}
+              <div className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:max-w-lg bg-black rounded-lg shadow-sm">
 
 
-            <hr className="my-4 border-gray-800 border-t-2" />
+                  <div className="aspect-square w-full relative ">
+                      <img
+                          alt={product?.title || 'Product'}
+                          src={getURL(selectedImage)}
+                          className="absolute inset-0 w-full h-full object-contain p-4"
+                      />
+                  </div>
+              </div>
+              
+                      {/* Thumbnails */}
+                      <div className="grid grid-cols-5 gap-2 mt-3">
+                          {selectedVariant?.imageKeys.map(
+                              (image: string, index: number) => (
+                                  <button
+                                      key={index}
+                                      onClick={() => setSelectedImage(image)}
+                                      className={`w-12 h-12 bg-white rounded-lg overflow-hidden border-2 transition-all
+          ${selectedImage === image ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-300'}`}
+                                  >
+                                      <img
+                                          src={getURL(image)}
+                                          alt={`Thumbnail ${index + 1}`}
+                                          className="w-full h-full object-cover"
+                                      />
+                                  </button>
+                              ),
+                          )}
+                      </div>
+                  
 
-            {/* <div>
-              <h6 className="font-semibold mb-2">Total Quantity:</h6>
-              <span className="border rounded px-4 py-2">{selectedVariant?.quantity}</span>
-            </div> */}
-
-            {/* <hr className="my-4 border-gray-800 border-t-2" /> */}
-
-            {/* Variant Selection */}
-            {variants && variants.length > 0 && (
-              <div className="mt-8">
-                <h4 className="font-semibold text-xl">Product Variants</h4>
-                <div className="flex space-x-4 mt-4">
-                  {variants
-                    .filter((variant: any) => !variant.isDeleted)
-                    .map((variant: any, index: number) => (
-                      <button
-                        key={variant.variantId || index}
-                        onClick={() => handleVariantChange(variant)}
-                        className={`${selectedVariant?.variantId === variant.variantId
-                          ? "scale-100 border-2 border-white shadow-md"
-                          : "scale-100"
-                          } transition-all duration-200 ease-in-out transform p-2 rounded-md`}
-                      >
-                        {variant.color ? (
+              {/* Product Details */}
+              <div className="lg:w-1/2 space-y-6">
+                  <div>
+                      {/* Status Badge */}
+                      <div className="flex items-center gap-3 mb-4">
                           <span
-                            style={{ backgroundColor: variant.color }}
-                            className={`inline-block w-8 h-8 rounded-full border-2 ${selectedVariant?.variantId === variant.variantId
-                              ? "border-blue-600"
-                              : "border-yellow-400"
-                              }`}
-                          ></span>
-                        ) : null}
+                              className={`px-3 py-1 rounded-full text-sm font-medium 
+                ${stockStatus === 'In Stock' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}
+                          >
+                              {stockStatus}
+                          </span>
+                      </div>
 
-                        {variant.size && !variant.color ? (
-                          <span className="border p-2 rounded-md">{variant.size}</span>
-                        ) : null}
-                      </button>
-                    ))}
-                </div>
-              </div>
-            )}
+                      <h1 className="text-3xl font-bold text-white mb-2">
+                          {title}
+                      </h1>
+                      <p className="text-gray-400">{subDescription}</p>
+                  </div>
 
+                  {/* Price Section */}
+                  <div className="mt-4">
+                      {selectedVariant?.discountedPrice ? (
+                          <div className="flex items-baseline gap-3">
+                              <span className="text-3xl font-bold text-white">
+                                  ₹{selectedVariant.discountedPrice.toFixed(2)}
+                              </span>
+                              <span className="text-xl text-gray-500 line-through">
+                                  ₹{selectedVariant.price.toFixed(2)}
+                              </span>
+                          </div>
+                      ) : (
+                          <span className="text-3xl font-bold text-white">
+                              ₹{selectedVariant?.price.toFixed(2)}
+                          </span>
+                      )}
+                  </div>
 
-            {/* Variant Details */}
-            {selectedVariant && (
-              <div className="mt-6">
-                <ul className="space-y-2 mt-4 grid grid-cols-2 gap-x-4">
-                  <li><strong>Variant ID:</strong> {selectedVariant.variantId}</li>
-                  <li><strong>SKU:</strong> {selectedVariant.sku}</li>
-                  {selectedVariant.size && <li><strong>Size:</strong> {selectedVariant.size}</li>}
-                  {selectedVariant.color && (
-                    <li className="flex items-center">
-                      <strong className="mr-2">Color:</strong>
-                      <span
-                        style={{ backgroundColor: selectedVariant.color }}
-                        className="inline-block w-6 h-6 rounded-full border-yellow-400 mr-2"
-                      ></span>
-                    </li>
+                  {/* Variant Selection */}
+                  {variants && variants.length > 0 && (
+                      <div className="mt-8">
+                          <h4 className="font-semibold text-xl mb-4">
+                              Product Variants
+                          </h4>
+                          <div className="flex flex-wrap gap-3">
+                              {variants
+                                  .filter((variant: any) => !variant.isDeleted)
+                                  .map((variant: any, index: number) => (
+                                      <button
+                                          key={variant.variantId || index}
+                                          onClick={() =>
+                                              handleVariantChange(variant)
+                                          }
+                                          className={`relative rounded-lg transition-all ${
+                                              selectedVariant?.variantId ===
+                                              variant.variantId
+                                                  ? 'ring-2 ring-blue-500'
+                                                  : ''
+                                          }`}
+                                      >
+                                          {variant.color ? (
+                                              <span
+                                                  style={{
+                                                      backgroundColor:
+                                                          variant.color,
+                                                  }}
+                                                  className="block w-12 h-12 rounded-lg border border-gray-600"
+                                              />
+                                          ) : variant.size ? (
+                                              <span className="block w-12 h-12 rounded-lg border border-gray-600 items-center justify-center bg-gray-800">
+                                                  {variant.size}
+                                              </span>
+                                          ) : null}
+                                      </button>
+                                  ))}
+                          </div>
+                      </div>
                   )}
 
-                  <li><strong>Price:</strong> ₹{selectedVariant.price}</li>
-                  {selectedVariant?.discountedPrice && (
-                    <li><strong>Discounted Price:</strong> ₹{selectedVariant.discountedPrice}</li>
+                  {/* Variant Details */}
+                  {selectedVariant && (
+                      <div className="mt-8 p-6 bg-gray-800 rounded-xl">
+                          <h4 className="font-semibold text-xl mb-4">
+                              Variant Details
+                          </h4>
+                          <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                  <p className="text-gray-400">
+                                      Variant ID:{' '}
+                                      <span className="text-white">
+                                          {selectedVariant.variantId}
+                                      </span>
+                                  </p>
+                                  <p className="text-gray-400">
+                                      SKU:{' '}
+                                      <span className="text-white">
+                                          {selectedVariant.sku}
+                                      </span>
+                                  </p>
+                                  {selectedVariant.size && (
+                                      <p className="text-gray-400">
+                                          Size:{' '}
+                                          <span className="text-white">
+                                              {selectedVariant.size}
+                                          </span>
+                                      </p>
+                                  )}
+                                  <p className="text-gray-400">
+                                      MRP Price:{' '}
+                                      <span className="text-white ">
+                                          ₹{selectedVariant.price.toFixed(2)}
+                                      </span>
+                                  </p>
+                              </div>
+                              <div className="space-y-2">
+                                  <p className="text-gray-400">
+                                      Quantity:{' '}
+                                      <span className="text-white">
+                                          {selectedVariant.quantity}
+                                      </span>
+                                  </p>
+                                  {selectedVariant.color && (
+                                      <div className="flex items-center gap-2 text-gray-400">
+                                          Color:
+                                          <span
+                                              style={{
+                                                  backgroundColor:
+                                                      selectedVariant.color,
+                                              }}
+                                              className="w-6 h-6 rounded-full border border-gray-600"
+                                          />
+                                      </div>
+                                  )}
+                                  <p className="text-gray-400">
+                                      Discounted Price:{' '}
+                                      <span className="text-white">
+                                          ₹
+                                          {selectedVariant.discountedPrice > 0
+                                              ? selectedVariant.discountedPrice.toFixed(
+                                                    2,
+                                                )
+                                              : selectedVariant.price.toFixed(
+                                                    2,
+                                                )}
+                                      </span>
+                                  </p>
+                              </div>
+                          </div>
+
+                          <div className="flex gap-3 mt-6">
+                              <button
+                                  onClick={() =>
+                                      fetchVariantData(
+                                          selectedVariant.variantId,
+                                      )
+                                  }
+                                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-900 transition-colors"
+                              >
+                                  Edit Variant
+                              </button>
+                              <button
+                                  onClick={() =>
+                                      handleDeleteVariant(
+                                          selectedVariant.variantId,
+                                      )
+                                  }
+                                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-900 transition-colors"
+                              >
+                                  Delete Variant
+                              </button>
+                              <button
+                                  onClick={() => setIsAddModalOpen(true)}
+                                  className=" px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-900 transition-colors"
+                              >
+                                  Add Variant
+                              </button>
+                          </div>
+                      </div>
                   )}
-                  <li><strong>Quantity:</strong> {selectedVariant.quantity}</li>
-                </ul>
 
-                {/* Edit Variant Button */}
-                <button
-                  onClick={() => fetchVariantData(selectedVariant.variantId)}
-                  className="mt-4 text-white bg-blue-600 px-4 py-2 rounded-md "
-                >
-                  Edit
-                </button>
-
-                {/* Delete Variant Button */}
-                <button
-                  onClick={() => handleDeleteVariant(selectedVariant.variantId)}
-                  className="mt-4 text-white bg-red-600 px-4 py-2 rounded-md ml-5"
-                >
-                  Delete
-                </button>
+                  
               </div>
-            )}
           </div>
-        </div>
-      </div>
 
-      <div className="flex justify-end">
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="mt-4 text-white bg-green-600 px-4 py-2 rounded-md"
-        >
-          Add Variant
-        </button>
-      </div>
-
-      {/* Product Description */}
-      <div className="w-full mt-9 border-gray-800 border rounded-xl px-6 py-6 shadow-lg hover:shadow-2xl transition-all duration-300">
-        <span className="font-semibold text-2xl text-white text-center mb block">Description</span>
-        <hr className="border-gray-500 mb-6" />
-        <div
-          className="tinymce-content text-gray-300 leading-relaxed text-base"
-          id="postContent"
-          dangerouslySetInnerHTML={{ __html: description }}
-        />
-      </div>
-
-
-      {/* Specifications */}
-      {Object.keys(product.attributes).length > 0 && (
-        <div className="w-full mt-9  border-gray-800 border rounded-xl px-6 py-6 shadow-lg hover:shadow-2xl transition-all duration-300">
-          <span className="font-semibold text-2xl text-white text-center border-b-2 border-gray-500 pb-2 mb-6 block">Specifications</span>
-          <div>
-            {Object.entries(product.attributes).map(([key, value], index) => (
-              <div key={index} className="mb-4">
-                <span className="font-semibold text-gray-200">{key}: </span>
-                <span className="text-gray-400">{String(value)}</span>
-              </div>
-            ))}
+          {/* Description Section */}
+          <div className="mt-12 p-6 bg-gray-800 rounded-xl">
+              <h2 className="text-2xl font-bold mb-6">Description</h2>
+              <div
+                  className="prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: description }}
+              />
           </div>
-        </div>
-      )}
 
+          
 
+          {/* Action Buttons Section */}
+          <div className="mt-8 flex flex-wrap gap-4">
+              {!product.isDeleted && (
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                          <Button className="bg-red-500 text-white hover:bg-red-900">
+                              Delete Product
+                          </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-gray-900 border border-gray-800">
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                  Delete Product?
+                              </AlertDialogTitle>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel className="bg-gray-800">
+                                  Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                  onClick={handleDelete}
+                                  className="bg-red-500 hover:bg-red-600"
+                              >
+                                  Delete
+                              </AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
+              )}
 
-      {/* Product status  buttons */}
+              {(user?.id === product?.authorId ||
+                  user.role === StoreRole.SUPERADMIN) && (
+                  <Button
+                      onClick={handleEdit}
+                      className="bg-blue-500 text-white hover:bg-blue-900"
+                  >
+                      Edit Product
+                  </Button>
+              )}
 
-      <div className="w-full   mt-9 px-4 py-4">
-
-        {
-          ((user?.storeRole === StoreRole.SUPERADMIN || user?.storeRole === StoreRole.STOREMODERATOR) && product?.status === "awaiting approval") &&
-          <div className='w-full flex flex-row gap-3 mt-5'>
-            <button onClick={handleRejected} className='w-full bg-red-200 border-[2px] border-red-600 text-red-600 font-bold p-2 rounded-lg text-base'>Reject</button>
-            <button onClick={handleApprove} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Approve</button>
+              {product.status === 'draft' && (
+                  <Button
+                      onClick={handleApprove}
+                      className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                  >
+                      Publish Product
+                  </Button>
+              )}
           </div>
-        }
 
-
-        <div className='flex justify-between mt-4'>
-          {/* Existing Delete product button */}
-          {!product.isDeleted && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Product</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-black text-white border-none">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="text-white bg-red-500 hover:bg-red-700">Delete</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          {/* Modals */}
+          {isEditModalOpen && editedVariant && (
+              <EditVariantModal
+                  editedVariant={editedVariant}
+                  setEditedVariant={setEditedVariant}
+                  setIsEditModalOpen={setIsEditModalOpen}
+                  handleSaveEdit={handleSaveEdit}
+              />
           )}
 
-          {
-            product.isDeleted && user.role === StoreRole.SUPERADMIN &&
-
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className='bg-green-500 max-w-min text-white px-6  text-base rounded-lg font-bold hover:bg-green-700'>Recover Product</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-black text-white border-none">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleRecover} className="text-white bg-green-500 hover:bg-green-700">Recover</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          }
-
-
-          {/* Existing Edit Post button */}
-          {(user?.id === product?.authorId || user.role === StoreRole.SUPERADMIN) && (
-            <button
-              onClick={handleEdit}
-              className='bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
-            >
-              Edit Product
-            </button>
+          {isAddModalOpen && (
+              <AddVariantModal
+                  newVariant={newVariant}
+                  setNewVariant={setNewVariant}
+                  setIsAddModalOpen={setIsAddModalOpen}
+                  handleAddVariant={handleAddVariant}
+              />
           )}
-        </div>
-
-
-        {
-          product.status === "draft" &&
-          <div className='w-full flex flex-row gap-3 mt-5'>
-            <button onClick={handleApprove} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Publish Product</button>
-          </div>
-        }
       </div>
-
-      {/* Edit Variant Modal */}
-      {isEditModalOpen && editedVariant && (
-        <EditVariantModal
-          editedVariant={editedVariant}
-          setEditedVariant={setEditedVariant}
-          setIsEditModalOpen={setIsEditModalOpen}
-          handleSaveEdit={handleSaveEdit}
-        />
-      )}
-
-      {/* Add Variant Modal */}
-      {isAddModalOpen && (
-        <AddVariantModal
-          newVariant={newVariant}
-          setNewVariant={setNewVariant}
-          setIsAddModalOpen={setIsAddModalOpen}
-          handleAddVariant={handleAddVariant}
-        />
-      )}
-    </div>
   );
 };
 

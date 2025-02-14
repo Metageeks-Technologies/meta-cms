@@ -269,7 +269,7 @@ export class PostsService {
     /////////////////////////////////////////
     if (websiteKey) {
       pipeline.push({
-        $match: { websiteKey }
+        $match: { website: websiteKey }
       });
     }
 
@@ -403,7 +403,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const query = await this.Post.updateOne({ _id: _id, websiteKey: websiteKey }, { $set: { status: newStatus } }).exec();
+    const query = await this.Post.updateOne({ _id: _id, website: websiteKey }, { $set: { status: newStatus } }).exec();
     if (query.matchedCount == 0) {
       throw new NotFoundException("Post not found");
     }
@@ -415,7 +415,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const post = await this.Post.findOne({ _id: _id, websiteKey: websiteKey }, { status: 1, publishedDate: 1 }).lean().exec();
+    const post = await this.Post.findOne({ _id: _id, website: websiteKey }, { status: 1, publishedDate: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException("Post not found");
     }
@@ -437,7 +437,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const post = await this.Post.findOne({ _id: _id, websiteKey: websiteKey }, { authorId: 1 }).lean().exec();
+    const post = await this.Post.findOne({ _id: _id, website: websiteKey }, { authorId: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException('Post not found');
     }
@@ -467,7 +467,7 @@ export class PostsService {
     }
 
     // TODO: add check here to check if post is public
-    const post = await this.Post.findOne({ _id: postId, websiteKey: websiteKey }, { likesCount: 1 }).exec();
+    const post = await this.Post.findOne({ _id: postId, website: websiteKey }, { likesCount: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
@@ -487,7 +487,7 @@ export class PostsService {
     }
 
     // TODO: add check here to check if post is public
-    const post = await this.Post.findOne({ _id: postId, websiteKey: websiteKey }, { likesCount: 1 }).exec();
+    const post = await this.Post.findOne({ _id: postId, website: websiteKey }, { likesCount: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
@@ -507,7 +507,7 @@ export class PostsService {
     }
 
     // Assuming userId is valid and verified by JWT
-    const post = await this.Post.findOne({ _id: postId, websiteKey: websiteKey }, { _id: 1 }).lean().exec();
+    const post = await this.Post.findOne({ _id: postId, website: websiteKey }, { _id: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
@@ -553,7 +553,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const post = await this.Post.findOne({ _id: _id, websiteKey: websiteKey }, { authorId: 1, isDeleted: 1 }).lean().exec();
+    const post = await this.Post.findOne({ _id: _id, website: websiteKey }, { authorId: 1, isDeleted: 1 }).lean().exec();
     if (!post) {
       throw new NotFoundException('Post ID not found');
     }
@@ -577,7 +577,7 @@ export class PostsService {
     }
 
     // This can only be done by superadmin
-    const query = await this.Post.updateOne({ _id: _id, websiteKey: websiteKey }, { isDeleted: false }).exec();
+    const query = await this.Post.updateOne({ _id: _id, website: websiteKey }, { isDeleted: false }).exec();
     if (query.matchedCount == 0) {
       throw new NotFoundException('Post ID not found');
     }

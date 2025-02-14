@@ -2,71 +2,98 @@ import { ProductCardProps } from '@/types';
 import { getURL } from '@/utils/AWS_Config';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-
-
+import { Tag } from 'lucide-react';
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-
-
     const router = useRouter();
 
+    const calculateDiscount = () => {
+        if (product.variants?.[0]) {
+            const originalPrice = product.variants[0].price;
+            const discountedPrice = product.variants[0].discountedPrice;
+    
+            // If the discounted price is 0, return 0% discount
+            if (discountedPrice === 0) {
+                return 0;
+            }
+    
+            const discount = ((originalPrice - discountedPrice) / originalPrice) * 100;
+            return Math.round(discount);
+        }
+        return 0;
+    };
+    
+
     return (
-        <div key={product._id}
+        <div 
+            className="group relative bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 w-72"
             onClick={() => router.push(`/store/product/${product._id}`)}
-            className="w-80 my-2 md:my-5 group rounded-lg cursor-pointer group">
+        >
+            {/* Discount Badge */}
+            {calculateDiscount() > 0 && (
+                <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
+                    <Tag className="w-3 h-3" />
+                    {calculateDiscount()}% OFF
+                </div>
+            )}
 
-            {/* Image Section */}
-            <div className="w-full h-[250px] overflow-hidden rounded-t-lg">
-
+            {/* Image Container */}
+            <div className="relative w-72 h-72 overflow-hidden bg-white flex items-center justify-center">
                 <img
                     src={getURL(product?.variants[0]?.imageKeys[0])}
                     alt={product.title}
-                    className="w-full h-full object-cover rounded-t-lg group-hover:scale-110 duration-300"
+                    className="w-full h-full object-contain p-4 transform group-hover:scale-105 transition-transform duration-300"
                 />
             </div>
 
             {/* Content Section */}
-            <div className="text-gray-200 flex flex-col gap-1 md:gap-3 mt-2 text-sm md:text-base">
-                <h2 className='text-xl md:text-2xl group-hover:underline cursor-pointer'>
-                {product.title.length > 20 ? product.title.slice(0, 20) + '...' : product.title}
+            <div className="p-4">
+                {/* Category */}
+                {product.category?.name && (
+                    <p className="text-blue-400 text-sm mb-1">
+                        {product.category.name}
+                    </p>
+                )}
 
+                {/* Title */}
+                <h2 className="text-base font-medium text-gray-100 mb-1 line-clamp-1">
+                    {product.title}
                 </h2>
 
-                <p className="text-white">
-                    {product.subDescription.length > 30 ? product.title.slice(0, 30) + '...' : product.title}
-                    </p>
-                {/* <p>                    {product.category.name}
-                </p> */}
+                {/* Description */}
+                <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                    {product.subDescription}
+                </p>
+
+                {/* Price Section */}
                 {product.variants && product.variants.length > 0 ? (
-                    <div className=" flex flex-row gap-1">
-                        <p className="text-lg font-bold text-white">
-                            {product.variants[0].discountedPrice.toFixed(2)}
-                        </p>
-                        {product.variants[0].discountedPrice && product.variants[0].discountedPrice < product.variants[0].price && (
-                            <p className="text-sm text-gray-500 line-through">
-                                ₹{product.variants[0].price.toFixed(2)}
-                            </p>
-                        )}
-                    </div>
-                ) : (
-                    <p className="text-red-500">No variants available.</p>  // Fallback message when no variants are available
-                )}
-                <div>
-                    <button
-                        className="w-full mt-4 py-2 px-4 bg-[#1E88E5] text-white text-sm font-semibold rounded-md hover:bg-[#1565C0] transition-colors">
-                        View Product
-                    </button>
+                    <div className="flex items-center gap-2 mb-3">
+                    {product.variants[0].discountedPrice > 0 ? (
+                        <>
+                            <span className="text-lg font-bold text-white">
+                                ₹{product.variants[0].discountedPrice.toFixed(2)}
+                            </span>
+                            {product.variants[0].discountedPrice < product.variants[0].price && (
+                                <span className="text-gray-500 text-sm line-through">
+                                    ₹{product.variants[0].price.toFixed(2)}
+                                </span>
+                            )}
+                        </>
+                    ) : (
+                        <span className="text-lg font-bold text-white">
+                            ₹{product.variants[0].price.toFixed(2)}
+                        </span>
+                    )}
                 </div>
+                
+                ) : (
+                    <p className="text-red-500 text-sm mb-3">No variants available</p>
+                )}
 
-
-
-
-                {/* Vendor Section */}
-                {/* <div className="mt-4 text-sm text-gray-700">
-                    <p><strong>Vendor:</strong> {product.vendor.name}</p>
-                    <p><strong>Email:</strong> {product.vendor.email}</p>
-                    <p><strong>Phone:</strong> {product.vendor.phoneNo}</p>
-                </div> */}
+                {/* View Button */}
+                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded text-sm font-medium transition-colors duration-300">
+                    View Product
+                </button>
             </div>
         </div>
     );

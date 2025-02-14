@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsEnum, IsNotEmpty, IsObject, IsString, Matches, MaxLength, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsObject, IsOptional, IsString, Matches, MaxLength, ValidateNested } from "class-validator";
 import { PageServiceEnum, PageSubServiceEnum } from "../schema/page.schema";
 
 
@@ -218,5 +218,21 @@ export class CreatePageDto {
     @ValidateNested()
     @Type(() => CreateContentDto)
     content: CreateContentDto;
+
+    @IsString()
+    @IsOptional()
+    metaTitle: string;
+
+    @IsString()
+    @IsOptional()
+    metaDescription: string;
+
+    @IsArray()
+    @IsOptional()
+    @ArrayNotEmpty()
+    @IsString({ each: true })
+    keywords: string[];
 }
+
+
 

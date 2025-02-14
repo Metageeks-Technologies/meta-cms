@@ -58,6 +58,9 @@ export const defaultNewPostData: NewPostFormData = {
   tags: [],
   publishDate: null,
   previewImg: '',
+  metaTitle: '',
+  metaDescription: '',
+  keywords: []
 }
 
 export enum WebsiteEnum {
