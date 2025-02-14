@@ -1,6 +1,6 @@
 import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,26 +11,18 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import {
     Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
-
-import { TriangleAlert } from 'lucide-react';
-import toast from 'react-hot-toast';
+} from "@/components/ui/dialog";
+import { TriangleAlert, MapPin, Home, Phone, Mail, Edit2, Trash2, Star, Info } from 'lucide-react';
 import EditAddress from './EditAddress';
 
 const Addresses = ({ addresses, getUserAddresses }: any) => {
-
     const { loading, setLoading } = useUserContext();
     const [isOpen, setIsOpen] = useState(false);
-    const [editAddress, setEditAddress] = useState<any>({})
-
+    const [editAddress, setEditAddress] = useState<any>({});
 
     const setDefault = async (id: string) => {
         setLoading(true);
@@ -39,13 +31,12 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
             if (resp.status === 200 || resp.status === 201) {
                 getUserAddresses();
             }
-
         } catch (error) {
-            console.log("Error in setr address as default", error)
+            console.log("Error in set address as default", error);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const deleteAddress = async (id: string) => {
         setLoading(true);
@@ -59,77 +50,131 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    if (addresses.length <= 0) {
+        return (
+            <div className="w-full min-h-[200px] flex items-center justify-center">
+                <div className="text-center">
+                    <MapPin className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                    <p className="text-xl font-semibold text-gray-300">No addresses found</p>
+                    <p className="text-gray-400 mt-2">Add a new address to get started</p>
+                </div>
+            </div>
+        );
     }
 
-
     return (
-        <div className='flex flex-row flex-wrap gap-5 justify-center md:justify-start'>
-            {
-                addresses.length <= 0 ?
-                    <p className='w-full text-center'>No address found</p>
-                    : addresses.map((address: any, index: number) => (
-                        <div key={index} className='w-full max-w-[400px] bg-gray-900 rounded-lg'>
-                            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                                <AlertDialog>
-                                    {
-                                        address.isDefault &&
-                                        <div className='px-4 pt-2 text-xs'>Default: MetaCMS</div>
-                                    }
-                                    <div className='px-4 py-2 text-sm sm:text-base'>
-                                        <p className='font-bold text-lg'>{address?.name}</p>
-                                        <p>{address?.house}</p>
-                                        <p>{address?.landmark}, {address?.street}</p>
-                                        <p>{address?.city}, {address?.state}, {address?.postalCode}</p>
-                                        <p>Phone: {address?.phone}</p>
-                                        <p>Email: {address?.email}</p>
-                                        {
-                                            address?.instruction &&
-                                            <p>Instruction: {address?.instruction}</p>
-                                        }
-
-                                        <div className='mt-3 flex flex-row gap-2'>
-                                            <DialogTrigger onClick={() => setEditAddress(address)}>
-                                                <div className='px-4 py-1 border-gray-400 border-2 rounded-full hover:bg-white hover:text-black duration-300'>Edit</div>
-                                            </DialogTrigger>
-                                            <AlertDialogTrigger>
-                                                <span>
-                                                    <div className='px-4 py-1 border-gray-400 border-2 rounded-full hover:bg-red-500 duration-300'>Delete</div>
-                                                </span>
-                                            </AlertDialogTrigger>
-                                            {
-                                                !address.isDefault &&
-                                                <div onClick={() => setDefault(address._id)} className='px-4 py-1 border-gray-400 border-2 rounded-full hover:bg-white hover:text-black duration-300 cursor-pointer'>Set as Default</div>
-                                            }
-                                        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
+            {addresses.map((address: any, index: number) => (
+                <div key={index} className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 min-w-[280px]">
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <AlertDialog>
+                            <div className="relative">
+                                {address.isDefault && (
+                                    <div className="absolute top-4 right-4 flex items-center gap-2 bg-blue-500 px-3 py-1 rounded-full text-sm">
+                                        <Star className="w-4 h-4" />
+                                        <span>Default</span>
                                     </div>
+                                )}
+                                
+                                <div className="p-6">
+                                    <h3 className="text-xl font-bold text-gray-100 mb-4 break-words">{address?.name}</h3>
+                                    
+                                    <div className="space-y-3 text-gray-300">
+                                        <div className="flex items-start gap-3">
+                                            <Home className="w-5 h-5 text-gray-400 mt-1 flex-shrink-0" />
+                                            <div className="break-words">
+                                                <p>{address?.house}</p>
+                                                <p>{address?.landmark}, {address?.street}</p>
+                                                <p>{address?.city}, {address?.state}, {address?.postalCode}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3">
+                                            <Phone className="w-5 h-5 text-gray-400" />
+                                            <p>{address?.phone}</p>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3">
+                                            <Mail className="w-5 h-5 text-gray-400" />
+                                            <p>{address?.email}</p>
+                                        </div>
+                                        
+                                        {address?.instruction && (
+                                            <div className="flex items-start gap-3">
+                                                <Info className="w-5 h-5 text-gray-400 mt-1" />
+                                                <p>{address?.instruction}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
 
-                                    <AlertDialogContent className='bg-black border-gray-800'>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle></AlertDialogTitle>
-                                            <AlertDialogDescription className='h-24' >
-                                                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
-                                            </AlertDialogDescription>
-                                            <AlertDialogDescription className='w-full text-center mb-5 text-lg text-white'>
-                                                Delete Address
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
+                                <div className="px-6 pb-6">
+                                    <div className="flex flex-wrap gap-3">
+                                        <DialogTrigger 
+                                            onClick={() => setEditAddress(address)}
+                                            className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors duration-200 text-sm"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                            <span>Edit</span>
+                                        </DialogTrigger>
 
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => deleteAddress(address._id)} className='bg-red-500 hover:bg-red-600'>Delete</AlertDialogAction>
-                                        </AlertDialogFooter>
+                                        <AlertDialogTrigger className="flex items-center gap-2 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded-lg transition-colors duration-200 text-sm">
+                                            <Trash2 className="w-4 h-4" />
+                                            <span>Delete</span>
+                                        </AlertDialogTrigger>
 
-                                    </AlertDialogContent>
+                                        {!address.isDefault && (
+                                            <button
+                                                onClick={() => setDefault(address._id)}
+                                                className="flex items-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors duration-200 text-sm"
+                                            >
+                                                <Star className="w-4 h-4" />
+                                                <span>Set Default</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <EditAddress editAddress={editAddress} setEditAddress={setEditAddress} getUserAddresses={getUserAddresses} setIsOpen={setIsOpen} />
+                            <AlertDialogContent className="bg-gray-900 border-gray-800">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle></AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        <div className="flex flex-col items-center gap-4">
+                                            <TriangleAlert className="w-16 h-16 text-red-500" />
+                                            <h2 className="text-xl font-semibold text-gray-100">Delete Address</h2>
+                                            <p className="text-gray-400 text-center">
+                                                Are you sure you want to delete this address? This action cannot be undone.
+                                            </p>
+                                        </div>
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
 
-                                </AlertDialog>
-                            </Dialog>
-                        </div>
-                    ))
-            }
-        </div >
-    )
-}
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel className="bg-gray-800 hover:bg-gray-700">Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                        onClick={() => deleteAddress(address._id)} 
+                                        className="bg-red-500 hover:bg-red-600"
+                                    >
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
 
-export default Addresses
+                            <EditAddress 
+                                editAddress={editAddress} 
+                                setEditAddress={setEditAddress} 
+                                getUserAddresses={getUserAddresses} 
+                                setIsOpen={setIsOpen} 
+                            />
+                        </AlertDialog>
+                    </Dialog>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export default Addresses;
