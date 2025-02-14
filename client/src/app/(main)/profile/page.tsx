@@ -17,11 +17,7 @@ import { BsTwitterX } from "react-icons/bs";
 import { User, Phone, Mail, Briefcase, Building2, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
-<<<<<<< Updated upstream
   const { user, getUserProfile, setLoading, websiteKey}: any = useUserContext();
-=======
-  const { user, getUserProfile, setLoading,websiteKey }: any = useUserContext();
->>>>>>> Stashed changes
 
 
   const [userProfile, setUserProfile] = useState({
