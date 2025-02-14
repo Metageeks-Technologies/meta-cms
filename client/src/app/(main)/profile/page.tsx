@@ -14,9 +14,14 @@ import axios from 'axios';
 import { getURL } from '@/utils/AWS_Config';
 import ProfileTabs from './components/ProfileTabs';
 import { BsTwitterX } from "react-icons/bs";
+import { User, Phone, Mail, Briefcase, Building2, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
-  const { user, getUserProfile, setLoading }: any = useUserContext();
+<<<<<<< Updated upstream
+  const { user, getUserProfile, setLoading, websiteKey}: any = useUserContext();
+=======
+  const { user, getUserProfile, setLoading,websiteKey }: any = useUserContext();
+>>>>>>> Stashed changes
 
 
   const [userProfile, setUserProfile] = useState({
@@ -51,7 +56,7 @@ const ProfilePage: React.FC = () => {
     try {
       setIsLoading(true);
       const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`);
-
+      
       if (response.data && response.data.length > 0) {
         const address = response.data[0]; // Assuming you need the first address
         setUserAddress({
@@ -131,7 +136,8 @@ const ProfilePage: React.FC = () => {
     setLoading(true);
     try {
       const payload = { ...userProfile };
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload);
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, { websiteKey: websiteKey });
+
 
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, {
@@ -162,7 +168,7 @@ const ProfilePage: React.FC = () => {
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
       }
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey: websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
         const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
@@ -190,323 +196,345 @@ const ProfilePage: React.FC = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-black text-white  px-6 sm:px-8 md:px-12 lg:px-16 pb-20">
-      <div className="mx-auto rounded-lg bg-black shadow-lg p-6 sm:p-8 md:p-10">
-
-        <div className="flex items-center justify-between space-x-4 mb-6">
-          <div className="flex flex-row items-center gap-5">
-
-            {
-              isEditing ?
-                <label>
-                  <div className='relative'>
-                    <Avatar className='w-20 h-20'>
-                      <AvatarImage src={userProfile?.imageKey ? getURL(userProfile?.imageKey) : "https://github.com/shadcn.png"} />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <div className='bg-white text-black text-xl rounded-full max-w-min p-1 absolute right-0 bottom-0 cursor-pointer'>
-                      <MdEdit />
-                    </div>
+    <div className="min-h-screen bg-black text-white px-6 sm:px-8 md:px-12 lg:px-16 pb-20">
+      <div className="max-w-7xl mx-auto rounded-lg bg-black shadow-lg p-6 sm:p-8 md:p-10">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between gap-6 mb-8">
+          <div className="flex items-start md:items-center gap-5">
+            {isEditing ? (
+              <label>
+                <div className="relative">
+                  <Avatar className="w-20 h-20 border-2 border-gray-700">
+                    <AvatarImage 
+                      src={userProfile?.imageKey ? getURL(userProfile?.imageKey) : "https://github.com/shadcn.png"}
+                      alt="Profile"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <div className="bg-white text-black text-xl rounded-full p-1 absolute -right-1 -bottom-1 cursor-pointer shadow-lg hover:bg-gray-100 transition-colors">
+                    <MdEdit />
                   </div>
-
-                  <input type="file" className='hidden' onChange={(e) => handleUploadProfile(e.target.files)} />
-                </label>
-                :
-                <Avatar className='w-20 h-20'>
-                  <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-            }
-
-            <h1 className="text-xl sm:text-2xl font-bold text-white">My Profile</h1>
+                </div>
+                <input type="file" className="hidden" onChange={(e) => handleUploadProfile(e.target.files)} />
+              </label>
+            ) : (
+              <Avatar className="w-20 h-20 border-2 border-gray-700">
+                <AvatarImage 
+                  src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"}
+                  alt="Profile"
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            )}
+            
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold text-gray-200 flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Personal Information
+              </h2>
+              <p className="text-gray-400">{userProfile?.role?.replace(/^\w/, (c) => c.toUpperCase())}</p>
+            </div>
           </div>
-
-          <div className='flex flex-row items-center gap-3'>
-            {
-              userProfile?.socialLinks.facebook &&
-              <a href={userProfile?.socialLinks.facebook} target='_blank'>
-                <SiFacebook className='text-2xl text-blue-500' />
+  
+          <div className="flex items-center gap-4">
+            {userProfile?.socialLinks?.facebook && (
+              <a href={userProfile?.socialLinks.facebook} target="_blank" className="hover:opacity-80 transition-opacity">
+                <SiFacebook className="text-2xl text-blue-500" />
               </a>
-            }
-            {
-              userProfile?.socialLinks.instagram &&
-              <a href={userProfile?.socialLinks.instagram} target='_blank'>
-                <RiInstagramFill className='text-3xl text-red-500' />
+            )}
+            {userProfile?.socialLinks?.instagram && (
+              <a href={userProfile?.socialLinks.instagram} target="_blank" className="hover:opacity-80 transition-opacity">
+                <RiInstagramFill className="text-3xl text-red-500" />
               </a>
-            }
-            {
-              userProfile?.socialLinks.linkedIn &&
-              <a href={userProfile?.socialLinks.linkedIn} target='_blank'>
-                <ImLinkedin className='text-2xl text-blue-500' />
+            )}
+            {userProfile?.socialLinks?.linkedIn && (
+              <a href={userProfile?.socialLinks.linkedIn} target="_blank" className="hover:opacity-80 transition-opacity">
+                <ImLinkedin className="text-2xl text-blue-500" />
               </a>
-            }
-            {
-              userProfile?.socialLinks.twitter &&
-              <a href={userProfile?.socialLinks.twitter} target='_blank'>
-                <BsTwitterX className='text-2xl text-white' />
+            )}
+            {userProfile?.socialLinks?.twitter && (
+              <a href={userProfile?.socialLinks.twitter} target="_blank" className="hover:opacity-80 transition-opacity">
+                <BsTwitterX className="text-2xl text-white" />
               </a>
-            }
+            )}
           </div>
-
         </div>
-
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-
-          {/* full name  */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Full Name</label>
-            <input
-              type="text"
-              placeholder='Enter full name...'
-              name="fullname"
-              id="fullname"
-              required
-              value={userProfile?.name}
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                // Use a regular expression to allow only letters and spaces
-                if (/^[a-zA-Z\s]*$/.test(inputValue)) {
-                  setUserProfile({ ...userProfile, name: inputValue });
-                }
-              }}
-              disabled={!isEditing}
-              className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-            />
-          </div>
-
-
-          {/* phone  */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="firstName">Phone</label>
-            <input
-              type="tel"
-              name="phone"
-              id="phone"
-              maxLength={10}
-              placeholder='Enter  phone number...'
-              value={userProfile?.phoneNo}
-              onChange={(e) => {
-                // Ensure that only digits are allowed (no characters, no special symbols)
-                const numericValue = e.target.value.replace(/[^0-9]/g, '');
-                setUserProfile({ ...userProfile, phoneNo: numericValue });
-              }} disabled={!isEditing}
-              className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-
-            />
-          </div>
-
-
-          {/* bio */}
-          {!isEditing && userProfile?.bio && (
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="bio">Bio</label>
-              <textarea
+  
+        {/* Form Grid */}
+        <div className="space-y-8">
+          {/* Name and Phone Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="fullname">
+                Full Name
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Enter full name..."
+                  name="fullname"
+                  id="fullname"
+                  required
+                  value={userProfile?.name}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    if (/^[a-zA-Z\s]*$/.test(inputValue)) {
+                      setUserProfile({ ...userProfile, name: inputValue });
+                    }
+                  }}
+                  disabled={!isEditing}
+                  className={`w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 
+                    ${isEditing ? 'focus:ring-yellow-500 hover:border-gray-500' : 'opacity-50 cursor-not-allowed'}`}
+                />
+              </div>
+            </div>
+  
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="phone">
+                <span className="flex items-center">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Phone Number
+                </span>
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                id="phone"
+                maxLength={10}
+                placeholder="Enter phone number..."
+                value={userProfile?.phoneNo}
+                onChange={(e) => {
+                  const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                  setUserProfile({ ...userProfile, phoneNo: numericValue });
+                }}
                 disabled={!isEditing}
-                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`} rows={3}
-                value={userProfile.bio}
-                readOnly
+                className={`w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 
+                  ${isEditing ? 'focus:ring-yellow-500 hover:border-gray-500' : 'opacity-50 cursor-not-allowed'}`}
               />
             </div>
-
-          )}
-
-          {isEditing && (
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="bio">Bio</label>
-              <textarea
-                name="bio"
-                id="bio"
-                value={userProfile?.bio}
-                onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
-                placeholder='Tell us about yourself...'
-                className="w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ring-yellow-500"
-                rows={3}
-              />
-            </div>
-          )}
-
-
-
-
-          {/* email  */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="email">Email</label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={userProfile?.email}
-              disabled
-
-              className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-
+          </div>
+  
+          {/* Bio Section */}
+          <div className="col-span-full">
+            <h2 className="text-xl font-semibold text-gray-200 mb-4">About</h2>
+            <textarea
+              name="bio"
+              id="bio"
+              rows={4}
+              value={userProfile?.bio}
+              onChange={(e) => isEditing && setUserProfile({ ...userProfile, bio: e.target.value })}
+              placeholder="Tell us about yourself..."
+              disabled={!isEditing}
+              className={`w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 
+                ${isEditing ? 'focus:ring-yellow-500 hover:border-gray-500' : 'opacity-50 cursor-not-allowed'}`}
             />
           </div>
-
-
-          <div className='flex flex-row gap-5'>
-
-            {/* role  */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="role">Role</label>
-              <input
-                type="text"
-                name="role"
-                id="role"
-                value={userProfile?.role.replace(/^\w/, (c) => c.toUpperCase())}
-                disabled
-                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-              />
+  
+          {/* Contact and Roles Section */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-200 mb-4">Contact & Role</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <span className="flex items-center">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Email
+                  </span>
+                </label>
+                <input
+                  type="email"
+                  value={userProfile?.email}
+                  disabled
+                  className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 opacity-50 cursor-not-allowed"
+                />
+              </div>
+  
+              {/* Roles */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Role */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <span className="flex items-center">
+                      <Briefcase className="w-4 h-4 mr-2" />
+                      Role
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={userProfile?.role?.replace(/^\w/, (c) => c.toUpperCase())}
+                    disabled
+                    className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 opacity-50 cursor-not-allowed"
+                  />
+                </div>
+  
+                {/* Store Role */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <span className="flex items-center">
+                      <Building2 className="w-4 h-4 mr-2" />
+                      Store Role
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={userProfile?.storeRole?.replace(/^\w/, (c) => c.toUpperCase())}
+                    disabled
+                    className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 opacity-50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
             </div>
-
-            {/* STORE ROLE  */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="storeRole">Store role</label>
-              <input
-                type="text"
-                name="storeRole"
-                id="storeRole"
-                value={userProfile?.storeRole?.replace(/^\w/, (c) => c.toUpperCase())}
-                disabled
-                className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-              />
-            </div>
-
           </div>
-
-          {
-            isEditing &&
-            <div className='col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6'>
-
-
-              {/* facebook */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="facebook">Facebook</label>
-                <input
-                  type="url"
-                  name="role"
-                  id="facebook"
-                  placeholder='Add link here...'
-                  value={userProfile?.socialLinks?.facebook}
-                  onChange={(e) => {
-                    setUserProfile({
-                      ...userProfile,
-                      socialLinks: {
-                        ...userProfile.socialLinks,
-                        facebook: e.target.value
-                      }
-                    })
-                  }}
-                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-                />
+  
+          {/* Social Links Section */}
+          {isEditing && (
+            <div className="col-span-2">
+              <h2 className="text-xl font-semibold text-gray-200 mb-4">Social Links</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Facebook */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="facebook">
+                    <span className="flex items-center">
+                      <SiFacebook className="w-4 h-4 mr-2" />
+                      Facebook
+                    </span>
+                  </label>
+                  <input
+                    type="url"
+                    id="facebook"
+                    placeholder="Add Facebook link..."
+                    value={userProfile?.socialLinks?.facebook}
+                    onChange={(e) => {
+                      setUserProfile({
+                        ...userProfile,
+                        socialLinks: {
+                          ...userProfile.socialLinks,
+                          facebook: e.target.value
+                        }
+                      })
+                    }}
+                    className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
+  
+                {/* Instagram */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="instagram">
+                    <span className="flex items-center">
+                      <RiInstagramFill className="w-4 h-4 mr-2" />
+                      Instagram
+                    </span>
+                  </label>
+                  <input
+                    type="url"
+                    id="instagram"
+                    placeholder="Add Instagram link..."
+                    value={userProfile?.socialLinks?.instagram}
+                    onChange={(e) => {
+                      setUserProfile({
+                        ...userProfile,
+                        socialLinks: {
+                          ...userProfile.socialLinks,
+                          instagram: e.target.value
+                        }
+                      })
+                    }}
+                    className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
+  
+                {/* LinkedIn */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="linkedin">
+                    <span className="flex items-center">
+                      <ImLinkedin className="w-4 h-4 mr-2" />
+                      LinkedIn
+                    </span>
+                  </label>
+                  <input
+                    type="url"
+                    id="linkedin"
+                    placeholder="Add LinkedIn link..."
+                    value={userProfile?.socialLinks?.linkedIn}
+                    onChange={(e) => {
+                      setUserProfile({
+                        ...userProfile,
+                        socialLinks: {
+                          ...userProfile.socialLinks,
+                          linkedIn: e.target.value
+                        }
+                      })
+                    }}
+                    className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
+  
+                {/* Twitter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="x">
+                    <span className="flex items-center">
+                      <BsTwitterX className="w-4 h-4 mr-2" />
+                      X (Twitter)
+                    </span>
+                  </label>
+                  <input
+                    type="url"
+                    id="x"
+                    placeholder="Add X (Twitter) link..."
+                    value={userProfile?.socialLinks?.twitter}
+                    onChange={(e) => {
+                      setUserProfile({
+                        ...userProfile,
+                        socialLinks: {
+                          ...userProfile.socialLinks,
+                          twitter: e.target.value
+                        }
+                      })
+                    }}
+                    className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
               </div>
-
-              {/* instagram  */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="instagram">Instagram</label>
-                <input
-                  type="url"
-                  name="role"
-                  id="instagram"
-                  placeholder='Add link here...'
-                  value={userProfile?.socialLinks?.instagram}
-                  onChange={(e) => {
-                    setUserProfile({
-                      ...userProfile,
-                      socialLinks: {
-                        ...userProfile.socialLinks,
-                        instagram: e.target.value
-                      }
-                    })
-                  }}
-                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-                />
-              </div>
-
-              {/* linkedIn */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="linkedin">Linked In</label>
-                <input
-                  type="url"
-                  name="role"
-                  id="linkedin"
-                  placeholder='Add link here...'
-                  value={userProfile?.socialLinks?.linkedIn}
-                  onChange={(e) => {
-                    setUserProfile({
-                      ...userProfile,
-                      socialLinks: {
-                        ...userProfile.socialLinks,
-                        linkedIn: e.target.value
-                      }
-                    })
-                  }}
-                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-                />
-              </div>
-
-              {/* twitter */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="x">X</label>
-                <input
-                  type="url"
-                  name="role"
-                  id="x"
-                  placeholder='Add  link here...'
-                  value={userProfile?.socialLinks?.twitter}
-                  onChange={(e) => {
-                    setUserProfile({
-                      ...userProfile,
-                      socialLinks: {
-                        ...userProfile.socialLinks,
-                        twitter: e.target.value
-                      }
-                    })
-                  }}
-                  className={`w-full px-4 py-2 bg-gray-700 rounded-md focus:ring ${isEditing ? 'ring-yellow-500' : 'opacity-50 cursor-not-allowed'}`}
-                />
-              </div>
-
             </div>
-          }
-
-
-        </div>
-
-
-        {/* action buttons  */}
-        <div className="flex items-center justify-end space-x-4 mt-6">
-          {isEditing ? (
-            <>
-              <button
-                onClick={handleSave}
-                className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm sm:text-base"
-              >
-                <FaCheck className="inline mr-2" /> Save
-              </button>
-              <button
-                onClick={handleCancel}
-                className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm sm:text-base"
-              >
-                <FaTimes className="inline mr-2" /> Cancel
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md text-sm sm:text-base"
-            >
-              <FaEdit className="inline mr-2" /> Edit Profile
-            </button>
           )}
+  
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end space-x-4 pt-4">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm sm:text-base flex items-center gap-2 transition-colors"
+                >
+                  <FaCheck className="text-sm" /> Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm sm:text-base flex items-center gap-2 transition-colors"
+                >
+                  <FaTimes className="text-sm" /> Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm sm:text-base flex items-center gap-2 transition-colors"
+              >
+                <FaEdit className="text-sm" /> Edit Profile
+              </button>
+            )}
+          </div>
         </div>
       </div>
-
-      <ProfileTabs />
+  
+      <div className="mt-8">
+        <ProfileTabs />
+      </div>
     </div>
   );
 };
-
 export default ProfilePage;
+  

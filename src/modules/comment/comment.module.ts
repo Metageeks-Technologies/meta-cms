@@ -3,11 +3,13 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { CommentSchema } from "./schema/comment.schema";
 import { CommentController } from "./comment.controller";
 import { CommentService } from "./comment.service";
+import { WebsiteModule } from "../website/website.module";
 
 
 @Module({
   imports: [ 
     MongooseModule.forFeature([{ name: 'Comment', schema: CommentSchema }]),
+    WebsiteModule
   ],
   controllers: [CommentController],
   providers: [CommentService],

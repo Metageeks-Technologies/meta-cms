@@ -5,7 +5,7 @@ import { MediaType } from '@/types';
 import { getURL } from '@/utils/AWS_Config';
 import { debounce } from 'lodash';
 import { Check } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -29,36 +29,42 @@ const page = () => {
     const { user, loading, websiteKey } = useUserContext();
     const { media, setMedia, fetchMedia, hasMoreMedia } = usePostContext();
 
-    const handleScroll = () => {
+    const handleScroll = useCallback(() => {
         if (
             window.innerHeight + document.documentElement.scrollTop >=
             document.documentElement.offsetHeight - 100 // Trigger 100px before the bottom
         ) {
             setPage((prevPage) => prevPage + 1);
         }
-    };
+    }, []);
 
     useEffect(() => {
         const debouncedHandleScroll = debounce(handleScroll, 200);
         window.addEventListener('scroll', debouncedHandleScroll);
-        return () => window.removeEventListener('scroll', handleScroll); // Cleanup listener
-    }, []);
-
-
-    useEffect(() => {
-        if (hasMoreMedia && websiteKey) fetchMedia(lastId);
-    }, [page, websiteKey]);
+        return () => window.removeEventListener('scroll', debouncedHandleScroll); // Cleanup listener
+    }, [handleScroll]);
 
     useEffect(() => {
-        setLastId(media?.[media.length - 1]?._id || null);
+        if (websiteKey) {
+            setMedia([]);
+            setPage(1);
+            setLastId('');
+        }
+    }, [websiteKey]);
+
+    useEffect(() => {
+        if (hasMoreMedia && websiteKey) {
+            fetchMedia(lastId);
+        }
+    }, [page]);
+
+    useEffect(() => {
+        if (websiteKey) fetchMedia()
+    }, [websiteKey])
+
+    useEffect(() => {
+        setLastId(media?.[media.length - 1]?._id || '');
     }, [media]);
-
-    // useEffect(() => {
-    //     if (websiteKey) {
-    //         fetchMedia();
-    //     }
-    // }, [websiteKey])
-
 
 
     return (
@@ -86,7 +92,7 @@ const page = () => {
                 </DialogContent>
 
                 {
-                    (hasMoreMedia && !loading) ?
+                    (hasMoreMedia && !loading) &&
                     <div aria-label="Loading..." role="status" className="flex items-center justify-center space-x-2">
                         <svg className="h-10 w-10 animate-spin stroke-gray-500" viewBox="0 0 256 256">
                             <line x1="128" y1="32" x2="128" y2="64" strokeLinecap="round" strokeLinejoin="round" strokeWidth="24"></line>
@@ -106,9 +112,12 @@ const page = () => {
                         </svg>
                         <span className="text-xl font-medium text-gray-500">Loading...</span>
                     </div>
-                    : <p className='text-2xl font-bold text-center'>No Media Found!</p>
                 }
 
+                {
+                    (media?.length === 0 && !loading) &&
+                    <p className='text-2xl font-bold text-center'>No Media Found!</p>
+                }
 
             </div>
         </Dialog>

@@ -232,6 +232,32 @@ const page = () => {
                     </div>
                 </div>
 
+                <div className='w-full flex flex-col gap-5 justify-between bg-gray-900 rounded-lg p-4'>
+                    <h2 className='text-2xl font-bold'>Meta Details</h2>
+                    {
+                        pageData?.metaTitle &&
+                        <p className='text-gray-400'><span className='font-bold text-white'>Meta Title : </span>
+                            {pageData.metaTitle}
+                        </p>
+                    }
+
+                    {
+                        pageData?.metaTitle &&
+                        <p className='text-gray-400'><span className='font-bold text-white'>Meta Description : </span>
+                            {pageData.metaDescription}
+                        </p>
+                    }
+
+                    {
+                        pageData?.metaTitle &&
+                        <p className='text-gray-400'><span className='font-bold text-white'>Keywords : </span>
+                            {
+                                pageData.keywords.join(", ")
+                            }
+                        </p>
+                    }
+                </div>
+
 
             </div>
         </div>

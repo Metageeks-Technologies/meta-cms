@@ -24,10 +24,6 @@ export class CreateProductDto {
     @IsOptional()
     brand?: string
 
-    @IsString()
-    @IsNotEmpty()
-    website: string
-
     @IsEnum(ProductStatusEnum)
     @IsNotEmpty()
     status: ProductStatusEnum

@@ -10,6 +10,8 @@ import { TiThSmallOutline } from "react-icons/ti";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaGlobe } from "react-icons/fa6";
 import { RxBorderSplit } from "react-icons/rx";
+import { MdOutlineMiscellaneousServices } from "react-icons/md";
+import { GrServices } from "react-icons/gr";
 
 
 
@@ -50,6 +52,16 @@ export const items: MenuItem[] = [
     title: "Page",
     icon: RiPagesLine,
     subMenu: [
+      {
+        title: "Services",
+        url: "/allServices",
+        icon: MdOutlineMiscellaneousServices,
+      },
+      {
+        title: "Sub Services",
+        url: "/allSubServices",
+        icon: GrServices,
+      },
       {
         title: "New Page",
         url: "/newPage",
@@ -169,6 +181,8 @@ export const headerData = {
   allPost: "All Post",
   category: "Category",
   tags: "Tags",
+  allServices: "Services",
+  allSubServices:"Sub Services",
   newPage: "New Page",
   allPage: "All Page",
   newCaseStudy: "New CaseStudy",

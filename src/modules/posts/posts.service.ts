@@ -472,7 +472,7 @@ export class PostsService {
       throw new NotFoundException("Post Id not found");
     }
 
-    await this.likesService.createLike(postId, userId);
+    await this.likesService.createLike(websiteKey, postId, userId);
 
     // If user already liked the said post, control will not reach here
     // Exception will be thrown by above function (createLike)
@@ -492,7 +492,7 @@ export class PostsService {
       throw new NotFoundException("Post Id not found");
     }
 
-    await this.likesService.removeLike(postId, userId);
+    await this.likesService.removeLike(websiteKey, postId, userId);
 
     // If user already did not like the said post, control will not reach here
     // Exception will be thrown by above function (removeLike)
@@ -512,7 +512,7 @@ export class PostsService {
       throw new NotFoundException("Post Id not found");
     }
 
-    await this.bookmarksService.add(postId, userId);
+    await this.bookmarksService.add(websiteKey, postId, userId);
   }
 
   async removeBookmarkFromPublicPost(websiteKey: string, postId: string, userId: string) {
@@ -525,7 +525,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    await this.bookmarksService.remove(postId, userId);
+    await this.bookmarksService.remove(websiteKey, postId, userId);
   }
 
   async isPostLikedAndBookmarkedByUser(websiteKey: string, postId: string, userId: string) {
@@ -540,8 +540,8 @@ export class PostsService {
     }
 
     const [isLiked, isBookmarked] = await Promise.all([
-      this.likesService.isPostLikedByUser(postId, userId),
-      this.bookmarksService.isPostBookmarkedByUser(postId, userId)
+      this.likesService.isPostLikedByUser(websiteKey, postId, userId),
+      this.bookmarksService.isPostBookmarkedByUser(websiteKey, postId, userId)
     ]);
 
     return { isLiked, isBookmarked };
@@ -723,12 +723,16 @@ export class PostsService {
     }
 
     // TODO: add check here to check if post is public
-    const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
+    const post = await this.Post.findOne({ _id: postId, website: websiteKey }, { title: 1, status: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
 
-    await this.commentService.createNewComment(postId, userId, message);
+    if(post.status !== postStatuEnum.PUBLISHED){
+      throw new BadRequestException('This post is not published')
+    }
+
+    await this.commentService.createNewComment(websiteKey, postId, userId, message);
   }
 
   async approveComment(websiteKey: string, postId: string, commentId: string) {
@@ -737,13 +741,12 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    // TODO: add check here to check if post is public
-    const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
+    const post = await this.Post.findOne({ _id: postId, website: websiteKey }, { title: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
 
-    await this.commentService.approveComment(commentId);
+    await this.commentService.approveComment(websiteKey, commentId);
 
   }
 
@@ -753,7 +756,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    await this.commentService.rejectComment(commentId);
+    await this.commentService.rejectComment(websiteKey, commentId);
   }
 
   async getAwaitingApproveComment(websiteKey: string) {
@@ -762,7 +765,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const comments = await this.commentService.awaitingApproveComment();
+    const comments = await this.commentService.awaitingApproveComment(websiteKey);
     return comments;
   }
 
@@ -772,12 +775,12 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const post = await this.Post.findOne({ _id: postId }, { commentCount: 1 }).exec();
+    const post = await this.Post.findOne({ _id: postId }, { title: 1 }).exec();
     if (!post) {
       throw new NotFoundException("Post Id not found");
     }
 
-    await this.commentService.deleteComment(userId, userRole, commentId);
+    await this.commentService.deleteComment(websiteKey, userId, userRole, commentId);
 
   }
 
@@ -787,9 +790,10 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const comments = await this.commentService.allPublishedCommentOnPost(postId, lastId);
+    const comments = await this.commentService.allPublishedCommentOnPost(websiteKey, postId, lastId);
     return comments;
   }
+
 
   async getAllRejectedComments(websiteKey: string, lastId?: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
@@ -797,9 +801,10 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const comments = await this.commentService.allRejectedComment(lastId);
+    const comments = await this.commentService.allRejectedComment(websiteKey, lastId);
     return comments;
   }
+
 
   async getAllPublishedComments(websiteKey: string, lastId?: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
@@ -807,7 +812,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const comments = await this.commentService.allPublishedComment(lastId);
+    const comments = await this.commentService.allPublishedComment(websiteKey, lastId);
     return comments;
   }
 
@@ -817,17 +822,17 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    const comments = await this.commentService.allDeletedComment(lastId);
+    const comments = await this.commentService.allDeletedComment(websiteKey, lastId);
     return comments
   }
 
-  async editComment(websiteKey, userId: string, userRole: string, commentId: string, message: string) {
+  async editComment(websiteKey: string, userId: string, userRole: string, commentId: string, message: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException("Invalid website key");
     }
 
-    await this.commentService.editComment(userId, userRole, commentId, message)
+    await this.commentService.editComment(websiteKey, userId, userRole, commentId, message)
   }
 
   async recoverComment(websiteKey: string, commentId: string) {
@@ -836,7 +841,7 @@ export class PostsService {
       throw new BadRequestException("Invalid website key");
     }
 
-    await this.commentService.recoverComment(commentId)
+    await this.commentService.recoverComment(websiteKey, commentId)
   }
 
 }

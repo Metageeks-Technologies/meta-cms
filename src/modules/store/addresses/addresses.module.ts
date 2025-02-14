@@ -5,6 +5,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { AddressSchema } from "./schema/address.schema";
 import { RedisModule } from "src/modules/redis/redis.module";
 import { UsersModule } from "src/modules/users/users.module";
+import { WebsiteModule } from "src/modules/website/website.module";
 
 
 
@@ -12,7 +13,8 @@ import { UsersModule } from "src/modules/users/users.module";
     imports: [
         MongooseModule.forFeature([{ name: "Address", schema: AddressSchema }]),
         RedisModule,
-        UsersModule
+        UsersModule,
+        WebsiteModule
     ],
     controllers: [AddressController],
     providers: [AddressService]

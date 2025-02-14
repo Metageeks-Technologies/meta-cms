@@ -6,6 +6,7 @@ import { CreateUnitDto } from "./dto/create-unit-dto";
 import { UpdateUnitDto } from "./dto/update-unit-dto";
 import { RedisService } from "src/modules/redis/redis.service";
 import { RedisKeys } from "src/utils/constant";
+import { WebsiteService } from "src/modules/website/website.service";
 
 
 
@@ -14,12 +15,18 @@ import { RedisKeys } from "src/utils/constant";
 export class UnitService {
     constructor(
         @InjectModel('Unit') private Unit: Model<IUnit>,
-        private readonly redisService: RedisService
+        private readonly redisService: RedisService,
+        private readonly websiteService: WebsiteService
     ) { }
 
 
-    async create(unitDetails: CreateUnitDto) {
-        const newUnit = new this.Unit(unitDetails);
+    async create(websiteKey: string, unitDetails: CreateUnitDto) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const newUnit = new this.Unit({ ...unitDetails, websiteKey });
 
         try {
             // await this.redisService.deleteCache(RedisKeys.AllUnits)
@@ -35,9 +42,14 @@ export class UnitService {
         }
     }
 
-    async updateById(unitId: string, unitDetails: UpdateUnitDto) {
+    async updateById(websiteKey: string, unitId: string, unitDetails: UpdateUnitDto) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
         try {
-            const query = await this.Unit.updateOne({ _id: unitId }, { $set: unitDetails }).exec();
+            const query = await this.Unit.updateOne({ _id: unitId, websiteKey }, { $set: unitDetails }).exec();
             if (query.matchedCount == 0) {
                 throw new NotFoundException("Unit ID not found");
             }
@@ -53,8 +65,13 @@ export class UnitService {
         }
     }
 
-    async getAll(isDeleted?: boolean) {
-        const query = {};
+    async getAll(websiteKey: string, isDeleted?: boolean) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = { websiteKey };
 
         if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted
@@ -63,8 +80,13 @@ export class UnitService {
         return units;
     }
 
-    async deleteUnit(unitId: string) {
-        const unit = await this.Unit.findOne({ _id: unitId }, { isDeleted: 1 }).exec();
+    async deleteUnit(websiteKey: string, unitId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const unit = await this.Unit.findOne({ _id: unitId, websiteKey }, { isDeleted: 1 }).exec();
 
         if (!unit) {
             throw new NotFoundException('Unit not found')
@@ -77,8 +99,13 @@ export class UnitService {
         await this.Unit.updateOne({ _id: unitId }, { isDeleted: true }).lean().exec();
     }
 
-    async recoverUnit(unitId: string) {
-        const query = await this.Unit.updateOne({ _id: unitId }, { isDeleted: false }).lean().exec();
+    async recoverUnit(websiteKey: string, unitId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if(!website){
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = await this.Unit.updateOne({ _id: unitId, websiteKey }, { isDeleted: false }).lean().exec();
 
         if (query.matchedCount == 0) {
             throw new NotFoundException("Unit ID not found");

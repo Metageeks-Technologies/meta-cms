@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 export interface IUnit {
     name: string,
     descroiption: string,
+    websiteKey: string,
     isDeleted: boolean,
 } 
 
@@ -17,6 +18,10 @@ export const UnitSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
+    },
+    websiteKey: {
+        type: String,
+        required: true
     },
     isDeleted: {
         type: Boolean,

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { AddNewItemInCartDto } from "./dto/add-new-item-dto";
 import { RemoveItemDto } from "./dto/remove-item-dto";
@@ -15,41 +15,41 @@ export class CartController {
 
     @Post()
     @UseGuards(AuthGuard)
-    async addItemInCart(@Req() req: Request, @Body() newItem: AddNewItemInCartDto) {
+    async addItemInCart(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Body() newItem: AddNewItemInCartDto) {
         const user = (req as any)?.user;
-        await this.cartService.addItemToCart(user._id, user.storeRole, newItem);
+        await this.cartService.addItemToCart(websiteKey, user._id, user.role, newItem);
         return { message: "Item add in Cart" }
     }
 
     @Get()
     @UseGuards(AuthGuard)
-    async getCart(@Req() req: Request){
+    async getCart(@Headers('websiteKey') websiteKey: string, @Req() req: Request){
         const user = (req as any).user
-        const cart = await this.cartService.getCart(user._id);
+        const cart = await this.cartService.getCart(websiteKey, user._id);
         return cart;
     }
 
     @Delete('remove')
     @UseGuards(AuthGuard)
-    async removeFromCart(@Req() req: Request, @Body() removedItemDetails: RemoveItemDto) {
+    async removeFromCart(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Body() removedItemDetails: RemoveItemDto) {
         const user = (req as any).user;
-        await this.cartService.removeItemFromCart(user._id, user.storeRole, removedItemDetails)
+        await this.cartService.removeItemFromCart(websiteKey, user._id, user.role, removedItemDetails)
         return { message: "Item remove from Cart" }
     }
 
     @Patch('update-quantity')
     @UseGuards(AuthGuard)
-    async updateQuantity(@Req() req: Request, @Body() updateQuantityDetails: UpdateQuantityDto) {
+    async updateQuantity(@Headers('websiteKey') websiteKey: string, @Req() req: Request, @Body() updateQuantityDetails: UpdateQuantityDto) {
         const user = (req as any).user;
-        await this.cartService.updateItemQuantity(user._id, user.storeRole, updateQuantityDetails)
+        await this.cartService.updateItemQuantity(websiteKey, user._id, user.role, updateQuantityDetails)
         return { message: "Item quantity updated" }
     }
 
     @Delete('clear')
     @UseGuards(AuthGuard)
-    async clearCart(@Req() req: Request) {
+    async clearCart(@Headers('websiteKey') websiteKey: string, @Req() req: Request) {
         const user = (req as any).user;
-        await this.cartService.clearCart(user._id, user.storeRole)
+        await this.cartService.clearCart(websiteKey, user._id, user.role)
         return { message: "Cart clear" }
     }
 

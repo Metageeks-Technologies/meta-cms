@@ -44,6 +44,7 @@ export interface IOrder {
     shippingAddress: mongoose.Types.ObjectId; // Shipping address for the order
     shippingStatus: string; // Status of the overall shipping ('pending', 'shipped', 'delivered')
     paymentStatus: string; // Payment status ('paid', 'unpaid')
+    websiteKey: string;
     // paymentType: string; // Type of payment (e.g., cash_on_delivery, upi)
     isCancelled: boolean; // If the order has been cancelled
 }
@@ -101,6 +102,10 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
             type: String,
             enum: Object.values(PaymentStatusEnum),
             default: PaymentStatusEnum.UNPAID,
+        },
+        websiteKey: {
+            type: String,
+            required: true
         },
         // paymentType: {
         //     type: String,
