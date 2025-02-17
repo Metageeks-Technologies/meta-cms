@@ -10,6 +10,8 @@ import { TiThSmallOutline } from "react-icons/ti";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import { FaGlobe } from "react-icons/fa6";
 import { RxBorderSplit } from "react-icons/rx";
+import { MdOutlineMiscellaneousServices } from "react-icons/md";
+import { GrServices } from "react-icons/gr";
 
 
 
@@ -51,12 +53,32 @@ export const items: MenuItem[] = [
     icon: RiPagesLine,
     subMenu: [
       {
+        title: "Services",
+        url: "/allServices",
+        icon: MdOutlineMiscellaneousServices,
+      },
+      {
+        title: "Sub Services",
+        url: "/allSubServices",
+        icon: GrServices,
+      },
+      {
         title: "New Page",
         url: "/newPage",
         icon: MdPostAdd,
       },
       {
         title: "All Page",
+        url: "/allPage",
+        icon: ScrollText,
+      },
+      {
+        title: "New CaseStudy",
+        url: "/newCaseStudy",
+        icon: MdPostAdd,
+      },
+      {
+        title: "All CaseStudy",
         url: "/allPage",
         icon: ScrollText,
       },
@@ -120,11 +142,11 @@ export const items: MenuItem[] = [
     url: "/allComments",
     icon: MdOutlineComment
   },
-  {
-    title: "Subscribers",
-    url: "/subscribers",
-    icon: UsersRound,
-  },
+  // {
+  //   title: "Subscribers",
+  //   url: "/subscribers",
+  //   icon: UsersRound,
+  // },
   {
     title: "Contributor",
     url: "/contributor",
@@ -159,8 +181,12 @@ export const headerData = {
   allPost: "All Post",
   category: "Category",
   tags: "Tags",
+  allServices: "Services",
+  allSubServices:"Sub Services",
   newPage: "New Page",
   allPage: "All Page",
+  newCaseStudy: "New CaseStudy",
+  allCaseStudy: "All CaseStudy",
   product:"Product",
   newProduct: "New Product",
   allProduct:" All Product",
@@ -171,7 +197,7 @@ export const headerData = {
   vendor: "Vendors",
   storeModerator: "Store Moderator",
   allComments: "All Comments",
-  subscribers: "Subscribers",
+  // subscribers: "Subscribers",
   contributor: "Contributor",
   moderator: "Moderator",
   media: "Media",

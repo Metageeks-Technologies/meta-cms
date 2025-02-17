@@ -17,12 +17,14 @@ import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
 import { useUserContext } from '@/context/userContext'
 import { userRoles } from '@/constant/user'
+import { permission } from 'process'
 
 
 
 const AddContributor = () => {
 
     const { loading, setLoading, user, fetchUsers, websiteKey } = useUserContext();
+   
 
     const [createForm, setCreateForm] = useState<any>({
         name: '',
@@ -30,9 +32,9 @@ const AddContributor = () => {
         password: '',
         role: userRoles.CONTRIBUTOR,
         websiteName: user?.website?.name,
-        premissions: user?.website?.permissions,
+        permissions: user?.website?.permissions,
     });
-
+ 
     const [isOpen, setIsOpen] = useState(false);
 
     const handleCreateContributor = async (e: React.FormEvent) => {
@@ -54,14 +56,16 @@ const AddContributor = () => {
             return;
         }
 
-        if (!Array.isArray(createForm.premissions) || createForm.premissions.length === 0) {
-            toast.error('Premissions should not be empty and must be an array of strings', { duration: 2000 });
+
+        if (!Array.isArray(createForm.permissions) || createForm.permissions.length === 0) {
+            toast.error('Permissions should not be empty and must be an array of strings', { duration: 2000 });
             return;
         }
 
         setLoading(true);
         try {
             const payload = { ...createForm }
+ //console.log(payload)
 
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/users/create`, payload, { websiteKey: websiteKey });
 
@@ -73,7 +77,7 @@ const AddContributor = () => {
                     role: userRoles.MODERATOR,
                     password: '',
                     websiteName: '',
-                    premissions: [],
+                    permissions: [],
                 });
                 fetchUsers(userRoles.CONTRIBUTOR);
                 setIsOpen(false);
@@ -95,7 +99,7 @@ const AddContributor = () => {
             password: '',
             role: userRoles.CONTRIBUTOR,
             websiteName: user?.website?.name,
-            premissions: user?.website?.permissions,
+            permissions: user?.website?.permissions,
         })
     }, [user]);
 

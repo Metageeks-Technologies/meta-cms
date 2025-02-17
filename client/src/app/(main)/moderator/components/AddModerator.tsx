@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PremissionEnum } from '@/constant/admin'
 import axios from 'axios';
 import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
@@ -24,7 +23,7 @@ import { userRoles } from '@/constant/user'
 
 const AddModerator = () => {
 
-    const { loading, setLoading, user, fetchUsers, websiteKey } = useUserContext();
+    const { loading, setLoading, user, fetchUsers, websiteKey, website } = useUserContext();
 
     const [createForm, setCreateForm] = useState<any>({
         name: '',
@@ -32,7 +31,7 @@ const AddModerator = () => {
         password: '',
         role: userRoles.MODERATOR,
         websiteName: user?.website?.name,
-        premissions: user?.website?.permissions,
+        permissions: user?.website?.permissions,
     });
 
     const [isOpen, setIsOpen] = useState(false);
@@ -56,8 +55,8 @@ const AddModerator = () => {
             return;
         }
 
-        if (!Array.isArray(createForm.premissions) || createForm.premissions.length === 0) {
-            toast.error('Premissions should not be empty and must be an array of strings', { duration: 2000 });
+        if (!Array.isArray(createForm.permissions) || createForm.permissions.length === 0) {
+            toast.error('Permissions should not be empty and must be an array of strings', { duration: 2000 });
             return;
         }
 
@@ -75,7 +74,7 @@ const AddModerator = () => {
                     role: userRoles.MODERATOR,
                     password: '',
                     websiteName: '',
-                    premissions: [],
+                    permissions: [],
                 });
                 fetchUsers(userRoles.MODERATOR);
                 setIsOpen(false);
@@ -91,7 +90,6 @@ const AddModerator = () => {
     }
 
 
-
     useEffect(() => {
         setCreateForm({
             name: '',
@@ -99,9 +97,9 @@ const AddModerator = () => {
             password: '',
             role: userRoles.MODERATOR,
             websiteName: user?.website?.name,
-            premissions: user?.website?.permissions,
+            permissions: user?.website?.permissions ?? website?.permissions,
         })
-    }, [user]);
+    }, [user, website]);
 
 
 

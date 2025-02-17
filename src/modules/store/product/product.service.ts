@@ -3,12 +3,13 @@ import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { IProduct, ProductStatusEnum } from "./schema/product.schema";
 import { CreateProductDto, CreateVariantDto } from "./dto/create-product-dto";
-import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
 import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { ProductCategoriesService } from "../productCategories/productCategories.service";
 import { ProductSortByEnum } from "./dto/get-product-dto";
 import { generateSku } from "src/utils/helperFunctions";
 import { SearchProductQueryDto, SearchProductSortByEnum } from "./dto/search-product-dto";
+import { WebsiteService } from "src/modules/website/website.service";
 
 
 
@@ -20,22 +21,25 @@ export class ProductService {
 
     constructor(
         @InjectModel('Product') private Product: Model<IProduct>,
-        private readonly productCategoryService: ProductCategoriesService
+        private readonly productCategoryService: ProductCategoriesService,
+        private readonly websiteService: WebsiteService
     ) { }
 
+    async createProduct(websiteKey: string, newProductDetail: CreateProductDto, userId: string, userRole: UserRoleEnum) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
 
+        const newProduct = new this.Product({ ...newProductDetail, websiteKey });
 
-    async createProduct(newProductDetail: CreateProductDto, userId: string, userStoreRole: string) {
-        const newProduct = new this.Product(newProductDetail);
         newProduct.vendor = mongoose.Types.ObjectId.createFromHexString(userId);
-
 
         const ids = newProduct.variants.map(variant => variant.variantId)
         const uniqueIds = new Set(ids);
         if (ids.length !== uniqueIds.size) {
             throw new ConflictException('Duplicate Ids found in product variants');
         }
-
 
         const skus = newProduct.variants.map(variant => variant.sku);
         const uniqueSkus = new Set(skus);
@@ -46,6 +50,7 @@ export class ProductService {
         // Query to check if any of the SKUs already exist for this vendor
         const conflict = await this.Product.findOne({
             vendor: newProduct.vendor,
+            websiteKey,
             'variants.sku': { $in: skus },
         });
 
@@ -54,8 +59,8 @@ export class ProductService {
         }
 
 
-        // If vendor creates a product to be published, change its status to 'awaiting approval'
-        if (userStoreRole === UserStoreRoleEnum.VENDOR && (newProduct.status === ProductStatusEnum.PUBLISHED)) {
+        // If vendor/contributor creates a product to be published, change its status to 'awaiting approval'
+        if (userRole === UserRoleEnum.CONTRIBUTOR && newProduct.status === ProductStatusEnum.PUBLISHED) {
             newProduct.status = ProductStatusEnum.AWAITING_APPROVAL;
         }
 
@@ -71,22 +76,27 @@ export class ProductService {
     }
 
     async getProducts(
+        websiteKey: string,
         status: ProductStatusEnum,
         isDeleted: boolean,
         userId: string,
         categoryId: string,
         sortBy: string,
         lastId: string,
-        website: string | undefined,
         searchQuery?: string,
     ) {
+
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new NotFoundException('Invalid website key');
+        }
 
         const pipeline: mongoose.PipelineStage[] = [];
 
         /////////////////////////////////////////
         // Match stage
         /////////////////////////////////////////
-        const matchStage: Record<string, any> = {};
+        const matchStage: Record<string, any> = { websiteKey: websiteKey };
 
         if (status) {
             matchStage.status = status;
@@ -94,20 +104,16 @@ export class ProductService {
             matchStage.status = { $ne: ProductStatusEnum.DRAFT }
         }
 
-        if (typeof isDeleted !== 'undefined') {
+        if (isDeleted !== undefined) {
             matchStage.isDeleted = isDeleted;
         }
 
         if (userId) {
-            matchStage.vendor = mongoose.Types.ObjectId.createFromHexString(userId);
+            matchStage.vendor = new mongoose.Types.ObjectId(userId);
         }
 
         if (categoryId) {
-            matchStage.category = mongoose.Types.ObjectId.createFromHexString(categoryId);
-        }
-
-        if (website) {
-            matchStage.website = website;
+            matchStage.category = new mongoose.Types.ObjectId(categoryId);
         }
 
         // Add text search condition if searchQuery is provided
@@ -115,35 +121,27 @@ export class ProductService {
             matchStage.$text = { $search: searchQuery };
         }
 
+
         switch (sortBy) {
             case ProductSortByEnum.OLDEST:
                 if (lastId) {
-                    matchStage._id = { $gt: mongoose.Types.ObjectId.createFromHexString(lastId) };
+                    matchStage._id = { $gt: new mongoose.Types.ObjectId(lastId) };
                 }
                 break;
 
             case ProductSortByEnum.RECENT:
                 if (lastId) {
-                    matchStage._id = { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) };
+                    matchStage._id = { $lt: new mongoose.Types.ObjectId(lastId) };
                 }
                 break;
 
-            // case ProductSortByEnum.POPULAR:
-            //     if (lastLikesCount && lastId) {
-            //         matchStage.$or = [
-            //             { likesCount: { $lt: lastLikesCount } },
-            //             {
-            //                 likesCount: lastLikesCount,
-            //                 _id: { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) }
-            //             }
-            //         ];
-            //     }
-            //     break;
         }
 
         if (Object.keys(matchStage).length > 0) {
             pipeline.push({ $match: matchStage });
         }
+
+
 
 
         /////////////////////////////////////////
@@ -159,7 +157,7 @@ export class ProductService {
                     as: 'vendor',
                 },
             },
-            { $unwind: '$vendor' },
+            { $unwind: { path: '$vendor', preserveNullAndEmptyArrays: true } },
             // Populate category
             {
                 $lookup: {
@@ -169,7 +167,7 @@ export class ProductService {
                     as: 'category',
                 },
             },
-            { $unwind: '$category' }
+            { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } }
         );
 
 
@@ -188,11 +186,6 @@ export class ProductService {
                 sortStage._id = -1;
                 break;
 
-            // case PostSortByEnum.POPULAR:
-            //     // Order of insertion is important here. Since sorting order will be based on insertion order
-            //     sortStage.likesCount = -1;
-            //     sortStage._id = -1;
-            //     break;
         }
 
         // If there's a search query, prioritize sorting by text score first
@@ -200,6 +193,7 @@ export class ProductService {
             sortStage.score = { $meta: 'textScore' }; // Sort by text score if search query is present
             sortStage._id = -1;
         }
+
 
         if (Object.keys(sortStage).length > 0) {
             pipeline.push({ $sort: sortStage });
@@ -209,11 +203,6 @@ export class ProductService {
         // Limit stage
         /////////////////////////////////////////
         pipeline.push({ $limit: this.PRODUCT_BATCH_LIMIT });
-
-        /////////////////////////////////////////
-        // Finals steps (Lookup and projection)
-        /////////////////////////////////////////
-        // pipeline.push(...this.postAggregationFinalSteps);
 
 
         // Execute the aggregation pipeline
@@ -228,8 +217,13 @@ export class ProductService {
 
     }
 
-    async getLatestProduct(vendorId: string) {
-        const query = { status: ProductStatusEnum.PUBLISHED, isDeleted: false }
+    async getLatestProduct(websiteKey: string, vendorId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = { websiteKey, status: ProductStatusEnum.PUBLISHED, isDeleted: false }
         if (vendorId) {
             query['vendor'] = vendorId
         }
@@ -238,8 +232,13 @@ export class ProductService {
     }
 
 
-    async getProductCount(vendorId: string) {
-        const query = {}
+    async getProductCount(websiteKey: string, vendorId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = { websiteKey }
         if (vendorId) {
             query['vendor'] = new mongoose.Types.ObjectId(vendorId)
         }
@@ -250,18 +249,22 @@ export class ProductService {
     }
 
 
-    async searchProduct({ query, sortBy, lastId, lastScore, website }: SearchProductQueryDto) {
+    async searchProduct(websiteKey: string, { query, sortBy, lastId, lastScore }: SearchProductQueryDto) {
+
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
         const pipeline: mongoose.PipelineStage[] = [];
 
         /////////////////////////////////////////
         // Match stage first
         /////////////////////////////////////////
 
-        if (website) {
-            pipeline.push({
-                $match: { website }
-            });
-        }
+        pipeline.push({
+            $match: { websiteKey: websiteKey }
+        });
 
         /////////////////////////////////////////
         // Match stage second
@@ -336,13 +339,17 @@ export class ProductService {
 
     }
 
-    async getProductById(productId: string, status: ProductStatusEnum, isDeleted: boolean, website: string) {
+    async getProductById(websiteKey: string, productId: string, status: ProductStatusEnum, isDeleted: boolean) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
 
         const result = await this.Product.aggregate([
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(productId),
-                    ...(website !== undefined && { status }),
+                    websiteKey: websiteKey,
                     ...(status !== undefined && { status }),
                     ...(isDeleted !== undefined && { isDeleted }),
                 },
@@ -359,29 +366,34 @@ export class ProductService {
         return product;
     }
 
-    async getPublicProductById(productId: string, website: string) {
-        const product = await this.getProductById(productId, ProductStatusEnum.PUBLISHED, false, website);
+    async getPublicProductById(websiteKey: string, productId: string) {
+        const product = await this.getProductById(websiteKey, productId, ProductStatusEnum.PUBLISHED, false);
         return product;
     }
 
-    async getAnyProductById(productId: string, userId: string, userStoreRole: UserStoreRoleEnum) {
-        const product = await this.getProductById(productId, undefined, undefined, undefined);
+    async getAnyProductById(websiteKey: string, productId: string, userId: string, userRole: UserRoleEnum) {
+        const product = await this.getProductById(websiteKey, productId, undefined, undefined);
 
-        if (userId && userStoreRole) {
-            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+        if (userId && userRole) {
+            if (userRole === UserRoleEnum.CONTRIBUTOR && userId !== product.vendor.toString()) {
                 throw new ForbiddenException();
             }
         }
         return product;
     }
 
-    async updateProduct(productId: string, productDetail: UpdateProductDto, userId: string, userStoreRole: UserStoreRoleEnum) {
-        const product = await this.Product.findOne({ _id: productId }, { vendor: 1 }).lean().exec();
+    async updateProduct(websiteKey: string, productId: string, productDetail: UpdateProductDto, userId: string, userRole: UserRoleEnum) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const product = await this.Product.findOne({ _id: productId, websiteKey }, { vendor: 1 }).lean().exec();
         if (!product) {
             throw new NotFoundException('Product not found');
         }
 
-        if (userStoreRole == UserStoreRoleEnum.VENDOR) {
+        if (userRole == UserRoleEnum.CONTRIBUTOR) {
 
             if (userId != product.vendor.toString()) {
                 throw new ForbiddenException();
@@ -395,18 +407,23 @@ export class ProductService {
         const query = await this.Product.updateOne({ _id: productId }, { $set: { ...productDetail, isDeleted: false } }).exec();
     }
 
-    async getVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string) {
-        const product = await this.Product.findById(productId);
+    async getVariant(websiteKey: string, userId: string, userRole: UserRoleEnum, productId: string, variantId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const product = await this.Product.findOne({ _id: productId, websiteKey }).exec();
 
         if (!product) {
             throw new NotFoundException('Product not found');
         }
 
-        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+        if (userRole === UserRoleEnum.CONTRIBUTOR && userId !== product.vendor.toString()) {
             throw new ForbiddenException();
         }
 
-        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
+        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId);
         if (variantIndex === -1) {
             throw new NotFoundException(`Variant not found`);
         }
@@ -415,14 +432,19 @@ export class ProductService {
         return variant;
     }
 
-    async addVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, newVariant: CreateVariantDto) {
-        const product = await this.Product.findById(productId);
+    async addVariant(websiteKey: string, userId: string, userRole: UserRoleEnum, productId: string, newVariant: CreateVariantDto) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const product = await this.Product.findOne({ _id: productId, websiteKey });
 
         if (!product) {
             throw new NotFoundException('Product not found');
         }
 
-        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+        if (userRole === UserRoleEnum.CONTRIBUTOR && userId !== product.vendor.toString()) {
             throw new ForbiddenException();
         }
 
@@ -434,6 +456,7 @@ export class ProductService {
 
         const conflict = await this.Product.findOne({
             vendor: product.vendor,
+            websiteKey,
             'variants.sku': { $in: newVariant.sku },
         });
 
@@ -446,15 +469,20 @@ export class ProductService {
         await product.save();
     }
 
-    async updateVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string, variantDetails: UpdateVariantDto) {
+    async updateVariant(websiteKey: string, userId: string, userRole: UserRoleEnum, productId: string, variantId: string, variantDetails: UpdateVariantDto) {
         try {
-            const product = await this.Product.findById(productId);
+            const website = await this.websiteService.getWebsiteByKey(websiteKey)
+            if (!website) {
+                throw new NotFoundException('Invalid website key')
+            }
+
+            const product = await this.Product.findOne({ _id: productId, websiteKey });
 
             if (!product) {
                 throw new NotFoundException('Product not found');
             }
 
-            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            if (userRole === UserRoleEnum.CONTRIBUTOR && userId !== product.vendor.toString()) {
                 throw new ForbiddenException();
             }
 
@@ -477,15 +505,20 @@ export class ProductService {
         }
     }
 
-    async deleteVariant(userId: string, userStoreRole: UserStoreRoleEnum, productId: string, variantId: string) {
+    async deleteVariant(websiteKey: string, userId: string, userRole: UserRoleEnum, productId: string, variantId: string) {
         try {
-            const product = await this.Product.findById(productId);
+            const website = await this.websiteService.getWebsiteByKey(websiteKey)
+            if (!website) {
+                throw new NotFoundException('Invalid website key')
+            }
+
+            const product = await this.Product.findOne({ _id: productId, websiteKey });
 
             if (!product) {
                 throw new NotFoundException('Product not found');
             }
 
-            if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
+            if (userRole === UserRoleEnum.CONTRIBUTOR && userId !== product.vendor.toString()) {
                 throw new ForbiddenException();
             }
 
@@ -512,9 +545,14 @@ export class ProductService {
         }
     }
 
-    async recoverVariant(productId: string, variantId: string) {
+    async recoverVariant(websiteKey: string, productId: string, variantId: string) {
         try {
-            const product = await this.Product.findById(productId);
+            const website = await this.websiteService.getWebsiteByKey(websiteKey)
+            if (!website) {
+                throw new NotFoundException('Invalid website key')
+            }
+
+            const product = await this.Product.findOne({ _id: productId, websiteKey });
 
             if (!product) {
                 throw new NotFoundException('Product not found');
@@ -535,39 +573,59 @@ export class ProductService {
         }
     }
 
-    async changeProductStatus(productId: string, newStatus: ProductStatusEnum) {
-        const query = await this.Product.updateOne({ _id: productId }, { $set: { status: newStatus } }).exec();
+    async changeProductStatus(websiteKey: string, productId: string, newStatus: ProductStatusEnum) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = await this.Product.updateOne({ _id: productId, websiteKey }, { $set: { status: newStatus } }).exec();
         if (query.matchedCount === 0) {
             throw new NotFoundException('Product not found');
         }
     }
 
-    async deleteProduct(productId: string, userId: string, userStoreRole: string) {
-        const product = await this.Product.findOne({ _id: productId }, { vendor: 1 });
+    async deleteProduct(websiteKey: string, productId: string, userId: string, userRole: UserRoleEnum) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new NotFoundException('Invalid website key');
+        }
+
+        const product = await this.Product.findOne({ _id: productId, websiteKey }, { vendor: 1 });
         if (!product) {
             throw new NotFoundException('Product not found');
         }
 
-        if (userStoreRole === UserStoreRoleEnum.VENDOR && userId !== product.vendor.toString()) {
-            throw new ForbiddenException()
+        if (userRole === UserRoleEnum.CONTRIBUTOR && userId !== product.vendor.toString()) {
+            throw new ForbiddenException();
         }
 
         await this.Product.updateOne({ _id: productId }, { isDeleted: true });
     }
 
-    async recoverProduct(productId: string) {
-        const product = await this.Product.findOneAndUpdate({ _id: productId }, { isDeleted: false });
+    async recoverProduct(websiteKey: string, productId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey);
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const product = await this.Product.findOneAndUpdate({ _id: productId, websiteKey }, { isDeleted: false });
 
         if (!product) {
             throw new NotFoundException('Product not found');
         }
     }
 
-    async updateVariantQuantity(productId: string, variantId: string, value: number) {
+    async updateVariantQuantity(websiteKey: string, productId: string, variantId: string, value: number) {
 
-        const product = await this.Product.findById(productId).exec();
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
 
-        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId,);
+        const product = await this.Product.findOne({ _id: productId, websiteKey }).exec();
+
+        const variantIndex = product.variants.findIndex((variant) => variant.variantId === variantId);
         if (variantIndex === -1) {
             throw new NotFoundException(`Variant not found`);
         }

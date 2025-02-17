@@ -11,6 +11,8 @@ interface UserContextType {
     subscribers: UserProfile[];
     contributors: UserProfile[];
     moderators: UserProfile[];
+    
+    adminData: UserProfile[];
 
     storeUser: UserProfile[];
     vendor: UserProfile[];
@@ -19,13 +21,14 @@ interface UserContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     fetchUsers: (role: string) => Promise<void>;
+    fetchAdmins: () => Promise<void>;
     fetchStoreRole: (storeRole: string) => Promise<void>;
     changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
     changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
     getUserProfile: () => Promise<void>;
     setUser: (user: UserProfile) => void;
-    blockUser: (userId: string) => Promise<void>;
-    unblockUser: (userId: string) => Promise<void>;
+    blockUser: (userId: string,role:string) => Promise<void>;
+    unblockUser: (userId: string,role:string) => Promise<void>;
     loading: boolean;
     setLoading: (loading: boolean) => void;
     website: any;
@@ -58,6 +61,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [websiteData, setWebsiteData] = useState<any[]>([]);
 
 
+    const [adminData, setAdminData] = useState<any[]>([]); 
+
 
     // API Calls
     const fetchUsers = async (role: string) => {
@@ -88,6 +93,27 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+
+
+    const fetchAdmins = async () => {
+        setLoading(true);
+        try {
+          const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
+          // console.log(resp.data)
+    
+          if (resp?.status === 200 || resp?.status === 201) {
+            setAdminData(resp?.data);
+          } else {
+            toast.error(resp?.data?.message, {
+              duration: 2000,
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
 
     const fetchStoreRole = async (storeRole: string) => {
@@ -128,7 +154,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const response = await axiosCall('PUT', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, {
                 _id: userId,
                 newRole
-            });
+            },{websiteKey: websiteKey});
+
+            // console.log(response.data);
 
             if (response.status === 200 || response.status === 201) {
                 await fetchUsers(currentRole); // Refresh the list for the current role
@@ -220,6 +248,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (userData.role === userRoles.SUPERADMIN) {
                 fetchWebsiteData();
+            }else{
+                
             }
 
             setIsAuthenticated(true);
@@ -233,21 +263,28 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const blockUser = async (userId: string) => {
+    const blockUser = async (userId: string, role: string) => {
         setLoading(true);
         try {
-            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/block/${userId}`);
-
+            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/block/${userId}`, undefined, { websiteKey: websiteKey });
+    
             if (response.status === 200) {
-                toast.success(response.data.message);
-                await fetchUsers(userRoles.CONTRIBUTOR);
-                await fetchUsers(userRoles.MODERATOR);
-                await fetchUsers(userRoles.SUBSCRIBER);
-                await fetchStoreRole(StoreRole.USER);
-                await fetchStoreRole(StoreRole.VENDOR);
-                await fetchStoreRole(StoreRole.STOREMODERATOR);
-
-                // Refresh the 
+                toast.success(response.data.message);     
+                if (role === userRoles.ADMIN) {
+                    await fetchAdmins();
+                } else if (role === userRoles.CONTRIBUTOR) {
+                    await fetchUsers(userRoles.CONTRIBUTOR);
+                } else if (role === userRoles.MODERATOR) {
+                    await fetchUsers(userRoles.MODERATOR);
+                } else if (role === userRoles.SUBSCRIBER) {
+                    await fetchUsers(userRoles.SUBSCRIBER);
+                } else if (role === StoreRole.USER) {
+                    await fetchStoreRole(StoreRole.USER);
+                } else if (role === StoreRole.VENDOR) {
+                    await fetchStoreRole(StoreRole.VENDOR);
+                } else if (role === StoreRole.STOREMODERATOR) {
+                    await fetchStoreRole(StoreRole.STOREMODERATOR);
+                }
             } else {
                 throw new Error(response.data.message);
             }
@@ -257,20 +294,30 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+    
 
-    const unblockUser = async (userId: string) => {
+    const unblockUser = async (userId: string, role: string) => {
         setLoading(true);
         try {
-            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/unBlock/${userId}`);
-
+            const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/unBlock/${userId}`, undefined, { websiteKey: websiteKey });
+    
             if (response.status === 200) {
                 toast.success(response.data.message);
-                await fetchUsers(userRoles.CONTRIBUTOR);
-                await fetchUsers(userRoles.MODERATOR);
-                await fetchUsers(userRoles.SUBSCRIBER);
-                await fetchStoreRole(StoreRole.USER);
-                await fetchStoreRole(StoreRole.VENDOR);
-                await fetchStoreRole(StoreRole.STOREMODERATOR);
+                if (role === userRoles.ADMIN) {
+                    await fetchAdmins();
+                } else if (role === userRoles.CONTRIBUTOR) {
+                    await fetchUsers(userRoles.CONTRIBUTOR);
+                } else if (role === userRoles.MODERATOR) {
+                    await fetchUsers(userRoles.MODERATOR);
+                } else if (role === userRoles.SUBSCRIBER) {
+                    await fetchUsers(userRoles.SUBSCRIBER);
+                } else if (role === StoreRole.USER) {
+                    await fetchStoreRole(StoreRole.USER);
+                } else if (role === StoreRole.VENDOR) {
+                    await fetchStoreRole(StoreRole.VENDOR);
+                } else if (role === StoreRole.STOREMODERATOR) {
+                    await fetchStoreRole(StoreRole.STOREMODERATOR);
+                }
             } else {
                 throw new Error(response.data.message);
             }
@@ -280,6 +327,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
+    
 
 
     useEffect(() => {
@@ -302,9 +350,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         subscribers,
         contributors,
         moderators,
+        adminData,
         isAuthenticated,
         isLoading,
         fetchUsers,
+        fetchAdmins,
         changeUserRole,
         changeStoreRole,
         getUserProfile,
@@ -331,7 +381,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 };
 
-// Custom Hook
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (!context) {

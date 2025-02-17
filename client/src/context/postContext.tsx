@@ -111,9 +111,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchMedia = async (lastId: string) => {
         if (isFetching) return;
         setIsFetching(true);
-        if(!lastId){
-            setMedia([]);
-        }
         try {
             const param = new URLSearchParams();
             if (lastId) param.append('lastId', lastId);
@@ -123,7 +120,11 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             if (resp.status === 200 || resp.status === 201) {
                 const newMedia = resp?.data;
                 if (newMedia.length < 10) setHasMoreMedia(false);
-                setMedia([...media, ...newMedia]);
+                if(lastId){
+                    setMedia((prev: any) => [...prev, ...newMedia]);
+                }else{
+                    setMedia(newMedia)
+                }
             } else {
                 toast.error(resp.data.message, { duration: 2000 });
             }

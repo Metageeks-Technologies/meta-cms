@@ -178,10 +178,10 @@ const columns = [
                       : clickedItem === 2 ?
                         () => changeStoreRole(user._id, user.storeRole, StoreRole.VENDOR)
                         : clickedItem === 3
-                          ? () => unblockUser(user._id)
-                          : clickedItem === 4
-                            ? () => blockUser(user._id)
-                            : () => { }
+                        ? () => unblockUser(user._id,user.storeRole)
+                        : clickedItem === 4
+                        ? () => blockUser(user._id, user.storeRole)
+                        : () => {}
                   }
                 >
                   Continue

@@ -10,9 +10,9 @@ export class BookmarksService {
   private readonly BOOKMARK_BATCH_LIMIT = 10;
   constructor(@InjectModel('Bookmark') private Bookmark: Model<IBookmark>) { }
 
-  async add(postId: string, userId: string) {
+  async add(websiteKey: string, postId: string, userId: string) {
     // Assumes postId and userId are already verified by caller
-    const newBookmark = new this.Bookmark({ userId, postId });
+    const newBookmark = new this.Bookmark({ userId, postId, websiteKey });
     try {
       await newBookmark.save();
     } catch(error) {
@@ -26,20 +26,20 @@ export class BookmarksService {
     }
   }
 
-  async remove(postId: string, userId: string) {
+  async remove(websiteKey: string, postId: string, userId: string) {
     // No need to validate for postId and userId here
     // If they are valid and their corresponding bookmark exists, we'll delete it
     // If their corresponding bookmark does not exist, or even if they are invalid, a not found exception is thrown
-    const query = await this.Bookmark.deleteOne({ postId: postId, userId: userId}).exec();
+    const query = await this.Bookmark.deleteOne({ postId: postId, userId: userId, websiteKey}).exec();
     if(query.deletedCount == 0) {
       throw new NotFoundException("Bookmark not found");
     }
   }
 
-  async isPostBookmarkedByUser(postId: string, userId: string) {
+  async isPostBookmarkedByUser(websiteKey: string, postId: string, userId: string) {
     // No need to validate for postId and userId here
     // If they are valid and their corresponding bookmark exists, we'll return true
-    const bookmark = await this.Bookmark.findOne({ postId: postId, userId: userId }, { _id: 1 }).lean().exec();
+    const bookmark = await this.Bookmark.findOne({ postId: postId, userId: userId, websiteKey }, { _id: 1 }).lean().exec();
     if(bookmark) {
       return true;
     } else {
@@ -47,13 +47,14 @@ export class BookmarksService {
     }
   }
 
-  async getUserBookmarks(userId: string, { lastId }: GetUserBookmarksQueryDto) {
+  async getUserBookmarks(websiteKey: string, userId: string, { lastId }: GetUserBookmarksQueryDto) {
     // Assuming userId is valid and verified by JWT
     // Not looking up userId bacause the client is supposed to know for which user it is fetching bookmarks
     const bookmarks = this.Bookmark.aggregate([
       {
         $match: {
           userId: mongoose.Types.ObjectId.createFromHexString(userId),
+          websiteKey,
           ...(lastId 
                 ? { _id: { $lt: mongoose.Types.ObjectId.createFromHexString(lastId) } }
                 : {}

@@ -13,6 +13,7 @@ export interface IAddress {
     city: string,
     state: string,
     instruction: string,
+    websiteKey: string,
     isDefault: boolean,
     isDeleted: boolean
 }
@@ -33,6 +34,7 @@ export const AddressSchema = new mongoose.Schema({
     city: { type: String, required: true },
     state: { type: String, required: true },
     instruction: { type: String, required: true },
+    websiteKey: {type: String, required: true},
     isDefault: {
         type: Boolean,
         default: false,

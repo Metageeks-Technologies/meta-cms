@@ -17,7 +17,7 @@ export class CategoriesService {
   ) { }
 
   async create(websiteKey: string, newCategoryData: CreateCategoryDto) {
-
+    
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException("Invalid website key");

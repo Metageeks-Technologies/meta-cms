@@ -1,6 +1,5 @@
 import React from "react";
 
-import { products } from "@/constant/dummyStoreData";
 import { getURL } from "@/utils/AWS_Config";
 
 

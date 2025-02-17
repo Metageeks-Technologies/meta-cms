@@ -36,7 +36,7 @@ export class WebsiteService {
 
     async getWebsites(isDeleted: boolean) {
         const query = {}
-        if(isDeleted !== undefined){
+        if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
         }
         const websites = await this.Website.find(query).sort({ createdAt: -1 }).lean().exec();
@@ -44,7 +44,7 @@ export class WebsiteService {
     }
 
     async getWebsiteByKey(key: string) {
-        const website = await this.Website.findOne({key}).lean().exec();
+        const website = await this.Website.findOne({ key, isDeleted: false }).lean().exec();
         return website;
     }
 

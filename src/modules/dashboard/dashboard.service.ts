@@ -37,28 +37,28 @@ export class DashboardService {
     return { usersCount, publishedPostsCount, totalPostCount, monthlyPublishedPostsCount };
   }
 
-  async getStoreAdminData() {
+  async getStoreAdminData(websiteKey: string) {
     const [totalOrderCount, totalProductCount, storeUserCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct] = await Promise.all([
-      this.orderService.getTotalOrderCount(undefined),
-      this.productService.getProductCount(undefined),
+      this.orderService.getTotalOrderCount(websiteKey, undefined),
+      this.productService.getProductCount(websiteKey, undefined),
       this.usersService.getStoreUsersCount(),
-      this.orderService.getlastOrder(undefined),
-      this.productService.getLatestProduct(undefined),
-      this.orderService.getMonthlyOrderCount(undefined),
-      this.orderService.getTopSellingProducts(undefined)
+      this.orderService.getlastOrder(websiteKey, undefined),
+      this.productService.getLatestProduct(websiteKey, undefined),
+      this.orderService.getMonthlyOrderCount(websiteKey, undefined),
+      this.orderService.getTopSellingProducts(websiteKey, undefined)
     ])
 
     return { totalOrderCount, totalProductCount, storeUserCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct }
   }
 
-  async getStoreVendorData(vendorId: string) {
+  async getStoreVendorData(websiteKey: string, vendorId: string) {
     const [totalOrderCount, totalProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct] = await Promise.all([
-      this.orderService.getTotalOrderCount(vendorId),
-      this.productService.getProductCount(vendorId),
-      this.orderService.getlastOrder(vendorId),
-      this.productService.getLatestProduct(vendorId),
-      this.orderService.getMonthlyOrderCount(vendorId),
-      this.orderService.getTopSellingProducts(vendorId)
+      this.orderService.getTotalOrderCount(websiteKey, vendorId),
+      this.productService.getProductCount(websiteKey, vendorId),
+      this.orderService.getlastOrder(websiteKey, vendorId),
+      this.productService.getLatestProduct(websiteKey, vendorId),
+      this.orderService.getMonthlyOrderCount(websiteKey, vendorId),
+      this.orderService.getTopSellingProducts(websiteKey, vendorId)
     ])
 
     return { totalOrderCount, totalProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct }

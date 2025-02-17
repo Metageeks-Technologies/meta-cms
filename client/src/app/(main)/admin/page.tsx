@@ -1,112 +1,183 @@
-'use client'
-import * as React from "react";
-import { SortingState, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel, useReactTable } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useState, useEffect } from "react";
-import { RiDeleteBin6Line } from "react-icons/ri";
-import { MdOutlineUpdate } from "react-icons/md";
-import { useUserContext } from "@/context/userContext";
-import { userRoles } from "@/constant/user";
-import AddAdmin from "./component/AddAdmin";
-import toast from "react-hot-toast";
-import { Input } from "@/components/ui/input";
-import axiosCall from "@/utils/ApiCall";
+"use client"
+import * as React from "react"
+import {
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
+import { MoreHorizontal, TriangleAlert } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+
+import { userRoles } from "@/constant/user"
+import { useUserContext } from "@/context/userContext"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import AddAdmin from "./component/AddAdmin"
+
+
 
 const columns = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }: any) => <div className="capitalize">{row.getValue("name")}</div>,
+    cell: ({ row }: any) => (
+      <div className="capitalize">{row.getValue("name")}</div>
+    ),
   },
   {
-    accessorKey: "websiteName",
-    header: "Website Name",
-    cell: ({ row }: any) => {
-      const website = row.original.website;  // Access `website` from the original row object
-      return <div className="capitalize">{website?.name || "N/A"}</div>; // Display website name or N/A
-    },
+    accessorKey: "website",
+    header: "Website",
+    cell: ({ row }: any) => (
+      <div>{row.getValue("website")?.name}</div>
+    ),
   },
+  
   {
-    accessorKey: "websiteKey",
-    header: "Website Key",
-    cell: ({ row }: any) => {
-      const website = row.original.website;  // Access `website` from the original row object
-      return <div className="capitalize">{website?.key || "N/A"}</div>; // Display website key or N/A
-    },
+    accessorKey: "website key",
+    header: "Website key",
+    cell: ({ row }: any) => (
+      <div>{row.getValue("website")?.key}</div>
+    ),
   },
   {
     accessorKey: "email",
     header: "Email",
-    cell: ({ row }: any) => <div className="capitalize">{row.getValue("email")}</div>,
+    cell: ({ row }: any) => (
+      <div>{row.getValue("email")}</div>
+    ),
+  }
+  ,
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }: any) => {
+      const user = row.original;
+      return (
+        <div
+          className={`${
+            user.block ? "text-red-500" : "text-green-500"
+          } font-semibold`}
+        >
+          {user.block ? "Inactive" : "Active"}
+        </div>
+      );
+    },
   },
-
-
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }: any) => {
+
+      const user = row.original;
+      const [clickedItem, setClickedItem] = useState(0);
+      const {  blockUser, unblockUser }: any = useUserContext();
+
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-gray-800" />
-            <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-              <RiDeleteBin6Line className="text-red-500" />
-              Delete
-            </DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-              <MdOutlineUpdate />
-              Edit Admin
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+        <AlertDialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
+              <DropdownMenuSeparator className="bg-gray-800" />
+
+
+
+              {/* block /unblock options */}
+              {user.block ? (
+                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger onClick={() => setClickedItem(1)} className="w-full text-left">
+                    Unblock Admin
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
+              ) : (
+                <>
+             
+                  <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                    <AlertDialogTrigger className="w-full text-left">
+                      Block Admin
+                    </AlertDialogTrigger>
+                  </DropdownMenuItem>
+                </>
+              )}
+
+
+
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <AlertDialogContent className='bg-black border-gray-800'>
+            <AlertDialogHeader>
+              <AlertDialogTitle></AlertDialogTitle>
+              <AlertDialogDescription className='h-24' >
+                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+              </AlertDialogDescription>
+              <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+                Are you sure ?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+             onClick={clickedItem === 1 ? () => unblockUser(user._id, user.role)
+              : clickedItem === 2 ? () => blockUser(user._id, user.role)
+              : () => {}}
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+
+          </AlertDialogContent>
+        </AlertDialog>
+      )
     },
   },
-];
+]
 
 
 
-function Admin() {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [adminData, setAdminData] = useState<any[]>([]); // State to hold admin data
-  const [loading, setLoading] = useState<boolean>(false);
-  const { user }: any = useUserContext();
 
-  // Function to fetch admin data from API
-  const fetchAdmins = async () => {
-    setLoading(true);
-    try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
+function User() {
+  const [sorting, setSorting] = useState<SortingState>([])
+  const {  adminData, fetchAdmins, } = useUserContext();
 
-      
-      if (resp?.status === 200 || resp?.status === 201) {
-        setAdminData(resp?.data);
-      } else {
-        toast.error(resp?.data?.message, {
-          duration: 2000,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  // Fetch admin data when the component mounts
-  useEffect(() => {
-    fetchAdmins();
-  }, []);
 
   const table = useReactTable({
     data: adminData,
@@ -121,48 +192,75 @@ function Admin() {
     },
   });
 
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+
+
   return (
     <div className="w-full container mx-auto px-4">
-      <div className="flex flex-col py-4">
-        <div className="flex flex-row items-center justify-between">
-          <Input
-            placeholder="Search name..."
-            value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table?.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm border-[1px] border-gray-800 text-base"
-          />
-          {user?.role === userRoles.SUPERADMIN && <AddAdmin />}
-        </div>
+      <div className="flex flex-row justify-between items-center py-4">
+        <Input
+          placeholder="Search email..."
+          value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table?.getColumn("email")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm border-[1px] border-gray-800 text-base"
+        />
+
+        <AddAdmin/>
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">
         <Table>
+
           <TableHeader className="border-gray-800">
             {table?.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="border-gray-800">
-                {headerGroup?.headers?.map((header) => (
-                  <TableHead key={header.id} className="bg-gray-800 hover:none text-white text-lg font-bold">
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
+                {headerGroup?.headers?.map((header) => {
+                  return (
+                    <TableHead key={header.id} className="bg-gray-800 hover:none text-white text-lg font-bold">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             ))}
           </TableHeader>
 
-          <TableBody>
+
+          <TableBody className="">
             {table?.getRowModel()?.rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="border-gray-800 hover:bg-transparent">
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className="border-gray-800 hover:bg-transparent"
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -170,7 +268,6 @@ function Admin() {
           </TableBody>
         </Table>
       </div>
-
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
@@ -200,4 +297,6 @@ function Admin() {
   );
 }
 
-export default Admin;
+export default User;
+
+

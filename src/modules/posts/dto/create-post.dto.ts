@@ -42,4 +42,18 @@ export class CreatePostDto {
     @Matches(/^[a-z0-9-_/]+$/, { message: 'Invalid Slug' })
     @MaxLength(128)
     slug: string;
+
+    @IsString()
+    @IsOptional()
+    metaTitle: string;
+
+    @IsString()
+    @IsOptional()
+    metaDescription: string;
+
+    @IsArray()
+    @IsOptional()
+    @ArrayNotEmpty()
+    @IsString({ each: true })
+    keywords: string[];
 }

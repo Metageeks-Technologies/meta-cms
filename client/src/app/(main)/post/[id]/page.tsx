@@ -342,7 +342,12 @@ const page = () => {
                                             <div className='flex flex-row items-center text-nowrap text-white'> <FaHeart className='mr-1' />  Likes : {post.likesCount}</div>
                                         </div>
                                     </div>
-                                    
+
+                                    {
+                                        post?.website &&
+                                        <p className='-mt-5'>This post for {post?.website.toUpperCase()}</p>
+                                    }
+
                                     <img src={getURL(post?.previewImageKey)} className='w-full object-contain' />
                                     {/* <img src={"/blogImg.png"} className='w-full object-contain' /> */}
                                     <div className="tinymce-content" id='postContent' dangerouslySetInnerHTML={{ __html: post?.description }}></div>
@@ -353,9 +358,9 @@ const page = () => {
 
 
                                     {
-                                        (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR) &&
+                                        (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR || user?.role === userRoles.ADMIN) &&
                                         post?.status === postStatuEnum.AWAITING_APPROVAL &&
-                                        !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
+                                        !((user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN) && post?.author?.role === userRoles.SUPERADMIN) &&
                                         <div className='w-full flex flex-row gap-3 mt-5'>
                                             <button onClick={handleRejectPost} className='w-full bg-red-200 border-[2px] border-red-600 text-red-600 font-bold p-2 rounded-lg text-base'>Reject</button>
                                             <button onClick={handleApprovePost} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Approve</button>
@@ -364,7 +369,7 @@ const page = () => {
 
                                     <div className='flex justify-between mt-4'>
                                         {/* Existing Delete Post button */}
-                                        {!post.isDeleted && !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) && (
+                                        {!post.isDeleted && !(user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN && post?.author?.role === userRoles.SUPERADMIN) && (
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Post</Button>
@@ -382,8 +387,10 @@ const page = () => {
                                         )}
 
                                         {
-                                            post.isDeleted && user.role === userRoles.SUPERADMIN &&
-                                            !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
+                                          post.isDeleted && 
+                                          (user.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN) &&
+                                          !(user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
+                                          
 
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
@@ -403,8 +410,8 @@ const page = () => {
 
 
                                         {/* Existing Edit Post button */}
-                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN) &&
-                                            !(user?.role !== userRoles.SUPERADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
+                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN) &&
+                                           !(user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN && post?.author?.role === userRoles.SUPERADMIN)                                          &&
                                             (
                                                 <button
                                                     onClick={() => router.push(`/editpost/${post.slug}`)}

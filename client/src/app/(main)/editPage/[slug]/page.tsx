@@ -9,57 +9,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { FaArrowLeft } from "react-icons/fa";
 import axios from 'axios';
 import { INITIAL_PAGE_CONTENT, PageService, PageSubService } from '@/constant/page';
-import { PageContent } from '@/types';
-
-interface SectionContent {
-    subHeading: string;
-    heading: string;
-    description: string;
-    imageKey: string | null;
-}
-
-interface Card {
-    imageKey: string | null;
-    heading: string;
-    description: string;
-}
-
-interface Caad {
-    imageKey: string | null;
-    name: string;
-    company: string;
-    message: string;
-}
-
-interface Feature {
-    imageKey: string | null;
-    heading: string;
-    description: string;
-}
-
-interface ServicesSection {
-    heading: string;
-    description: string;
-    cards: Card[];
-}
-
-interface ProcessSection {
-    heading: string;
-    cards: { heading: string; description: string }[];
-}
-
-interface FeatureSection {
-    heading: string;
-    features: Feature[];
-}
-
-interface ForecastContent {
-    subHeading: string;
-    heading: string;
-    imageKey: string | null;
-    list: { point: string }[];
-}
-
+import { Card, Feature, PageContent } from '@/types';
 
 const EditPage = () => {
     const router = useRouter();

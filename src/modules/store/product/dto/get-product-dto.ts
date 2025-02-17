@@ -87,8 +87,4 @@ export class GetPublicProductQueryDto {
   @IsString()
   @IsOptional()
   searchQuery?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  website: string;
 }

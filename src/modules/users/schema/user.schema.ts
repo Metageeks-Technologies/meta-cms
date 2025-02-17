@@ -37,6 +37,7 @@ export interface IUser extends mongoose.Document {
   storeRole: UserStoreRoleEnum;
   website: string;
   socialLinks?: ISocialLinks;
+  lastLoginIp?: string;
 };
 
 export const UserSchema = new mongoose.Schema({
@@ -73,5 +74,6 @@ export const UserSchema = new mongoose.Schema({
     instagram: { type: String },
     facebook: { type: String },
     twitter: { type: String }
-  }
+  },
+  lastLoginIp: { type: String }
 }, { timestamps: true });

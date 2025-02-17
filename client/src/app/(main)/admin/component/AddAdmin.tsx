@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import axios from 'axios';
 import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
+import { useUserContext } from '@/context/userContext'
 import { PermissionEnum } from '@/constant/sidebar'
 
 const AddAdmin = () => {
@@ -26,10 +27,11 @@ const AddAdmin = () => {
         password: ''
     });
 
+
+    const { loading, setLoading, fetchAdmins  } = useUserContext();
+
     const [isOpen, setIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false); // Loading state
-      const [adminData, setAdminData] = useState<any[]>([]); // State to hold admin data
-    
+
 
     const handlePermissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = e.target;
@@ -41,25 +43,7 @@ const AddAdmin = () => {
         });
     }
 
-    const fetchAdmins = async () => {
-        setLoading(true);
-        try {
-          const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
-
-          
-          if (resp?.status === 200 || resp?.status === 201) {
-            setAdminData(resp?.data);
-          } else {
-            toast.error(resp?.data?.message, {
-              duration: 2000,
-            });
-          }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setLoading(false);
-        }
-      };
+   
 
     const handleCreateAdmin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -212,5 +196,6 @@ const AddAdmin = () => {
         </div>
     )
 }
+
 
 export default AddAdmin;

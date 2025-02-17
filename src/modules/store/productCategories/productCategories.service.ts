@@ -6,60 +6,75 @@ import { RedisKeys } from 'src/utils/constant';
 import { IProductCategory } from './schema/productCategory.schema';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
+import { WebsiteService } from 'src/modules/website/website.service';
 
 @Injectable()
 export class ProductCategoriesService {
   constructor(
     @InjectModel('ProductCategory') private ProductCategory: Model<IProductCategory>,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
+    private readonly websiteService: WebsiteService
   ) { }
 
-  async create(newCategoryData: CreateProductCategoryDto) {
-    const newCategory = new this.ProductCategory(newCategoryData);
-    
+  async create(websiteKey: string, newCategoryData: CreateProductCategoryDto) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey)
+    if (!website) {
+      throw new NotFoundException('Invalid website key')
+    }
+
+    const newCategory = new this.ProductCategory({ ...newCategoryData, websiteKey });
+
     try {
       // Delete all Category cache
       await this.redisService.deleteCache(RedisKeys.AllProductCategory);
 
       await newCategory.save();
-    } catch(error) {
+    } catch (error) {
       if (error.code === 11000) {
         // Duplicate key error
         throw new ConflictException('Category Name already exists');
       }
-      
+
       // Re-throw the error if it's not a duplicate key error
       throw error;
     }
   }
 
-  async findAll() {
+  async findAll(websiteKey: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey)
+    if (!website) {
+      throw new NotFoundException('Invalid website key')
+    }
     // Using lean for efficiency
     // since categories will be fetched quite often
 
     // get categories from cache 
     const categoriesData = await this.redisService.getCache(RedisKeys.AllProductCategory);
-    if(categoriesData){
+    if (categoriesData) {
       return JSON.parse(categoriesData);
     }
-    
-    const categories = await this.ProductCategory.find().sort({ createdAt: -1 }).lean().exec();
+
+    const categories = await this.ProductCategory.find({ websiteKey }).sort({ createdAt: -1 }).lean().exec();
 
     // stored categories in cache 
     this.redisService.setCache(RedisKeys.AllProductCategory, JSON.stringify(categories));
     return categories as IProductCategory[];
   }
 
-  async findById(_id: string) {
+  async findById(websiteKey: string, _id: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey)
+    if (!website) {
+      throw new NotFoundException('Invalid website key')
+    }
 
     // get category by id from cache
     const categoryData = await this.redisService.getCache(`${RedisKeys.ProductCategoryId}_${_id}`);
-    if(categoryData){
+    if (categoryData) {
       return JSON.parse(categoryData);
     }
 
-    const category = await this.ProductCategory.findOne({_id: _id}).lean().exec();
-    if(!category) {
+    const category = await this.ProductCategory.findOne({ _id: _id, websiteKey }).lean().exec();
+    if (!category) {
       throw new NotFoundException("Category not found");
     }
 
@@ -68,11 +83,15 @@ export class ProductCategoriesService {
     return category as IProductCategory;
   }
 
-  async updateById(_id: string, updatedCategoryData: UpdateProductCategoryDto) {
-
+  async updateById(websiteKey: string, _id: string, updatedCategoryData: UpdateProductCategoryDto) {
     try {
-      const query = await this.ProductCategory.updateOne( { _id : _id }, { $set: updatedCategoryData } ).exec();
-      if(query.matchedCount == 0) {
+      const website = await this.websiteService.getWebsiteByKey(websiteKey)
+      if (!website) {
+        throw new NotFoundException('Invalid website key')
+      }
+
+      const query = await this.ProductCategory.updateOne({ _id: _id, websiteKey }, { $set: updatedCategoryData }).exec();
+      if (query.matchedCount == 0) {
         throw new NotFoundException("Category ID not found");
       }
 
@@ -80,20 +99,25 @@ export class ProductCategoriesService {
       await this.redisService.deleteCache(RedisKeys.AllProductCategory);
       // Delete Category by id
       await this.redisService.deleteCache(`${RedisKeys.ProductCategoryId}_${_id}`);
-    } catch(error) {
+    } catch (error) {
       if (error.code === 11000) {
         // Duplicate key error
         throw new ConflictException('Category Name already exists');
       }
-      
+
       // Re-throw the error if it's not a duplicate key error
       throw error;
     }
   }
 
-  async deleteById(_id: string) {
-    const query = await this.ProductCategory.deleteOne( { _id: _id }).exec(); 
-    if(query.deletedCount == 0) {
+  async deleteById(websiteKey: string, _id: string) {
+    const website = await this.websiteService.getWebsiteByKey(websiteKey)
+    if(!website){
+      throw new NotFoundException('Invalid website key')
+    }
+
+    const query = await this.ProductCategory.deleteOne({ _id: _id, websiteKey }).exec();
+    if (query.deletedCount == 0) {
       throw new NotFoundException('Category Id not found');
     }
 

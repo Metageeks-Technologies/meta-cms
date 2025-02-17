@@ -6,9 +6,10 @@ import { ProductService } from "../product/product.service";
 import { CartService } from "../cart/cart.service";
 import { UsersService } from "src/modules/users/users.service";
 import { CreateOrderDto, CreateOrderWithoutPayDto } from "./dto/create-order-dto";
-import { UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
 import { GetOrderQuery } from "./dto/get-order-dto";
 import { PaymentService } from "../payment/payment.service";
+import { WebsiteService } from "src/modules/website/website.service";
 
 
 
@@ -21,14 +22,20 @@ export class OrderService {
         private readonly productService: ProductService,
         private readonly cartService: CartService,
         private readonly userService: UsersService,
-        private readonly paymentService: PaymentService
+        private readonly paymentService: PaymentService,
+        private readonly websiteService: WebsiteService
     ) { }
 
 
-    async createOrder(userId: string, userStoreRole: UserStoreRoleEnum, newOrderDetails: CreateOrderWithoutPayDto) {
+    async createOrder(websiteKey: string, userId: string, userRole: UserRoleEnum, newOrderDetails: CreateOrderWithoutPayDto) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
         const { cartId, addressId } = newOrderDetails;
 
-        const cart = await this.cartService.getCart(userId);
+        const cart = await this.cartService.getCart(websiteKey, userId);
 
         if (!cart || !cart.items.length) {
             throw new BadRequestException('Cart is empty!');
@@ -65,7 +72,8 @@ export class OrderService {
                         } else {
                             totalPrice += variant.price * item.quantity;
                         }
-                        await this.productService.updateVariantQuantity(item?.product._id, item.variantId, -item.quantity);
+                        // need to add website key
+                        await this.productService.updateVariantQuantity(websiteKey, item?.product._id, item.variantId, -item.quantity);
                     }
                 }
             };
@@ -76,22 +84,25 @@ export class OrderService {
                 items: items,
                 shippingAddress: addressId,
                 totalAmount: totalPrice,
+                websiteKey,
             });
-            //   orders.push(order);
         }
 
-
-
-        await this.cartService.clearCart(userId, userStoreRole);
+        await this.cartService.clearCart(websiteKey, userId, userRole);
     }
 
 
-    async initiatePayment(userId: string) {
+    async initiatePayment(websiteKey: string, userId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (website) {
+            throw new NotFoundException('Invalid website key')
+        }
 
+        // need to add website key 
         const user = await this.userService.findById(userId);
 
         // Get cart details
-        const cart = await this.cartService.getCart(userId);
+        const cart = await this.cartService.getCart(websiteKey, userId);
 
         if (!cart || !cart.items.length) {
             throw new BadRequestException('Cart is empty!');
@@ -121,6 +132,7 @@ export class OrderService {
             }
         };
 
+        // need to add website key 
         const order = await this.paymentService.createOrder(totalAmount);
 
         return {
@@ -134,22 +146,29 @@ export class OrderService {
 
 
     async verifyAndCreateOrder(
+        websiteKey: string,
         userId: string,
-        userStoreRole: UserStoreRoleEnum,
+        userRole: UserRoleEnum,
         newOrderDetails: CreateOrderDto,
     ) {
+
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = newOrderDetails;
 
         const isPaymentValid = await this.paymentService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
 
-        console.log(isPaymentValid, "Is payment valid");
+        // console.log(isPaymentValid, "Is payment valid");
 
         if (!isPaymentValid.success) {
             throw new BadRequestException('Payment verification failed');
         }
 
         const { addressId } = newOrderDetails;
-        const cart = await this.cartService.getCart(userId);
+        const cart = await this.cartService.getCart(websiteKey, userId);
 
         if (!cart || !cart.items.length) {
             throw new BadRequestException('Cart is empty!');
@@ -186,7 +205,7 @@ export class OrderService {
                         } else {
                             totalPrice += variant.price * item.quantity;
                         }
-                        await this.productService.updateVariantQuantity(item?.product._id, item.variantId, -item.quantity);
+                        await this.productService.updateVariantQuantity(websiteKey, item?.product._id, item.variantId, -item.quantity);
                     }
                 }
             };
@@ -197,6 +216,7 @@ export class OrderService {
                 items: items,
                 totalAmount: totalPrice,
                 shippingAddress: addressId,
+                websiteKey,
                 paymentStatus: PaymentStatusEnum.PAID,
                 razorpayOrderId: razorpay_order_id,
                 razorpayPaymentId: razorpay_payment_id,
@@ -204,13 +224,18 @@ export class OrderService {
         }
 
         // Clear cart after successful order creation
-        await this.cartService.clearCart(userId, userStoreRole);
+        await this.cartService.clearCart(websiteKey, userId, userRole);
     }
 
 
 
-    async getOrders(userId: string, vendorId: string, status: OrderStatusEnum, lastId: string) {
-        const query = {}
+    async getOrders(websiteKey: string, userId: string, vendorId: string, status: OrderStatusEnum, lastId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = { websiteKey }
 
         if (userId) {
             query['user'] = userId
@@ -251,8 +276,14 @@ export class OrderService {
         return orders;
     }
 
-    async getlastOrder(vendorId: string) {
-        const query = {}
+    async getlastOrder(websiteKey: string, vendorId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = { websiteKey }
+
         if (vendorId) {
             query['vendor'] = vendorId;
         }
@@ -266,19 +297,22 @@ export class OrderService {
         return order;
     }
 
-    async getMonthlyOrderCount(vendorId: string) {
-        // If userId is provided, it fetches posts by userId. Otherwise it fetches all posts
-        // Assuming userId exists and is coming from JWT
+    async getMonthlyOrderCount(websiteKey: string, vendorId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
 
         const currentDate = new Date();
         const lastYearDate = new Date()
         lastYearDate.setMonth(currentDate.getMonth() - 12);
 
         const matchFilter: Record<string, any> = {
+            websiteKey,
             createdAt: { $gte: lastYearDate }
         };
         if (vendorId) {
-            matchFilter.vendor = mongoose.Types.ObjectId.createFromHexString(vendorId); // Assuming 'createdBy' is the field storing userId
+            matchFilter.vendor = mongoose.Types.ObjectId.createFromHexString(vendorId); // Assuming 'createdAt' is the field storing userId
         }
 
         const result = await this.Order.aggregate([
@@ -327,8 +361,13 @@ export class OrderService {
 
     }
 
-    async getTotalOrderCount(vendorId: string) {
-        const query = {}
+    async getTotalOrderCount(websiteKey: string, vendorId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const query = { websiteKey }
         if (vendorId) {
             query['vendor'] = new mongoose.Types.ObjectId(vendorId);
         }
@@ -338,8 +377,13 @@ export class OrderService {
         return orderCount;
     }
 
-    async getTopSellingProducts(vendorId: string) {
-        const matchFilter: any = {};
+    async getTopSellingProducts(websiteKey: string, vendorId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
+        const matchFilter: any = { websiteKey };
 
         // If vendorId is provided, filter orders by vendor
         if (vendorId) {
@@ -393,6 +437,7 @@ export class OrderService {
 
         const topItems = await Promise.all(
             result.map(async (item: any) => {
+                // need to add website key 
                 const product = await this.productService.getProductById(item.productId, undefined, undefined, undefined);
                 delete item.productId;
                 item['product'] = product;
@@ -405,21 +450,22 @@ export class OrderService {
 
 
 
-    async getUserOrders(userId: string, query: GetOrderQuery) {
-        const orders = await this.getOrders(userId, undefined, query.status, query.lastId)
+    async getUserOrders(websiteKey: string, userId: string, query: GetOrderQuery) {
+        const orders = await this.getOrders(websiteKey, userId, undefined, query.status, query.lastId)
         return orders;
     }
 
-    async getVendorOrders(vendorId: string, query: GetOrderQuery) {
-        const orders = await this.getOrders(undefined, vendorId, query.status, query.lastId)
+    async getVendorOrders(websiteKey: string, vendorId: string, query: GetOrderQuery) {
+        const orders = await this.getOrders(websiteKey, undefined, vendorId, query.status, query.lastId)
         return orders;
     }
 
-    async getAllOrders(query: GetOrderQuery){
-        const orders = await this.getOrders(undefined, undefined, query.status, query.lastId);
+    async getAllOrders(websiteKey: string, query: GetOrderQuery) {
+        const orders = await this.getOrders(websiteKey, undefined, undefined, query.status, query.lastId);
         return orders;
     }
 
+    // this service call only inside this file 
     async updateOrderStatus(query: any, newStatus: OrderStatusEnum) {
         const order = await this.Order.findOneAndUpdate(query, { shippingStatus: newStatus })
 
@@ -428,9 +474,15 @@ export class OrderService {
         }
     }
 
-    async cancelOrder(orderId: string, userId: string, vendorId: string) {
+    async cancelOrder(websiteKey: string, orderId: string, userId: string, vendorId: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (website) {
+            throw new NotFoundException('Invalid website key')
+        }
+
         const query = {
             _id: orderId,
+            websiteKey,
             shippingStatus: OrderStatusEnum.PENDING
         }
 
@@ -442,22 +494,28 @@ export class OrderService {
             query['vendor'] = vendorId;
         }
 
-        const order = await this.Order.findOne({ _id: orderId }).populate('items.product').exec();
+        const order = await this.Order.findOne(query).populate('items.product').exec();
 
         if (!order) {
             throw new NotFoundException('Order not found.');
         }
 
         for (const item of order.items) {
-            await this.productService.updateVariantQuantity(item.product._id.toString(), item.variantId, item.quantity)
+            await this.productService.updateVariantQuantity(websiteKey, item.product._id.toString(), item.variantId, item.quantity)
         }
 
         await this.updateOrderStatus(query, OrderStatusEnum.CANCELLED);
     }
 
-    async changeOrderStatus(orderId: string, vendorId: string, newStatus: OrderStatusEnum) {
+    async changeOrderStatus(websiteKey: string, orderId: string, vendorId: string, newStatus: OrderStatusEnum) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if(!website){
+            throw new NotFoundException('Invalid website key')
+        }
+
         const query = {
             _id: orderId,
+            websiteKey,
             vendor: vendorId
         }
         // console.log(query, "Ouery")

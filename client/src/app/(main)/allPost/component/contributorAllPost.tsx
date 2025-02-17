@@ -25,14 +25,23 @@ const ContributorAllPost = () => {
 
 
     const fetchPostByStatus = async (status: string, param: URLSearchParams,) => {
-        if (websiteKey) return toast.error("Website key required", { duration: 2000 });
+        if (!websiteKey) return toast.error("Website key required", { duration: 2000 });
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/${status}?${param.toString()}`, undefined, { websiteKey });
+            
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
                 if (newPost.length < 10) setHasMore(false);
-                setPostData((prevData: any) => [...(prevData || []), ...newPost]);
-            } else {
+                setPostData((prevData: any) => {
+                    const updatedData = [...(prevData || [])];
+                    newPost.forEach((post: any) => {
+                        if (!updatedData.some((existingPost: any) => existingPost._id === post._id)) {
+                            updatedData.push(post);
+                        }
+                    });
+                    return updatedData;
+                });
+                            } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
                 });

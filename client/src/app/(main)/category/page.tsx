@@ -122,7 +122,7 @@ const columns = [
             description: category.description,
             bannerImageKey: category.bannerImageKey
           }
-          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${category._id}`, payload);
+          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${category._id}`, payload,{websiteKey: websiteKey});
 
           if (resp.status === 200 || resp.status === 201) {
             toast.success(resp.data.message, {

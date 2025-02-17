@@ -3,14 +3,19 @@ import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { CommentStatusEnum, IComment } from "./schema/comment.schema";
 import { UserRoleEnum } from "../users/schema/user.schema";
+import { WebsiteService } from "../website/website.service";
 
 
 @Injectable()
 export class CommentService {
-  constructor(@InjectModel('Comment') private Comment: Model<IComment>) { }
+  constructor(
+    @InjectModel('Comment') private Comment: Model<IComment>,
+    private readonly websiteService: WebsiteService
+  ) { }
 
-  async createNewComment(postId: string, userId: string, message: string) {
+  async createNewComment(websiteKey: string, postId: string, userId: string, message: string) {
     const newComment = await this.Comment.create({
+      websiteKey,
       userId,
       postId,
       message
@@ -18,10 +23,9 @@ export class CommentService {
 
   }
 
-  async approveComment(commentId: string) {
-
+  async approveComment(websiteKey: string, commentId: string) {
     const approvedComment = await this.Comment.findOneAndUpdate(
-      { _id: commentId },
+      { _id: commentId, websiteKey },
       { status: CommentStatusEnum.PUBLISHED },
       { new: true }
     );
@@ -31,9 +35,10 @@ export class CommentService {
     }
   }
 
-  async rejectComment(commentId: string) {
+  async rejectComment(websiteKey: string, commentId: string) {
+    
     const rejectedComment = await this.Comment.findOneAndUpdate(
-      { _id: commentId },
+      { _id: commentId, websiteKey },
       { status: CommentStatusEnum.REJECTED },
       { new: true }
     );
@@ -44,13 +49,13 @@ export class CommentService {
 
   }
 
-  async awaitingApproveComment() {
+  async awaitingApproveComment(websiteKey: string) {
     try {
-
       const pipeline: mongoose.PipelineStage[] = [];
 
       const matchStage: Record<string, any> = {
         status: CommentStatusEnum.AWAITING_APPROVAL,
+        websiteKey,
         isDeleted: { $ne: true }
       };
 
@@ -93,8 +98,9 @@ export class CommentService {
     }
   }
 
-  async deleteComment(userId: string, userRole: string, commentId: string) {
-    const comment = await this.Comment.findOne({ _id: commentId });
+  async deleteComment(websiteKey: string, userId: string, userRole: string, commentId: string) {
+
+    const comment = await this.Comment.findOne({ _id: commentId, websiteKey });
     if (!comment) {
       throw new NotFoundException("Comment not found");
     }
@@ -108,16 +114,17 @@ export class CommentService {
       throw new ForbiddenException("You do not have permission to delete this comment");
     }
 
-    await this.Comment.findOneAndUpdate({ _id: commentId }, { isDeleted: true });
+    await this.Comment.findOneAndUpdate({ _id: commentId, websiteKey }, { isDeleted: true });
   }
 
-  async allPublishedCommentOnPost(postId: string, lastId?: string) {
+  async allPublishedCommentOnPost(websiteKey: string, postId: string, lastId?: string) {
     const pipeline: mongoose.PipelineStage[] = [];
 
     // Match stage
     const matchStage: Record<string, any> = {
       postId: mongoose.Types.ObjectId.createFromHexString(postId), // Match the specific post ID
       status: CommentStatusEnum.PUBLISHED, // Ensure the comments are published
+      websiteKey,
       isDeleted: { $ne: true } // Exclude deleted comments
     };
 
@@ -169,12 +176,13 @@ export class CommentService {
     return comments;
   }
 
-  async allRejectedComment(lastId?: string) {
+  async allRejectedComment(websiteKey: string, lastId?: string) {
     const pipeline: mongoose.PipelineStage[] = [];
 
     // Match stage
     const matchStage: Record<string, any> = {
       status: CommentStatusEnum.REJECTED, // Ensure the comments are rejected
+      websiteKey,
       isDeleted: { $ne: true } // Exclude deleted comments
     };
 
@@ -222,12 +230,14 @@ export class CommentService {
     return comments;
   }
 
-  async allPublishedComment(lastId?: string) {
+  async allPublishedComment(websiteKey: string, lastId?: string) {
+
     const pipeline: mongoose.PipelineStage[] = [];
 
     // Match stage
     const matchStage: Record<string, any> = {
       status: CommentStatusEnum.PUBLISHED, // Ensure the comments are published
+      websiteKey,
       isDeleted: { $ne: true } // Exclude deleted comments
     };
 
@@ -275,11 +285,13 @@ export class CommentService {
     return comments;
   }
 
-  async allDeletedComment(lastId?: string) {
+  async allDeletedComment(websiteKey: string, lastId?: string) {
+  
     const pipeline: mongoose.PipelineStage[] = [];
 
     // Match stage
     const matchStage: Record<string, any> = {
+      websiteKey,
       isDeleted: true // include deleted comments
     };
 
@@ -327,9 +339,9 @@ export class CommentService {
     return comments;
   }
 
-  async editComment(userId: string, userRole: string, commentId: string, message: string) {
+  async editComment(websiteKey: string, userId: string, userRole: string, commentId: string, message: string) {
 
-    const comment = await this.Comment.findOne({ _id: commentId }, { userId: 1 }).lean().exec();
+    const comment = await this.Comment.findOne({ _id: commentId, websiteKey }, { userId: 1 }).lean().exec();
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
@@ -341,12 +353,13 @@ export class CommentService {
       }
     }
 
-    const query = await this.Comment.updateOne({ _id: commentId }, { message, status: CommentStatusEnum.AWAITING_APPROVAL }).lean().exec();
+    const query = await this.Comment.updateOne({ _id: commentId, websiteKey }, { message, status: CommentStatusEnum.AWAITING_APPROVAL }).lean().exec();
 
   }
 
-  async recoverComment(commentId: string) {
-    const comment = await this.Comment.findOneAndUpdate({ _id: commentId }, { isDeleted: false });
+  async recoverComment(websiteKey: string, commentId: string) {
+
+    const comment = await this.Comment.findOneAndUpdate({ _id: commentId, websiteKey }, { isDeleted: false });
 
     if (!comment) {
       throw new NotFoundException('Comment not found');
