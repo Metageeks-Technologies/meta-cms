@@ -393,3 +393,18 @@ export interface caseStudyContent {
     challengesSection:studyChallange;
   };
 }
+
+
+export interface AddressType {
+  _id: string;
+    name: string;
+    phone: string;
+    email: string;
+    house: string;
+    street: string;
+    landmark: string;
+    postalCode: number | string;  // Changed to allow both number and string
+    city: string;
+    state: string;
+    instruction?: string;
+}
