@@ -120,7 +120,7 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
-    async getAllPage(websiteKey: string): Promise<any> {
+    async getAllPage(websiteKey: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
             throw new BadRequestException("Invalid website key");

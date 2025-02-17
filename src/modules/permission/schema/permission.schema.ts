@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 
 
-export interface IPremission {
+export interface IPermission {
     name: string,
     description: string,
     isDeleted: boolean,
 }
 
 
-export const PremissionSchema = new mongoose.Schema({
+export const PermissionSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,

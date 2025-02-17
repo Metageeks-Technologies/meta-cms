@@ -28,7 +28,7 @@ import { OrderModule } from './modules/store/order/order.module';
 import { WebsiteModule } from './modules/website/website.module';
 import { ServiceModule } from './modules/services/service.module';
 import { SubserviceModule } from './modules/subservices/subservice.module';
-import { PremissionModule } from './modules/premission/premission.module';
+import { PermissionModule } from './modules/permission/permission.module';
 
 
 
@@ -61,8 +61,8 @@ import { PremissionModule } from './modules/premission/premission.module';
     ServiceModule,
     SubserviceModule,
     WebsiteModule,
-    PremissionModule,
-    
+    PermissionModule,
+
   ],
   controllers: [AppController],
   providers: [
@@ -81,7 +81,7 @@ export class AppModule {
 
     // CORS middleware
     const corsOptions = {
-      origin: (origin: any, callback: any) => {
+      origin: (origin: string, callback: (err: Error | null, allow: boolean) => void) => {
         if (allowedOrigins.includes(origin) || !origin) {
           callback(null, true); // Allow the request
         } else {

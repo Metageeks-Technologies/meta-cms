@@ -86,7 +86,7 @@ export class MediaService {
     }
   }
 
-  async getMedia(websiteKey: string, { lastId }: GetMediaQueryDto): Promise<any[]> {
+  async getMedia(websiteKey: string, { lastId }: GetMediaQueryDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException('Invalid Website key')
