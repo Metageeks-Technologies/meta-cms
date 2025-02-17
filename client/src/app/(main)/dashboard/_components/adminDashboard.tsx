@@ -73,44 +73,62 @@ const AdminDashboard = () => {
       <h1 className='text-3xl font-bold my-4'>{website?.name}</h1>
 
       <div className="flex justify-start my-5">
-        <button
-          onClick={() => setIsBlogDashboard(true)}
-          className={`font-bold px-5 py-2 cursor-pointer ${isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
-          Blog Dashboard
-        </button>
-        <button
-          onClick={() => setIsBlogDashboard(false)}
-          className={`font-bold px-5 py-2 cursor-pointer ${!isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
-          Store Dashboard
-        </button>
+        {
+          user?.website?.permissions.includes('blog') || website?.permissions?.includes('blog') &&
+          <button
+            onClick={() => setIsBlogDashboard(true)}
+            className={`font-bold px-5 py-2 cursor-pointer ${isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
+            Blog Dashboard
+          </button>
+        }
+        {
+          user?.website?.permissions.includes('store') || website?.permissions?.includes('store') &&
+          <button
+            onClick={() => setIsBlogDashboard(false)}
+            className={`font-bold px-5 py-2 cursor-pointer ${!isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
+            Store Dashboard
+          </button>
+        }
       </div>
 
 
       {isBlogDashboard ? (
-        <>
-          {
-            (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ?
-              <CardsRow data={globalDashboardData} personalData={personalDashboardData}/>
-              : <CardsRow data={personalDashboardData} />
-          }
-          {
-            (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
-            <RecentPosts />
-          }
-          <MyRecentPosts />
 
-          <div className={`
-        ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" : "w-[50%]"}
-        mx-auto flex flex-row items-center gap-5 mt-20`}>
+        (user?.website?.permissions.includes('blog') || website?.permissions?.includes('blog')) ?
+          <>
+            {
+              (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ?
+                <CardsRow data={globalDashboardData} personalData={personalDashboardData} />
+                : <CardsRow data={personalDashboardData} />
+            }
             {
               (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
-              <Chart heading="Global Monthly Posts" data={globalDashboardData} />
+              <RecentPosts />
             }
-            <Chart heading="My Monthly Posts" data={personalDashboardData} />
+            <MyRecentPosts />
+
+            <div className={`
+        ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" : "w-[50%]"}
+        mx-auto flex flex-row items-center gap-5 mt-20`}>
+              {
+                (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
+                <Chart heading="Global Monthly Posts" data={globalDashboardData} />
+              }
+              <Chart heading="My Monthly Posts" data={personalDashboardData} />
+            </div>
+          </>
+
+          : <div className='text-center my-20'>
+            <h1 className='text-3xl font-bold'>You don’t have permission to access this dashboard.</h1>
+            <h3 className='text-gray-400 font-bold'>Please contact the administrator for assistance.</h3>
           </div>
-        </>
       ) : (
-        <StoreDashboard />
+        (user?.website?.permissions.includes('store') || website?.permissions?.includes('store')) ?
+          <StoreDashboard />
+          : <div className='text-center my-20'>
+            <h1 className='text-3xl font-bold'>You don’t have permission to access this dashboard.</h1>
+            <h3 className='text-gray-400 font-bold'>Please contact the administrator for assistance.</h3>
+          </div>
       )}
 
 

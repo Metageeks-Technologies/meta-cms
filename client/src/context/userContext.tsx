@@ -63,11 +63,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const [adminData, setAdminData] = useState<any[]>([]); 
 
-    // console.log(contributors, "Contributors")
-
-
-    // console.log(websiteData, "webiste data")
-
 
     // API Calls
     const fetchUsers = async (role: string) => {
@@ -253,6 +248,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (userData.role === userRoles.SUPERADMIN) {
                 fetchWebsiteData();
+            }else{
+                
             }
 
             setIsAuthenticated(true);

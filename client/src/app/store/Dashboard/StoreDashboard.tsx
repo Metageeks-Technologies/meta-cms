@@ -12,14 +12,14 @@ import { StoreRole } from '@/constant/store';
 
 const StoreDashboard = () => {
 
-    const { user, setLoading } = useUserContext();
+    const { user, setLoading, websiteKey } = useUserContext();
     const [dashboardData, setDashboardData] = useState<any>({});
 
 
     const fetchStoreAdminDashboard = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/store/admin`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/store/admin`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 setDashboardData(resp?.data);
@@ -37,7 +37,7 @@ const StoreDashboard = () => {
     const fetchStoreVendorDashboard = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/store/vendor`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/store/vendor`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 setDashboardData(resp?.data);
@@ -53,21 +53,21 @@ const StoreDashboard = () => {
     }
 
     useEffect(() => {
-        if (user.storeRole === StoreRole.SUPERADMIN || user.storeRole === StoreRole.STOREMODERATOR) {
-            fetchStoreAdminDashboard();
-        }
+        if (websiteKey) {
+            if (user.storeRole === StoreRole.SUPERADMIN || user.storeRole === StoreRole.STOREMODERATOR) {
+                fetchStoreAdminDashboard();
+            }
 
-        if (user.storeRole === StoreRole.VENDOR) {
-            fetchStoreVendorDashboard();
+            if (user.storeRole === StoreRole.VENDOR) {
+                fetchStoreVendorDashboard();
+            }
         }
-    }, [user])
+    }, [user, websiteKey])
 
     return (
         <div className='mb-6'>
 
 
-
-            
             {user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR ? (
                 <CardRow
                     storeUserCount={dashboardData?.storeUserCount}
