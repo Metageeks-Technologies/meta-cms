@@ -11,24 +11,13 @@ import { Button } from "@/components/ui/button";
 import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
+import { AddressType } from '@/types';
 
-interface Address {
-    _id: string;
-    name: string;
-    phone: string;
-    email: string;
-    house: string;
-    street: string;
-    landmark: string;
-    postalCode: number | string;  // Changed to allow both number and string
-    city: string;
-    state: string;
-    instruction?: string;
-}
+
 
 interface EditAddressProps {
-    editAddress: Address;
-    setEditAddress: React.Dispatch<React.SetStateAction<Address>>;
+    editAddress: AddressType;
+    setEditAddress: React.Dispatch<React.SetStateAction<AddressType>>;
     getUserAddresses: () => void;
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -104,7 +93,7 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof Address): void => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof AddressType): void => {
         const { value } = e.target;
         let updatedValue: string | number = value;
         let isValid = true;
