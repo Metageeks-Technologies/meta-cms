@@ -45,7 +45,6 @@ const App: React.FC = () => {
     keywords: []
   });
 
-  console.log(formData);
 
   
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);

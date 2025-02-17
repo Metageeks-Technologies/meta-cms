@@ -28,7 +28,7 @@ const ContributorAllPost = () => {
         if (!websiteKey) return toast.error("Website key required", { duration: 2000 });
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/${status}?${param.toString()}`, undefined, { websiteKey });
-            console.log(resp.data)
+            
             if (resp.status === 200 || resp.status === 201) {
                 const newPost = resp?.data;
                 if (newPost.length < 10) setHasMore(false);

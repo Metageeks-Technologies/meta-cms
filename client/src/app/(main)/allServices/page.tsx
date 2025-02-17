@@ -115,7 +115,7 @@ const columns = [
             description: servicess.description,
           }
           const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}`, payload, { websiteKey: websiteKey });
-          console.log(resp.data)
+          
 
           if (resp.status === 200 || resp.status === 201) {
             toast.success(resp.data.message, {
