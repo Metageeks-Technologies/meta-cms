@@ -10,26 +10,26 @@ interface PageContextType {
   services: any,
   subServices: any,
   fetchPageData: () => void,
-  fetchServices:()=>void,
-  fetchAllServices:() => void,
-  fetchSubServices:(id:string)=>void,
+  fetchServices: () => void,
+  fetchAllServices: () => void,
+  fetchSubServices: (id: string) => void,
 
   recoverPage: (id: string) => void,
-  recoverServices:(id: string) => void,
-  recoverSubServices:(id: string,serviceId:string)=>void,
-  fetchSubServicesTotal:(id:string) => void,
+  recoverServices: (id: string) => void,
+  recoverSubServices: (id: string, serviceId: string) => void,
+  fetchSubServicesTotal: (id: string) => void,
   deletePage: (id: string) => void,
-  deleteServices:(id: string) => void,
-  deleteSubServices:(id: string,serviceId:string)=>void,
+  deleteServices: (id: string) => void,
+  deleteSubServices: (id: string, serviceId: string) => void,
 }
 
 
 export const PageProvider = ({ children }: { children: ReactNode }) => {
 
   const { setLoading } = useUserContext();
-  const [pageData, setPageData] = useState([]); 
-  const [services,setService]=useState([]);
-  const [subServices,setSubService]=useState([]);
+  const [pageData, setPageData] = useState([]);
+  const [services, setService] = useState([]);
+  const [subServices, setSubService] = useState([]);
 
 
   const { websiteKey } = useUserContext();
@@ -87,12 +87,12 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  
+
 
   const recoverServices = async (id: string) => {
     setLoading(true);
     try {
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}/recover`,undefined, { websiteKey: websiteKey });
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}/recover`, undefined, { websiteKey: websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         fetchServices();
@@ -109,7 +109,7 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const deleteServices = async (id: string) => {
     setLoading(true);
     try {
-      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}`,undefined, { websiteKey: websiteKey });
+      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}`, undefined, { websiteKey: websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         fetchAllServices();
@@ -127,7 +127,7 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const recoverPage = async (id: string) => {
     setLoading(true);
     try {
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${id}/recover`);
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${id}/recover`, undefined, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         fetchPageData();
@@ -144,7 +144,7 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const deletePage = async (id: string) => {
     setLoading(true);
     try {
-      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${id}`);
+      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/${id}`, undefined, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         fetchPageData();
@@ -160,7 +160,7 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
 
 
 
-  const fetchSubServices = async (id:string) => {
+  const fetchSubServices = async (id: string) => {
     setLoading(true);
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices`, undefined, { websiteKey: websiteKey });
@@ -179,7 +179,7 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const fetchSubServicesTotal = async (id:string) => {
+  const fetchSubServicesTotal = async (id: string) => {
     setLoading(true);
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/total/${id}`, undefined, { websiteKey: websiteKey });
@@ -201,10 +201,10 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
 
 
 
-  const recoverSubServices = async (id: string,serviceId:string) => {
+  const recoverSubServices = async (id: string, serviceId: string) => {
     setLoading(true);
     try {
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/${id}/recover`,undefined, { websiteKey: websiteKey });
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/${id}/recover`, undefined, { websiteKey: websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         fetchSubServicesTotal(serviceId);
@@ -218,10 +218,10 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const deleteSubServices = async (id: string,serviceId:string) => {
+  const deleteSubServices = async (id: string, serviceId: string) => {
     setLoading(true);
     try {
-      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/${id}`,undefined, { websiteKey: websiteKey });
+      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/${id}`, undefined, { websiteKey: websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
         fetchSubServicesTotal(serviceId);
