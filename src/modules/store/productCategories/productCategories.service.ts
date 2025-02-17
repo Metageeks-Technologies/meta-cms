@@ -49,15 +49,15 @@ export class ProductCategoriesService {
     // since categories will be fetched quite often
 
     // get categories from cache 
-    const categoriesData = await this.redisService.getCache(RedisKeys.AllProductCategory);
-    if (categoriesData) {
-      return JSON.parse(categoriesData);
-    }
+    // const categoriesData = await this.redisService.getCache(RedisKeys.AllProductCategory);
+    // if (categoriesData) {
+    //   return JSON.parse(categoriesData);
+    // }
 
     const categories = await this.ProductCategory.find({ websiteKey }).sort({ createdAt: -1 }).lean().exec();
 
     // stored categories in cache 
-    this.redisService.setCache(RedisKeys.AllProductCategory, JSON.stringify(categories));
+    // this.redisService.setCache(RedisKeys.AllProductCategory, JSON.stringify(categories));
     return categories as IProductCategory[];
   }
 
