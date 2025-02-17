@@ -32,7 +32,7 @@ const ProductCard: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const { user } = useUserContext();
 
-  const { loading, setLoading } = useUserContext();
+  const { loading, setLoading ,websiteKey} = useUserContext();
 
   const [newVariant, setNewVariant] = useState<any>({
     variantId: "",
@@ -50,7 +50,7 @@ const ProductCard: React.FC = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}/${editedVariant.variantId}`, editedVariant);
+      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}/${editedVariant.variantId}`, editedVariant,{websiteKey});
 
       const updatedProduct = { ...product };
       updatedProduct.variants = updatedProduct.variants.map((variant: any) =>
@@ -108,7 +108,7 @@ const ProductCard: React.FC = () => {
 
 
     try {
-      const response = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}`, newVariant);
+      const response = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}`, newVariant,{websiteKey});
       setProduct((prev: any) => ({
         ...prev,
         variants: [...prev.variants, response.data],
@@ -139,7 +139,7 @@ const ProductCard: React.FC = () => {
 
   const fetchProductData = async () => {
     try {
-      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`);
+      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`,undefined,{websiteKey});
       const filteredVariants = response.data.variants.filter((variant: any) => !variant.isDeleted);
       setProduct({
         ...response.data,
@@ -156,7 +156,7 @@ const ProductCard: React.FC = () => {
   const handleDelete = async (id: any) => {
     setLoading(true);
     try {
-      const response = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/products/delete/${product._id}`);
+      const response = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/products/delete/${product._id}`,undefined,{websiteKey});
       if (response.status === 200 || response.status === 204) {
         toast.success(response?.data?.message, { duration: 2000 });
         router.push(`/store/allProduct`);
@@ -187,7 +187,7 @@ const ProductCard: React.FC = () => {
   const handleRecover = async (id: any) => {
     setLoading(true);
     try {
-      const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/products/recover/${product._id}`);
+      const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/products/recover/${product._id}`,undefined,{websiteKey});
       if (response.status === 200 || response.status === 204) {
         toast.success(response?.data?.message, { duration: 2000 });
         router.push(`/store/allProduct`);
@@ -204,7 +204,7 @@ const ProductCard: React.FC = () => {
   const handleApprove = async (id: any) => {
     setLoading(true);
     try {
-      const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/products/approve/${product._id}`);
+      const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/products/approve/${product._id}`,undefined,{websiteKey});
       if (response.status === 200 || response.status === 204) {
         toast.success(response?.data?.message, { duration: 2000 });
         router.push(`/store/allProduct`);
@@ -221,7 +221,7 @@ const ProductCard: React.FC = () => {
   const handleRejected = async (id: any) => {
     setLoading(true);
     try {
-      const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/products/reject/${product._id}`);
+      const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/products/reject/${product._id}`,undefined,{websiteKey});
       if (response.status === 200 || response.status === 204) {
         toast.success(response?.data?.message, { duration: 2000 });
         router.push(`/store/allProduct`);
@@ -236,9 +236,13 @@ const ProductCard: React.FC = () => {
   }
 
 
-  useEffect(() => {
-    fetchProductData();
-  }, [id]);
+
+
+   useEffect(() => {
+          if (websiteKey) {
+              fetchProductData();
+          }
+      }, [websiteKey,id]);
 
   const fetchVariantData = (variantId: string) => {
     const variant = product?.variants?.find((v: any) => v.variantId === variantId);
@@ -255,7 +259,7 @@ const ProductCard: React.FC = () => {
         toast.error("At least one variant must remain.");
         return; // Prevent further deletion
       }
-      const response = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}/${variantId}`);
+      const response = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}/${variantId}`,undefined,{websiteKey});
       if (response.status === 200) {
         const updatedVariants = product?.variants.filter((variant: any) => variant.variantId !== variantId);
         setProduct((prev: any) => ({
@@ -565,7 +569,7 @@ const ProductCard: React.FC = () => {
               )}
 
               {(user?.id === product?.authorId ||
-                  user.role === StoreRole.SUPERADMIN) && (
+                  user.role === "superadmin" || user.role==="admin") && (
                   <Button
                       onClick={handleEdit}
                       className="bg-blue-500 text-white hover:bg-blue-900"

@@ -11,14 +11,14 @@ const ProfileTabs = () => {
 
   const [tab, setTab] = useState(1);
 
-  const { loading, setLoading } = useUserContext();
+  const { loading, setLoading,websiteKey } = useUserContext();
   const [addresses, setAddresses] = useState([]);
   const [orders, setOrders] = useState([]);
 
   const getUserAddresses = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`)
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`,undefined,{websiteKey})
 
       if (resp.status === 200 || resp.status === 201) {
         setAddresses(resp?.data)
@@ -36,7 +36,7 @@ const ProfileTabs = () => {
   const getUserOrders = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`)
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`,undefined,{websiteKey})
 
 
       if (resp.status === 200 || resp.status === 201) {
@@ -51,11 +51,15 @@ const ProfileTabs = () => {
     }
   }
 
+      
 
   useEffect(() => {
-    getUserAddresses();
-    getUserOrders();
-  }, []);
+    if (websiteKey) {
+      getUserAddresses();
+      getUserOrders();
+    }
+    
+  }, [websiteKey]);
 
   return (
     <div>

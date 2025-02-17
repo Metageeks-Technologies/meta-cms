@@ -5,11 +5,13 @@ import toast from "react-hot-toast";
 import { useUserContext } from "./userContext";
 import { ProductContextType } from "@/types";
 
+
 const productContext = createContext<any>(null);
 
 export const ProductProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const { setLoading } = useUserContext();
+        const { setLoading, websiteKey } = useUserContext();
+    
 
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
@@ -21,7 +23,9 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     const fetchProductCategories = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`, undefined, { websiteKey })
+
+            console.log(resp.data)
             if (resp?.status === 200 || resp?.status === 201) {
                 setProductCategories(resp?.data);
             } else {
@@ -37,7 +41,7 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     const deleteProductCategory = async (id: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${id}`);
+            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${id}`,undefined, { websiteKey });
             if (resp.status === 200 || resp?.status === 201) {
                 toast.success(resp?.data?.message, { duration: 2000 });
                 fetchProductCategories();

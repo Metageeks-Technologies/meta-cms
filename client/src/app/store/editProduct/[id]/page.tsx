@@ -12,6 +12,8 @@ import DatePicker from 'react-datepicker';
 import { FaArrowLeft } from 'react-icons/fa6';
 
 const EditProduct: React.FC = () => {
+        const { websiteKey } = useUserContext();
+    
     const [variantImages, setVariantImages] = useState<{ [key: string]: File[] }>({});
     const [productStatus, setProductStatus] = useState('DRAFT');
     const [attributes, setAttributes] = useState<{ name: string, value: string | number }[]>([{ name: '', value: '' }]); // Add one default attribute
@@ -54,7 +56,7 @@ const EditProduct: React.FC = () => {
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 setCategoryArr(resp?.data);
                 setFilteredCategoryArr(resp?.data);
@@ -71,7 +73,7 @@ const EditProduct: React.FC = () => {
     const fetchWebsites = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 setWebsiteArr(resp?.data);
             } else {
@@ -107,7 +109,7 @@ const EditProduct: React.FC = () => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`);
+            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`,undefined,{websiteKey});
 
 
             if (response.status === 200 || response.status === 201) {
@@ -226,7 +228,7 @@ const EditProduct: React.FC = () => {
                         contentType: file.type,
                     };
 
-                    const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+                    const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
 
                     if (resp.status === 200 || resp.status === 201) {
                         const uploadUrl = resp?.data?.uploadUrl;

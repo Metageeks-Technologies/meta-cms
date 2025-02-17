@@ -27,7 +27,7 @@ const CreateProduct: React.FC = () => {
   ]);
   const editorRef = useRef<any>(null);
 
-  const { setLoading, user } = useUserContext();
+  const { setLoading, user ,websiteKey} = useUserContext();
 
   const [categoryArr, setCategoryArr] = useState([]);
   const [websiteArr, setWebsiteArr] = useState([]);
@@ -51,7 +51,7 @@ const CreateProduct: React.FC = () => {
   const fetchCategory = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey});
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
@@ -68,7 +68,7 @@ const CreateProduct: React.FC = () => {
   const fetchWebsites = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`,undefined,{websiteKey});
       if (resp.status === 200 || resp.status === 201) {
         setWebsiteArr(resp?.data);
       } else {
@@ -192,7 +192,7 @@ const CreateProduct: React.FC = () => {
             contentType: file.type,
           };
 
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
 
           if (resp.status === 200 || resp.status === 201) {
             const uploadUrl = resp?.data?.uploadUrl;
@@ -299,7 +299,7 @@ const CreateProduct: React.FC = () => {
         variants: formData.variants,
       };
 
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products`, payload);
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products`, payload,{websiteKey});
 
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });

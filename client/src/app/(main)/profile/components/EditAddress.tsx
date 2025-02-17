@@ -31,7 +31,7 @@ interface PostOfficeData {
 }
 
 const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, getUserAddresses, setIsOpen }) => {
-    const { setLoading } = useUserContext();
+    const { setLoading ,websiteKey} = useUserContext();
 
     const fetchAddressDetails = async (pincode: string): Promise<void> => {
         if (pincode?.length === 6) {
@@ -77,7 +77,7 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
                 postalCode: parseInt(postalCode)
             };
 
-            const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${editAddress._id}`, payload);
+        const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${editAddress._id}`, payload,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 toast.success("Address updated successfully");
                 getUserAddresses();

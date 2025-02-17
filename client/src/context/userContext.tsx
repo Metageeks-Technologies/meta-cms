@@ -278,13 +278,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     await fetchUsers(userRoles.MODERATOR);
                 } else if (role === userRoles.SUBSCRIBER) {
                     await fetchUsers(userRoles.SUBSCRIBER);
-                } else if (role === StoreRole.USER) {
-                    await fetchStoreRole(StoreRole.USER);
-                } else if (role === StoreRole.VENDOR) {
-                    await fetchStoreRole(StoreRole.VENDOR);
-                } else if (role === StoreRole.STOREMODERATOR) {
-                    await fetchStoreRole(StoreRole.STOREMODERATOR);
                 }
+                //  else if (role === StoreRole.USER) {
+                //     await fetchStoreRole(StoreRole.USER);
+                // } else if (role === StoreRole.VENDOR) {
+                //     await fetchStoreRole(StoreRole.VENDOR);
+                // } else if (role === StoreRole.STOREMODERATOR) {
+                //     await fetchStoreRole(StoreRole.STOREMODERATOR);
+                // }
             } else {
                 throw new Error(response.data.message);
             }
@@ -311,13 +312,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     await fetchUsers(userRoles.MODERATOR);
                 } else if (role === userRoles.SUBSCRIBER) {
                     await fetchUsers(userRoles.SUBSCRIBER);
-                } else if (role === StoreRole.USER) {
-                    await fetchStoreRole(StoreRole.USER);
-                } else if (role === StoreRole.VENDOR) {
-                    await fetchStoreRole(StoreRole.VENDOR);
-                } else if (role === StoreRole.STOREMODERATOR) {
-                    await fetchStoreRole(StoreRole.STOREMODERATOR);
-                }
+                } 
+                // else if (role === StoreRole.USER) {
+                //     await fetchStoreRole(StoreRole.USER);
+                // } else if (role === StoreRole.VENDOR) {
+                //     await fetchStoreRole(StoreRole.VENDOR);
+                // } else if (role === StoreRole.STOREMODERATOR) {
+                //     await fetchStoreRole(StoreRole.STOREMODERATOR);
+                // }
             } else {
                 throw new Error(response.data.message);
             }

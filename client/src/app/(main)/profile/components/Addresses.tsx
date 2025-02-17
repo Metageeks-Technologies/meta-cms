@@ -1,6 +1,6 @@
 import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,14 +20,14 @@ import { TriangleAlert, MapPin, Home, Phone, Mail, Edit2, Trash2, Star, Info } f
 import EditAddress from './EditAddress';
 
 const Addresses = ({ addresses, getUserAddresses }: any) => {
-    const { loading, setLoading } = useUserContext();
+    const { loading, setLoading,websiteKey,user } = useUserContext();
     const [isOpen, setIsOpen] = useState(false);
     const [editAddress, setEditAddress] = useState<any>({});
 
     const setDefault = async (id: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${id}`);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${id}`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 getUserAddresses();
             }
@@ -41,7 +41,7 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
     const deleteAddress = async (id: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${id}`);
+            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${id}`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 getUserAddresses();
             }
@@ -51,6 +51,8 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
             setLoading(false);
         }
     };
+
+ 
 
     if (addresses.length <= 0) {
         return (

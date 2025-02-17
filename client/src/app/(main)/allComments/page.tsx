@@ -4,20 +4,16 @@ import axiosCall from "@/utils/ApiCall";
 import { IComment } from '@/types';
 import { useUserContext } from '@/context/userContext';
 import toast from 'react-hot-toast';
+import { Check } from 'lucide-react';
 
 const CommentsPage: React.FC = () => {
     const [comments, setComments] = useState<IComment[]>([]);
-    const { isLoading, setLoading }: any = useUserContext();
+    const { isLoading, setLoading, websiteKey }: any = useUserContext();
     const [filter, setFilter] = useState<'awaiting approval' | 'published' | 'rejected' | 'deleted'>('awaiting approval');
     const [lastCommentId, setLastCommentId] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState(true);
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingMessage, setEditingMessage] = useState<string>('');
-
-
-        const { loading, user, websiteKey } = useUserContext();
-    
-
     const fetchComments = async (status: string, lastId: string | null) => {
         setLoading(true);
         try {
@@ -28,15 +24,13 @@ const CommentsPage: React.FC = () => {
                 'deleted': `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/all-deleted${lastId ? `?lastId=${lastId}` : ''}`
             };
 
-    const resp = await axiosCall('get', endpointMap[status], undefined,  { websiteKey } );
+            const resp = await axiosCall('get', endpointMap[status], undefined, { websiteKey });
 
 
             if (Array.isArray(resp.data)) {
                 if (lastId) {
-                    // For loading more comments, concatenate to existing comments
                     setComments(prev => [...prev, ...resp.data]);
                 } else {
-                    // For initial fetch, replace existing comments
                     setComments(resp.data);
                 }
                 setHasMore(resp.data.length > 0);
@@ -67,7 +61,7 @@ const CommentsPage: React.FC = () => {
     }, [filter, websiteKey]);
 
     useEffect(() => {
-        setLastCommentId(null); // Reset lastCommentId for new fetch
+        setLastCommentId(null);
         fetchComments(filter, null);
     }, [filter]);
 
@@ -79,13 +73,13 @@ const CommentsPage: React.FC = () => {
     const handleUpdateComment = async (commentId: string) => {
         try {
             const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
-            await axiosCall('patch', endpoint, { message: editingMessage });
+            await axiosCall('patch', endpoint, { message: editingMessage }, { websiteKey });
             toast.success('Comment updated successfully');
-            fetchComments(filter, null); // Refetch comments after updating
+            fetchComments(filter, null);
             setEditingCommentId(null);
         } catch (error) {
             toast.error('Error updating comment');
-            fetchComments(filter, null); // Refetch comments in case of error
+            fetchComments(filter, null);
         }
     };
 
@@ -98,17 +92,17 @@ const CommentsPage: React.FC = () => {
                 endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/reject/${commentId}`;
             } else if (newStatus === 'deleted') {
                 endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${postId}/delete/${commentId}`;
-                await axiosCall('DELETE', endpoint);
+                await axiosCall('DELETE', endpoint, undefined, { websiteKey });
                 toast.success('Comment deleted successfully');
-                fetchComments(filter, null); // Refetch comments after deletion
-                return; // Exit early to avoid refetching again
+                fetchComments(filter, null);
+                return;
             } else {
                 endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/edit/${commentId}`;
             }
 
-            await axiosCall('patch', endpoint);
+            await axiosCall('patch', endpoint, undefined, { websiteKey });
             toast.success('Comment status updated successfully');
-            fetchComments(filter, null); // Refetch comments after updating status
+            fetchComments(filter, null);
         } catch (error) {
             toast.error('Error updating comment status');
         }
@@ -117,9 +111,9 @@ const CommentsPage: React.FC = () => {
     const recoverComment = async (commentId: string) => {
         try {
             const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/recover/${commentId}`;
-            await axiosCall('patch', endpoint);
+            await axiosCall('patch', endpoint, undefined, { websiteKey });
             toast.success('Comment recovered successfully');
-            fetchComments(filter, null); // Refetch comments after recovering
+            fetchComments(filter, null);
         } catch (error) {
             toast.error('Error recovering comment');
         }
@@ -142,21 +136,25 @@ const CommentsPage: React.FC = () => {
     };
 
     return (
-        <div className="p-6 mx-auto bg-black text-white">
+        <div className="p-6 mx-auto bg-black text-white mb-9">
             <div className="mb-4 flex space-x-4">
                 {['awaiting approval', 'published', 'rejected', 'deleted'].map(status => (
-                    <button
+                    <div
                         key={status}
                         onClick={() => setFilter(status as 'awaiting approval' | 'published' | 'rejected' | 'deleted')}
-                        className={`px-4 py-2 rounded ${filter === status ? 'bg-blue-500' : 'bg-gray-700'} hover:bg-blue-400`}
+                        className={`bg-gray-900 px-4 py-2 sm:px-6 sm:py-3 rounded-lg border-[1px] border-gray-800 flex items-center gap-2 cursor-pointer ${filter === status ? 'text-blue-800 border-blue-800 bg-blue-500' : 'text-white'}`}
                     >
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </button>
+                        {filter === status && (
+                            <Check className="w-4 h-4 sm:w-6 sm:h-6" />
+                        )}
+                        <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                    </div>
                 ))}
             </div>
 
+
             {comments.length === 0 ? (
-                <p className="text-gray-500 text-center text-lg italic">No comments at this time.</p>
+                <p className=" mt-auto text-gray-500 text-3xl text-center  italic">No comments at this time.</p>
             ) : (
                 <ul className="space-y-6">
                     {comments.map(comment => (
@@ -168,35 +166,35 @@ const CommentsPage: React.FC = () => {
                                 </p>
                             </div>
                             {editingCommentId === comment._id ? (
-    <>
-        <textarea
-            className="w-full p-2 bg-gray-800 text-gray-200 border border-gray-600 rounded"
-            value={editingMessage}
-            onChange={(e) => setEditingMessage(e.target.value)}
-        />
-        <div className="mt-2 flex space-x-2">
-            <button
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
-                onClick={() => handleUpdateComment(comment._id)}
-            >
-                Submit
-            </button>
-            <button
-                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500"
-                onClick={() => {
-                    setEditingCommentId(null); // Clear the editing state
-                    setEditingMessage(''); // Clear the message
-                }}
-            >
-                Cancel
-            </button>
-        </div>
-    </>
-) : (
-    <p className="text-gray-200 border-l-4 border-blue-500 pl-4 mb-4 italic bg-gray-800 p-3 rounded">
-        {comment.message}
-    </p>
-)}
+                                <>
+                                    <textarea
+                                        className="w-full p-2 bg-gray-800 text-gray-200 border border-gray-600 rounded"
+                                        value={editingMessage}
+                                        onChange={(e) => setEditingMessage(e.target.value)}
+                                    />
+                                    <div className="mt-2 flex space-x-2">
+                                        <button
+                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
+                                            onClick={() => handleUpdateComment(comment._id)}
+                                        >
+                                            Submit
+                                        </button>
+                                        <button
+                                            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500"
+                                            onClick={() => {
+                                                setEditingCommentId(null); 
+                                                setEditingMessage(''); 
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-gray-200 border-l-4 border-blue-500 pl-4 mb-4 italic bg-gray-800 p-3 rounded">
+                                    {comment.message}
+                                </p>
+                            )}
 
                             <p className="text-sm text-gray-400 mb-4">
                                 <strong>Status: </strong>
