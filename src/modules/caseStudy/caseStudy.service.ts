@@ -93,4 +93,30 @@ export class CaseStudyService {
         return caseStudies;
     }
 
+    async getPublic(websiteKey: string) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new BadRequestException('Invalid website key')
+        }
+
+        const caseStudies = await this.CaseStudy.find({ websiteKey, isDeleted: false }, { title: 1, slug: 1, "content.heroSection": 1 }).exec()
+        return caseStudies;
+    }
+
+    async getBySlug(websiteKey: string, slug: string, isDeleted?: boolean) {
+        const website = await this.websiteService.getWebsiteByKey(websiteKey)
+        if (!website) {
+            throw new BadRequestException('Invalid website key')
+        }
+
+        const query = { websiteKey, slug };
+
+        if(isDeleted !== undefined){
+            query['isDeleted'] = isDeleted;
+        }
+
+        const caseStudy = await this.CaseStudy.findOne(query).populate('authorId').exec();
+        return caseStudy;
+    }
+
 }

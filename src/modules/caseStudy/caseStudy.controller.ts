@@ -30,11 +30,38 @@ export class CaseStudyController {
     }
 
     @Get('public')
+    async getPublicCaseStudy(
+        @Headers('websiteKey') websiteKey: string,
+    ) {
+        const caseStudies = await this.caseStudyService.getPublic(websiteKey)
+        return caseStudies;
+    }
+
+    @Get('public/:slug')
+    async getPublicCaseStudyBySlug(
+        @Headers('websiteKey') websiteKey: string,
+        @Param('slug') slug: string
+    ) {
+        const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug, false)
+        return caseStudy;
+    }
+
+
+    @Get()
     async getCaseStudy(
         @Headers('websiteKey') websiteKey: string,
     ) {
         const caseStudies = await this.caseStudyService.getAll(websiteKey, false)
         return caseStudies;
+    }
+
+    @Get(':slug')
+    async getCaseStudyBySlug(
+        @Headers('websiteKey') websiteKey: string,
+        @Param('slug') slug: string
+    ) {
+        const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug)
+        return caseStudy;
     }
 
     @Get('all')
