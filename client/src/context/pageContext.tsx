@@ -165,8 +165,6 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices`, undefined, { websiteKey: websiteKey });
 
-      // console.log(resp+"  subservices")
-
       if (resp?.status === 200 || resp?.status === 201) {
         setSubService(resp.data)
       } else {
@@ -183,8 +181,6 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/total/${id}`, undefined, { websiteKey: websiteKey });
-
-      // console.log(resp+"  subservices")
 
       if (resp?.status === 200 || resp?.status === 201) {
         setSubService(resp.data)

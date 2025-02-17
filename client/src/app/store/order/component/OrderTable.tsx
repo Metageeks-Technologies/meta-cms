@@ -76,7 +76,6 @@ const OrderTable = () => {
       const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, {
         status: newStatus,
       });
-      console.log(response.data);
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>

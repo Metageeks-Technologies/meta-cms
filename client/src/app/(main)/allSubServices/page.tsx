@@ -63,8 +63,6 @@ const columns = [
       const [clickedItem, setClickedItem] = useState(0);
       const { recoverSubServices, deleteSubServices,services } = usePageContext();
 
-      // console.log(services[0]._id)
-
 
   return (
         <AlertDialog>

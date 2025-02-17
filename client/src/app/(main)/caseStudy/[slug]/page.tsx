@@ -23,7 +23,6 @@ const page = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setcaseStudyPage(resp?.data);
-                // console.log(resp);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,

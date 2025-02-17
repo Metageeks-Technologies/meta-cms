@@ -99,7 +99,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
           const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
-          // console.log(resp.data)
     
           if (resp?.status === 200 || resp?.status === 201) {
             setAdminData(resp?.data);
@@ -156,7 +155,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 newRole
             },{websiteKey: websiteKey});
 
-            // console.log(response.data);
 
             if (response.status === 200 || response.status === 201) {
                 await fetchUsers(currentRole); // Refresh the list for the current role
@@ -249,7 +247,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (userData.role === userRoles.SUPERADMIN) {
                 fetchWebsiteData();
             }else{
-                
+
             }
 
             setIsAuthenticated(true);

@@ -65,7 +65,6 @@ const AddContributor = () => {
         setLoading(true);
         try {
             const payload = { ...createForm }
- //console.log(payload)
 
             const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/users/create`, payload, { websiteKey: websiteKey });
 
