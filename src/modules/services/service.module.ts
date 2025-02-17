@@ -14,5 +14,6 @@ import { WebsiteModule } from '../website/website.module';
   ],
   providers: [ServiceService],
   controllers: [ServiceController],
+  exports: [ServiceService]
 })
 export class ServiceModule {}

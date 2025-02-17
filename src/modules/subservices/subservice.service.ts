@@ -111,9 +111,9 @@ export class SubserviceService {
       throw new NotFoundException('Invalid website key')
     }
 
-    const query = {websiteKey, service: serviceId}
+    const query = { websiteKey, service: serviceId }
 
-    if(isDeleted !== undefined){
+    if (isDeleted !== undefined) {
       query['isDeleted'] = isDeleted
     }
 
@@ -124,7 +124,13 @@ export class SubserviceService {
 
 
   async findSubserviceByName(websiteKey: string, name: string) {
-    const subService = this.Subservice.findOne({ websiteKey, name }).exec();
+    const subService = await this.Subservice.findOne({ websiteKey, name }).exec();
+    return subService;
+  }
+
+
+  async getSubServiceByKey(websiteKey: string, key: string) {
+    const subService = await this.Subservice.findOne({websiteKey, key}).exec();
     return subService;
   }
 

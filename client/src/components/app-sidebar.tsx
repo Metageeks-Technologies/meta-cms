@@ -78,7 +78,7 @@ export function AppSidebar() {
                 ["New Post", "All Post", "Category", "Tags"].forEach((title) => includedSubItems.add(title));
               }
               if (user?.website?.permissions?.includes(PermissionEnum.PAGE)) {
-                ["New Page", "All Page" ,"Services","Sub Services"].forEach((title) => includedSubItems.add(title));
+                ["New Page", "All Page", "Services", "Sub Services", "New CaseStudy", "All CaseStudy"].forEach((title) => includedSubItems.add(title));
               }
               if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
                 ["New Product", "All Product", "Product Category", "Orders"].forEach((title) => includedSubItems.add(title));

@@ -29,6 +29,7 @@ import { WebsiteModule } from './modules/website/website.module';
 import { ServiceModule } from './modules/services/service.module';
 import { SubserviceModule } from './modules/subservices/subservice.module';
 import { PermissionModule } from './modules/permission/permission.module';
+import { CaseStudyModule } from './modules/caseStudy/caseStudy.module';
 
 
 
@@ -62,7 +63,7 @@ import { PermissionModule } from './modules/permission/permission.module';
     SubserviceModule,
     WebsiteModule,
     PermissionModule,
-
+    CaseStudyModule
   ],
   controllers: [AppController],
   providers: [

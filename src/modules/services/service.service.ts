@@ -121,4 +121,9 @@ export class ServiceService {
     return service;
   }
 
+  async getServiceByKey(websiteKey: string, key: string) {
+    const service = await this.Service.findOne({websiteKey, key}).exec();
+    return service;
+  }
+
 }
