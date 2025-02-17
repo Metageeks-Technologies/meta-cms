@@ -33,7 +33,7 @@ const AddressCompoent = ({ user }: any) => {
     const { setLoading } = useUserContext();
     const [addresses, setAddresses] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
-    const [editAddress, setEditAddress] = useState();
+    const [editAddress, setEditAddress] = useState<any>();
     const [selectAction, setSelectAction] = useState(0);
 
 
