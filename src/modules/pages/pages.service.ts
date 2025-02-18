@@ -30,17 +30,40 @@ export class PagesService {
         }
 
         const service = await this.serviceService.getServiceByKey(websiteKey, newPageDetails.service);
+<<<<<<< Updated upstream
         if (!service) {
+=======
+<<<<<<< Updated upstream
+        if (!service) {
+=======
+        if(!service){
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             throw new BadRequestException('Invalid Service');
         }
 
         const subService = await this.subserviceService.getSubServiceByKey(websiteKey, newPageDetails.subService);
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
         if (!subService) {
             throw new BadRequestException('Invalid Sub Service');
         }
 
         const page = await this.Page.findOne({ website: websiteKey, slug: newPageDetails.slug }).exec();
         if (page) {
+<<<<<<< Updated upstream
+=======
+=======
+        if(!subService){
+            throw new BadRequestException('Invalid Sub Service');
+        }
+
+        const page = await this.Page.findOne({website: websiteKey, slug: newPageDetails.slug}).exec();
+        if(page){
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             throw new BadRequestException('Slug already exists');
         }
 
@@ -132,6 +155,10 @@ export class PagesService {
             throw new NotFoundException('Page not found');
         }
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
         const pageExist = await this.Page.findOne({ website: websiteKey, slug: updatePageDetails.slug, _id: { $ne: id } }).exec();
         if (pageExist) {
             throw new BadRequestException('Slug already exists')
@@ -140,19 +167,48 @@ export class PagesService {
         const service = await this.serviceService.getServiceByKey(websiteKey, updatePageDetails.service);
         console.log(service,  "servcie");
         if (updatePageDetails.service && !service) {
+<<<<<<< Updated upstream
+=======
+=======
+        const pageExist = await this.Page.findOne({website: websiteKey, slug: updatePageDetails.slug}).exec();
+        if(pageExist){
+            throw new BadRequestException('Slug already exists')
+        }        
+
+        const service = await this.serviceService.getServiceByKey(websiteKey, updatePageDetails.service);
+        if(updatePageDetails.service && !service){
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             throw new BadRequestException('Invalid Service');
         }
 
         const subService = await this.subserviceService.getSubServiceByKey(websiteKey, updatePageDetails.subService);
+<<<<<<< Updated upstream
         console.log(subService, "SUb service")
         if (updatePageDetails.subService && !subService) {
+=======
+<<<<<<< Updated upstream
+        console.log(subService, "SUb service")
+        if (updatePageDetails.subService && !subService) {
+=======
+        if(updatePageDetails.subService && !subService){
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             throw new BadRequestException('Invalid Sub Service');
         }
 
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
+<<<<<<< Updated upstream
     async getAllPage(websiteKey: string, pageNo: string) {
+=======
+<<<<<<< Updated upstream
+    async getAllPage(websiteKey: string, pageNo: string) {
+=======
+    async getAllPage(websiteKey: string) {
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
             throw new BadRequestException("Invalid website key");

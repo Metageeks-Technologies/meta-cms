@@ -34,7 +34,7 @@ import { Label } from '@/components/ui/label';
 
 const Cart = () => {
 
-    const { setLoading } = useUserContext();
+    const { setLoading,websiteKey } = useUserContext();
     const [cart, setCart] = useState<any>({});
     const [discount, setDiscount] = useState(0);
     const [selectedAddress, setSelectedAddress] = useState('');
@@ -47,7 +47,7 @@ const Cart = () => {
     const getMyCart = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/cart`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,undefined,{websiteKey})
 
 
             if (resp.status === 200 || resp.status === 201) {
@@ -70,7 +70,7 @@ const Cart = () => {
                 productId,
                 variantId
             }
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/cart/remove`, payload)
+            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/cart/remove`, payload,{websiteKey})
 
             if (resp.status === 200 || resp.status === 201) {
                 getMyCart();
@@ -96,7 +96,7 @@ const Cart = () => {
     const getUserAddress = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`,undefined,{websiteKey})
 
 
             if (resp.status === 200 || resp.status === 201) {
@@ -118,7 +118,7 @@ const Cart = () => {
             const payload = {
                 ...newAddress
             }
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/address`, payload);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/address`, payload,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 getUserAddress();
                 setAddNew(false);
@@ -243,7 +243,7 @@ const Cart = () => {
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_signature: response.razorpay_signature,
                 }
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/order/verify-create-order`, payload);
+                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/order/verify-create-order`, payload,{websiteKey});
 
                 if (resp.status === 200 || resp.status === 201) {
                     toast.success(resp?.data?.message, { duration: 2000 });

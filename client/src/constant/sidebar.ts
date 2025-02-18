@@ -79,7 +79,7 @@ export const items: MenuItem[] = [
       },
       {
         title: "All CaseStudy",
-        url: "/allPage",
+        url: "/allCaseStudy",
         icon: ScrollText,
       },
     ]

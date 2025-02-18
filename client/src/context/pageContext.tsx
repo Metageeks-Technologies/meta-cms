@@ -16,6 +16,8 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const [pageNo, setPageNo] = useState(1);
   const [servicePageNo, setServicePageNo] = useState(1);
   const [subServicePageNo, setSubServicePageNo] = useState(1);
+  const [caseStudyData, setCaseStudyData] = useState([])
+  const [caseStudyPageNo, setCaseStudyPageNo] = useState(1);
 
 
   const { websiteKey } = useUserContext();
@@ -40,6 +42,28 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   }
+
+
+  const fetchCaseStudyAll = async () => {
+    setLoading(true);
+    try {
+      const param = new URLSearchParams();
+      param.append('page', caseStudyPageNo.toString())
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/all?${param.toString()}`, undefined, { websiteKey: websiteKey });
+
+      if (resp?.status === 200 || resp?.status === 201) {
+        setCaseStudyData(resp.data)
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
 
   const fetchServices = async () => {
     setLoading(true);
@@ -131,6 +155,26 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+
+  const recoverCaseStudy = async (id: string) => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${id}`, undefined, { websiteKey });
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
+        fetchCaseStudyAll();
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+
   const deletePage = async (id: string) => {
     setLoading(true);
     try {
@@ -148,6 +192,22 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const deleteCaseStudy = async (id: string) => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${id}`, undefined, { websiteKey });
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
+        fetchCaseStudyAll();
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false);
+    }
+  }
 
 
   const fetchSubServices = async (id: string) => {
@@ -225,12 +285,13 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
 
 
   useEffect(() => {
-    if(websiteKey) fetchPageData();
+    if (websiteKey) fetchPageData();
   }, [pageNo]);
 
 
   const contextValues: PageContextType = {
     pageData,
+    caseStudyData,
     services,
     subServices,
     fetchServices,
@@ -238,19 +299,24 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     fetchSubServices,
     fetchSubServicesTotal,
     fetchPageData,
+    fetchCaseStudyAll,
     recoverPage,
+    recoverCaseStudy,
     recoverServices,
     recoverSubServices,
 
     deletePage,
+    deleteCaseStudy,
     deleteServices,
     deleteSubServices,
     pageNo,
     setPageNo,
-    servicePageNo, 
+    servicePageNo,
     setServicePageNo,
-    subServicePageNo, 
+    subServicePageNo,
     setSubServicePageNo,
+    caseStudyPageNo, 
+    setCaseStudyPageNo,
   }
 
   return (

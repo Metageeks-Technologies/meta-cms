@@ -7,11 +7,17 @@ import { aboutCard } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useUserContext } from '@/context/userContext';
+import { list } from 'postcss';
 
 
 const CreateCaseStudy = () => {
 
     const [formData, setFormData] = useState<caseStudyContent>(INITIAL_CASESTUDY_CONTENT);
+        const { setLoading, websiteKey } = useUserContext();
+    
+
+        console.log(formData, "fomr data")
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
@@ -44,7 +50,7 @@ const CreateCaseStudy = () => {
                 ...prev.content,
                 aboutSection: {
                     ...prev.content.aboutSection,
-                    aboutCards: [...prev.content.aboutSection.aboutCards, newCard]
+                    aboutCards: [...prev.content.aboutSection.cards, newCard]
                 }
             }
         }));
@@ -61,7 +67,7 @@ const CreateCaseStudy = () => {
                 ...prev.content,
                 challengesSection: {
                     ...prev.content.challengesSection,
-                    StudyChallangeList: [...prev.content.challengesSection.StudyChallangeList, newCard]
+                    cards: [...prev.content.challengesSection.cards, newCard]
                 }
             }
         }));
@@ -75,7 +81,7 @@ const CreateCaseStudy = () => {
         let updatedCards: any;
 
         if (section === 'aboutSection') {
-            updatedCards = formData.content.aboutSection.aboutCards.filter(
+            updatedCards = formData.content.aboutSection.cards.filter(
                 (_, i) => i !== index
             );
             setFormData((prev) => ({
@@ -103,7 +109,7 @@ const CreateCaseStudy = () => {
                 },
             }));
         } else if (section === 'challengesSection') {
-            updatedCards = formData.content.challengesSection.StudyChallangeList.filter(
+            updatedCards = formData.content.challengesSection.cards.filter(
                 (_, i) => i !== index
             );
             setFormData((prev) => ({
@@ -112,7 +118,7 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     challengesSection: {
                         ...prev.content.challengesSection,
-                        StudyChallangeList: updatedCards,  // Correctly update StudyChallangeList
+                        cards: updatedCards,  // Correctly update StudyChallangeList
                     },
                 },
             }));
@@ -121,10 +127,7 @@ const CreateCaseStudy = () => {
 
     const addListItem = (cardIndex: number, section: 'processSection') => {
         if (section === 'processSection') {
-            // Create a new empty list item with an empty string or a default value
-            const newListItem = { list: '' };
-    
-            // Update the cardList by adding the new list item to the correct card
+            const newListItem: string = "";  
             setFormData((prev) => ({
                 ...prev,
                 content: {
@@ -135,9 +138,9 @@ const CreateCaseStudy = () => {
                             index === cardIndex
                                 ? { 
                                     ...card, 
-                                    cardList: [...card.cardList, newListItem] // Add the new list item only to the selected card
+                                    list: [...card.list, newListItem] 
                                 }
-                                : card // Keep the rest of the cards unchanged
+                                : card
                         ),
                     },
                 },
@@ -145,11 +148,13 @@ const CreateCaseStudy = () => {
         }
     };
     
+    
+    
 
     const processaddCard = () => {
         const newCard = {
-            heading: '', // Default heading
-            cardList: [{ list: '' }] // Default cardList with one empty list item
+            heading: '', 
+            list: [] 
         };
 
         setFormData((prev) => ({
@@ -169,7 +174,7 @@ const CreateCaseStudy = () => {
         let updatedList: any;
 
         if (section === 'processSection') {
-            updatedList = formData.content.processSection.cards[cardIndex].cardList.filter(
+            updatedList = formData.content.processSection.cards[cardIndex].list.filter(
                 (_, i) => i !== listIndex
             );
             setFormData((prev) => ({
@@ -179,7 +184,7 @@ const CreateCaseStudy = () => {
                     processSection: {
                         ...prev.content.processSection,
                         cards: prev.content.processSection.cards.map((card, index) =>
-                            index === cardIndex ? { ...card, cardList: updatedList } : card
+                            index === cardIndex ? { ...card, list: updatedList } : card
                         ),
                     },
                 },
@@ -190,77 +195,64 @@ const CreateCaseStudy = () => {
 
     const handleImageChange = async (
         e: React.ChangeEvent<HTMLInputElement>,
-        section: 'heroSection' | 'uiSection1' | 'serviceSection' | 'uiSection2',
+        section: 'heroSection' | 'uiSection' | 'serviceSection' | 'uiSection2',
         index?: number
     ) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const payload = {
-                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CASESTUDIES,
-                fileName: file.name,
-                contentType: file.type
-            };
+        if (!e.target.files || e.target.files.length === 0) return; // Fallback if no files are selected
+        const file = e.target.files[0];
     
-            try {
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-                if (resp.status === 200 || resp.status === 201) {
-                    const response = await axios.put(resp?.data?.uploadUrl, file);
-                    if (response.status === 200 || response.status === 201) {
-                        const imageKey = resp?.data?.key;
+        const payload = {
+            folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CASESTUDIES,
+            fileName: file.name,
+            contentType: file.type,
+        };
     
-                        // Update imageKey based on section
+        try {
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
+            
+            if (resp.status === 200 || resp.status === 201) {
+                const response = await axios.put(resp?.data?.uploadUrl, file);
+                if (response.status === 200 || response.status === 201) {
+                    const imageKey = resp?.data?.key;
+    
+                    // Ensure formData is updated correctly for the selected section
+                    setFormData((prev) => {
+                        const updatedContent = { ...prev.content };
+    
                         if (section === 'heroSection') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    caseheroSection: {
-                                        ...prev.content.heroSection,
-                                        imageKey
-                                    }
-                                }
-                            }));
-                        } else if (section === 'uiSection1') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    contentImage: imageKey // Just assign the imageKey directly
-                                }
-                            }));
+                            updatedContent.heroSection = {
+                                ...updatedContent.heroSection,
+                                imageKey
+                            };
+                        } else if (section === 'uiSection') {
+                            updatedContent.uiSection = {
+                                ...updatedContent.uiSection,
+                                imageKey
+                            };  
                         } else if (section === 'serviceSection') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    serviceSection: {
-                                        ...prev.content.serviceSection,
-                                        imageKey
-                                    }
-                                }
-                            }));
+                            updatedContent.serviceSection = {
+                                ...updatedContent.serviceSection,
+                                imageKey
+                            };
                         } else if (section === 'uiSection2') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    uiSection2: {
-                                        ...prev.content.uiSection2,
-                                        imageKey
-                                    }
-                                }
-                            }));
+                            updatedContent.uiSection2 = {
+                                ...updatedContent.uiSection2,
+                                imageKey
+                            };
                         }
-                    }
-                } else {
-                    toast.error(resp?.data?.message, { duration: 2000 });
+    
+                        return { ...prev, content: updatedContent };
+                    });
                 }
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to upload the image', { duration: 2000 });
+            } else {
+                toast.error(resp?.data?.message || 'Failed to get upload URL', { duration: 2000 });
             }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            toast.error('Failed to upload the image', { duration: 2000 });
         }
     };
+    
     
 
     const handleSectionChange = (
@@ -289,10 +281,10 @@ const CreateCaseStudy = () => {
     ) => {
         let updatedCards: any;
         let updatedList: any;
-
+    
         if (section === 'aboutSection') {
             // Handling the `aboutCards` array inside `about`
-            updatedCards = [...formData.content.aboutSection.aboutCards];
+            updatedCards = [...formData.content.aboutSection.cards];
             updatedCards[index] = {
                 ...updatedCards[index],
                 [field]: value
@@ -303,23 +295,23 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     aboutSection: {
                         ...prev.content.aboutSection,
-                        aboutCards: updatedCards
+                        cards: updatedCards
                     }
                 }
             }));
         } else if (section === 'processSection') {
             updatedCards = [...formData.content.processSection.cards];
-    
+            
             if (field === 'heading') {
                 updatedCards[index] = {
                     ...updatedCards[index],
-                    heading: value 
+                    heading: value
                 };
             } else if (field === 'list') {
                 updatedCards[index] = {
                     ...updatedCards[index],
-                    cardList: updatedCards[index].cardList.map((item: any, cardIndex: number) =>
-                        cardIndex === index ? { ...item, list: value } : item 
+                    list: updatedCards[index].list.map((item: any, cardIndex: number) =>
+                        cardIndex === index ? { ...item, list: value } : item
                     )
                 };
             }
@@ -334,8 +326,8 @@ const CreateCaseStudy = () => {
                     }
                 }
             }));
-        }  else if (section === 'challengesSection') {
-            updatedList = [...formData.content.challengesSection.StudyChallangeList];
+        } else if (section === 'challengesSection') {
+            updatedList = [...formData.content.challengesSection.cards];
             updatedList[index] = {
                 ...updatedList[index],
                 [field]: value
@@ -344,42 +336,40 @@ const CreateCaseStudy = () => {
                 ...prev,
                 content: {
                     ...prev.content,
-                    challange: {
+                    challengesSection: {  // Corrected this key
                         ...prev.content.challengesSection,
-                        StudyChallangeList: updatedList
+                        cards: updatedList
                     }
                 }
             }));
         }
     };
+    
 
-    const handleListItemChange = (
-        cardIndex: number,
-        listIndex: number,
-        value: string
-    ) => {
+    const handleListItemChange = (cardIndex: number, listIndex: number, value: string) => {
         setFormData((prev) => ({
             ...prev,
             content: {
                 ...prev.content,
                 processSection: {
                     ...prev.content.processSection,
-                    cards: prev.content.processSection.cards.map((card, index) => {
-                        if (index === cardIndex) {
-                            const updatedCardList = card.cardList.map((listItem, listItemIndex) => {
-                                if (listItemIndex === listIndex) {
-                                    return { ...listItem, list: value };  
-                                }
-                                return listItem; 
-                            });
-                            return { ...card, cardList: updatedCardList }; 
-                        }
-                        return card;  
-                    }),
+                    cards: prev.content.processSection.cards.map((card, index) =>
+                        index === cardIndex
+                            ? {
+                                ...card,
+                                list: card.list.map((item, listIdx) =>
+                                    listIdx === listIndex
+                                        ? value // Set the value directly as a string
+                                        : item
+                                ),
+                            }
+                            : card
+                    ),
                 },
             },
         }));
     };
+    
 
 
     const generateSlug = (title: string) => {
@@ -405,10 +395,32 @@ const CreateCaseStudy = () => {
         }
     }, [formData.title]);
 
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+     
+        setLoading(true);
+        try {
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy`, formData, { websiteKey });
+            console.log(resp.data)
+            if (resp?.status === 200 || resp?.status === 201) {
+                toast.success(resp.data.message, { duration: 2000 });
+                setFormData(INITIAL_CASESTUDY_CONTENT);
+            } else {
+                toast.error(resp?.data?.message, { duration: 2000 });
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
-            <form >
-                <label className="w-full flex flex-col gap-2 mb-5">
+            <form onSubmit={handleSubmit}>
+            <label className="w-full flex flex-col gap-2 mb-5">
                     <span>Title</span>
                     <input
                         type="text"
@@ -482,7 +494,7 @@ const CreateCaseStudy = () => {
                                 type="text"
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
+                                placeholder="Enter Heading"
                                 value={formData.content.aboutSection.heading}
                                 onChange={(e) => handleSectionChange('aboutSection', 'heading', e.target.value)}
                                 required
@@ -505,7 +517,7 @@ const CreateCaseStudy = () => {
                             />
                         </div>
                         {/* Cards Section */}
-                        {formData.content.aboutSection.aboutCards.map((card, index) => (
+                        {formData.content.aboutSection.cards.map((card, index) => (
                             <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
                                 <button
                                     type="button"
@@ -570,9 +582,9 @@ const CreateCaseStudy = () => {
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
                                 htmlFor="contentImage"
                             >
-                                {formData.content.uiSection1 ? (
+                                {formData.content.uiSection.imageKey ? (
                                     <img
-                                        src={getURL(formData.content.uiSection1)}
+                                        src={getURL(formData.content.uiSection.imageKey)}
                                         alt="Preview"
                                         className="object-contain w-full h-full rounded-lg"
                                     />
@@ -584,7 +596,7 @@ const CreateCaseStudy = () => {
                                 type="file"
                                 id="contentImage"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'uiSection1')}
+                                onChange={(e) => handleImageChange(e, 'uiSection')}
 
 
                             />
@@ -630,7 +642,7 @@ const CreateCaseStudy = () => {
                                 type="text"
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
+                                placeholder="Enter  Heading"
                                 value={formData.content.serviceSection.heading}
                                 onChange={(e) => handleSectionChange('serviceSection', 'heading', e.target.value)}
                                 required
@@ -665,7 +677,7 @@ const CreateCaseStudy = () => {
                 type="text"
                 id="heading"
                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter Sub Heading"
+                placeholder="Enter  Heading"
                 value={formData.content.processSection.heading}
                 onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
                 required
@@ -705,14 +717,14 @@ const CreateCaseStudy = () => {
                         List
                     </label>
                     {/* Only map over the current card's cardList */}
-                    {card.cardList.map((listItem, listIndex) => (
+                    {card.list.map((listItem, listIndex) => (
                         <div key={listIndex} className="flex items-center justify-between mb-2">
                             <input
                                 type="text"
                                 id={`card-list-${index}-${listIndex}`}
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter List Item"
-                                value={listItem.list}
+                                value={listItem}
                                 onChange={(e) => handleListItemChange(index, listIndex, e.target.value)} 
                                 required
                             />
@@ -759,7 +771,7 @@ const CreateCaseStudy = () => {
                                 type="text"
                                 id="Heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
+                                placeholder="Enter  Heading"
                                 value={formData.content.uiSection2.heading}
                                 onChange={(e) => handleSectionChange('uiSection2', 'heading', e.target.value)}
                                 required
@@ -807,7 +819,7 @@ const CreateCaseStudy = () => {
                                 type="text"
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
+                                placeholder="Enter  Heading"
                                 value={formData.content.challengesSection.heading}
                                 onChange={(e) => handleSectionChange('challengesSection', 'heading', e.target.value)}
 
@@ -831,7 +843,7 @@ const CreateCaseStudy = () => {
                             />
                         </div>
                         {/* Cards Section */}
-                        {formData.content.challengesSection.StudyChallangeList.map((card, index) => (
+                        {formData.content.challengesSection.cards.map((card, index) => (
                             <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
                                 <button
                                     type="button"

@@ -107,14 +107,6 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
   }, [websiteKey])
 
 
-  useEffect(() => {
-    if(websiteKey){
-      setMedia([]);
-      fetchMedia();
-    } 
-  }, [websiteKey])
-
-
   return (
     <div className='w-[90%] absolute top-0 h-[80%] overflow-y-auto z-10 styledScrollable bg-black border-[2px] rounded-lg border-gray-800 p-4'>
       <div className='my-5'>

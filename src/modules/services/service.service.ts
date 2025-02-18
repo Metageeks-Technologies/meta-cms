@@ -144,7 +144,15 @@ export class ServiceService {
   }
 
   async getServiceByKey(websiteKey: string, key: string) {
+<<<<<<< Updated upstream
     const service = await this.Service.findOne({ websiteKey, key }).exec();
+=======
+<<<<<<< Updated upstream
+    const service = await this.Service.findOne({ websiteKey, key }).exec();
+=======
+    const service = await this.Service.findOne({websiteKey, key}).exec();
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     return service;
   }
 

@@ -8,7 +8,6 @@ import LatestProducts from '@/app/store/Dashboard/_components/LatestProduct';
 import { userRoles } from '@/constant/user';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
-import { StoreRole } from '@/constant/store';
 
 const StoreDashboard = () => {
 
@@ -54,11 +53,11 @@ const StoreDashboard = () => {
 
     useEffect(() => {
         if (websiteKey) {
-            if (user.storeRole === StoreRole.SUPERADMIN || user.storeRole === StoreRole.STOREMODERATOR) {
+            if (user.role ===userRoles.SUPERADMIN || user.role===userRoles.ADMIN || user.role === userRoles.MODERATOR ) {
                 fetchStoreAdminDashboard();
             }
 
-            if (user.storeRole === StoreRole.VENDOR) {
+            if (user.role === userRoles.CONTRIBUTOR) {
                 fetchStoreVendorDashboard();
             }
         }

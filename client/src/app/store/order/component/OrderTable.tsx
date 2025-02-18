@@ -7,25 +7,26 @@ import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getURL } from "@/utils/AWS_Config";
 import { OrderStatusEnum } from "@/constant/order";
+import { useUserContext } from "@/context/userContext";
 
 const OrderTable = () => {
-  const [orders, setOrders] = useState<any[]>([]); 
-  const [searchQuery, setSearchQuery] = useState<string>(""); 
-  const [isPopupVisible, setIsPopupVisible] = useState(false);  
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);  
-  const [isAllOrders, setIsAllOrders] = useState<boolean>(true); // Flag to track which API to call
-  
+  const [orders, setOrders] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [isAllOrders, setIsAllOrders] = useState<boolean>(true);
+  const { websiteKey } = useUserContext();
   const fetchOrderData = async (url: string) => {
     try {
-      const response = await axiosCall("get", url);
-      if (Array.isArray(response.data)) {  // Check if the response is an array
+      const response = await axiosCall("get", url, undefined, { websiteKey });
+      if (Array.isArray(response.data)) {
         setOrders(response.data);
       } else {
-        setOrders([]);  // Set to empty array if the response is not an array
+        setOrders([]);
       }
     } catch (error) {
       console.error("Error fetching order data:", error);
-      setOrders([]);  // Set to empty array in case of error
+      setOrders([]);
     }
   };
 
@@ -34,30 +35,30 @@ const OrderTable = () => {
     const url = isAllOrders
       ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all`
       : `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`;
-    
+
     fetchOrderData(url);
   }, [isAllOrders]);
 
-  const filteredOrders = Array.isArray(orders) 
+  const filteredOrders = Array.isArray(orders)
     ? orders.filter((order) => {
-        const customerName = order.user.name.toLowerCase();
-        return customerName.includes(searchQuery.toLowerCase());
-      })
+      const customerName = order.user.name.toLowerCase();
+      return customerName.includes(searchQuery.toLowerCase());
+    })
     : []; // Default to an empty array if orders is not an array
 
   const openPopup = (order: any) => {
-    setSelectedOrder(order);  
-    setIsPopupVisible(true);  
+    setSelectedOrder(order);
+    setIsPopupVisible(true);
   };
 
   const closePopup = () => {
-    setIsPopupVisible(false);  
-    setSelectedOrder(null);  
+    setIsPopupVisible(false);
+    setSelectedOrder(null);
   };
 
   const cancelOrder = async (orderId: string) => {
     try {
-      const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/cancel/${orderId}`);
+      const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/cancel/${orderId}`, undefined, { websiteKey });
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -168,20 +169,20 @@ const OrderTable = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-       <div>
-  <Button 
-    onClick={() => setIsAllOrders(true)} 
-    className={`mr-2 ${isAllOrders ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} hover:bg-blue-600`}
-  >
-    All Orders
-  </Button>
-  <Button 
-    onClick={() => setIsAllOrders(false)} 
-    className={`${!isAllOrders ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} hover:bg-blue-600`}
-  >
-    My Orders
-  </Button>
-</div>
+        <div>
+          <Button
+            onClick={() => setIsAllOrders(true)}
+            className={`mr-2 ${isAllOrders ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} hover:bg-blue-600`}
+          >
+            All Orders
+          </Button>
+          <Button
+            onClick={() => setIsAllOrders(false)}
+            className={`${!isAllOrders ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} hover:bg-blue-600`}
+          >
+            My Orders
+          </Button>
+        </div>
 
       </div>
 
@@ -244,9 +245,9 @@ const OrderTable = () => {
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {selectedOrder.items.map((item: any, index: number) => (
                   <div key={index} className="flex bg-gray-600 p-4 rounded-lg shadow-sm space-x-6">
-                    <img 
-                      src={getURL(item.product.variants.find((variant: any) => variant.variantId === item.variantId)?.imageKeys[0])} 
-                      alt={item.product.title} 
+                    <img
+                      src={getURL(item.product.variants.find((variant: any) => variant.variantId === item.variantId)?.imageKeys[0])}
+                      alt={item.product.title}
                       className="w-24 h-24 object-cover rounded-lg"
                     />
                     <div className="flex-grow">
@@ -259,8 +260,8 @@ const OrderTable = () => {
               </div>
             </div>
 
-            <button 
-              onClick={closePopup} 
+            <button
+              onClick={closePopup}
               className="mt-6 w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition duration-200"
             >
               Close

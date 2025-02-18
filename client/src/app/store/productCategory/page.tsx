@@ -93,7 +93,7 @@ const columns = [
             fileName: fileList?.[0].name,
             contentType: fileList?.[0].type
           }
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
 
           if (resp.status === 200 || resp.status === 201) {
             uploadToS3(websiteKey, resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY, null, setImageKey);
@@ -125,7 +125,7 @@ const columns = [
             description: productCategory.description,
             bannerImageKey: productCategory.bannerImageKey
           }
-          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${productCategory._id}`, payload);
+          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${productCategory._id}`, payload,{websiteKey});
 
           if (resp.status === 200 || resp.status === 201) {
             toast.success(resp.data.message, {
@@ -158,7 +158,7 @@ const columns = [
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialog>
             {
-              user?.storeRole === StoreRole.SUPERADMIN ? (
+              user?.role === "superadmin" || user?.role ==="admin" ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -281,7 +281,7 @@ function Category() {
 
 
   const { productCategories, fetchProductCategories }: any = usePostContext()
-  const { user }: any = useUserContext();
+  const { user,websiteKey }: any = useUserContext();
 
 
   const table = useReactTable({
@@ -299,9 +299,11 @@ function Category() {
   });
 
 
-  useEffect(() => {
-    fetchProductCategories();
-  }, []);
+
+
+    useEffect(() => {
+      if (websiteKey) fetchProductCategories();
+    }, [websiteKey]);
 
 
 
@@ -319,7 +321,7 @@ function Category() {
           />
 
           {
-            user?.storeRole === StoreRole.SUPERADMIN &&
+            user?.role === "superadmin"  || user.role==="admin" &&
             <AddProductCategory />
           }
 

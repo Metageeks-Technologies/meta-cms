@@ -338,7 +338,7 @@ export interface aboutCard{
 export interface StudyAbout{
   heading: string;
   description: string;
-  aboutCards: aboutCard[];
+  cards: aboutCard[];
   
 }
 export interface Content {
@@ -353,7 +353,7 @@ export interface Item{
 
 export interface StudyCard{
   heading: string;
- cardList:Item[]; 
+ list:string[]; 
 }
 
 export interface process {
@@ -369,26 +369,28 @@ export interface studyWebsite{
 export interface studyChallange{
   heading: string;
   description: string;
-  StudyChallangeList:aboutCard[]
+  cards:aboutCard[]
 
 }
 
 export interface heroSection{
   imageKey: string | null;
 }
+export interface uiSection{
+  imageKey: string | null;
+}
 
 
 export interface caseStudyContent {
-  _id?: any;
   title: string;
   slug: string;
-  website: string;
-  service: string;
+  // website: string;
+  // service: string;
 
   content: {
     heroSection:heroSection;
     aboutSection:StudyAbout;
-    uiSection1: string | null;
+    uiSection: uiSection;
     serviceSection:Content;
     processSection:process;
     uiSection2: studyWebsite;
@@ -423,9 +425,13 @@ export interface WebsiteContextTypes {
 
 export interface PageContextType {
   pageData: any,
+  caseStudyData: any[],
   services: any,
   subServices: any,
   fetchPageData: () => void,
+  fetchCaseStudyAll: () => void,
+  recoverCaseStudy: (id: string) => void;
+  deleteCaseStudy: (id: string) => void;
   fetchServices: () => void,
   fetchAllServices: () => void,
   fetchSubServices: (id: string) => void,
@@ -443,6 +449,8 @@ export interface PageContextType {
   setServicePageNo: (num: number) => void,
   subServicePageNo: number,
   setSubServicePageNo: (num: number) => void,
+  caseStudyPageNo: number, 
+  setCaseStudyPageNo: (num: number) => void,
 }
 
 

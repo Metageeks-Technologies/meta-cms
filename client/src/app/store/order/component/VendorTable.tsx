@@ -8,32 +8,36 @@ import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getURL } from "@/utils/AWS_Config";
 import { OrderStatusEnum } from "@/constant/order";
+import { useUserContext } from "@/context/userContext";
 
 const VendorOrder = () => {
   const [orders, setOrders] = useState<any[]>([]); 
     const [searchQuery, setSearchQuery] = useState<string>(""); 
     const [isPopupVisible, setIsPopupVisible] = useState(false);  
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null);  
+    const{websiteKey}=useUserContext()
   
 const fetchOrderData = async () => {
   try {
-    const response = await axiosCall("get", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`);
+    const response = await axiosCall("get", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`,undefined,{websiteKey});
 
-    if (Array.isArray(response.data)) {  // Check if the response is an array
+    if (Array.isArray(response.data)) {  
       setOrders(response.data);
     } else {
-      setOrders([]);  // Set to empty array if the response is not an array
+      setOrders([]);  
     }
   } catch (error) {
     console.error("Error fetching order data:", error);
-    setOrders([]); // Optional: set to empty array in case of error
+    setOrders([]); 
   }
 };
 
     
   
     useEffect(() => {
-      fetchOrderData();
+      if(websiteKey){
+        fetchOrderData();
+      }
     }, []);
   
     const filteredOrders = Array.isArray(orders) ? orders.filter((order) => {
@@ -72,7 +76,7 @@ const fetchOrderData = async () => {
       try {
         const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, {
           status: newStatus,
-        });
+        },{websiteKey});
   
         setOrders((prevOrders) =>
           prevOrders.map((order) =>

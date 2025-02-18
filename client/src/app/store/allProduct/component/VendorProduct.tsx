@@ -11,7 +11,7 @@ import { useProductContext } from '@/context/productContext';
 import { productStatusFilters } from '@/constant/product';
 
 const VendorProduct = () => {
-    const { user } = useUserContext();
+    const { user,websiteKey } = useUserContext();
     const { filterBy, sortBy, setFilterBy, setSortBy, selectedProductCategory, setSelectedProductCategory } = useProductContext();
 
     const [category, setCategory] = useState([]);
@@ -43,7 +43,7 @@ const VendorProduct = () => {
                         param.append('categoryId', selectedProductCategory);  // Add categoryId if selected
                     }
                     // Use the new API endpoint for deleted products
-                    const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my/delete?${param.toString()}`);
+                    const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my/delete?${param.toString()}`,undefined,{websiteKey});
                     if (resp.status === 200 || resp.status === 201) {
                         const deletedProducts = resp?.data;
                         if (deletedProducts.length < 20) setHasMore(false);
@@ -75,7 +75,7 @@ const VendorProduct = () => {
             if (selectedProductCategory) param.append('categoryId', selectedProductCategory);
             if (searchText) param.append('searchQuery', searchText);
     
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my?${param.toString()}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my?${param.toString()}`,{websiteKey});
     
             if (resp.status === 200 || resp.status === 201) {
                 const newProducts = resp?.data;
@@ -105,7 +105,7 @@ const VendorProduct = () => {
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 setCategory(resp.data);
             }

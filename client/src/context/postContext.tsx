@@ -52,7 +52,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchProductCategories = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey})
             if (resp?.status === 200 || resp?.status === 201) {
                 setProductCategories(resp?.data);
             } else {

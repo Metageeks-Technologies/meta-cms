@@ -17,7 +17,7 @@ class ImageSectionDto {
     imageKey: string;
 }
 
-class HeadingImageDto{
+class HeadingImageDto {
     @IsNotEmpty()
     @IsString()
     heading: string;
@@ -37,7 +37,7 @@ class HeadingDescriptionDto {
     description: string;
 }
 
-class HeadingDescriptionImageDto{
+class HeadingDescriptionImageDto {
     @IsNotEmpty()
     @IsString()
     imageKey: string;
@@ -147,6 +147,7 @@ class CreateContentDto {
     @ValidateNested()
     @Type(() => ChallengeSectionDto)
     challengesSection: ChallengeSectionDto;
+
 }
 
 

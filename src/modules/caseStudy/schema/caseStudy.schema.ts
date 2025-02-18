@@ -37,7 +37,15 @@ export interface ICaseStudy extends mongoose.Document {
             heading: string,
             imageKey: string
         },
+<<<<<<< Updated upstream
         challengesSection: {
+=======
+<<<<<<< Updated upstream
+        challengesSection: {
+=======
+        challangesSection: {
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             heading: string,
             description: string,
             cards: {
@@ -105,7 +113,15 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
             heading: { type: String, required: true },
             imageKey: { type: String, required: true }
         },
+<<<<<<< Updated upstream
         challengesSection: {
+=======
+<<<<<<< Updated upstream
+        challengesSection: {
+=======
+        challangesSection: {
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             heading: { type: String, required: true },
             description: { type: String, required: true },
             cards: [
