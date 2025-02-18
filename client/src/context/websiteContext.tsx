@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { WebsiteContextTypes } from "@/types";
 
 
-const WebsiteContext = createContext<any>(null);
+const WebsiteContext = createContext<WebsiteContextTypes | null>(null);
 
 
 

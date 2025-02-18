@@ -420,3 +420,64 @@ export interface WebsiteContextTypes {
   websitePageNo: number, 
   setWebsitePageNo: (num: number) => void,
 }
+
+export interface PageContextType {
+  pageData: any,
+  services: any,
+  subServices: any,
+  fetchPageData: () => void,
+  fetchServices: () => void,
+  fetchAllServices: () => void,
+  fetchSubServices: (id: string) => void,
+
+  recoverPage: (id: string) => void,
+  recoverServices: (id: string) => void,
+  recoverSubServices: (id: string, serviceId: string) => void,
+  fetchSubServicesTotal: (id: string) => void,
+  deletePage: (id: string) => void,
+  deleteServices: (id: string) => void,
+  deleteSubServices: (id: string, serviceId: string) => void,
+  pageNo: number,
+  setPageNo: (num: number) => void,
+  servicePageNo: number,
+  setServicePageNo: (num: number) => void,
+  subServicePageNo: number,
+  setSubServicePageNo: (num: number) => void,
+}
+
+
+export interface UserContextType {
+  user: UserProfile;
+  subscribers: UserProfile[];
+  contributors: UserProfile[];
+  moderators: UserProfile[];
+
+  adminData: UserProfile[];
+
+  storeUser: UserProfile[];
+  vendor: UserProfile[];
+  storeModerator: UserProfile[];
+
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  fetchUsers: (role: string) => Promise<void>;
+  fetchAdmins: () => Promise<void>;
+  fetchStoreRole: (storeRole: string) => Promise<void>;
+  changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
+  changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
+  getUserProfile: () => Promise<void>;
+  setUser: (user: UserProfile) => void;
+  blockUser: (userId: string, role: string) => Promise<void>;
+  unblockUser: (userId: string, role: string) => Promise<void>;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  website: any;
+  websiteKey: string;
+  setWebsiteKey: (key: string) => void;
+  websiteData: any[];
+  setWebsiteData: (data: any[]) => void;
+  userPageNo: number;
+  setUserPageNo: (num: number) => void;
+  adminPageNo: number; 
+  setAdminPageNo: (num: number) => void;
+};

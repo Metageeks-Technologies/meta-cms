@@ -65,7 +65,6 @@ export class CaseStudyController {
         return caseStudies;
     }
 
-
     @Get(':slug')
     async getCaseStudyBySlug(
         @Headers('websiteKey') websiteKey: string,
