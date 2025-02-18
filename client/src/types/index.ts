@@ -382,6 +382,7 @@ export interface uiSection{
 
 
 export interface caseStudyContent {
+  _id?: any;
   title: string;
   slug: string;
   // website: string;

@@ -54,7 +54,7 @@ const page = () => {
                 </button>
                 {
                     user.role === userRoles.SUPERADMIN &&
-                    <button className='bg-white py-2 px-4 rounded-lg text-black font-bold flex flex-row items-center gap-2' onClick={() => router.push(`/editPage/${slug}`)}>
+                    <button className='bg-white py-2 px-4 rounded-lg text-black font-bold flex flex-row items-center gap-2' onClick={() => router.push(`/editCaseStudy/${slug}`)}>
                         <MdEdit /> Edit
                     </button>
                 }
