@@ -37,7 +37,7 @@ export interface ICaseStudy extends mongoose.Document {
             heading: string,
             imageKey: string
         },
-        challangesSection: {
+        challengesSection: {
             heading: string,
             description: string,
             cards: {
@@ -105,7 +105,7 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
             heading: { type: String, required: true },
             imageKey: { type: String, required: true }
         },
-        challangesSection: {
+        challengesSection: {
             heading: { type: String, required: true },
             description: { type: String, required: true },
             cards: [

@@ -30,17 +30,17 @@ export class PagesService {
         }
 
         const service = await this.serviceService.getServiceByKey(websiteKey, newPageDetails.service);
-        if(!service){
+        if (!service) {
             throw new BadRequestException('Invalid Service');
         }
 
         const subService = await this.subserviceService.getSubServiceByKey(websiteKey, newPageDetails.subService);
-        if(!subService){
+        if (!subService) {
             throw new BadRequestException('Invalid Sub Service');
         }
 
-        const page = await this.Page.findOne({website: websiteKey, slug: newPageDetails.slug}).exec();
-        if(page){
+        const page = await this.Page.findOne({ website: websiteKey, slug: newPageDetails.slug }).exec();
+        if (page) {
             throw new BadRequestException('Slug already exists');
         }
 
@@ -132,18 +132,20 @@ export class PagesService {
             throw new NotFoundException('Page not found');
         }
 
-        const pageExist = await this.Page.findOne({website: websiteKey, slug: updatePageDetails.slug}).exec();
-        if(pageExist){
+        const pageExist = await this.Page.findOne({ website: websiteKey, slug: updatePageDetails.slug, _id: { $ne: id } }).exec();
+        if (pageExist) {
             throw new BadRequestException('Slug already exists')
-        }        
+        }
 
         const service = await this.serviceService.getServiceByKey(websiteKey, updatePageDetails.service);
-        if(updatePageDetails.service && !service){
+        console.log(service,  "servcie");
+        if (updatePageDetails.service && !service) {
             throw new BadRequestException('Invalid Service');
         }
 
         const subService = await this.subserviceService.getSubServiceByKey(websiteKey, updatePageDetails.subService);
-        if(updatePageDetails.subService && !subService){
+        console.log(subService, "SUb service")
+        if (updatePageDetails.subService && !subService) {
             throw new BadRequestException('Invalid Sub Service');
         }
 
@@ -155,16 +157,16 @@ export class PagesService {
         if (!website) {
             throw new BadRequestException("Invalid website key");
         }
-        
-        const page =  parseInt(pageNo) || 1
+
+        const page = parseInt(pageNo) || 1
         const skip = (page - 1) * this.PAGE_BATCH_LIMIT;
 
         const allPage = await this.Page.find({ website: websiteKey })
-                                            .sort({ createdAt: -1 })
-                                                .skip(skip)
-                                                    .limit(this.PAGE_BATCH_LIMIT)
-                                                        .lean()
-                                                            .exec();
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(this.PAGE_BATCH_LIMIT)
+            .lean()
+            .exec();
 
 
         return allPage
@@ -173,7 +175,7 @@ export class PagesService {
     async getPageTitles(websiteKey: string, service: PageServiceEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
-          throw new BadRequestException("Invalid website key");
+            throw new BadRequestException("Invalid website key");
         }
 
         const query = { website: websiteKey, service, isDeleted: false }

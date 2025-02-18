@@ -146,7 +146,7 @@ class CreateContentDto {
 
     @ValidateNested()
     @Type(() => ChallengeSectionDto)
-    challangesSection: ChallengeSectionDto;
+    challengesSection: ChallengeSectionDto;
 }
 
 

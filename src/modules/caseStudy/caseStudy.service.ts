@@ -107,7 +107,6 @@ export class CaseStudyService {
         if (!website) {
             throw new BadRequestException('Invalid website key')
         }
-
         const query = { websiteKey, slug };
 
         if(isDeleted !== undefined){

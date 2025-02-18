@@ -61,7 +61,7 @@ export class SubserviceController {
   async recover(@Headers("websiteKey") websiteKey: string, @Param('id', ValidateId) id: string) {
     await this.subserviceService.recoverSubservice(websiteKey, id);
     return { message: "Recover successfully" }
-  }
+  }ƒ
 
   @Put(':id')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)

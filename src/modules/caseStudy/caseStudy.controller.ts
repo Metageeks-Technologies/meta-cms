@@ -29,6 +29,7 @@ export class CaseStudyController {
         return { message: "Casestudy created successfully" }
     }
 
+
     @Get('public')
     async getPublicCaseStudy(
         @Headers('websiteKey') websiteKey: string,
@@ -36,6 +37,7 @@ export class CaseStudyController {
         const caseStudies = await this.caseStudyService.getPublic(websiteKey)
         return caseStudies;
     }
+
 
     @Get('public/:slug')
     async getPublicCaseStudyBySlug(
@@ -55,6 +57,7 @@ export class CaseStudyController {
         return caseStudies;
     }
 
+
     @Get(':slug')
     async getCaseStudyBySlug(
         @Headers('websiteKey') websiteKey: string,
@@ -63,6 +66,7 @@ export class CaseStudyController {
         const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug)
         return caseStudy;
     }
+    
 
     @Get('all')
     @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
