@@ -1,4 +1,4 @@
-import { ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RedisService } from '../../redis/redis.service';
@@ -19,7 +19,7 @@ export class ProductCategoriesService {
   async create(websiteKey: string, newCategoryData: CreateProductCategoryDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey)
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const newCategory = new this.ProductCategory({ ...newCategoryData, websiteKey });
@@ -43,7 +43,7 @@ export class ProductCategoriesService {
   async findAll(websiteKey: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey)
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
     // Using lean for efficiency
     // since categories will be fetched quite often
@@ -64,7 +64,7 @@ export class ProductCategoriesService {
   async findById(websiteKey: string, _id: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey)
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     // get category by id from cache
@@ -87,7 +87,7 @@ export class ProductCategoriesService {
     try {
       const website = await this.websiteService.getWebsiteByKey(websiteKey)
       if (!website) {
-        throw new NotFoundException('Invalid website key')
+        throw new BadRequestException('Invalid website key')
       }
 
       const query = await this.ProductCategory.updateOne({ _id: _id, websiteKey }, { $set: updatedCategoryData }).exec();
@@ -113,7 +113,7 @@ export class ProductCategoriesService {
   async deleteById(websiteKey: string, _id: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey)
     if(!website){
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = await this.ProductCategory.deleteOne({ _id: _id, websiteKey }).exec();

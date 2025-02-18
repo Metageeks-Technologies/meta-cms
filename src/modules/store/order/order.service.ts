@@ -30,7 +30,7 @@ export class OrderService {
     async createOrder(websiteKey: string, userId: string, userRole: UserRoleEnum, newOrderDetails: CreateOrderWithoutPayDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const { cartId, addressId } = newOrderDetails;
@@ -95,7 +95,7 @@ export class OrderService {
     async initiatePayment(websiteKey: string, userId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         // need to add website key 
@@ -154,7 +154,7 @@ export class OrderService {
 
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = newOrderDetails;
@@ -232,7 +232,7 @@ export class OrderService {
     async getOrders(websiteKey: string, userId: string, vendorId: string, status: OrderStatusEnum, lastId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = { websiteKey }
@@ -279,7 +279,7 @@ export class OrderService {
     async getlastOrder(websiteKey: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = { websiteKey }
@@ -300,7 +300,7 @@ export class OrderService {
     async getMonthlyOrderCount(websiteKey: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const currentDate = new Date();
@@ -364,7 +364,7 @@ export class OrderService {
     async getTotalOrderCount(websiteKey: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = { websiteKey }
@@ -380,7 +380,7 @@ export class OrderService {
     async getTopSellingProducts(websiteKey: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const matchFilter: any = { websiteKey };
@@ -477,7 +477,7 @@ export class OrderService {
     async cancelOrder(websiteKey: string, orderId: string, userId: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = {
@@ -510,7 +510,7 @@ export class OrderService {
     async changeOrderStatus(websiteKey: string, orderId: string, vendorId: string, newStatus: OrderStatusEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if(!website){
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = {

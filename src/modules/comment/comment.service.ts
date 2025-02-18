@@ -108,7 +108,7 @@ export class CommentService {
 
     // Check if the user is authorized to delete the comment
     const isOwner = comment.userId.toString() === userId;
-    const isAuthorized = userRole === UserRoleEnum.SUPERADMIN || userRole === UserRoleEnum.MODERATOR;
+    const isAuthorized = userRole === UserRoleEnum.SUPERADMIN || userRole === UserRoleEnum.ADMIN || userRole === UserRoleEnum.MODERATOR;
 
     if (!isOwner && !isAuthorized) {
       throw new ForbiddenException("You do not have permission to delete this comment");

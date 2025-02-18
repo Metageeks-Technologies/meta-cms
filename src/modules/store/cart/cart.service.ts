@@ -24,14 +24,13 @@ export class CartService {
 
     async addItemToCart(websiteKey: string, userId: string, userRole: UserRoleEnum, newItem: AddNewItemInCartDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
-        if(websiteKey){
-            throw new NotFoundException('Invalid website key')
+        if(!website){
+            throw new BadRequestException('Invalid website key')
         }
 
         const { product, variantId, sku, quantity } = newItem;
 
-        // need to add website key in porduct 
-        const productData = await this.porductService.getProductById(product, undefined, undefined, undefined);
+        const productData = await this.porductService.getProductById(websiteKey, product, undefined, undefined);
 
         if (productData?.status !== ProductStatusEnum.PUBLISHED) {
             throw new ForbiddenException();
@@ -90,7 +89,7 @@ export class CartService {
     async removeItemFromCart(websiteKey: string, userId: string, userRole: UserRoleEnum, removedItemDetails: RemoveItemDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if(!website){
-            throw new NotFoundException('Invalid website key');
+            throw new BadRequestException('Invalid website key');
         }
 
         const { productId, variantId } = removedItemDetails;
@@ -116,7 +115,7 @@ export class CartService {
     async updateItemQuantity(websiteKey: string, userId: string, userRole: UserRoleEnum, updateQuantityDetails: UpdateQuantityDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if(!website){
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const { productId, variantId, quantity } = updateQuantityDetails;
@@ -153,7 +152,7 @@ export class CartService {
     async clearCart(websiteKey: string, userId: string, userRole: UserRoleEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if(!website){
-            throw new NotFoundException('Invalid website key');
+            throw new BadRequestException('Invalid website key');
         }
 
         const cart = await this.Cart.findOne({ user: userId, websiteKey, isActive: true });
@@ -175,7 +174,7 @@ export class CartService {
     async getCart(websiteKey: string, userId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if(!website){
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
         
         const cart = await this.Cart.findOne({ user: userId, websiteKey, isActive: true })
@@ -203,7 +202,7 @@ export class CartService {
     async findCart(websiteKey: string, cartId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if(!website){
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const cart = await this.Cart.findOne({_id: cartId, websiteKey}).exec();

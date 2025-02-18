@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ISubservice } from './schema/subservice.schema';
@@ -16,7 +16,7 @@ export class SubserviceService {
   async create(websiteKey: string, newSubservice: CreateSubserviceDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key');
+      throw new BadRequestException('Invalid website key');
     }
 
     const subService = await this.findSubserviceByName(websiteKey, newSubservice.name)
@@ -38,7 +38,7 @@ export class SubserviceService {
   async updateSubservice(websiteKey: string, subserviceId: string, subServiceDeatail: UpdateSubserviceDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key');
+      throw new BadRequestException('Invalid website key');
     }
 
     const subService = await this.findSubserviceByName(websiteKey, subServiceDeatail.name)
@@ -62,7 +62,7 @@ export class SubserviceService {
   async deleteSubservice(websiteKey: string, subserviceId: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = await this.Subservice.updateOne({ _id: subserviceId, websiteKey }, { isDeleted: true }).exec();
@@ -77,7 +77,7 @@ export class SubserviceService {
   async recoverSubservice(websiteKey: string, subserviceId: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
     const query = await this.Subservice.updateOne({ _id: subserviceId, websiteKey }, { isDeleted: false }).exec();
 
@@ -90,7 +90,7 @@ export class SubserviceService {
   async findAll(websiteKey: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = {
@@ -108,7 +108,7 @@ export class SubserviceService {
   async findByServiceId(websiteKey: string, serviceId: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = { websiteKey, service: serviceId }

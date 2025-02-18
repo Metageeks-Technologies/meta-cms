@@ -84,7 +84,6 @@ export class CaseStudyService {
         }
 
         const query = { websiteKey }
-
         if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
         }

@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IService } from './schema/service.schema';
@@ -16,7 +16,7 @@ export class ServiceService {
   async create(websiteKey: string, newService: CreateServiceDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
 
@@ -37,7 +37,7 @@ export class ServiceService {
   async updateService(websiteKey: string, serviceId: string, serviceDetails: UpdateServiceDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const service = await this.findSubserviceByName(websiteKey, serviceDetails.name);
@@ -58,7 +58,7 @@ export class ServiceService {
   async deleteService(websiteKey: string, serviceId: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = await this.Service.updateOne(
@@ -75,7 +75,7 @@ export class ServiceService {
   async recoverService(websiteKey: string, serviceId: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = await this.Service.updateOne(
@@ -93,7 +93,7 @@ export class ServiceService {
   async findAll(websiteKey: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = { websiteKey };
@@ -109,7 +109,7 @@ export class ServiceService {
   async finById(websiteKey: string, id: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const service = await this.Service.findOne({ _id: id, websiteKey }).exec();
