@@ -191,7 +191,9 @@ export interface PostContextType {
     selectedCategory: string;
     selectedProductCategory:string;
     setSelectedCategory: (category: string) => void;
-    setSelectedProductCategory: (category: string) => void;
+    setSelectedProductCategory: (category: string) => void; 
+    categoryPageNo: number;
+    setCategoryPageNo: (num: number) => void
 }
 
 export type ProductContextType = {
@@ -407,4 +409,14 @@ export interface AddressType {
     city: string;
     state: string;
     instruction?: string;
+}
+
+export interface WebsiteContextTypes {
+  deleteWebsite: (id: string) => void,
+  recoverWebsite: (id: string) => void,
+  updateWebsite: (e: any, website: any, setIsOpen: any) => void,
+  fetchWebsiteData: () => void,
+  websiteData: any[],
+  websitePageNo: number, 
+  setWebsitePageNo: (num: number) => void,
 }

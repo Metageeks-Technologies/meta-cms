@@ -12,6 +12,7 @@ import { SubserviceService } from "../subservices/subservice.service";
 
 @Injectable()
 export class PagesService {
+    private readonly PAGE_BATCH_LIMIT = 10;
 
     constructor(
         @InjectModel('Page') private Page: Model<IPage>,
@@ -149,13 +150,23 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
-    async getAllPage(websiteKey: string) {
+    async getAllPage(websiteKey: string, pageNo: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
             throw new BadRequestException("Invalid website key");
         }
+        
+        const page =  parseInt(pageNo) || 1
+        const skip = (page - 1) * this.PAGE_BATCH_LIMIT;
 
-        const allPage = await this.Page.find({ website: websiteKey }).sort({ createdAt: -1 }).lean().exec();
+        const allPage = await this.Page.find({ website: websiteKey })
+                                            .sort({ createdAt: -1 })
+                                                .skip(skip)
+                                                    .limit(this.PAGE_BATCH_LIMIT)
+                                                        .lean()
+                                                            .exec();
+
+
         return allPage
     }
 

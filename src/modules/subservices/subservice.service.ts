@@ -8,6 +8,9 @@ import { UpdateSubserviceDto } from './dto/update-subservice-dto';
 
 @Injectable()
 export class SubserviceService {
+
+  private readonly SUBSERVICE_PAGE_BATCH_LIMIT = 10;
+
   constructor(
     @InjectModel('Subservice') private Subservice: Model<ISubservice>,
     private readonly websiteService: WebsiteService
@@ -105,7 +108,7 @@ export class SubserviceService {
     return subservices;
   }
 
-  async findByServiceId(websiteKey: string, serviceId: string, isDeleted?: boolean) {
+  async findByServiceId(websiteKey: string, serviceId: string, pageNo: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException('Invalid website key')
@@ -117,9 +120,21 @@ export class SubserviceService {
       query['isDeleted'] = isDeleted
     }
 
-    const subservices = await this.Subservice.find(query).lean().exec()
-    return subservices;
+    if (pageNo) {
 
+      const page = parseInt(pageNo) || 1
+      const skip = (page - 1) * this.SUBSERVICE_PAGE_BATCH_LIMIT
+      const subservices = await this.Subservice.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(this.SUBSERVICE_PAGE_BATCH_LIMIT)
+        .lean().exec()
+
+      return subservices;
+    }else{
+      const subservices = await this.Subservice.find(query).sort({ createdAt: -1 }).lean().exec() 
+      return subservices;
+    }
   }
 
 
@@ -130,7 +145,7 @@ export class SubserviceService {
 
 
   async getSubServiceByKey(websiteKey: string, key: string) {
-    const subService = await this.Subservice.findOne({websiteKey, key}).exec();
+    const subService = await this.Subservice.findOne({ websiteKey, key }).exec();
     return subService;
   }
 

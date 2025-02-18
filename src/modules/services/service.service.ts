@@ -8,6 +8,9 @@ import { UpdateServiceDto } from './dto/update-service-dto';
 
 @Injectable()
 export class ServiceService {
+
+  private readonly SERVICE_PAGE_BATCH_LIMIT = 10;
+
   constructor(
     @InjectModel("Service") private Service: Model<IService>,
     private readonly websiteService: WebsiteService
@@ -90,7 +93,7 @@ export class ServiceService {
   }
 
   // In ServiceService
-  async findAll(websiteKey: string, isDeleted?: boolean) {
+  async findAll(websiteKey: string, pageNo: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException('Invalid website key')
@@ -101,8 +104,27 @@ export class ServiceService {
       query['isDeleted'] = isDeleted;
     }
 
-    const services = await this.Service.find(query).lean().exec();
-    return services;
+    if (pageNo) {
+      const page = parseInt(pageNo) || 1;
+      const skip = (page - 1) * this.SERVICE_PAGE_BATCH_LIMIT
+
+      const services = await this.Service.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(this.SERVICE_PAGE_BATCH_LIMIT)
+        .lean().exec();
+
+      return services;
+    } else {
+
+      const services = await this.Service.find(query)
+        .sort({ createdAt: -1 })
+        .lean().exec();
+
+      return services
+
+    }
+
   }
 
 
@@ -122,7 +144,7 @@ export class ServiceService {
   }
 
   async getServiceByKey(websiteKey: string, key: string) {
-    const service = await this.Service.findOne({websiteKey, key}).exec();
+    const service = await this.Service.findOne({ websiteKey, key }).exec();
     return service;
   }
 

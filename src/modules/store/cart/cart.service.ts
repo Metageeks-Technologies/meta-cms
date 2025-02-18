@@ -2,7 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { ICart } from "./schema/cart.schema";
 import mongoose, { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { UserRoleEnum } from "src/modules/users/schema/user.schema";
 import { AddNewItemInCartDto } from "./dto/add-new-item-dto";
 import { RemoveItemDto } from "./dto/remove-item-dto";
 import { UpdateQuantityDto } from "./dto/update-cart-item-dto";

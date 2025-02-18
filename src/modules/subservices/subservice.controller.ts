@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Headers, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Headers, UseGuards, Patch, Query } from '@nestjs/common';
 import { SubserviceService } from './subservice.service';
 import { CreateSubserviceDto } from './dto/create-subservice-dto';
 import { AuthGuard } from '../auth/auth.guard';
@@ -7,6 +7,7 @@ import { UserRoleEnum, UserStoreRoleEnum } from 'src/modules/users/schema/user.s
 import { RolesGuard, StoreRolesGuard } from '../auth/role.guard';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateSubserviceDto } from './dto/update-subservice-dto';
+import { SubServiceQueryDto } from './dto/get-subservice.dto';
 
 @Controller('subservices')
 export class SubserviceController {
@@ -30,15 +31,19 @@ export class SubserviceController {
   @Get('total/:id')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getallSubservice(@Headers("websiteKey") websiteKey: string, @Param('id', ValidateId) serviceId: string) {
-    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId)
+  async getallSubservice(
+    @Headers("websiteKey") websiteKey: string, 
+    @Param('id', ValidateId) serviceId: string,
+    @Query() query: SubServiceQueryDto
+  ) {
+    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, query.page)
     return subServices;
   }
 
   @Get('all/:id')
   @UseGuards(AuthGuard)
   async getallSubserviceByServiceId(@Headers("websiteKey") websiteKey: string, @Param('id', ValidateId) serviceId: string) {
-    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, false);
+    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, undefined, false);
     return subServices;
   }
 

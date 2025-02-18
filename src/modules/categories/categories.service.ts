@@ -10,6 +10,8 @@ import { WebsiteService } from '../website/website.service';
 
 @Injectable()
 export class CategoriesService {
+  private readonly CATEGORY_PAGE_BATCH_LIMIT = 10;
+
   constructor(
     @InjectModel('Category') private Category: Model<ICategory>,
     private readonly redisService: RedisService,
@@ -17,7 +19,7 @@ export class CategoriesService {
   ) { }
 
   async create(websiteKey: string, newCategoryData: CreateCategoryDto) {
-    
+
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException("Invalid website key");
@@ -43,23 +45,22 @@ export class CategoriesService {
     }
   }
 
-  async findAll(websiteKey: string) {
+  async findAll(websiteKey: string, pageNo: string) {
 
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException("Invalid website key");
     }
 
-    // Using lean for efficiency
-    // since categories will be fetched quite often
+    const page = parseInt(pageNo) || 1;
+    const skip = (page - 1) * this.CATEGORY_PAGE_BATCH_LIMIT
 
-    // get categories from cache 
-    // const categoriesData = await this.redisService.getCache(RedisKeys.AllCategory);
-    // if (categoriesData) {
-    //   return JSON.parse(categoriesData);
-    // }
-
-    const categories = await this.Category.find({ websiteKey }).sort({ createdAt: -1 }).lean().exec();
+    const categories = await this.Category.find({ websiteKey })
+                                            .sort({ createdAt: -1 })
+                                              .skip(skip)
+                                                .limit(this.CATEGORY_PAGE_BATCH_LIMIT)
+                                                  .lean()
+                                                    .exec();
 
     // stored categories in cache 
     // this.redisService.setCache(RedisKeys.AllCategory, JSON.stringify(categories));

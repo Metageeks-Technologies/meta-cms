@@ -62,7 +62,7 @@ const columns = [
       <div>{row.getValue("website")?.name}</div>
     ),
   },
-  
+
   {
     accessorKey: "website key",
     header: "Website key",
@@ -85,9 +85,8 @@ const columns = [
       const user = row.original;
       return (
         <div
-          className={`${
-            user.block ? "text-red-500" : "text-green-500"
-          } font-semibold`}
+          className={`${user.block ? "text-red-500" : "text-green-500"
+            } font-semibold`}
         >
           {user.block ? "Inactive" : "Active"}
         </div>
@@ -101,7 +100,7 @@ const columns = [
 
       const user = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const {  blockUser, unblockUser }: any = useUserContext();
+      const { blockUser, unblockUser }: any = useUserContext();
 
       return (
         <AlertDialog>
@@ -127,7 +126,7 @@ const columns = [
                 </DropdownMenuItem>
               ) : (
                 <>
-             
+
                   <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
                     <AlertDialogTrigger className="w-full text-left">
                       Block Admin
@@ -155,9 +154,9 @@ const columns = [
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-             onClick={clickedItem === 1 ? () => unblockUser(user._id, user.role)
-              : clickedItem === 2 ? () => blockUser(user._id, user.role)
-              : () => {}}
+                onClick={clickedItem === 1 ? () => unblockUser(user._id, user.role)
+                  : clickedItem === 2 ? () => blockUser(user._id, user.role)
+                    : () => { }}
               >
                 Continue
               </AlertDialogAction>
@@ -175,7 +174,7 @@ const columns = [
 
 function User() {
   const [sorting, setSorting] = useState<SortingState>([])
-  const {  adminData, fetchAdmins, } = useUserContext();
+  const { adminData, fetchAdmins, adminPageNo, setAdminPageNo } = useUserContext();
 
 
 
@@ -195,7 +194,7 @@ function User() {
 
   useEffect(() => {
     fetchAdmins();
-  }, []);
+  }, [adminPageNo]);
 
 
 
@@ -211,7 +210,7 @@ function User() {
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
 
-        <AddAdmin/>
+        <AddAdmin />
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">
@@ -272,21 +271,22 @@ function User() {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setAdminPageNo(adminPageNo - 1)}
+            disabled={adminPageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{adminPageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setAdminPageNo(adminPageNo + 1)}
+            disabled={adminData.length < 10}
             className="text-black font-bold"
           >
             Next

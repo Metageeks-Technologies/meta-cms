@@ -10,6 +10,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class WebsiteService {
+
+    private readonly WEBSITE_PAGE_BATCH_LIMIT = 10;
+
     constructor(
         @InjectModel('Website') private Website: Model<IWebsite>
     ) { }
@@ -34,12 +37,20 @@ export class WebsiteService {
         }
     }
 
-    async getWebsites(isDeleted: boolean) {
+    async getWebsites(isDeleted: boolean, pageNo: string) {
+
+        const page = parseInt(pageNo) || 1;
+        const skip = (page - 1) * this.WEBSITE_PAGE_BATCH_LIMIT
+
         const query = {}
         if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
         }
-        const websites = await this.Website.find(query).sort({ createdAt: -1 }).lean().exec();
+        const websites = await this.Website.find(query)
+                                                .sort({ createdAt: -1 })
+                                                    .skip(skip)
+                                                        .limit(this.WEBSITE_PAGE_BATCH_LIMIT)
+                                                            .lean().exec();
         return websites;
     }
 

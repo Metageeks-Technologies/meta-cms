@@ -6,7 +6,7 @@ import { ProductService } from "../product/product.service";
 import { CartService } from "../cart/cart.service";
 import { UsersService } from "src/modules/users/users.service";
 import { CreateOrderDto, CreateOrderWithoutPayDto } from "./dto/create-order-dto";
-import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { UserRoleEnum } from "src/modules/users/schema/user.schema";
 import { GetOrderQuery } from "./dto/get-order-dto";
 import { PaymentService } from "../payment/payment.service";
 import { WebsiteService } from "src/modules/website/website.service";
