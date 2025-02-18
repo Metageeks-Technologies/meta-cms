@@ -27,10 +27,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const [hasMoreMedia, setHasMoreMedia] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
 
+    const [categoryPageNo, setCategoryPageNo] = useState(1);
+
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey })
+            const param = new URLSearchParams();
+            param.append('page', categoryPageNo.toString());
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories?${param.toString()}`, undefined, { websiteKey })
             if (resp?.status === 200 || resp?.status === 201) {
                 setCategeories(resp?.data);
             } else {
@@ -155,6 +159,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         setSelectedProductCategory,
         fetchProductCategories,
         deleteProductCategory,
+        categoryPageNo,
+        setCategoryPageNo
     }
 
     return (

@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString } from "class-validator";
 
 
 
-export class CreatePremissionDto {
+export class CreatePermissionDto {
     @IsNotEmpty()
     @IsString()
     name: string;

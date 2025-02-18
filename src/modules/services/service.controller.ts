@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Headers, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Headers, UseGuards, Patch, Query } from '@nestjs/common';
 import { ServiceService } from './service.service';
 import { CreateServiceDto } from './dto/create-service-dto';
 import { AuthGuard } from '../auth/auth.guard';
@@ -7,6 +7,7 @@ import { UserRoleEnum } from 'src/modules/users/schema/user.schema';
 import { RolesGuard } from '../auth/role.guard';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateServiceDto } from './dto/update-service-dto';
+import { ServiceQueryDto } from './dto/get-service.dto';
 
 @Controller('services')
 export class ServiceController {
@@ -22,16 +23,21 @@ export class ServiceController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getService(@Headers("websiteKey") websiteKey: string) {
-    const services = await this.serviceService.findAll(websiteKey, false);
+  async getService(
+    @Headers("websiteKey") websiteKey: string
+  ) {
+    const services = await this.serviceService.findAll(websiteKey, undefined, false);
     return services;
   }
 
   @Get('all')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllService(@Headers("websiteKey") websiteKey: string) {
-    const services = await this.serviceService.findAll(websiteKey);
+  async getAllService(
+    @Headers("websiteKey") websiteKey: string,
+    @Query() query: ServiceQueryDto
+  ) {
+    const services = await this.serviceService.findAll(websiteKey, query.page);
     return services;
   }
 

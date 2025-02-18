@@ -10,6 +10,7 @@ import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserQueryDto } from './dto/get-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -60,20 +61,25 @@ export class UsersController {
   @Get('all-admin')
   @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllAdmin() {
-    const admins = await this.usersService.getAllAdmin()
+  async getAllAdmin(@Query() query: UserQueryDto) {
+    const admins = await this.usersService.getAllAdmin(query.page)
     return admins;
   }
 
   @Get('all-user/:role')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllUser(@Headers('websiteKey') websiteKey: string, @Param('role') role: UserRoleEnum) {
-    
-    const users = await this.usersService.getAllUser(websiteKey, role)
+  async getAllUser(
+    @Headers('websiteKey') websiteKey: string, 
+    @Param('role') role: UserRoleEnum,
+    @Query() query: UserQueryDto
+  ) {
+    const users = await this.usersService.getAllUser(websiteKey, role, query.page)
     return users
   }
 
+
+  //
   @Get('all-moderator')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
@@ -85,6 +91,8 @@ export class UsersController {
     };
   }
 
+
+  //
   @Get('all-contributor')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
@@ -96,6 +104,8 @@ export class UsersController {
     };
   }
 
+
+  //
   @Get('all-subscriber')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)

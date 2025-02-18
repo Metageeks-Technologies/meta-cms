@@ -115,7 +115,7 @@ const columns = [
             description: servicess.description,
           }
           const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}`, payload, { websiteKey: websiteKey });
-          
+
 
           if (resp.status === 200 || resp.status === 201) {
             toast.success(resp.data.message, {
@@ -257,11 +257,11 @@ const page = () => {
 
   const [sorting, setSorting] = useState<SortingState>([])
   const { websiteKey } = useUserContext();
-  const { services, fetchAllServices } = usePageContext();
+  const { services, fetchAllServices, servicePageNo, setServicePageNo } = usePageContext();
 
   useEffect(() => {
     if (websiteKey) fetchAllServices();
-  }, [websiteKey])
+  }, [websiteKey, servicePageNo])
 
 
   const table = useReactTable({
@@ -346,21 +346,22 @@ const page = () => {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setServicePageNo(servicePageNo - 1)}
+            disabled={servicePageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{servicePageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setServicePageNo(servicePageNo + 1)}
+            disabled={services.length < 10}
             className="text-black font-bold"
           >
             Next

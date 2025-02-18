@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useUserContext } from "./userContext";
 import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
@@ -7,20 +7,31 @@ const pageContext = createContext<any>(null)
 
 interface PageContextType {
   pageData: any,
+  
   services: any,
   subServices: any,
+  caseStudyData:any,
   fetchPageData: () => void,
+  fetchCaseStudyAll:()=>void,
   fetchServices: () => void,
   fetchAllServices: () => void,
   fetchSubServices: (id: string) => void,
 
   recoverPage: (id: string) => void,
+  recoverCaseStudy:(id:string) => void,
   recoverServices: (id: string) => void,
   recoverSubServices: (id: string, serviceId: string) => void,
   fetchSubServicesTotal: (id: string) => void,
   deletePage: (id: string) => void,
+  deleteCaseStudy:(id:string)=>void,
   deleteServices: (id: string) => void,
   deleteSubServices: (id: string, serviceId: string) => void,
+  pageNo: number,
+  setPageNo: (num: number) => void,
+  servicePageNo: number,
+  setServicePageNo: (num: number) => void,
+  subServicePageNo: number,
+  setSubServicePageNo: (num: number) => void,
 }
 
 
@@ -30,6 +41,10 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const [pageData, setPageData] = useState([]);
   const [services, setService] = useState([]);
   const [subServices, setSubService] = useState([]);
+  const [pageNo, setPageNo] = useState(1);
+  const [servicePageNo, setServicePageNo] = useState(1);
+  const [subServicePageNo, setSubServicePageNo] = useState(1);  
+  const [caseStudyData,setCaseStudyData]=useState([])
 
 
   const { websiteKey } = useUserContext();
@@ -39,7 +54,9 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const fetchPageData = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/all`, undefined, { websiteKey: websiteKey });
+      const param = new URLSearchParams();
+      param.append('page', pageNo.toString())
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/all?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
         setPageData(resp.data)
@@ -52,6 +69,28 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   }
+
+
+  const fetchCaseStudyAll = async () => {
+    setLoading(true);
+    try {
+      const param = new URLSearchParams();
+      param.append('page', pageNo.toString())
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/all`, undefined, { websiteKey: websiteKey });
+
+      if (resp?.status === 200 || resp?.status === 201) {
+        setCaseStudyData(resp.data)
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
 
   const fetchServices = async () => {
     setLoading(true);
@@ -73,7 +112,9 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const fetchAllServices = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/services/all`, undefined, { websiteKey: websiteKey });
+      const param = new URLSearchParams();
+      param.append('page', servicePageNo.toString());
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/services/all?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
         setService(resp.data)
@@ -141,6 +182,26 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+
+  const recoverCaseStudy = async (id: string) => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${id}`, undefined, { websiteKey });
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
+        fetchCaseStudyAll();
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+
   const deletePage = async (id: string) => {
     setLoading(true);
     try {
@@ -158,14 +219,28 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const deleteCaseStudy = async (id: string) => {
+    setLoading(true);
+    try {
+      const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${id}`, undefined, { websiteKey });
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
+        fetchCaseStudyAll();
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false);
+    }
+  }
 
 
   const fetchSubServices = async (id: string) => {
     setLoading(true);
     try {
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices`, undefined, { websiteKey: websiteKey });
-
-      // console.log(resp+"  subservices")
 
       if (resp?.status === 200 || resp?.status === 201) {
         setSubService(resp.data)
@@ -182,9 +257,9 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const fetchSubServicesTotal = async (id: string) => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/total/${id}`, undefined, { websiteKey: websiteKey });
-
-      // console.log(resp+"  subservices")
+      const param = new URLSearchParams();
+      param.append('page', subServicePageNo.toString());
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/total/${id}?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
         setSubService(resp.data)
@@ -236,8 +311,14 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   }
 
 
+  useEffect(() => {
+    if(websiteKey) fetchPageData();
+  }, [pageNo]);
+
+
   const contextValues: PageContextType = {
     pageData,
+    caseStudyData,
     services,
     subServices,
     fetchServices,
@@ -245,13 +326,22 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     fetchSubServices,
     fetchSubServicesTotal,
     fetchPageData,
+    fetchCaseStudyAll,
     recoverPage,
+    recoverCaseStudy,
     recoverServices,
     recoverSubServices,
 
     deletePage,
+    deleteCaseStudy,
     deleteServices,
-    deleteSubServices
+    deleteSubServices,
+    pageNo,
+    setPageNo,
+    servicePageNo, 
+    setServicePageNo,
+    subServicePageNo, 
+    setSubServicePageNo,
   }
 
   return (

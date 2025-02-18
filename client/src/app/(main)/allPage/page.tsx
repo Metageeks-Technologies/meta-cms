@@ -161,7 +161,7 @@ const page = () => {
   // const [rowSelection, setRowSelection] = React.useState({})
 
   const {websiteKey} = useUserContext();
-  const { pageData, fetchPageData } = usePageContext();
+  const { pageData, fetchPageData, pageNo, setPageNo } = usePageContext();
 
   useEffect(() => {
     if(websiteKey) fetchPageData();
@@ -261,21 +261,22 @@ const page = () => {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setPageNo(pageNo-1)}
+            disabled={pageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{pageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setPageNo(pageNo+1)}
+            disabled={pageData.length < 10}
             className="text-black font-bold"
           >
             Next

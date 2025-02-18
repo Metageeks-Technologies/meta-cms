@@ -99,11 +99,11 @@ export const PageSchema = new mongoose.Schema<IPage>({
     },
     service: {
         type: String,
-        enum: Object.values(PageServiceEnum)
+        required: true
     },
     subService: {
         type: String,
-        enum: Object.values(PageSubServiceEnum)
+        required: true
     },
     website: {
         type: String,
@@ -111,6 +111,7 @@ export const PageSchema = new mongoose.Schema<IPage>({
     },
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     slug: {

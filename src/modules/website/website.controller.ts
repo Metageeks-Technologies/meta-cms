@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { WebsiteService } from "./website.service";
 import { AllowedRoles, AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
 import { UserRoleEnum, UserStoreRoleEnum } from "../users/schema/user.schema";
@@ -7,6 +7,7 @@ import { RolesGuard, StoreRolesGuard } from "../auth/role.guard";
 import { AddWebSiteDto } from "./dto/create-website-dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
 import { UpdateWebsiteDto } from "./dto/update-website-dto";
+import { WebsiteQueryDto } from "./dto/get-website.dto";
 
 
 @Controller('website')
@@ -25,8 +26,8 @@ export class WebsiteController {
 
     @Get()
     @UseGuards(AuthGuard)
-    async getWebsites() {
-        const websites = await this.websiteService.getWebsites(false)
+    async getWebsites(@Query() query: WebsiteQueryDto) {
+        const websites = await this.websiteService.getWebsites(false, query.page)
         return websites;
     }
 
@@ -34,8 +35,8 @@ export class WebsiteController {
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard, StoreRolesGuard)
-    async getAllWebsites() {
-        const websites = await this.websiteService.getWebsites(undefined)
+    async getAllWebsites(@Query() query: WebsiteQueryDto) {
+        const websites = await this.websiteService.getWebsites(undefined, query.page)
         return websites
     }
 

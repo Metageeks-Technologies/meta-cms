@@ -28,7 +28,7 @@ export class ProductService {
     async createProduct(websiteKey: string, newProductDetail: CreateProductDto, userId: string, userRole: UserRoleEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const newProduct = new this.Product({ ...newProductDetail, websiteKey });
@@ -88,7 +88,7 @@ export class ProductService {
 
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
-            throw new NotFoundException('Invalid website key');
+            throw new BadRequestException('Invalid website key');
         }
 
         const pipeline: mongoose.PipelineStage[] = [];
@@ -220,7 +220,7 @@ export class ProductService {
     async getLatestProduct(websiteKey: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = { websiteKey, status: ProductStatusEnum.PUBLISHED, isDeleted: false }
@@ -235,7 +235,7 @@ export class ProductService {
     async getProductCount(websiteKey: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = { websiteKey }
@@ -253,7 +253,7 @@ export class ProductService {
 
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const pipeline: mongoose.PipelineStage[] = [];
@@ -342,7 +342,7 @@ export class ProductService {
     async getProductById(websiteKey: string, productId: string, status: ProductStatusEnum, isDeleted: boolean) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const result = await this.Product.aggregate([
@@ -385,7 +385,7 @@ export class ProductService {
     async updateProduct(websiteKey: string, productId: string, productDetail: UpdateProductDto, userId: string, userRole: UserRoleEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const product = await this.Product.findOne({ _id: productId, websiteKey }, { vendor: 1 }).lean().exec();
@@ -410,7 +410,7 @@ export class ProductService {
     async getVariant(websiteKey: string, userId: string, userRole: UserRoleEnum, productId: string, variantId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const product = await this.Product.findOne({ _id: productId, websiteKey }).exec();
@@ -435,7 +435,7 @@ export class ProductService {
     async addVariant(websiteKey: string, userId: string, userRole: UserRoleEnum, productId: string, newVariant: CreateVariantDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const product = await this.Product.findOne({ _id: productId, websiteKey });
@@ -473,7 +473,7 @@ export class ProductService {
         try {
             const website = await this.websiteService.getWebsiteByKey(websiteKey)
             if (!website) {
-                throw new NotFoundException('Invalid website key')
+                throw new BadRequestException('Invalid website key')
             }
 
             const product = await this.Product.findOne({ _id: productId, websiteKey });
@@ -509,7 +509,7 @@ export class ProductService {
         try {
             const website = await this.websiteService.getWebsiteByKey(websiteKey)
             if (!website) {
-                throw new NotFoundException('Invalid website key')
+                throw new BadRequestException('Invalid website key')
             }
 
             const product = await this.Product.findOne({ _id: productId, websiteKey });
@@ -549,7 +549,7 @@ export class ProductService {
         try {
             const website = await this.websiteService.getWebsiteByKey(websiteKey)
             if (!website) {
-                throw new NotFoundException('Invalid website key')
+                throw new BadRequestException('Invalid website key')
             }
 
             const product = await this.Product.findOne({ _id: productId, websiteKey });
@@ -576,7 +576,7 @@ export class ProductService {
     async changeProductStatus(websiteKey: string, productId: string, newStatus: ProductStatusEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = await this.Product.updateOne({ _id: productId, websiteKey }, { $set: { status: newStatus } }).exec();
@@ -588,7 +588,7 @@ export class ProductService {
     async deleteProduct(websiteKey: string, productId: string, userId: string, userRole: UserRoleEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
-            throw new NotFoundException('Invalid website key');
+            throw new BadRequestException('Invalid website key');
         }
 
         const product = await this.Product.findOne({ _id: productId, websiteKey }, { vendor: 1 });
@@ -606,7 +606,7 @@ export class ProductService {
     async recoverProduct(websiteKey: string, productId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const product = await this.Product.findOneAndUpdate({ _id: productId, websiteKey }, { isDeleted: false });
@@ -620,7 +620,7 @@ export class ProductService {
 
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const product = await this.Product.findOne({ _id: productId, websiteKey }).exec();

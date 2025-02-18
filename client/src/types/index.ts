@@ -191,7 +191,9 @@ export interface PostContextType {
     selectedCategory: string;
     selectedProductCategory:string;
     setSelectedCategory: (category: string) => void;
-    setSelectedProductCategory: (category: string) => void;
+    setSelectedProductCategory: (category: string) => void; 
+    categoryPageNo: number;
+    setCategoryPageNo: (num: number) => void
 }
 
 export type ProductContextType = {
@@ -336,7 +338,7 @@ export interface aboutCard{
 export interface StudyAbout{
   heading: string;
   description: string;
-  aboutCards: aboutCard[];
+  cards: aboutCard[];
   
 }
 export interface Content {
@@ -351,7 +353,7 @@ export interface Item{
 
 export interface StudyCard{
   heading: string;
- cardList:Item[]; 
+ list:string[]; 
 }
 
 export interface process {
@@ -367,26 +369,28 @@ export interface studyWebsite{
 export interface studyChallange{
   heading: string;
   description: string;
-  StudyChallangeList:aboutCard[]
+  cards:aboutCard[]
 
 }
 
 export interface heroSection{
   imageKey: string | null;
 }
+export interface uiSection{
+  imageKey: string | null;
+}
 
 
 export interface caseStudyContent {
-  _id?: any;
   title: string;
   slug: string;
-  website: string;
-  service: string;
+  // website: string;
+  // service: string;
 
   content: {
     heroSection:heroSection;
     aboutSection:StudyAbout;
-    uiSection1: string | null;
+    uiSection: uiSection;
     serviceSection:Content;
     processSection:process;
     uiSection2: studyWebsite;
@@ -407,4 +411,14 @@ export interface AddressType {
     city: string;
     state: string;
     instruction?: string;
+}
+
+export interface WebsiteContextTypes {
+  deleteWebsite: (id: string) => void,
+  recoverWebsite: (id: string) => void,
+  updateWebsite: (e: any, website: any, setIsOpen: any) => void,
+  fetchWebsiteData: () => void,
+  websiteData: any[],
+  websitePageNo: number, 
+  setWebsitePageNo: (num: number) => void,
 }

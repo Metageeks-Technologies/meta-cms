@@ -10,6 +10,9 @@ import { FaArrowLeft } from "react-icons/fa";
 import axios from 'axios';
 import { INITIAL_PAGE_CONTENT, PageService, PageSubService } from '@/constant/page';
 import { Card, Feature, PageContent } from '@/types';
+import AddNewService from './components/AddNewService';
+import AddNewSubService from './components/AddNewSubService';
+import { userRoles } from '@/constant/user';
 
 const EditPage = () => {
     const router = useRouter();
@@ -18,11 +21,13 @@ const EditPage = () => {
     const params = useParams();
     const slug = params.slug;
 
-
-    const [websiteArr, setWebsiteArr] = useState([]);
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
     const [keywordValue, setKeywordValue] = useState('');
     const { websiteKey } = useUserContext();
+    const [services, setServices] = useState([]);
+    const [subServices, setSubservices] = useState([]);
+    const [selectedService, setSeletedSubService] = useState<any>('');
+
 
     const handleChange = (e: any) => {
         const { id, value } = e.target;
@@ -379,6 +384,15 @@ const EditPage = () => {
     };
 
 
+    const handleSelectService = (e: any) => {
+        const { value } = e.target;
+        setFormData((prev) => ({...prev, service: value, subService: ""}));
+        
+        services.forEach((service: any) => {
+            if(service.key === value) setSeletedSubService(service)
+        })  
+    }
+
 
     const handleKeywordchange = (value: string) => {
         setKeywordValue(value);
@@ -458,7 +472,9 @@ const EditPage = () => {
             const payload = {
                 title: formData.title,
                 slug: formData.slug,
-                website: formData.website,
+                // website: formData.website,
+                service: formData.service,
+                subService: formData.subService,
                 content: formData.content,
                 metaTitle: formData.metaTitle,
                 metaDescription: formData.metaDescription,
@@ -528,6 +544,56 @@ const EditPage = () => {
     }, [websiteKey]);
 
 
+
+
+    const fetchServices = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/services`, undefined, { websiteKey: websiteKey });
+
+            if (resp?.status === 200 || resp?.status === 201) {
+               setServices(resp?.data);
+               resp?.data?.forEach((element: any) => {
+                    if(element.key === formData.service){
+                        setSeletedSubService(element);
+                    }
+               });
+            } else {
+                toast.error(resp?.data?.message || 'Error in add new service', { duration: 2000 });
+            }
+        } catch (error) {
+            console.log("Error in fetching services");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchSubServices = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/all/${selectedService._id}`, undefined, { websiteKey: websiteKey });
+
+            if (resp?.status === 200 || resp?.status === 201) {
+                setSubservices(resp?.data);
+            } else {
+                toast.error(resp?.data?.message || 'Error in add new service', { duration: 2000 });
+            }
+        } catch (error) {
+            console.log("Error in fetching subservice : ", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if(websiteKey) fetchServices();
+    }, [websiteKey, formData.service]);
+
+    useEffect(() => {
+        if(selectedService._id && websiteKey) fetchSubServices();
+    }, [selectedService]);
+
+
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
             <form onSubmit={handleSubmit} >
@@ -562,38 +628,49 @@ const EditPage = () => {
                 </label>
 
                 <div className='flex flex-row gap-5 items-center'>
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Service</span>
-                        <select onChange={(e) => { setFormData((prev) => ({ ...prev, service: e.target.value, subService: "" })) }} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
-                            <option value="">--Select service--</option>
-                            {
-                                PageService.map((service, index) => (
-                                    <option key={index} value={service.key}>{service.title}</option>
-                                ))
-                            }
-                        </select>
-                    </label>
+                    <div className='w-full flex flex-row gap-2 items-end mb-5'>
+                        <label className="w-full flex flex-col gap-2">
+                            <span>Service</span>
+                            <select onChange={handleSelectService} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
+                                <option value="">--Select service--</option>
+                                {
+                                    services.map((service: any, index: any) => (
+                                        <option key={index} value={service.key}>{service.name}</option>
+                                    ))
+                                }
+                            </select>
+                        </label>
+                        {
+                            (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) &&
+                            <AddNewService fetchServices={fetchServices} />
+                        }
+                    </div>
 
-                    <label className="w-full flex flex-col gap-2 mb-5">
-                        <span>Sub Service</span>
-                        <select
-                            name=""
-                            id="subService"
-                            value={formData.subService}
-                            onChange={(e) => setFormData((prev) => ({ ...prev, subService: e.target.value }))}
-                            className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none"
-                            disabled={formData.service === "" ? true : false}
-                            required
-                        >
-                            <option value="">--Select sub service--</option>
-                            {
-                                // PageSubService[formData.service as keyof typeof PageSubService].length > 0 &&
-                                PageSubService[formData.service as keyof typeof PageSubService]?.map((service: any, index: any) => (
-                                    <option key={index} value={service.key}>{service.title}</option>
-                                ))
-                            }
-                        </select>
-                    </label>
+                    <div className='w-full flex flex-row gap-2 items-end mb-5'>
+                        <label className="w-full flex flex-col gap-2">
+                            <span>Sub Service</span>
+                            <select
+                                name=""
+                                id="subService"
+                                value={formData.subService}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, subService: e.target.value }))}
+                                className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none"
+                                disabled={formData.service === "" ? true : false}
+                                required
+                            >
+                                <option value="">--Select sub service--</option>
+                                {
+                                    subServices.map((service: any, index: any) => (
+                                        <option key={index} value={service?.key}>{service?.name}</option>
+                                    ))
+                                }
+                            </select>
+                        </label>
+                        {
+                            (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) && formData.service &&
+                            <AddNewSubService fetchSubServices={fetchSubServices} serviceId={selectedService?._id} />
+                        }
+                    </div>
                 </div>
 
                 <label className="block text-white mb-5">

@@ -11,19 +11,21 @@ import { MdEdit } from "react-icons/md";
 
 const page = () => {
     const { setLoading, user } = useUserContext();
-    const [caseStudyPage, setcaseStudyPage] = useState<any>(null);
+    const [caseStudyPage, setCaseStudyPage] = useState<any>(null);
+    
+    const { websiteKey } = useUserContext();
     const router = useRouter();
     const params = useParams();
     const slug = params.slug;
 
-    const fetchPage = async () => {
+    const fetchCaseStudy = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/private/${slug}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${slug}`, undefined, { websiteKey });
+            console.log(resp + " response");
 
             if (resp.status === 200 || resp.status === 201) {
-                setcaseStudyPage(resp?.data);
-                // console.log(resp);
+                setCaseStudyPage(resp?.data);
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
@@ -37,8 +39,11 @@ const page = () => {
         }
     }
 
+    console.log(caseStudyPage);
+
+
     useEffect(() => {
-        if (user.role) fetchPage();
+        if (user.role) fetchCaseStudy();
     }, [user]);
 
     return (
@@ -54,7 +59,6 @@ const page = () => {
                     </button>
                 }
             </div>
-
 
             <div className='flex flex-col gap-5'>
                 {/* Hero Section */}
@@ -102,7 +106,7 @@ const page = () => {
                 <div className='w-full flex flex-row gap-5 justify-between bg-gray-900 rounded-lg p-4'>
                     <div>
                         <h2 className='text-2xl font-bold my-2'>UI Section 1</h2>
-                        <img src={getURL(caseStudyPage?.uiSection1?.imageKey)} className='w-full h-full object-contain' />
+                        <img src={getURL(caseStudyPage?.uiSection?.imageKey)} className='w-full h-full object-contain' />
                     </div>
                 </div>
 
@@ -139,7 +143,7 @@ const page = () => {
                                 <div className='w-full flex flex-col gap-3'>
                                     {card?.list?.map((point: any, idx: any) => (
                                         <p key={idx} className='text-gray-400'>
-                                            - {point?.point}
+                                            - {point}
                                         </p>
                                     ))}
                                 </div>
@@ -161,16 +165,16 @@ const page = () => {
                     <h2 className='text-2xl font-bold my-2'>Challenges Section</h2>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Heading: </span>
-                        {caseStudyPage?.challengesSection?.heading}
+                        {caseStudyPage?.challangesSection?.heading}
                     </p>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Description: </span>
-                        {caseStudyPage?.challengesSection?.description}
+                        {caseStudyPage?.challangesSection?.description}
                     </p>
 
                     <h3 className='text-lg font-bold my-2 mt-5'>Cards</h3>
                     <div className='w-full flex flex-col gap-5'>
-                        {caseStudyPage?.challengesSection?.cards?.map((card: any, index: any) => (
+                        {caseStudyPage?.challangesSection?.cards?.map((card: any, index: any) => (
                             <div key={index} className='w-full'>
                                 <p className='text-gray-400'>
                                     <span className='font-bold text-white'>Heading: </span>
@@ -189,4 +193,4 @@ const page = () => {
     )
 }
 
-export default page
+export default page;

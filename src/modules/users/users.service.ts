@@ -20,6 +20,8 @@ const otpGenerator = require('otp-generator');
 
 @Injectable()
 export class UsersService {
+  private readonly USER_PAGE_BATCH_LIMIT = 10;
+  
   constructor(
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Otp') private Otp: Model<IOtp>,
@@ -205,19 +207,37 @@ export class UsersService {
     return bookmarks;
   }
 
-  async getAllAdmin(): Promise<IUser[]> {
-    const admins = await this.User.find({ role: UserRoleEnum.ADMIN }).sort({ createdAt: -1 }).select('-hash').populate('website').lean().exec();
+  async getAllAdmin(pageNo: string): Promise<IUser[]> {
+
+    const page = parseInt(pageNo) || 1;
+    const skip = (page - 1) * this.USER_PAGE_BATCH_LIMIT
+
+    const admins = await this.User.find({ role: UserRoleEnum.ADMIN })
+                                          .sort({ createdAt: -1 })
+                                            .skip(skip)
+                                              .limit(this.USER_PAGE_BATCH_LIMIT)
+                                                .select('-hash')
+                                                  .populate('website')
+                                                    .lean().exec();
     return admins;
   }
 
-  async getAllUser(websiteKey: string, role: UserRoleEnum): Promise<IUser[]> {
+  async getAllUser(websiteKey: string, role: UserRoleEnum, pageNo: string): Promise<IUser[]> {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException("Invalid website key");
     }
 
+    const page = parseInt(pageNo) || 1;
+    const skip = (page - 1) * this.USER_PAGE_BATCH_LIMIT
 
-    const user = await this.User.find({ role: role, website: website._id }).sort({ createdAt: -1 }).select('-hash').populate('website').lean().exec();
+    const user = await this.User.find({ role: role, website: website._id })
+                                      .sort({ createdAt: -1 })
+                                        .skip(skip)
+                                          .limit(this.USER_PAGE_BATCH_LIMIT)
+                                            .select('-hash')
+                                              .populate('website')
+                                                .lean().exec();
     return user;
   }
 

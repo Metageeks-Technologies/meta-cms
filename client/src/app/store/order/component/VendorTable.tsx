@@ -58,8 +58,7 @@ const fetchOrderData = async () => {
   
     const cancelOrder = async (orderId: string) => {
       try {
-        const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my/cancel/${orderId}`,undefined,{websiteKey});
-        console.log(response.data);
+        const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my/cancel/${orderId}`);
   
         setOrders((prevOrders) =>
           prevOrders.map((order) =>

@@ -182,7 +182,7 @@ function Category() {
 
 
   const { user }: any = useUserContext();
-  const { websiteData, fetchWebsiteData } = useWebsiteContext()
+  const { websiteData, fetchWebsiteData, websitePageNo, setWebsitePageNo } = useWebsiteContext()
 
 
   const table = useReactTable({
@@ -193,7 +193,7 @@ function Category() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-  
+
     state: {
       sorting,
     },
@@ -202,7 +202,7 @@ function Category() {
 
   useEffect(() => {
     fetchWebsiteData();
-  }, []);
+  }, [websitePageNo]);
 
 
 
@@ -285,21 +285,22 @@ function Category() {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setWebsitePageNo(websitePageNo - 1)}
+            disabled={websitePageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{websitePageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setWebsitePageNo(websitePageNo + 1)}
+            disabled={websiteData.length < 10}
             className="text-black font-bold"
           >
             Next
