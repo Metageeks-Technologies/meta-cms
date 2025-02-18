@@ -57,6 +57,14 @@ export class CaseStudyController {
         return caseStudies;
     }
 
+    @Get('all')
+    @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
+    async getAllCaseStudy(@Headers('websiteKey') websiteKey: string) {
+        const caseStudies = await this.caseStudyService.getAll(websiteKey);
+        return caseStudies;
+    }
+
 
     @Get(':slug')
     async getCaseStudyBySlug(
@@ -68,13 +76,7 @@ export class CaseStudyController {
     }
     
 
-    @Get('all')
-    @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
-    @UseGuards(AuthGuard, RolesGuard)
-    async getAllCaseStudy(@Headers('websiteKey') websiteKey: string) {
-        const caseStudies = await this.caseStudyService.getAll(websiteKey);
-        return caseStudies;
-    }
+  
 
     @Put(':id')
     @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
