@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getURL } from "@/utils/AWS_Config";
 import { OrderStatusEnum } from "@/constant/order";
 import { useUserContext } from "@/context/userContext";
+import { useUserContext } from "@/context/userContext";
 
 const OrderTable = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -32,12 +33,14 @@ const OrderTable = () => {
 
   useEffect(() => {
     // Choose the appropriate API based on isAllOrders flag
+    if(websiteKey){
     const url = isAllOrders
       ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all`
       : `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`;
 
     fetchOrderData(url);
-  }, [isAllOrders]);
+    }
+  }, [isAllOrders,websiteKey]);
 
   const filteredOrders = Array.isArray(orders)
     ? orders.filter((order) => {
@@ -74,9 +77,13 @@ const OrderTable = () => {
 
   const changeOrderStatus = async (orderId: string, newStatus: OrderStatusEnum) => {
     try {
-      const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, {
-        status: newStatus,
-      });
+      const response = await axiosCall(
+        "patch", 
+        `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, 
+        { status: newStatus }, 
+        { websiteKey }
+      );
+
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>

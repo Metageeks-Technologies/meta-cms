@@ -16,9 +16,11 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
   setNewVariant,
   setIsAddModalOpen,
   handleAddVariant,
+  
 }) => {
   // State to hold image previews
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  
 
   const {websiteKey}=useUserContext();
 

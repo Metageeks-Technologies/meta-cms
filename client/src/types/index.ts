@@ -224,7 +224,36 @@ export interface Address {
     isDefault: boolean;
     isDeleted: boolean;
   }
-  
+  export interface AddressType {
+    _id: string;
+    name: string;
+    phone: string;
+    email: string;
+    house: string;
+    street: string;
+    landmark: string;
+    postalCode: number | string;  // Changed to allow both number and string
+    city: string;
+    state: string;
+    instruction?: string;
+}
+
+
+export type EditAddressProps = {
+  editAddress: Partial<AddressType>;
+  setEditAddress: React.Dispatch<React.SetStateAction<Partial<AddressType>>>;
+  getUserAddresses: () => void;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export type PostOfficeData = {
+  Status: string;
+  PostOffice: Array<{
+      District: string;
+      State: string;
+  }>;
+}
+
 
   export interface Vendor {
     name: string;
