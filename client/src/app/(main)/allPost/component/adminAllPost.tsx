@@ -40,7 +40,7 @@ const AdminAllPost = () => {
                 const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/draft?${param.toString()}`, undefined, { websiteKey });
 
                 if (resp.status === 200 || resp.status === 201) {
-                    const newPost = resp?.data;
+                    const newPost = resp?.data; 
                     if (newPost.length < 10) setHasMore(false);
                     setPostData((prevData: any) => {
                         const updatedData = [...(prevData || [])];

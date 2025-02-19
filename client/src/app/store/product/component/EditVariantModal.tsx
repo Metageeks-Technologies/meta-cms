@@ -73,7 +73,10 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
           const uploadUrl = resp?.data?.uploadUrl;
           const key = resp?.data?.key;
           await axios.put(uploadUrl, file, {
-            headers: { "Content-Type": file.type },
+            headers: { 
+              "Content-Type": file.type,
+              websiteKey: websiteKey
+            },
           });
           const newImageKeys = [...editedVariant.imageKeys];
           newImageKeys[index] = key;

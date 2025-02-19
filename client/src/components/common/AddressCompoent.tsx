@@ -31,7 +31,7 @@ import { AddressType } from '@/types';
 
 const AddressCompoent = ({ user }: any) => {
 
-    const { setLoading } = useUserContext();
+    const { setLoading,websiteKey } = useUserContext();
     const [addresses, setAddresses] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [editAddress, setEditAddress] = useState<AddressType>({
@@ -53,7 +53,7 @@ const AddressCompoent = ({ user }: any) => {
         if (!user?._id) return;
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address/all/${user._id}`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address/all/${user._id}`,undefined,{websiteKey})
 
 
             if (resp.status === 200 || resp.status === 201) {
@@ -72,7 +72,7 @@ const AddressCompoent = ({ user }: any) => {
     const deleteAddress = async (id: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${id}`);
+            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${id}`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 fetchAddress();
             }
@@ -86,7 +86,7 @@ const AddressCompoent = ({ user }: any) => {
     const recoverAddress = async (id: string) => {
         setLoading(true);
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/recover/${id}`);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/recover/${id}`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 fetchAddress();
             }

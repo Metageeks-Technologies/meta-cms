@@ -1,6 +1,5 @@
 'use client'
 import { useParams, useRouter } from 'next/navigation'
-
 import React, { useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { PostTypes } from '@/types'
@@ -23,530 +22,590 @@ import { userRoles } from '@/constant/user'
 import { useUserContext } from '@/context/userContext'
 import { getURL } from '@/utils/AWS_Config'
 import { IComment } from '@/types'
-import { FaClock } from "react-icons/fa6";
+import { FaClock } from "react-icons/fa6"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SiFacebook } from 'react-icons/si'
 import { RiInstagramFill } from 'react-icons/ri'
 import { ImLinkedin } from 'react-icons/im'
-import { FaHeart } from "react-icons/fa";
-import { BsTwitterX } from "react-icons/bs";
-
-// const PostContent = dynamic(() => import('./PostContent'), { ssr: false });
-
+import { FaHeart } from "react-icons/fa"
+import { BsTwitterX } from "react-icons/bs"
 
 const page = () => {
-    const { setLoading, user, websiteKey } = useUserContext();
-    const [post, setPost] = useState<PostTypes | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-
-    const [lastId, setLastId] = useState<string>('');
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [isFetching, setIsFetching] = useState(false);
+    const { setLoading, user, websiteKey } = useUserContext()
+    const [post, setPost] = useState<PostTypes | null>(null)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [lastId, setLastId] = useState<string>('')
+    const [page, setPage] = useState(1)
+    const [hasMore, setHasMore] = useState(true)
+    const [isFetching, setIsFetching] = useState(false)
     const [comments, setComments] = useState<IComment[]>([])
-    const [categoryList, setCategoryList] = useState('');
+    const [categoryList, setCategoryList] = useState('')
 
-    const router = useRouter();
-    const params = useParams();
-    const slug = params.id;
-
-
+    const router = useRouter()
+    const params = useParams()
+    const slug = params.id
 
     const fetchPost = async () => {
-        setLoading(true);
-        setIsLoading(true);
+        setLoading(true)
+        setIsLoading(true)
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`, undefined, { websiteKey });
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${slug}`, undefined, { websiteKey })
             if (resp.status === 200 || resp.status === 201) {
-                setPost(resp.data);
+                setPost(resp.data)
                 if (resp.data?._id) {
-                    await fetchComments(resp.data._id);
+                    await fetchComments(resp.data._id)
                 }
                 setCategoryList(resp.data.categories.map((item: any) => item.name).join(", "))
             } else {
-                toast.error(resp.data.message, { duration: 2000 });
+                toast.error(resp.data.message, { duration: 2000 })
             }
         } catch (error) {
-            toast.error("Failed to fetch post.", { duration: 2000 });
+            toast.error("Failed to fetch post.", { duration: 2000 })
         } finally {
-            setIsLoading(false);
-            setLoading(false);
+            setIsLoading(false)
+            setLoading(false)
         }
-    };
+    }
 
     const fetchComments = async (postId: string, lastId?: string) => {
-        if (!postId || isFetching) return;
+        if (!postId || isFetching) return
 
-        setIsFetching(true);
+        setIsFetching(true)
         try {
-            const param = new URLSearchParams();
-            if (lastId) param.append('lastId', lastId);
-            param.append('page', String(page));
+            const param = new URLSearchParams()
+            if (lastId) param.append('lastId', lastId)
+            param.append('page', String(page))
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public/comment/${postId}?${param.toString()}`, undefined, { websiteKey });
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public/comment/${postId}?${param.toString()}`, undefined, { websiteKey })
 
             if (resp.status === 200 || resp.status === 201) {
-                const newComments = resp.data;
-
-                // Filter out duplicate comments
-                const uniqueComments = [...new Map([...comments, ...newComments].map(comment => [comment._id, comment])).values()];
-
-                setComments(uniqueComments);
-
+                const newComments = resp.data
+                const uniqueComments = [...new Map([...comments, ...newComments].map(comment => [comment._id, comment])).values()]
+                setComments(uniqueComments)
                 if (newComments.length < 5) {
-                    setHasMore(false);
+                    setHasMore(false)
                 }
             } else {
-                toast.error(resp.data.message, { duration: 2000 });
+                toast.error(resp.data.message, { duration: 2000 })
             }
         } catch (error) {
-            toast.error("Failed to fetch comments.", { duration: 2000 });
+            toast.error("Failed to fetch comments.", { duration: 2000 })
         } finally {
-            setIsFetching(false);
+            setIsFetching(false)
         }
-    };
-
-
-
+    }
 
     const handleDeleteComment = async (commentId: string) => {
-        setLoading(true);
+        setLoading(true)
         try {
-            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${post?._id}/delete/${commentId}`, undefined, { websiteKey });
+            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/comment/${post?._id}/delete/${commentId}`, undefined, { websiteKey })
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.success("Comment Deleted", { duration: 2000 });
-                // Remove the deleted comment from state
+                toast.success("Comment Deleted", { duration: 2000 })
                 setComments((prev) => {
-                    // Update the post's comment count
                     setPost((prevPost: any) => ({
                         ...prevPost,
                         commentCount: prevPost.commentCount > 0 ? prevPost.commentCount - 1 : 0
-                    }));
-                    return prev.filter(comment => comment._id !== commentId);
-                });
+                    }))
+                    return prev.filter(comment => comment._id !== commentId)
+                })
             } else {
-                toast.error(resp.data.message, { duration: 2000 });
+                toast.error(resp.data.message, { duration: 2000 })
             }
         } catch (error) {
-            toast.error("Failed to delete comment.", { duration: 2000 });
+            toast.error("Failed to delete comment.", { duration: 2000 })
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     const handleRejectPost = async () => {
-        setLoading(true);
+        setLoading(true)
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/reject`, undefined, { websiteKey });
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/reject`, undefined, { websiteKey })
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.success("Post Rejected", {
-                    duration: 2000,
-                })
-                fetchPost();
+                toast.success("Post Rejected", { duration: 2000 })
+                fetchPost()
             } else {
-                toast.error(resp.data.message, {
-                    duration: 2000,
-                });
+                toast.error(resp.data.message, { duration: 2000 })
             }
         } catch (error) {
-            console.log(error);
+            console.log(error)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     }
 
     const handleApprovePost = async () => {
-        setLoading(true);
+        setLoading(true)
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/approve`, undefined, { websiteKey });
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/approve`, undefined, { websiteKey })
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.success("Post Approved", {
-                    duration: 2000,
-                })
-                fetchPost();
+                toast.success("Post Approved", { duration: 2000 })
+                fetchPost()
             } else {
-                toast.error(resp.data.message, {
-                    duration: 2000,
-                });
+                toast.error(resp.data.message, { duration: 2000 })
             }
-
         } catch (error) {
-            console.log(error);
+            console.log(error)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     }
-
 
     const handleDeletePost = async () => {
-        setLoading(true);
+        setLoading(true)
         try {
-            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, undefined, { websiteKey });
+            const resp = await axiosCall('DELETE', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, undefined, { websiteKey })
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.success(resp?.data?.message, {
-                    duration: 2000,
-                });
-                router.back();
+                toast.success(resp?.data?.message, { duration: 2000 })
+                router.back()
             } else {
-                toast.error(resp?.data?.message, {
-                    duration: 2000,
-                });
+                toast.error(resp?.data?.message, { duration: 2000 })
             }
-
         } catch (error) {
             console.log(error)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     }
 
-    const handleRecovePost = async () => {
-        setLoading(true);
+    const handleRecoverPost = async () => {
+        setLoading(true)
         try {
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover`, undefined, { websiteKey });
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}/recover`, undefined, { websiteKey })
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.success(resp?.data.message, {
-                    duration: 2000,
-                });
-                fetchPost();
+                toast.success(resp?.data.message, { duration: 2000 })
+                fetchPost()
             } else {
-                toast.error(resp.data.message, {
-                    duration: 2000,
-                });
+                toast.error(resp.data.message, { duration: 2000 })
             }
         } catch (error) {
             console.log(error)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     }
 
     const handlePublished = async (id: string) => {
-        setLoading(true);
+        setLoading(true)
         try {
             const payload = {
                 status: postStatuEnum.PUBLISHED,
             }
-            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${id}`, payload, { websiteKey });
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${id}`, payload, { websiteKey })
 
             if (resp.status === 200 || resp.status === 201) {
-                toast.success("Post Published", { duration: 2000 });
-                fetchPost();
+                toast.success("Post Published", { duration: 2000 })
+                fetchPost()
             } else {
-                toast.error(resp?.data?.message, { duration: 2000 });
+                toast.error(resp?.data?.message, { duration: 2000 })
             }
         } catch (error) {
-            console.log(error);
+            console.log(error)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     }
 
     useEffect(() => {
         if (websiteKey) {
-            fetchPost();
+            fetchPost()
         }
-    }, [websiteKey]);
+    }, [websiteKey])
 
     useEffect(() => {
-        setLastId(comments[comments.length - 1]?._id || '');
-    }, [comments]);
+        setLastId(comments[comments.length - 1]?._id || '')
+    }, [comments])
 
     useEffect(() => {
-        // Find all the script tags within the content
-        const scripts = post?.description?.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/g);
-
+        const scripts = post?.description?.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/g)
         if (scripts) {
             scripts.forEach((script) => {
-                // Create a new script element
-                const newScript = document.createElement("script");
-
-
-                // Use a regex to extract attributes and content
-                const attrMatch = script.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/);
+                const newScript = document.createElement("script")
+                const attrMatch = script.match(/<script([\s\S]*?)>([\s\S]*?)<\/script>/)
                 if (attrMatch) {
-                    // Set attributes if any
-                    const attributesString = attrMatch[1]; // This will contain the attributes
-                    const content = attrMatch[2]; // This will contain the script content
-
-                    // Set attributes to the new script element
+                    const attributesString = attrMatch[1]
+                    const content = attrMatch[2]
                     attributesString.trim().split(/\s+/).forEach(attr => {
-                        const [key, value] = attr.split('=');
+                        const [key, value] = attr.split('=')
                         if (value) {
-                            newScript.setAttribute(key, value.replace(/['"]/g, '')); // Remove quotes
+                            newScript.setAttribute(key, value.replace(/['"]/g, ''))
                         } else {
-                            newScript.setAttribute(key, ''); // For boolean attributes like 'async'
+                            newScript.setAttribute(key, '')
                         }
-                    });
-
-                    // Set the inner content of the new script
-                    newScript.textContent = content.trim();
+                    })
+                    newScript.textContent = content.trim()
                 }
-
-                // Append the new script to the document body
-                document.body.appendChild(newScript);
-            });
+                document.body.appendChild(newScript)
+            })
         }
-    }, [post]);
-
-
+    }, [post])
 
     return (
-        <div className='w-full text-gray-200 p-3 sm:p-8 flex flex-col items-start'>
-            <div className='rotate-180 my-3'>
-                <ArrowRight className='w-5 sm:w-8 h-4 sm:h-8 cursor-pointer' onClick={() => router.push('/allPost')} />
-            </div>
+        <div className="w-full min-h-screen bg-black text-white p-4 md:p-8">
+            <ArrowRight
+                className="w-8 h-8 rotate-180 cursor-pointer hover:text-gray-300"
+                onClick={() => router.push('/allPost')}
+            />
 
-            {
-                !isLoading ?
-                    <div className='w-full md:w-[800px] mx-auto '>
-                        {
-                            post?.title ?
-                                <div className='flex flex-col gap-5'>
-                                    <h1 className='text-2xl sm:text-3xl md:text-5xl font-bold'>{post?.title}</h1>
+            {!isLoading ? (
+                <div className="max-w-3xl mx-auto mt-6">
+                    {post?.title ? (
+                        <>
+                            <h1 className="text-3xl md:text-4xl font-bold mb-6">
+                                {post?.title}
+                            </h1>
 
-                                    <div className='w-full mb-2 sm:mb-4 flex flex-row justify-between'>
-                                        <div className='w-full flex flex-row items-center gap-3'>
-                                            <Avatar className='w-12 h-12'>
-                                                <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
-                                                <AvatarFallback>CN</AvatarFallback>
-                                            </Avatar>
-
-                                            <div>
-                                                <div className='w-full flex flex-row flex-wrap gap-2'>
-                                                    {
-                                                        post?.categories.length > 0 &&
-                                                        post?.categories.map((category) => (
-                                                            <p key={category._id} className='max-w-min bg-white text-black rounded-lg px-2 text-nowrap'>{category?.name}</p>
-                                                        ))
-                                                    }
-                                                </div>
-                                                <p className='font-bold'>{post?.author?.name} | {handleDate(post.publishedDate)}</p>
-                                            </div>
-                                        </div>
-                                        <div className='flex flex-row gap-2 items-center'>
-                                            {
-                                                post?.readTime &&
-                                                <div className='flex flex-row gap-2 items-center text-nowrap'>
-                                                    <FaClock />
-                                                    {post.readTime}
-                                                </div>
+                            {/* Author and Post Info */}
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-4">
+                                    <Avatar className="w-12 h-12 border border-gray-700">
+                                        <AvatarImage
+                                            src={
+                                                user?.imageKey
+                                                    ? getURL(user?.imageKey)
+                                                    : 'https://github.com/shadcn.png'
                                             }
-                                            |
-                                            <div className='flex flex-row items-center text-nowrap text-white'> <FaHeart className='mr-1' />  Likes : {post.likesCount}</div>
-                                        </div>
+                                        />
+                                        <AvatarFallback>CN</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="text-xl text-blue-400 font-semibold">
+                                            {post?.author?.name}
+                                        </p>
+                                        <p className="text-gray-400">
+                                            {handleDate(post.publishedDate)}
+                                        </p>
                                     </div>
-
-                                    <img src={getURL(post?.previewImageKey)} className='w-full object-contain' />
-                                    {/* <img src={"/blogImg.png"} className='w-full object-contain' /> */}
-                                    <div className="tinymce-content" id='postContent' dangerouslySetInnerHTML={{ __html: post?.description }}></div>
-                                    <div className='w-full flex flex-row justify-end gap-2'>
-                                        <p>Author : {post?.author.name}</p> |
-                                        <p>Date : {handleDate(post?.publishedDate)}</p>
-                                    </div>
-
-
-                                    {
-                                        (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.MODERATOR || user?.role === userRoles.ADMIN) &&
-                                        post?.status === postStatuEnum.AWAITING_APPROVAL &&
-                                        !((user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN) && post?.author?.role === userRoles.SUPERADMIN) &&
-                                        <div className='w-full flex flex-row gap-3 mt-5'>
-                                            <button onClick={handleRejectPost} className='w-full bg-red-200 border-[2px] border-red-600 text-red-600 font-bold p-2 rounded-lg text-base'>Reject</button>
-                                            <button onClick={handleApprovePost} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Approve</button>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    {post?.readTime && (
+                                        <div className="flex items-center gap-2 text-gray-400">
+                                            <FaClock />
+                                            <span>{post.readTime}</span>
                                         </div>
-                                    }
+                                    )}
+                                    <div className="flex items-center gap-2 text-rose-500">
+                                        <FaHeart />
+                                        <span>{post.likesCount}</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <div className='flex justify-between mt-4'>
-                                        {/* Existing Delete Post button */}
-                                        {!post.isDeleted && !(user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN && post?.author?.role === userRoles.SUPERADMIN) && (
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button className='bg-red-500 max-w-min text-white px-6 py-3 text-base rounded-lg font-bold hover:bg-red-700'>Delete Post</Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent className="bg-black text-white border-none">
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={handleDeletePost} className="text-white bg-red-500 hover:bg-red-700">Delete</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        )}
+                            {/* Categories */}
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {post?.categories.map((category) => (
+                                    <span
+                                        key={category._id}
+                                        className="px-3 py-1 bg-gray-800 text-blue-400 rounded-full text-sm hover:bg-gray-700"
+                                    >
+                                        {category?.name}
+                                    </span>
+                                ))}
+                            </div>
 
-                                        {
-                                          post.isDeleted && 
-                                          (user.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN) &&
-                                          !(user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN && post?.author?.role === userRoles.SUPERADMIN) &&
-                                          
+                            {/* Main Image */}
+                            <img
+                                src={getURL(post?.previewImageKey)}
+                                alt={post?.title}
+                                className="w-full rounded-lg mb-8 object-cover max-h-[500px]"
+                            />
 
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button className='bg-green-500 max-w-min text-white px-6  text-base rounded-lg font-bold hover:bg-green-700'>Recover Post</Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent className="bg-black text-white border-none">
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle className="text-center my-5 text-xl">Are you absolutely sure?</AlertDialogTitle>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel className="text-white bg-black">Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={handleRecovePost} className="text-white bg-green-500 hover:bg-green-700">Recover</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        }
+                            {/* Post Content */}
+                            <div
+                                className="prose prose-invert max-w-none mb-8"
+                                dangerouslySetInnerHTML={{
+                                    __html: post?.description,
+                                }}
+                            ></div>
 
+                            {/* Admin Actions */}
+                            {(user?.role === userRoles.SUPERADMIN ||
+                                user?.role === userRoles.MODERATOR ||
+                                user?.role === userRoles.ADMIN) &&
+                                post?.status ===
+                                    postStatuEnum.AWAITING_APPROVAL &&
+                                !(
+                                    user?.role !== userRoles.SUPERADMIN &&
+                                    user?.role !== userRoles.ADMIN &&
+                                    post?.author?.role === userRoles.SUPERADMIN
+                                ) && (
+                                    <div className="flex gap-4 mb-8">
+                                        <button
+                                            onClick={handleRejectPost}
+                                            className="flex-1 px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                                        >
+                                            Reject
+                                        </button>
+                                        <button
+                                            onClick={handleApprovePost}
+                                            className="flex-1 px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                                        >
+                                            Approve
+                                        </button>
+                                    </div>
+                                )}
 
-                                        {/* Existing Edit Post button */}
-                                        {(user?.id === post?.authorId || user.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN) &&
-                                           !(user?.role !== userRoles.SUPERADMIN && user?.role !== userRoles.ADMIN && post?.author?.role === userRoles.SUPERADMIN)                                          &&
-                                            (
-                                                <button
-                                                    onClick={() => router.push(`/editpost/${post.slug}`)}
-                                                    className='bg-green-200 border-[2px] border-green-600 text-green-600 font-bold px-6 rounded-lg text-base'
+                            {/* Post Actions */}
+                            <div className="flex gap-4 mb-8">
+                                {!post.isDeleted &&
+                                    !(
+                                        user?.role !== userRoles.SUPERADMIN &&
+                                        user?.role !== userRoles.ADMIN &&
+                                        post?.author?.role ===
+                                            userRoles.SUPERADMIN
+                                    ) && (
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-600 text-white">
+                                                    Delete Post
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-black border border-gray-800">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>
+                                                        Confirm Deletion
+                                                    </AlertDialogTitle>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel className="bg-gray-800 text-white hover:bg-gray-700">
+                                                        Cancel
+                                                    </AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={
+                                                            handleDeletePost
+                                                        }
+                                                        className="bg-red-500 text-white hover:bg-red-600"
+                                                    >
+                                                        Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    )}
+
+                                {(user?.id === post?.authorId ||
+                                    user.role === userRoles.SUPERADMIN ||
+                                    user.role === userRoles.ADMIN) &&
+                                    !(
+                                        user?.role !== userRoles.SUPERADMIN &&
+                                        user?.role !== userRoles.ADMIN &&
+                                        post?.author?.role ===
+                                            userRoles.SUPERADMIN
+                                    ) && (
+                                        <button
+                                            onClick={() =>
+                                                router.push(
+                                                    `/editpost/${post.slug}`,
+                                                )
+                                            }
+                                            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                                        >
+                                            Edit Post
+                                        </button>
+                                    )}
+                            </div>
+
+                            {/* Tags */}
+                            <div className="flex flex-wrap gap-2 mb-8">
+                                {post.tags.map((tag: string, index: number) => (
+                                    <span
+                                        key={index}
+                                        className="px-3 py-1 bg-gray-800 text-emerald-400 rounded-full text-sm hover:bg-gray-700"
+                                    >
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+
+                            {/* Author Bio */}
+                            <div className="bg-gray-900 rounded-lg p-6 mb-8">
+                                <div className="flex items-start gap-4">
+                                    <Avatar className="w-16 h-16 border border-gray-700">
+                                        <AvatarImage
+                                            src={
+                                                user?.imageKey
+                                                    ? getURL(user?.imageKey)
+                                                    : 'https://github.com/shadcn.png'
+                                            }
+                                        />
+                                        <AvatarFallback>CN</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1">
+                                        <p className="text-xl text-blue-400 font-semibold mb-2">
+                                            Written by {post.author.name}
+                                        </p>
+                                        <p className="text-gray-400 mb-4">
+                                            {post.author.bio}
+                                        </p>
+                                        <div className="flex gap-4">
+                                            {post.author?.socialLinks
+                                                ?.facebook && (
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .facebook
+                                                    }
+                                                    target="_blank"
+                                                    className="text-blue-400 hover:text-blue-300"
                                                 >
-                                                    Edit Post
+                                                    <SiFacebook size={24} />
+                                                </a>
+                                            )}
+                                            {post.author?.socialLinks
+                                                ?.instagram && (
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .instagram
+                                                    }
+                                                    target="_blank"
+                                                    className="text-rose-400 hover:text-rose-300"
+                                                >
+                                                    <RiInstagramFill
+                                                        size={24}
+                                                    />
+                                                </a>
+                                            )}
+                                            {post.author?.socialLinks
+                                                ?.linkedIn && (
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .linkedIn
+                                                    }
+                                                    target="_blank"
+                                                    className="text-blue-400 hover:text-blue-300"
+                                                >
+                                                    <ImLinkedin size={24} />
+                                                </a>
+                                            )}
+                                            {post.author?.socialLinks
+                                                ?.twitter && (
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .twitter
+                                                    }
+                                                    target="_blank"
+                                                    className="text-gray-400 hover:text-gray-300"
+                                                >
+                                                    <BsTwitterX size={24} />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Comments */}
+                            {post.status !== postStatuEnum.DRAFT &&
+                                post.status !== postStatuEnum.SCHEDULED &&
+                                comments.length > 0 && (
+                                    <div className="bg-gray-900 rounded-lg p-6">
+                                        <h2 className="text-xl font-semibold mb-6">
+                                            Comments ({comments.length})
+                                        </h2>
+                                        <div className="space-y-6">
+                                            {comments.map(
+                                                (comment: IComment) => (
+                                                    <div
+                                                        key={comment._id}
+                                                        className="border-b border-gray-800 pb-6 last:border-0"
+                                                    >
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <div className="flex gap-3">
+                                                                <img
+                                                                    src={
+                                                                        user?.imageKey
+                                                                            ? getURL(
+                                                                                  user?.imageKey,
+                                                                              )
+                                                                            : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`
+                                                                    }
+                                                                    alt={
+                                                                        comment
+                                                                            .userDetails
+                                                                            ?.name
+                                                                    }
+                                                                    className="w-10 h-10 rounded-full"
+                                                                />
+                                                                <div>
+                                                                    <p className="text-blue-400 font-medium">
+                                                                        {
+                                                                            comment
+                                                                                .userDetails
+                                                                                ?.name
+                                                                        }
+                                                                    </p>
+                                                                    <p className="text-gray-400 text-sm">
+                                                                        {handleDate(
+                                                                            comment.createdAt,
+                                                                        )}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            {(user?.id ===
+                                                                comment
+                                                                    .userDetails
+                                                                    ?.id ||
+                                                                user.role ===
+                                                                    userRoles.SUPERADMIN ||
+                                                                user.role ===
+                                                                    userRoles.MODERATOR) && (
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleDeleteComment(
+                                                                            comment._id,
+                                                                        )
+                                                                    }
+                                                                    className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-gray-300">
+                                                            {comment.message}
+                                                        </p>
+                                                    </div>
+                                                ),
+                                            )}
+                                            {hasMore && (
+                                                <button
+                                                    onClick={() =>
+                                                        fetchComments(
+                                                            post?._id,
+                                                            lastId,
+                                                        )
+                                                    }
+                                                    className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                                                >
+                                                    Load More Comments
                                                 </button>
                                             )}
-                                    </div>
-
-
-                                    {
-                                        post.status === postStatuEnum.DRAFT &&
-                                        <div className='w-full flex flex-row gap-3 mt-5'>
-                                            <button onClick={() => handlePublished(post?._id)} className='w-full bg-green-200 border-[2px] border-green-600 text-green-600 font-bold p-2 rounded-lg text-base'>Publish Post</button>
                                         </div>
-                                    }
-
-                                    <div className={`w-full flex flex-row flex-wrap gap-2`}>
-                                        {
-                                            post.tags.map((tag: string, index: number) => (
-                                                <div key={index}
-                                                    className={`px-2 rounded-full 
-                                                            ${index % 5 === 0 ? "bg-[#E3F2FD] text-[#1E88E5]"
-                                                            : index % 5 === 1 ? "bg-[#FFEBEE] text-[#E53935]"
-                                                                : index % 5 === 2 ? "bg-[#E8F5E9] text-[#43A047]"
-                                                                    : index % 5 === 3 ? "bg-[#FFF3E0] text-[#FB8C00]"
-                                                                        : index % 5 === 4 ? "bg-[#F3E5F5] text-[#8E24AA]"
-                                                                            : null
-                                                        } text-xs md:text-sm`}
-                                                >
-                                                    {tag}
-                                                </div>
-                                            ))
-                                        }
                                     </div>
-
-                                    <div className='w-full flex flex-row gap-5 my-5'>
-                                        <Avatar className='w-20 h-20'>
-                                            <AvatarImage src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"} />
-                                            <AvatarFallback>CN</AvatarFallback>
-                                        </Avatar>
-
-                                        <div className='w-full'>
-                                            <div className='w-full flex flex-row justify-between'>
-                                                <p className='text-xl font-bold'>Written by {post.author.name}</p>
-
-                                                <div className='flex flex-row items-center gap-3'>
-                                                    {
-                                                        post.author?.socialLinks?.facebook &&
-                                                        <a href={post.author?.socialLinks.facebook} target='_blank'>
-                                                            <SiFacebook className='text-2xl text-blue-500' />
-                                                        </a>
-                                                    }
-                                                    {
-                                                        post.author?.socialLinks?.instagram &&
-                                                        <a href={post.author?.socialLinks.instagram} target='_blank'>
-                                                            <RiInstagramFill className='text-3xl text-red-500' />
-                                                        </a>
-                                                    }
-                                                    {
-                                                        post.author?.socialLinks?.linkedIn &&
-                                                        <a href={post.author?.socialLinks.linkedIn} target='_blank'>
-                                                            <ImLinkedin className='text-2xl text-blue-500' />
-                                                        </a>
-                                                    }
-                                                    {
-                                                        post.author?.socialLinks?.twitter &&
-                                                        <a href={post.author?.socialLinks.twitter} target='_blank'>
-                                                            <BsTwitterX className='text-2xl text-white p-0' />
-                                                        </a>
-                                                    }
-                                                </div>
-                                            </div>
-                                            <p className='text-gray-400 text-sm'>{post.author.bio}</p>
-                                        </div>
-
-                                    </div>
-
-
-
-                                    {/* Render Comments */}
-                                    {/* Render Comments only if the post status is not DRAFT or SCHEDULED */}
-                                    {
-                                        post.status !== postStatuEnum.DRAFT &&
-                                        post.status !== postStatuEnum.SCHEDULED &&
-                                        comments.length > 0 && ( // Check if comments exist
-                                            <div>
-                                                <h2 className='text-xl font-semibold'>Comments </h2>
-                                                <div className='mt-5 overflow-y-auto max-h-[600px] bg-[#1A1A1A] rounded-md py-3 px-3'>
-
-                                                    {comments.map((comment: IComment) => (
-                                                        <div key={comment._id} className='flex items-start mb-4 border-b pb-2'>
-                                                            <img
-                                                                src={user?.imageKey ? getURL(user?.imageKey) : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`}
-                                                                alt={comment.userDetails?.name}
-                                                                className='w-10 h-10 rounded-full mr-3'
-                                                            />
-                                                            <div className='flex-1'>
-                                                                <p className='font-semibold'>
-                                                                    {comment.userDetails?.name} <span className='text-gray-600 text-sm'>{handleDate(comment.createdAt)}</span>
-                                                                </p>
-                                                                <p className='text-gray-200'>{comment.message}</p>
-                                                                {(user?.id === comment.userDetails?.id || user.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR) && (
-                                                                    <div className='flex justify-end'>
-                                                                        <button
-                                                                            onClick={() => handleDeleteComment(comment._id)}
-                                                                            className='bg-red-500 text-white px-2 py-1 text-semibold rounded-lg mt-1'
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                    {hasMore && (
-                                                        <div className='flex justify-center'>
-                                                            <button
-                                                                onClick={() => fetchComments(post?._id, lastId)}
-                                                                className='bg-blue-400 border-[1px] border-blue-400 text-white p-2 rounded-lg'
-                                                            >
-                                                                Load More
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
-                                    }
-
-
-                                </div>
-                                : <p className='text-center text-2xl'>No Data found.</p>
-                        }
-                    </div>
-                    : <p className='text-center mx-auto text-xl'>Loading...</p>
-            }
+                                )}
+                        </>
+                    ) : (
+                        <p className="text-center text-xl text-gray-400">
+                            No post found
+                        </p>
+                    )}
+                </div>
+            ) : (
+                <div className="flex justify-center items-center min-h-[60vh]">
+                    <p className="text-xl text-gray-400">Loading...</p>
+                </div>
+            )}
         </div>
-    )
+    );
 }
 
 export default page

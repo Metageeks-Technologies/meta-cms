@@ -30,9 +30,9 @@ const ProductCard: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [editedVariant, setEditedVariant] = useState<any>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-  const { user } = useUserContext();
+  
 
-  const { loading, setLoading ,websiteKey} = useUserContext();
+  const { user,loading, setLoading ,websiteKey} = useUserContext();
 
   const [newVariant, setNewVariant] = useState<any>({
     variantId: "",

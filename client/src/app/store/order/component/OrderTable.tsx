@@ -33,12 +33,14 @@ const OrderTable = () => {
 
   useEffect(() => {
     // Choose the appropriate API based on isAllOrders flag
+    if(websiteKey){
     const url = isAllOrders
       ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all`
       : `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`;
 
     fetchOrderData(url);
-  }, [isAllOrders]);
+    }
+  }, [isAllOrders,websiteKey]);
 
   const filteredOrders = Array.isArray(orders)
     ? orders.filter((order) => {

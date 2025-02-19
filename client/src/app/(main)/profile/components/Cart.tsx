@@ -155,7 +155,7 @@ const Cart = () => {
                 cartId: cart._id,
                 addressId: selectedAddress
             }
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/order`, payload);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/order`, payload,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 getMyCart();
                 setIsOpen(false);
@@ -174,7 +174,7 @@ const Cart = () => {
     const createPaymentOrder = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/order/initiate-payment`);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/order/initiate-payment`,undefined,{websiteKey});
 
             if (resp.status === 200 || resp.status === 201) {
                 return resp?.data;

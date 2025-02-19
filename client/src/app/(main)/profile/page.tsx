@@ -132,7 +132,7 @@ const ProfilePage: React.FC = () => {
     setLoading(true);
     try {
       const payload = { ...userProfile };
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, { websiteKey: websiteKey });
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, {  websiteKey });
 
 
       if (resp.status === 200 || resp.status === 201) {
@@ -164,7 +164,7 @@ const ProfilePage: React.FC = () => {
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
       }
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey: websiteKey });
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
         const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
