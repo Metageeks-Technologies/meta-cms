@@ -8,7 +8,7 @@ import { getURL } from '@/utils/AWS_Config';
 import { useParams, useRouter } from 'next/navigation';
 import { FaArrowLeft } from "react-icons/fa";
 import axios from 'axios';
-import { INITIAL_PAGE_CONTENT, PageService, PageSubService } from '@/constant/page';
+import { INITIAL_PAGE_CONTENT } from '@/constant/page';
 import { Card, Feature, PageContent } from '@/types';
 import AddNewService from './components/AddNewService';
 import AddNewSubService from './components/AddNewSubService';

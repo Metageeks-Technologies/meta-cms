@@ -6,7 +6,7 @@ import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
 import axios from 'axios';
 import { list } from 'postcss';
-import { INITIAL_PAGE_CONTENT, PageService, PageSubService } from '@/constant/page';
+import { INITIAL_PAGE_CONTENT } from '@/constant/page';
 import { Card, Feature, PageContent } from '@/types';
 import { userRoles } from '@/constant/user';
 import AddNewService from './components/AddNewService';

@@ -3,44 +3,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import axiosCall from '@/utils/ApiCall';
-import { UserProfile } from '@/types';
+import { UserContextType, UserProfile } from '@/types';
 import { INITIAL_USER, userRoles } from '@/constant/user';
 import { StoreRole } from '@/constant/store';
-interface UserContextType {
-    user: UserProfile;
-    subscribers: UserProfile[];
-    contributors: UserProfile[];
-    moderators: UserProfile[];
-
-    adminData: UserProfile[];
-
-    storeUser: UserProfile[];
-    vendor: UserProfile[];
-    storeModerator: UserProfile[];
-
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    fetchUsers: (role: string) => Promise<void>;
-    fetchAdmins: () => Promise<void>;
-    fetchStoreRole: (storeRole: string) => Promise<void>;
-    changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
-    changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
-    getUserProfile: () => Promise<void>;
-    setUser: (user: UserProfile) => void;
-    blockUser: (userId: string, role: string) => Promise<void>;
-    unblockUser: (userId: string, role: string) => Promise<void>;
-    loading: boolean;
-    setLoading: (loading: boolean) => void;
-    website: any;
-    websiteKey: string;
-    setWebsiteKey: (key: string) => void;
-    websiteData: any[];
-    setWebsiteData: (data: any[]) => void;
-    userPageNo: number;
-    setUserPageNo: (num: number) => void;
-    adminPageNo: number; 
-    setAdminPageNo: (num: number) => void;
-};
 
 // Context Creation
 const UserContext = createContext<UserContextType | null>(null);

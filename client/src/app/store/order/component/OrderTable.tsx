@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getURL } from "@/utils/AWS_Config";
 import { OrderStatusEnum } from "@/constant/order";
 import { useUserContext } from "@/context/userContext";
+import toast from "react-hot-toast";
 
 const OrderTable = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -58,7 +59,9 @@ const OrderTable = () => {
 
   const cancelOrder = async (orderId: string) => {
     try {
-      const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/cancel/${orderId}`, undefined, { websiteKey });
+      const resp = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/cancel/${orderId}`, undefined, { websiteKey });
+
+      if (resp.status === 200 || resp.status === 201) {
 
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -66,7 +69,7 @@ const OrderTable = () => {
             ? { ...order, shippingStatus: "Cancelled" }
             : order
         )
-      );
+      );}
     } catch (error) {
       console.error("Error cancelling order:", error);
     }
@@ -74,17 +77,30 @@ const OrderTable = () => {
 
   const changeOrderStatus = async (orderId: string, newStatus: OrderStatusEnum) => {
     try {
-      const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, {
+      const resp = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, {
         status: newStatus,
-      });
+      },{websiteKey});
 
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId
-            ? { ...order, shippingStatus: newStatus }
-            : order
-        )
-      );
+      
+
+
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === orderId
+              ? { ...order, shippingStatus: newStatus }
+              : order
+          )
+        );
+        
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
+      }
+
+
+      
+    
     } catch (error) {
       console.error("Error updating order status:", error);
     }
@@ -141,7 +157,7 @@ const OrderTable = () => {
               {shippingStatus === OrderStatusEnum.PENDING && (
                 <>
                   <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.CONFIRM)}>Confirm Order</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.CANCELLED)}>Cancel Order</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => cancelOrder(row._id)}>Cancel Order</DropdownMenuItem>
                 </>
               )}
 

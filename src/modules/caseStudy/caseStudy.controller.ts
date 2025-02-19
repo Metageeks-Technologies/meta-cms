@@ -1,4 +1,4 @@
-import { All, Body, Controller, Delete, Get, Header, Headers, Param, Patch, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { All, Body, Controller, Delete, Get, Header, Headers, Param, Patch, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { CaseStudyService } from "./caseStudy.service";
 import { AllowedRoles } from "src/common/decorators/allowed-roles.decorator";
 import { UserRoleEnum } from "../users/schema/user.schema";
@@ -7,6 +7,7 @@ import { RolesGuard } from "../auth/role.guard";
 import { CreateCaseStudyDto } from "./dto/create-caseStudy-dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
 import { UpdateCaseStudyDto } from "./dto/update-caseStudy.dto";
+import { CaseStudyQueryDto } from "./dto/get-caseStudy.dto";
 
 
 
@@ -29,15 +30,9 @@ export class CaseStudyController {
         return { message: "Casestudy created successfully" }
     }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
 
     @Get('public')
-    async getPublicCaseStudy(
-        @Headers('websiteKey') websiteKey: string,
-    ) {
+    async getPublicCaseStudy(@Headers('websiteKey') websiteKey: string) {
         const caseStudies = await this.caseStudyService.getPublic(websiteKey)
         return caseStudies;
     }
@@ -54,31 +49,23 @@ export class CaseStudyController {
 
 
     @Get()
-<<<<<<< Updated upstream
-=======
-=======
-    @Get('public')
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     async getCaseStudy(
         @Headers('websiteKey') websiteKey: string,
     ) {
-        const caseStudies = await this.caseStudyService.getAll(websiteKey, false)
+        const caseStudies = await this.caseStudyService.getAll(websiteKey, undefined, false)
         return caseStudies;
     }
 
-<<<<<<< Updated upstream
     @Get('all')
     @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async getAllCaseStudy(@Headers('websiteKey') websiteKey: string) {
-        const caseStudies = await this.caseStudyService.getAll(websiteKey);
+    async getAllCaseStudy(
+        @Headers('websiteKey') websiteKey: string,
+        @Query() query: CaseStudyQueryDto
+    ) {
+        const caseStudies = await this.caseStudyService.getAll(websiteKey, query.page);
         return caseStudies;
     }
-
-=======
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
 
     @Get(':slug')
     async getCaseStudyBySlug(
@@ -88,21 +75,7 @@ export class CaseStudyController {
         const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug)
         return caseStudy;
     }
-    
 
-<<<<<<< Updated upstream
-  
-=======
-=======
->>>>>>> Stashed changes
-    @Get('all')
-    @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
-    @UseGuards(AuthGuard, RolesGuard)
-    async getAllCaseStudy(@Headers('websiteKey') websiteKey: string) {
-        const caseStudies = await this.caseStudyService.getAll(websiteKey);
-        return caseStudies;
-    }
->>>>>>> Stashed changes
 
     @Put(':id')
     @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)

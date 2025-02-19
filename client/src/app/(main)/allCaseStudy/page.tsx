@@ -71,7 +71,7 @@ const columns = [
     header: "Status",
     cell: ({ row }: any) => {
       const isDeleted = row.getValue("isDeleted")
-      return <div>{isDeleted? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
+      return <div>{isDeleted ? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
     },
   },
   {
@@ -82,8 +82,8 @@ const columns = [
       const caseStudy = row.original;
       const [clickedItem, setClickedItem] = useState(0);
       const router = useRouter();
-      const {recoverCaseStudy, deleteCaseStudy} = usePageContext();
-      
+      const { recoverCaseStudy, deleteCaseStudy } = usePageContext();
+
 
       return (
         <AlertDialog>
@@ -99,20 +99,20 @@ const columns = [
               <DropdownMenuSeparator className="bg-gray-800" />
 
               <DropdownMenuItem onClick={() => router.push(`caseStudy/${caseStudy.slug}`)} className="cursor-pointer px-3">
-                <VscPreview /> Preview 
+                <VscPreview /> Preview
               </DropdownMenuItem>
 
               {
                 caseStudy.isDeleted ?
                   <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
                     <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
-                      <FaClockRotateLeft className="scale-x-[-1]" /> Recover 
+                      <FaClockRotateLeft className="scale-x-[-1]" /> Recover
                     </AlertDialogTrigger>
                   </DropdownMenuItem>
 
                   : <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3 text-red-500">
                     <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
-                      <RiDeleteBinLine /> Delete 
+                      <RiDeleteBinLine /> Delete
                     </AlertDialogTrigger>
                   </DropdownMenuItem>
               }
@@ -160,12 +160,12 @@ const page = () => {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const {websiteKey} = useUserContext();
-  const { caseStudyData, fetchCaseStudyAll, pageNo, setPageNo } = usePageContext();
+  const { websiteKey } = useUserContext();
+  const { caseStudyData, fetchCaseStudyAll, caseStudyPageNo, setCaseStudyPageNo, } = usePageContext();
 
   useEffect(() => {
-    if(websiteKey) fetchCaseStudyAll();
-  }, [websiteKey])
+    if (websiteKey) fetchCaseStudyAll();
+  }, [websiteKey, caseStudyPageNo])
 
 
   const table = useReactTable({
@@ -265,17 +265,17 @@ const page = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPageNo(pageNo-1)}
-            disabled={pageNo <= 1}
+            onClick={() => setCaseStudyPageNo(caseStudyPageNo - 1)}
+            disabled={caseStudyPageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
-          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{pageNo}</div>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{caseStudyPageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPageNo(pageNo+1)}
+            onClick={() => setCaseStudyPageNo(caseStudyPageNo + 1)}
             disabled={caseStudyData.length < 10}
             className="text-black font-bold"
           >

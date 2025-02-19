@@ -11,6 +11,8 @@ import { UpdateCaseStudyDto } from "./dto/update-caseStudy.dto";
 
 @Injectable()
 export class CaseStudyService {
+    private readonly CASESTUDY_PAGE_BATCH_LIMIT = 10;
+
     constructor(
         @InjectModel('CaseStudy') private CaseStudy: Model<ICaseStudy>,
         private readonly websiteService: WebsiteService
@@ -38,7 +40,7 @@ export class CaseStudyService {
             throw new BadRequestException('Invalid website key')
         }
 
-        const caseStudyExist = await this.CaseStudy.findOne({ websiteKey, slug: updatedDetails.slug }).exec()
+        const caseStudyExist = await this.CaseStudy.findOne({ websiteKey, slug: updatedDetails.slug, _id: { $ne: caseStudyId } }).exec()
         if (updatedDetails.slug && caseStudyExist) {
             throw new BadRequestException('Slug already exists');
         }
@@ -77,34 +79,38 @@ export class CaseStudyService {
         }
     }
 
-    async getAll(websiteKey: string, isDeleted?: boolean) {
+    async getAll(websiteKey: string, pageNo: string, isDeleted?: boolean) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
             throw new BadRequestException('Invalid website key')
         }
 
-<<<<<<< Updated upstream
-        
         const query = { websiteKey }
-=======
-        const query = { websiteKey }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
->>>>>>> Stashed changes
         if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
         }
 
-        const caseStudies = await this.CaseStudy.find(query).populate('authorId').exec()
-        return caseStudies;
+        if (pageNo) {
+            const page = parseInt(pageNo) || 1;
+            const skip = (page - 1) * this.CASESTUDY_PAGE_BATCH_LIMIT;
+
+            const caseStudies = await this.CaseStudy.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(this.CASESTUDY_PAGE_BATCH_LIMIT)
+                .populate('authorId')
+                .exec()
+
+            return caseStudies;
+        } else {
+            const caseStudies = await this.CaseStudy.find(query).populate('authorId').exec()
+            return caseStudies;
+        }
+
     }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
+
     async getPublic(websiteKey: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
@@ -122,7 +128,7 @@ export class CaseStudyService {
         }
         const query = { websiteKey, slug };
 
-        if(isDeleted !== undefined){
+        if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
         }
 
@@ -130,9 +136,4 @@ export class CaseStudyService {
         return caseStudy;
     }
 
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 }

@@ -10,10 +10,10 @@ import { FaArrowLeft } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 
 const page = () => {
-    const { setLoading, user } = useUserContext();
+    const { setLoading, user, websiteKey } = useUserContext();
     const [caseStudyPage, setCaseStudyPage] = useState<any>(null);
-    
-    const { websiteKey } = useUserContext();
+
+
     const router = useRouter();
     const params = useParams();
     const slug = params.slug;
@@ -22,7 +22,6 @@ const page = () => {
         setLoading(true);
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${slug}`, undefined, { websiteKey });
-            console.log(resp + " response");
 
             if (resp.status === 200 || resp.status === 201) {
                 setCaseStudyPage(resp?.data);
@@ -39,12 +38,10 @@ const page = () => {
         }
     }
 
-    console.log(caseStudyPage);
-
 
     useEffect(() => {
-        if (user.role) fetchCaseStudy();
-    }, [user]);
+        if (websiteKey) fetchCaseStudy();
+    }, [websiteKey]);
 
     return (
         <div className='p-4 md:p-10' >
@@ -53,8 +50,8 @@ const page = () => {
                     <FaArrowLeft />
                 </button>
                 {
-                    user.role === userRoles.SUPERADMIN &&
-                    <button className='bg-white py-2 px-4 rounded-lg text-black font-bold flex flex-row items-center gap-2' onClick={() => router.push(`/editCaseStudy/${slug}`)}>
+                    (user.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN) &&
+                    <button className='bg-white py-2 px-4 rounded-lg text-black font-bold flex flex-row items-center gap-2' onClick={() => router.push(`/editPage/${slug}`)}>
                         <MdEdit /> Edit
                     </button>
                 }
@@ -62,30 +59,28 @@ const page = () => {
 
             <div className='flex flex-col gap-5'>
                 {/* Hero Section */}
-                <div className='w-full flex flex-row gap-5 justify-between bg-gray-900 rounded-lg p-4'>
-                    <div>
-                        <h2 className='text-2xl font-bold my-2'>Hero Section</h2>
-                        <img src={getURL(caseStudyPage?.heroSection?.imageKey)} className='w-full h-full object-contain' />
-                    </div>
+                <div className='w-full flex flex-col gap-5 justify-between bg-gray-900 rounded-lg p-4'>
+                    <h2 className='text-2xl font-bold my-2'>Hero Section</h2>
+                    <img src={getURL(caseStudyPage?.content?.heroSection?.imageKey)} className='w-full max-w-[300px] h-full object-contain' />
                 </div>
 
                 {/* About Section */}
-                <div className='w-full flex flex-row gap-5 justify-between bg-gray-900 rounded-lg p-4'>
+                <div className='w-full flex flex-col gap-5 justify-between bg-gray-900 rounded-lg p-4'>
                     <div>
                         <h2 className='text-2xl font-bold my-2'>About Section</h2>
                         <p className='text-gray-400'>
                             <span className='font-bold text-white'>Heading: </span>
-                            {caseStudyPage?.aboutSection?.heading}
+                            {caseStudyPage?.content?.aboutSection?.heading}
                         </p>
                         <p className='text-gray-400'>
                             <span className='font-bold text-white'>Description: </span>
-                            {caseStudyPage?.aboutSection?.description}
+                            {caseStudyPage?.content?.aboutSection?.description}
                         </p>
                     </div>
-                    <div className='w-full flex flex-row gap-5'>
+                    <div className='w-full flex flex-col gap-5'>
                         <h3 className='text-lg font-bold my-2 mt-5'>Cards</h3>
                         <div className='w-full flex flex-col gap-5'>
-                            {caseStudyPage?.aboutSection?.cards?.map((card: any, index: any) => (
+                            {caseStudyPage?.content?.aboutSection?.cards?.map((card: any, index: any) => (
                                 <div key={index} className='w-full'>
                                     <p className='text-gray-400'>
                                         <span className='font-bold text-white'>Heading: </span>
@@ -95,7 +90,7 @@ const page = () => {
                                         <span className='font-bold text-white'>Description: </span>
                                         {card?.description}
                                     </p>
-                                    <img src={getURL(card?.imageKey)} className='w-full h-full object-contain' />
+                                    <img src={getURL(card?.imageKey)} className='w-full max-w-[300px] h-full object-contain' />
                                 </div>
                             ))}
                         </div>
@@ -103,11 +98,9 @@ const page = () => {
                 </div>
 
                 {/* UI Section 1 */}
-                <div className='w-full flex flex-row gap-5 justify-between bg-gray-900 rounded-lg p-4'>
-                    <div>
-                        <h2 className='text-2xl font-bold my-2'>UI Section 1</h2>
-                        <img src={getURL(caseStudyPage?.uiSection?.imageKey)} className='w-full h-full object-contain' />
-                    </div>
+                <div className='w-full flex flex-col gap-5 justify-between bg-gray-900 rounded-lg p-4'>
+                    <h2 className='text-2xl font-bold my-2'>UI Section 1</h2>
+                    <img src={getURL(caseStudyPage?.content?.uiSection?.imageKey)} className='w-full max-w-[300px] h-full object-contain' />
                 </div>
 
                 {/* Service Section */}
@@ -115,13 +108,13 @@ const page = () => {
                     <h2 className='text-2xl font-bold my-2'>Services Section</h2>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Heading: </span>
-                        {caseStudyPage?.serviceSection?.heading}
+                        {caseStudyPage?.content?.serviceSection?.heading}
                     </p>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Description: </span>
-                        {caseStudyPage?.serviceSection?.description}
+                        {caseStudyPage?.content?.serviceSection?.description}
                     </p>
-                    <img src={getURL(caseStudyPage?.serviceSection?.imageKey)} className='w-full h-full object-contain' />
+                    <img src={getURL(caseStudyPage?.content?.serviceSection?.imageKey)} className='w-full max-w-[300px] h-full object-contain' />
                 </div>
 
                 {/* Process Section */}
@@ -129,12 +122,12 @@ const page = () => {
                     <h2 className='text-2xl font-bold my-2'>Process Section</h2>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Heading: </span>
-                        {caseStudyPage?.processSection?.heading}
+                        {caseStudyPage?.content?.processSection?.heading}
                     </p>
 
                     <h3 className='text-lg font-bold my-2 mt-5'>Cards</h3>
                     <div className='w-full flex flex-col gap-5'>
-                        {caseStudyPage?.processSection?.cards?.map((card: any, index: any) => (
+                        {caseStudyPage?.content?.processSection?.cards?.map((card: any, index: any) => (
                             <div key={index} className='w-full'>
                                 <p className='text-gray-400'>
                                     <span className='font-bold text-white'>Heading: </span>
@@ -153,11 +146,9 @@ const page = () => {
                 </div>
 
                 {/* UI Section 2 */}
-                <div className='w-full flex flex-row gap-5 justify-between bg-gray-900 rounded-lg p-4'>
-                    <div>
-                        <h2 className='text-2xl font-bold my-2'>UI Section 2</h2>
-                        <img src={getURL(caseStudyPage?.uiSection2?.imageKey)} className='w-full h-full object-contain' />
-                    </div>
+                <div className='w-full flex flex-col gap-5 justify-between bg-gray-900 rounded-lg p-4'>
+                    <h2 className='text-2xl font-bold my-2'>UI Section 2</h2>
+                    <img src={getURL(caseStudyPage?.content?.uiSection2?.imageKey)} className='w-full max-w-[300px] h-full object-contain' />
                 </div>
 
                 {/* Challenges Section */}
@@ -165,16 +156,16 @@ const page = () => {
                     <h2 className='text-2xl font-bold my-2'>Challenges Section</h2>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Heading: </span>
-                        {caseStudyPage?.challangesSection?.heading}
+                        {caseStudyPage?.content?.challangesSection?.heading}
                     </p>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Description: </span>
-                        {caseStudyPage?.challangesSection?.description}
+                        {caseStudyPage?.content?.challangesSection?.description}
                     </p>
 
                     <h3 className='text-lg font-bold my-2 mt-5'>Cards</h3>
                     <div className='w-full flex flex-col gap-5'>
-                        {caseStudyPage?.challangesSection?.cards?.map((card: any, index: any) => (
+                        {caseStudyPage?.content?.challangesSection?.cards?.map((card: any, index: any) => (
                             <div key={index} className='w-full'>
                                 <p className='text-gray-400'>
                                     <span className='font-bold text-white'>Heading: </span>

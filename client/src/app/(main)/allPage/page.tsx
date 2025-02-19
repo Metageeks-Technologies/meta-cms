@@ -47,6 +47,7 @@ import { FaClockRotateLeft } from "react-icons/fa6";
 import { VscPreview } from "react-icons/vsc";
 import { usePageContext } from "@/context/pageContext"
 import { useUserContext } from "@/context/userContext"
+import { userRoles } from "@/constant/user"
 
 
 
@@ -71,7 +72,7 @@ const columns = [
     header: "Status",
     cell: ({ row }: any) => {
       const isDeleted = row.getValue("isDeleted")
-      return <div>{isDeleted? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
+      return <div>{isDeleted ? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
     },
   },
   {
@@ -82,8 +83,8 @@ const columns = [
       const page = row.original;
       const [clickedItem, setClickedItem] = useState(0);
       const router = useRouter();
-      const {recoverPage, deletePage} = usePageContext();
-      
+      const { recoverPage, deletePage } = usePageContext();
+
 
       return (
         <AlertDialog>
@@ -160,12 +161,12 @@ const page = () => {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const {websiteKey} = useUserContext();
+  const { user, websiteKey } = useUserContext();
   const { pageData, fetchPageData, pageNo, setPageNo } = usePageContext();
 
   useEffect(() => {
-    if(websiteKey) fetchPageData();
-  }, [websiteKey])
+    if (websiteKey) fetchPageData();
+  }, [websiteKey, pageNo])
 
 
   const table = useReactTable({
@@ -265,7 +266,7 @@ const page = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPageNo(pageNo-1)}
+            onClick={() => setPageNo(pageNo - 1)}
             disabled={pageNo <= 1}
             className="text-black font-bold"
           >
@@ -275,7 +276,7 @@ const page = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPageNo(pageNo+1)}
+            onClick={() => setPageNo(pageNo + 1)}
             disabled={pageData.length < 10}
             className="text-black font-bold"
           >

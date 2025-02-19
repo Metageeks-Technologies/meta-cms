@@ -2,37 +2,9 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import { useUserContext } from "./userContext";
 import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
+import { PageContextType } from "@/types";
 
 const pageContext = createContext<any>(null)
-
-interface PageContextType {
-  pageData: any,
-  
-  services: any,
-  subServices: any,
-  caseStudyData:any,
-  fetchPageData: () => void,
-  fetchCaseStudyAll:()=>void,
-  fetchServices: () => void,
-  fetchAllServices: () => void,
-  fetchSubServices: (id: string) => void,
-
-  recoverPage: (id: string) => void,
-  recoverCaseStudy:(id:string) => void,
-  recoverServices: (id: string) => void,
-  recoverSubServices: (id: string, serviceId: string) => void,
-  fetchSubServicesTotal: (id: string) => void,
-  deletePage: (id: string) => void,
-  deleteCaseStudy:(id:string)=>void,
-  deleteServices: (id: string) => void,
-  deleteSubServices: (id: string, serviceId: string) => void,
-  pageNo: number,
-  setPageNo: (num: number) => void,
-  servicePageNo: number,
-  setServicePageNo: (num: number) => void,
-  subServicePageNo: number,
-  setSubServicePageNo: (num: number) => void,
-}
 
 
 export const PageProvider = ({ children }: { children: ReactNode }) => {
@@ -43,8 +15,9 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   const [subServices, setSubService] = useState([]);
   const [pageNo, setPageNo] = useState(1);
   const [servicePageNo, setServicePageNo] = useState(1);
-  const [subServicePageNo, setSubServicePageNo] = useState(1);  
-  const [caseStudyData,setCaseStudyData]=useState([])
+  const [subServicePageNo, setSubServicePageNo] = useState(1);
+  const [caseStudyData, setCaseStudyData] = useState([])
+  const [caseStudyPageNo, setCaseStudyPageNo] = useState(1);
 
 
   const { websiteKey } = useUserContext();
@@ -75,8 +48,8 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const param = new URLSearchParams();
-      param.append('page', pageNo.toString())
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/all`, undefined, { websiteKey: websiteKey });
+      param.append('page', caseStudyPageNo.toString())
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/all?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
         setCaseStudyData(resp.data)
@@ -311,11 +284,6 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   }
 
 
-  useEffect(() => {
-    if(websiteKey) fetchPageData();
-  }, [pageNo]);
-
-
   const contextValues: PageContextType = {
     pageData,
     caseStudyData,
@@ -338,10 +306,12 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     deleteSubServices,
     pageNo,
     setPageNo,
-    servicePageNo, 
+    servicePageNo,
     setServicePageNo,
-    subServicePageNo, 
+    subServicePageNo,
     setSubServicePageNo,
+    caseStudyPageNo, 
+    setCaseStudyPageNo,
   }
 
   return (

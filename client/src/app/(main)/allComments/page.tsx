@@ -53,11 +53,7 @@ const CommentsPage: React.FC = () => {
     };
 
     useEffect(() => {
-        if (websiteKey) {
-            fetchComments(filter, null);
-        } else {
-            console.log('Website key is not available');
-        }
+        if (websiteKey) fetchComments(filter, null);
     }, [filter, websiteKey]);
 
     useEffect(() => {
