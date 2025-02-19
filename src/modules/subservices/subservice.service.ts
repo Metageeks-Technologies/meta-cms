@@ -145,15 +145,7 @@ export class SubserviceService {
 
 
   async getSubServiceByKey(websiteKey: string, key: string) {
-<<<<<<< Updated upstream
     const subService = await this.Subservice.findOne({ websiteKey, key }).exec();
-=======
-<<<<<<< Updated upstream
-    const subService = await this.Subservice.findOne({ websiteKey, key }).exec();
-=======
-    const subService = await this.Subservice.findOne({websiteKey, key}).exec();
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     return subService;
   }
 

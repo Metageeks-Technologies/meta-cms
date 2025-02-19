@@ -29,8 +29,8 @@ export class DashboardController {
   }
 
   @Get('store/admin')
-  @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, StoreRolesGuard)
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   async getStoreAdminDashboard(@Headers('websiteKey') websiteKey: string) {
     const dashboardData = await this.dashboardService.getStoreAdminData(websiteKey);
     return dashboardData;
@@ -38,8 +38,8 @@ export class DashboardController {
 
 
   @Get('store/vendor')
-  @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, StoreRolesGuard)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   async getStoreVendorDashboard(@Headers('websiteKey') websiteKey: string, @Req() req: Request) {
     const user = (req as any).user;
     const dashboardData = await this.dashboardService.getStoreVendorData(websiteKey, user._id);

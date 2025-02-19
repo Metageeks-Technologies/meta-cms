@@ -13,7 +13,6 @@ const page = () => {
     const { setLoading, user, websiteKey } = useUserContext();
     const [caseStudyPage, setCaseStudyPage] = useState<any>(null);
 
-    console.log(caseStudyPage, "case study state")
 
     const router = useRouter();
     const params = useParams();

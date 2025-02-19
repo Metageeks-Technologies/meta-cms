@@ -284,11 +284,6 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   }
 
 
-  useEffect(() => {
-    if (websiteKey) fetchPageData();
-  }, [pageNo]);
-
-
   const contextValues: PageContextType = {
     pageData,
     caseStudyData,

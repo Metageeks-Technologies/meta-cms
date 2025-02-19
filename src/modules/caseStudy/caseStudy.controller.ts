@@ -32,9 +32,7 @@ export class CaseStudyController {
 
 
     @Get('public')
-    async getPublicCaseStudy(
-        @Headers('websiteKey') websiteKey: string,
-    ) {
+    async getPublicCaseStudy(@Headers('websiteKey') websiteKey: string) {
         const caseStudies = await this.caseStudyService.getPublic(websiteKey)
         return caseStudies;
     }
@@ -77,7 +75,7 @@ export class CaseStudyController {
         const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug)
         return caseStudy;
     }
-    
+
 
     @Put(':id')
     @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)

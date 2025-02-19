@@ -11,9 +11,9 @@ import { useProductContext } from '@/context/productContext';
 import { productStatusFilters } from '@/constant/product';
 
 const AdminAllProduct = () => {
-    const { user,websiteKey } = useUserContext();
+    const { user, websiteKey } = useUserContext();
     const { filterBy, sortBy, setFilterBy, setSortBy, selectedCategory, setSelectedCategory } = useProductContext();
-    
+
 
     const [category, setCategory] = useState([]);
     const [productData, setProductData] = useState<any>(null);
@@ -43,7 +43,7 @@ const AdminAllProduct = () => {
                         param.append('categoryId', selectedCategory);  // Add categoryId if selected
                     }
                     // Use the new API endpoint for deleted products
-                    const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all/delete?${param.toString()}`,undefined,{websiteKey});
+                    const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all/delete?${param.toString()}`, undefined, { websiteKey });
                     if (resp.status === 200 || resp.status === 201) {
                         const deletedProducts = resp?.data;
                         if (deletedProducts.length < 20) setHasMore(false);
@@ -77,7 +77,7 @@ const AdminAllProduct = () => {
             if (selectedCategory) param.append('categoryId', selectedCategory);
             if (searchText) param.append('searchQuery', searchText);
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all?${param.toString()}`,undefined,{websiteKey});
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all?${param.toString()}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 const newProducts = resp?.data;
@@ -156,7 +156,7 @@ const AdminAllProduct = () => {
             setHasMore(true);
             fetchAllProducts();
         }
-    }, [filterBy, sortBy, selectedCategory, searchText,websiteKey]);
+    }, [filterBy, sortBy, selectedCategory, searchText, websiteKey]);
 
 
     useEffect(() => {

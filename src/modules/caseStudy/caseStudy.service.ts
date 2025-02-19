@@ -91,7 +91,6 @@ export class CaseStudyService {
             query['isDeleted'] = isDeleted;
         }
 
-
         if (pageNo) {
             const page = parseInt(pageNo) || 1;
             const skip = (page - 1) * this.CASESTUDY_PAGE_BATCH_LIMIT;
