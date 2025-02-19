@@ -36,7 +36,7 @@ const OrderTable = () => {
     if(websiteKey){
     const url = isAllOrders
       ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all`
-      : `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`;
+      : `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor`;
 
     fetchOrderData(url);
     }
