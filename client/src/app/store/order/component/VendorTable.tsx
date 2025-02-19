@@ -58,15 +58,16 @@ const fetchOrderData = async () => {
   
     const cancelOrder = async (orderId: string) => {
       try {
-        const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my/cancel/${orderId}`);
+        const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my/cancel/${orderId}`,undefined,{websiteKey});
   
-        setOrders((prevOrders) =>
+        if(response.status===200 || response.status===201) {
+ setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order._id === orderId
               ? { ...order, shippingStatus: "Cancelled" }
               : order
           )
-        );
+        );}
       } catch (error) {
         console.error("Error cancelling order:", error);
       }
@@ -78,13 +79,14 @@ const fetchOrderData = async () => {
           status: newStatus,
         },{websiteKey});
   
+        if(response.status===200 || response.status===201) {
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order._id === orderId
               ? { ...order, shippingStatus: newStatus }
               : order
           )
-        );
+        );}
       } catch (error) {
         console.error("Error updating order status:", error);
       }

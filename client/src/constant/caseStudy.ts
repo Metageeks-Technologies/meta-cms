@@ -51,4 +51,5 @@ export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
       ]
     }
   },
+  _id: ''
 };
