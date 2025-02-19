@@ -29,7 +29,7 @@ export class OrderService {
 
     async createOrder(websiteKey: string, userId: string, userRole: UserRoleEnum, newOrderDetails: CreateOrderWithoutPayDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (website) {
+        if (!website) {
             throw new BadRequestException('Invalid website key')
         }
 
@@ -277,11 +277,6 @@ export class OrderService {
     }
 
     async getlastOrder(websiteKey: string, vendorId: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (!website) {
-            throw new BadRequestException('Invalid website key')
-        }
-
         const query = { websiteKey }
 
         if (vendorId) {
@@ -298,11 +293,6 @@ export class OrderService {
     }
 
     async getMonthlyOrderCount(websiteKey: string, vendorId: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (!website) {
-            throw new BadRequestException('Invalid website key')
-        }
-
         const currentDate = new Date();
         const lastYearDate = new Date()
         lastYearDate.setMonth(currentDate.getMonth() - 12);
@@ -362,11 +352,6 @@ export class OrderService {
     }
 
     async getTotalOrderCount(websiteKey: string, vendorId: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (!website) {
-            throw new BadRequestException('Invalid website key')
-        }
-
         const query = { websiteKey }
         if (vendorId) {
             query['vendor'] = new mongoose.Types.ObjectId(vendorId);
@@ -378,10 +363,6 @@ export class OrderService {
     }
 
     async getTopSellingProducts(websiteKey: string, vendorId: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (!website) {
-            throw new BadRequestException('Invalid website key')
-        }
 
         const matchFilter: any = { websiteKey };
 
@@ -436,9 +417,8 @@ export class OrderService {
 
 
         const topItems = await Promise.all(
-            result.map(async (item: any) => {
-                // need to add website key 
-                const product = await this.productService.getProductById(item.productId, undefined, undefined, undefined);
+            result.map(async (item: any) => { 
+                const product = await this.productService.getProductById(websiteKey, item.productId, undefined, undefined);
                 delete item.productId;
                 item['product'] = product;
                 return item;
@@ -512,13 +492,12 @@ export class OrderService {
         if(!website){
             throw new BadRequestException('Invalid website key')
         }
-
         const query = {
             _id: orderId,
             websiteKey,
             vendor: vendorId
         }
-        // console.log(query, "Ouery")
+        console.log(query, "Ouery")
         await this.updateOrderStatus(query, newStatus);
     }
 

@@ -176,7 +176,7 @@ export class CartService {
         if(!website){
             throw new BadRequestException('Invalid website key')
         }
-        
+
         const cart = await this.Cart.findOne({ user: userId, websiteKey, isActive: true })
             .populate({
                 path: 'user', // Populate all fields of the user
@@ -190,6 +190,9 @@ export class CartService {
             })
             .lean()
             .exec();
+
+            console.log(cart, "this is cart")
+
 
         if (!cart) {
             return null

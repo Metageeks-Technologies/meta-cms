@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { IProduct, ProductStatusEnum } from "./schema/product.schema";
 import { CreateProductDto, CreateVariantDto } from "./dto/create-product-dto";
-import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { UserRoleEnum } from "src/modules/users/schema/user.schema";
 import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { ProductCategoriesService } from "../productCategories/productCategories.service";
 import { ProductSortByEnum } from "./dto/get-product-dto";
@@ -218,11 +218,6 @@ export class ProductService {
     }
 
     async getLatestProduct(websiteKey: string, vendorId: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (!website) {
-            throw new BadRequestException('Invalid website key')
-        }
-
         const query = { websiteKey, status: ProductStatusEnum.PUBLISHED, isDeleted: false }
         if (vendorId) {
             query['vendor'] = vendorId
@@ -233,11 +228,6 @@ export class ProductService {
 
 
     async getProductCount(websiteKey: string, vendorId: string) {
-        const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (!website) {
-            throw new BadRequestException('Invalid website key')
-        }
-
         const query = { websiteKey }
         if (vendorId) {
             query['vendor'] = new mongoose.Types.ObjectId(vendorId)

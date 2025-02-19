@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers } from '@nestjs/common';
-import { AllowedRoles, AllowedStoreRoles } from 'src/common/decorators/allowed-roles.decorator';
-import { UserRoleEnum, UserStoreRoleEnum } from '../../users/schema/user.schema';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
+import { UserRoleEnum } from '../../users/schema/user.schema';
 import { AuthGuard } from '../../auth/auth.guard';
-import { RolesGuard, StoreRolesGuard } from '../../auth/role.guard';
+import { RolesGuard } from '../../auth/role.guard';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { ProductCategoriesService } from './productCategories.service';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';

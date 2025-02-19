@@ -4,9 +4,9 @@ import { AuthGuard } from "src/modules/auth/auth.guard";
 import { CreateAddressDto } from "./dto/create-address-dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
 import { UpdateAddressDto } from "./dto/update-address-dto";
-import { RolesGuard, StoreRolesGuard } from "src/modules/auth/role.guard";
-import { AllowedRoles, AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
-import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { RolesGuard } from "src/modules/auth/role.guard";
+import { AllowedRoles } from "src/common/decorators/allowed-roles.decorator";
+import { UserRoleEnum } from "src/modules/users/schema/user.schema";
 
 
 

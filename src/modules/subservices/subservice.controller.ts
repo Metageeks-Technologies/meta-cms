@@ -2,9 +2,9 @@ import { Controller, Get, Post, Body, Param, Delete, Put, Headers, UseGuards, Pa
 import { SubserviceService } from './subservice.service';
 import { CreateSubserviceDto } from './dto/create-subservice-dto';
 import { AuthGuard } from '../auth/auth.guard';
-import { AllowedRoles, AllowedStoreRoles } from 'src/common/decorators/allowed-roles.decorator';
-import { UserRoleEnum, UserStoreRoleEnum } from 'src/modules/users/schema/user.schema';
-import { RolesGuard, StoreRolesGuard } from '../auth/role.guard';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
+import { UserRoleEnum } from 'src/modules/users/schema/user.schema';
+import { RolesGuard } from '../auth/role.guard';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateSubserviceDto } from './dto/update-subservice-dto';
 import { SubServiceQueryDto } from './dto/get-subservice.dto';

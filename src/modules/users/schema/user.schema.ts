@@ -10,12 +10,12 @@ export enum UserRoleEnum {
   SUPERADMIN = 'superadmin',
 };
 
-export enum UserStoreRoleEnum {
-  USER = 'user',
-  VENDOR = 'vendor',
-  MODERATOR = 'moderator',
-  SUPERADMIN = 'superadmin',
-};
+// export enum UserStoreRoleEnum {
+//   USER = 'user',
+//   VENDOR = 'vendor',
+//   MODERATOR = 'moderator',
+//   SUPERADMIN = 'superadmin',
+// };
 
 interface ISocialLinks {
   linkedIn: string;
@@ -34,7 +34,7 @@ export interface IUser extends mongoose.Document {
   bio?: string;
   block: boolean;
   role: UserRoleEnum;
-  storeRole: UserStoreRoleEnum;
+  // storeRole: UserStoreRoleEnum;
   website: string;
   socialLinks?: ISocialLinks;
   lastLoginIp?: string;

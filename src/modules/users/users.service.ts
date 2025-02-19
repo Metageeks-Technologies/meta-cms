@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
-import { IUser, UserRoleEnum, UserStoreRoleEnum } from './schema/user.schema';
+import { IUser, UserRoleEnum } from './schema/user.schema';
 import mongoose, { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -142,17 +142,18 @@ export class UsersService {
     return user.role;
   }
 
-  async getStoreRole(_id: string) {
-    // This function will be called by StoreRoleGuard on protected requests
-    // So, it makes sense to use lean and only fetch required fields to reduce latency
-    const user = await this.User.findOne({ _id: _id }, { storeRole: 1 }).lean();
+  // TODO: Remove this part when refactoring
+  // async getStoreRole(_id: string) {
+  //   // This function will be called by StoreRoleGuard on protected requests
+  //   // So, it makes sense to use lean and only fetch required fields to reduce latency
+  //   const user = await this.User.findOne({ _id: _id }, { storeRole: 1 }).lean();
 
-    if (!user) {
-      throw new NotFoundException("User not found");
-    }
+  //   if (!user) {
+  //     throw new NotFoundException("User not found");
+  //   }
 
-    return user.storeRole;
-  }
+  //   return user.storeRole;
+  // }
 
   async changeRole(websiteKey: string, userRole: UserRoleEnum, _id: string, newRole: UserRoleEnum) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
@@ -176,17 +177,18 @@ export class UsersService {
     // await this.redisService.deleteCache(`${RedisKeys.User}_${_id}`);
   }
 
-  async changeStoreRole(_id: string, newRole: UserStoreRoleEnum) {
-    if (newRole == UserStoreRoleEnum.SUPERADMIN) {
-      throw new HttpException("Cannot change role to superadmin", 400)
-    }
+  // TODO: Remove this part when refactoring
+  // async changeStoreRole(_id: string, newRole: UserStoreRoleEnum) {
+  //   if (newRole == UserStoreRoleEnum.SUPERADMIN) {
+  //     throw new HttpException("Cannot change role to superadmin", 400)
+  //   }
 
-    const query = await this.User.updateOne({ _id: _id }, { $set: { storeRole: newRole } }).exec();
-    if (query.matchedCount == 0) {
-      throw new NotFoundException("User ID not found");
-    }
+  //   const query = await this.User.updateOne({ _id: _id }, { $set: { storeRole: newRole } }).exec();
+  //   if (query.matchedCount == 0) {
+  //     throw new NotFoundException("User ID not found");
+  //   }
 
-  }
+  // }
 
   async updateProfile(_id: string, updatedUserProfile: UpdateUserDto) {
     const query = await this.User.updateOne({ _id: _id }, { $set: updatedUserProfile }).exec();
@@ -259,14 +261,15 @@ export class UsersService {
     return users as IUser[];
   }
 
-  async getAllStoreUsers(storeRole: UserStoreRoleEnum) {
-    const query = storeRole === UserStoreRoleEnum.USER
-      ? { $or: [{ storeRole: UserStoreRoleEnum.USER }, { storeRole: { $exists: false } }] }
-      : { storeRole };
+  // TODO: Remove this part when refactoring
+  // async getAllStoreUsers(storeRole: UserStoreRoleEnum) {
+  //   const query = storeRole === UserStoreRoleEnum.USER
+  //     ? { $or: [{ storeRole: UserStoreRoleEnum.USER }, { storeRole: { $exists: false } }] }
+  //     : { storeRole };
 
-    const users = await this.User.find(query).select('-hash').sort({ createdAt: -1 }).lean().exec();
-    return users
-  }
+  //   const users = await this.User.find(query).select('-hash').sort({ createdAt: -1 }).lean().exec();
+  //   return users
+  // }
 
   async getUsersCount(websiteKey: string) {
 
@@ -302,25 +305,27 @@ export class UsersService {
   }
 
 
-  async getStoreUsersCount() {
-    const result = await this.User.aggregate([{
-      $group: {
-        _id: "$storeRole",
-        count: { $count: {} }
-      }
-    },
-    {
-      $project: {
-        count: 1
-      }
-    }]).exec();
+  // TODO: Remove this part when refactoring
+  
+  // async getStoreUsersCount() {
+  //   const result = await this.User.aggregate([{
+  //     $group: {
+  //       _id: "$storeRole",
+  //       count: { $count: {} }
+  //     }
+  //   },
+  //   {
+  //     $project: {
+  //       count: 1
+  //     }
+  //   }]).exec();
 
-    const counts = {};
-    for (const key in result) {
-      counts[result[key]._id] = result[key].count;
-    }
-    return counts;
-  }
+  //   const counts = {};
+  //   for (const key in result) {
+  //     counts[result[key]._id] = result[key].count;
+  //   }
+  //   return counts;
+  // }
 
 
   async sendResetPasswordOtp(email: string) {
