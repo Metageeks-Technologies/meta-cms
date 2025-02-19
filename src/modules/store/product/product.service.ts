@@ -96,7 +96,7 @@ export class ProductService {
         /////////////////////////////////////////
         // Match stage
         /////////////////////////////////////////
-        const matchStage: Record<string, any> = { website: websiteKey};
+        const matchStage: Record<string, any> = { websiteKey};
 
         if (status) {
             matchStage.status = status;
