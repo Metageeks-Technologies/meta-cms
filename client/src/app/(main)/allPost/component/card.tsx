@@ -20,7 +20,7 @@ const Card = ({ post, index }: any) => {
     function PreviewHTML(description: any,) {
         const sanitizedHTML = DOMPurify.sanitize(description);
         const plainText = stripHTML(sanitizedHTML);
-        const previewText = plainText.slice(0, 120) + (plainText.length > 120 ? '...' : '');
+        const previewText = plainText.slice(0, 200) + (plainText.length > 200 ? '...' : '');
         setPlainText(previewText);
     }
 
@@ -67,7 +67,7 @@ const Card = ({ post, index }: any) => {
             key={index} 
             onClick={() => router.push(`/post/${post.slug}`)} 
             className='
-                w-full h-[500px] max-w-[350px] bg-gray-900 
+                h-[500px] w-[350px] bg-gray-900 
                 rounded-xl overflow-hidden shadow-lg transform 
                 transition-all duration-300 hover:scale-[1.02] 
                 hover:shadow-2xl cursor-pointer group border 
@@ -121,7 +121,7 @@ const Card = ({ post, index }: any) => {
                     group-hover:text-blue-400 transition-colors
                     flex items-center h-14 overflow-hidden
                 '>
-                    {truncateTitle(post.title, 35)}
+                    {truncateTitle(post.title, 50)}
                     <ArrowUpRight className='ml-2 w-5 h-5 text-gray-500 group-hover:text-blue-400' />
                 </h2>
 
