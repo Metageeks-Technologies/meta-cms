@@ -16,6 +16,7 @@ import { WebsiteService } from "src/modules/website/website.service";
 
 @Injectable()
 export class OrderService {
+    private readonly ORDER_PAGE_BATCH_LIMIT = 10;
 
     constructor(
         @InjectModel('Order') private readonly Order: Model<IOrder>,
@@ -229,7 +230,7 @@ export class OrderService {
 
 
 
-    async getOrders(websiteKey: string, userId: string, vendorId: string, status: OrderStatusEnum, lastId: string) {
+    async getOrders(websiteKey: string, userId: string, vendorId: string, status: OrderStatusEnum, pageNo: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
             throw new BadRequestException('Invalid website key')
@@ -249,13 +250,13 @@ export class OrderService {
             query['shippingStatus'] = status
         }
 
-        if (lastId) {
-            query['_id'] = { $lt: lastId };
-        }
+        const page = parseInt(pageNo) || 1
+        const skip = (page - 1) * this.ORDER_PAGE_BATCH_LIMIT
 
         const orders = await this.Order.find(query)
             .sort({ _id: -1 })
-            .limit(10)
+            .skip(skip)
+            .limit(this.ORDER_PAGE_BATCH_LIMIT)
             .populate({
                 path: "user",
                 select: "_id name email phone bio"
@@ -431,23 +432,31 @@ export class OrderService {
 
 
     async getUserOrders(websiteKey: string, userId: string, query: GetOrderQuery) {
-        const orders = await this.getOrders(websiteKey, userId, undefined, query.status, query.lastId)
+        const orders = await this.getOrders(websiteKey, userId, undefined, query.status, query.page)
         return orders;
     }
 
     async getVendorOrders(websiteKey: string, vendorId: string, query: GetOrderQuery) {
-        const orders = await this.getOrders(websiteKey, undefined, vendorId, query.status, query.lastId)
+        const orders = await this.getOrders(websiteKey, undefined, vendorId, query.status, query.page)
         return orders;
     }
 
     async getAllOrders(websiteKey: string, query: GetOrderQuery) {
-        const orders = await this.getOrders(websiteKey, undefined, undefined, query.status, query.lastId);
+        const orders = await this.getOrders(websiteKey, undefined, undefined, query.status, query.page);
         return orders;
     }
 
     // this service call only inside this file 
     async updateOrderStatus(query: any, newStatus: OrderStatusEnum) {
-        const order = await this.Order.findOneAndUpdate(query, { shippingStatus: newStatus })
+
+        const newDetails = {
+            shippingStatus: newStatus 
+        }
+
+        if(newStatus === OrderStatusEnum.DELIVERED){
+            newDetails['paymentStatus'] = PaymentStatusEnum.PAID
+        }
+        const order = await this.Order.findOneAndUpdate(query, newDetails);
 
         if (!order) {
             throw new NotFoundException('Order not found')
@@ -497,7 +506,7 @@ export class OrderService {
             websiteKey,
             vendor: vendorId
         }
-        console.log(query, "Ouery")
+
         await this.updateOrderStatus(query, newStatus);
     }
 

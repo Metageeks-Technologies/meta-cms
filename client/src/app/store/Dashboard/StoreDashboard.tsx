@@ -53,7 +53,7 @@ const StoreDashboard = () => {
 
     useEffect(() => {
         if (websiteKey) {
-            if (user.role ===userRoles.SUPERADMIN || user.role===userRoles.ADMIN || user.role === userRoles.MODERATOR ) {
+            if (user.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) {
                 fetchStoreAdminDashboard();
             }
 
@@ -67,17 +67,17 @@ const StoreDashboard = () => {
         <div className='mb-6'>
 
 
-            {user?.role === userRoles.SUPERADMIN || user.role === userRoles.MODERATOR ? (
+            {user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user.role === userRoles.MODERATOR ? (
                 <CardRow
-                    storeUserCount={dashboardData?.storeUserCount}
                     totalOrderCount={dashboardData?.totalOrderCount}
                     totalProductCount={dashboardData?.totalProductCount}
+                    totalPublishedProductCount={dashboardData?.totalPublishedProductCount}
                 />
             ) : (
                 <CardRow
-                    storeUserCount={dashboardData?.storeUserCount}
                     totalOrderCount={dashboardData?.totalOrderCount}
                     totalProductCount={dashboardData?.totalProductCount}
+                    totalPublishedProductCount={dashboardData?.totalPublishedProductCount}
                 />
             )}
             <div className="flex w-[97%] mx-auto mt-5">

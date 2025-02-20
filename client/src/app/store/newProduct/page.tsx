@@ -42,7 +42,6 @@ const CreateProduct: React.FC = () => {
     brand: '',
     status: 'draft',
     publishDate: null,
-
     attributes: {},
     variants: [],
   });

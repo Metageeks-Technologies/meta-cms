@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers, Query } from '@nestjs/common';
 import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { UserRoleEnum } from '../../users/schema/user.schema';
 import { AuthGuard } from '../../auth/auth.guard';
@@ -7,6 +7,7 @@ import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { ProductCategoriesService } from './productCategories.service';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
+import { ProductCategoryQueryDto } from './dto/get-product-category.dto';
 
 @Controller('product-categories')
 export class ProductCategoriesController {
@@ -21,8 +22,17 @@ export class ProductCategoriesController {
   }
 
   @Get()
-  async findAll(@Headers('websiteKey') websiteKey: string) {
-    const categories = await this.productCategoriesService.findAll(websiteKey);
+  async findCategories(@Headers('websiteKey') websiteKey: string) {
+    const categories = await this.productCategoriesService.findAll(websiteKey, undefined);
+    return categories;
+  }
+
+  @Get('all')
+  async findAllCategories(
+    @Headers('websiteKey') websiteKey: string,
+    @Query() query: ProductCategoryQueryDto
+  ) {
+    const categories = await this.productCategoriesService.findAll(websiteKey, query.page);
     return categories;
   }
 

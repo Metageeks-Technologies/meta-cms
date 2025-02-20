@@ -176,9 +176,9 @@ export interface PostContextType {
     categories: any[];
     productCategories:any[];
     fetchCategories: () => Promise<void>;
-    fetchProductCategories:()=> Promise<void>;
+    // fetchProductCategories:()=> Promise<void>;
     deleteCategory: (id: string) => Promise<void>;
-    deleteProductCategory: (id: string) => Promise<void>;
+    // deleteProductCategory: (id: string) => Promise<void>;
     fetchMedia: (lastId: string) => Promise<void>;
     media: MediaType[];
     setMedia: (arr: MediaType[]) => void,
@@ -209,6 +209,8 @@ export type ProductContextType = {
   setSelectedProductCategory: (filter: string) => void;
   fetchProductCategories: () => Promise<void>;
   deleteProductCategory: (id: string) => Promise<void>;
+  productCategoryPageNo: number,
+  setProductCategoryPageNo: (num: number) => void;
 };
 
 

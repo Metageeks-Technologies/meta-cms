@@ -11,7 +11,7 @@ import { useProductContext } from '@/context/productContext';
 import { productStatusFilters } from '@/constant/product';
 
 const VendorProduct = () => {
-    const { user,websiteKey } = useUserContext();
+    const { user, websiteKey } = useUserContext();
     const { filterBy, sortBy, setFilterBy, setSortBy, selectedProductCategory, setSelectedProductCategory } = useProductContext();
 
     const [category, setCategory] = useState([]);
@@ -24,16 +24,16 @@ const VendorProduct = () => {
     const [searchText, setSearchText] = useState('');
 
     // Product-specific status filters
-  
+
 
     async function fetchAllProducts(lastId?: string) {
         if (isFetching) return;
         setIsFetching(true);
         page === 1 && setLoading(true);
-    
+
         try {
             const param = new URLSearchParams();
-            
+
             // Check filter for deleted products
             if (filterBy) {
                 if (filterBy === 'deleted') {
@@ -43,7 +43,7 @@ const VendorProduct = () => {
                         param.append('categoryId', selectedProductCategory);  // Add categoryId if selected
                     }
                     // Use the new API endpoint for deleted products
-                    const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my/delete?${param.toString()}`,undefined,{websiteKey});
+                    const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my/delete?${param.toString()}`, undefined, { websiteKey });
                     if (resp.status === 200 || resp.status === 201) {
                         const deletedProducts = resp?.data;
                         if (deletedProducts.length < 20) setHasMore(false);
@@ -68,15 +68,15 @@ const VendorProduct = () => {
                     param.append('isDeleted', 'false');
                 }
             }
-    
+
             // Default behavior for active products
             if (sortBy) param.append('sortBy', sortBy);
             if (lastId) param.append('lastId', lastId);
             if (selectedProductCategory) param.append('categoryId', selectedProductCategory);
             if (searchText) param.append('searchQuery', searchText);
-    
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my?${param.toString()}`,{websiteKey});
-    
+
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/my?${param.toString()}`, undefined,  { websiteKey });
+
             if (resp.status === 200 || resp.status === 201) {
                 const newProducts = resp?.data;
                 if (newProducts.length < 10) setHasMore(false);
@@ -100,12 +100,12 @@ const VendorProduct = () => {
             setIsFetching(false);
         }
     }
-    
+
 
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey});
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`, undefined, { websiteKey });
             if (resp.status === 200 || resp.status === 201) {
                 setCategory(resp.data);
             }
@@ -164,12 +164,12 @@ const VendorProduct = () => {
         fetchCategory();
     }, []);
 
-       useEffect(() => {
-            // Set default filter to 'all' on initial load
-            if (!filterBy) {
-                setFilterBy('all');
-            }
-        }, []);
+    useEffect(() => {
+        // Set default filter to 'all' on initial load
+        if (!filterBy) {
+            setFilterBy('all');
+        }
+    }, []);
 
     return (
         <div>
@@ -227,7 +227,7 @@ const VendorProduct = () => {
 
             <div className='w-full h-full flex flex-row flex-wrap items-start justify-center gap-5 p-4'>
                 {productData && !loading ? (
-                    <div className='flex flex-row flex-wrap items-start justify-center gap-5'>
+                    <div className='flex flex-row flex-wrap items-start justify-center gap-5 mt-10'>
                         {productData.length > 0 ? (
                             productData.map((product: any, index: number) => (
                                 <ProductCard key={index} product={product} />

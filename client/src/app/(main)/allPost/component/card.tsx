@@ -67,7 +67,7 @@ const Card = ({ post, index }: any) => {
             key={index} 
             onClick={() => router.push(`/post/${post.slug}`)} 
             className='
-                w-full h-[500px] max-w-sm mx-auto bg-gray-900 
+                w-full h-[500px] max-w-[350px] bg-gray-900 
                 rounded-xl overflow-hidden shadow-lg transform 
                 transition-all duration-300 hover:scale-[1.02] 
                 hover:shadow-2xl cursor-pointer group border 

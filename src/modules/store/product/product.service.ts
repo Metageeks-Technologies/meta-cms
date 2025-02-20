@@ -31,7 +31,8 @@ export class ProductService {
             throw new BadRequestException('Invalid website key')
         }
 
-        const newProduct = new this.Product({ ...newProductDetail, websiteKey });
+        const formattedAttributes = new Map(Object.entries(newProductDetail.attributes));
+        const newProduct = new this.Product({ ...newProductDetail, attributes: formattedAttributes, websiteKey });
 
         newProduct.vendor = mongoose.Types.ObjectId.createFromHexString(userId);
 
@@ -96,7 +97,7 @@ export class ProductService {
         /////////////////////////////////////////
         // Match stage
         /////////////////////////////////////////
-        const matchStage: Record<string, any> = { websiteKey};
+        const matchStage: Record<string, any> = { websiteKey };
 
         if (status) {
             matchStage.status = status;
@@ -227,10 +228,16 @@ export class ProductService {
     }
 
 
-    async getProductCount(websiteKey: string, vendorId: string) {
+    async getProductCount(websiteKey: string, status: ProductStatusEnum, vendorId: string) {
         const query = { websiteKey }
         if (vendorId) {
             query['vendor'] = new mongoose.Types.ObjectId(vendorId)
+        }
+
+        if (status) {
+            query['status'] = status
+        } else {
+            query['status'] = { $ne: ProductStatusEnum.DRAFT }
         }
 
         const productCount = await this.Product.countDocuments(query)

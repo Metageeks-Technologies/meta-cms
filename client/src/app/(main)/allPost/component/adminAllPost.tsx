@@ -238,7 +238,7 @@ const AdminAllPost = () => {
                 {
                     postData && !loading ?
                         (
-                            <div className='flex flex-row flex-wrap items-start justify-center gap-5 '>
+                            <div className='flex flex-row flex-wrap items-start justify-center gap-5 mt-10'>
                                 {
                                     postData.length > 0 ?
                                         postData.map((post: any, index: number) => (
