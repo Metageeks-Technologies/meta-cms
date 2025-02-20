@@ -16,25 +16,22 @@ import { useParams, useRouter } from 'next/navigation';
 const EditCaseStudy = () => {
 
     const [formData, setFormData] = useState<caseStudyContent>(INITIAL_CASESTUDY_CONTENT);
-        const { setLoading, websiteKey } = useUserContext();
-            const router = useRouter();
+    const { setLoading, websiteKey } = useUserContext();
+    const router = useRouter();
 
-            console.log(formData)
-        
-    
 
- const params = useParams();
+    const params = useParams();
     const slug = params.slug;
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
         if (id === 'slug') {
             const cleanedValue = value
-                .toLowerCase()              
-                .replace(/[^a-z0-9-]/g, ''); 
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, '');
 
             setFormData((prev) => ({
                 ...prev,
-                [id]: cleanedValue,  
+                [id]: cleanedValue,
             }));
         } else {
             setFormData((prev) => ({
@@ -133,7 +130,7 @@ const EditCaseStudy = () => {
 
     const addListItem = (cardIndex: number, section: 'processSection') => {
         if (section === 'processSection') {
-            const newListItem: string = "";  
+            const newListItem: string = "";
             setFormData((prev) => ({
                 ...prev,
                 content: {
@@ -142,9 +139,9 @@ const EditCaseStudy = () => {
                         ...prev.content.processSection,
                         cards: prev.content.processSection.cards.map((card, index) =>
                             index === cardIndex
-                                ? { 
-                                    ...card, 
-                                    list: [...card.list, newListItem] 
+                                ? {
+                                    ...card,
+                                    list: [...card.list, newListItem]
                                 }
                                 : card
                         ),
@@ -153,14 +150,14 @@ const EditCaseStudy = () => {
             }));
         }
     };
-    
-    
-    
+
+
+
 
     const processaddCard = () => {
         const newCard = {
-            heading: '', 
-            list: [] 
+            heading: '',
+            list: []
         };
 
         setFormData((prev) => ({
@@ -206,25 +203,25 @@ const EditCaseStudy = () => {
     ) => {
         if (!e.target.files || e.target.files.length === 0) return; // Fallback if no files are selected
         const file = e.target.files[0];
-    
+
         const payload = {
             folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CASESTUDIES,
             fileName: file.name,
             contentType: file.type,
         };
-    
+
         try {
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
-            
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
+
             if (resp.status === 200 || resp.status === 201) {
                 const response = await axios.put(resp?.data?.uploadUrl, file);
                 if (response.status === 200 || response.status === 201) {
                     const imageKey = resp?.data?.key;
-    
+
                     // Ensure formData is updated correctly for the selected section
                     setFormData((prev) => {
                         const updatedContent = { ...prev.content };
-    
+
                         if (section === 'heroSection') {
                             updatedContent.heroSection = {
                                 ...updatedContent.heroSection,
@@ -234,7 +231,7 @@ const EditCaseStudy = () => {
                             updatedContent.uiSection = {
                                 ...updatedContent.uiSection,
                                 imageKey
-                            };  
+                            };
                         } else if (section === 'serviceSection') {
                             updatedContent.serviceSection = {
                                 ...updatedContent.serviceSection,
@@ -246,7 +243,7 @@ const EditCaseStudy = () => {
                                 imageKey
                             };
                         }
-    
+
                         return { ...prev, content: updatedContent };
                     });
                 }
@@ -258,8 +255,8 @@ const EditCaseStudy = () => {
             toast.error('Failed to upload the image', { duration: 2000 });
         }
     };
-    
-    
+
+
 
     const handleSectionChange = (
         section: 'heroSection' | 'aboutSection' | 'serviceSection' | 'processSection' | 'uiSection2' | 'challengesSection',
@@ -287,7 +284,7 @@ const EditCaseStudy = () => {
     ) => {
         let updatedCards: any;
         let updatedList: any;
-    
+
         if (section === 'aboutSection') {
             // Handling the `aboutCards` array inside `about`
             updatedCards = [...formData.content.aboutSection.cards];
@@ -307,7 +304,7 @@ const EditCaseStudy = () => {
             }));
         } else if (section === 'processSection') {
             updatedCards = [...formData.content.processSection.cards];
-            
+
             if (field === 'heading') {
                 updatedCards[index] = {
                     ...updatedCards[index],
@@ -321,7 +318,7 @@ const EditCaseStudy = () => {
                     )
                 };
             }
-    
+
             setFormData((prev) => ({
                 ...prev,
                 content: {
@@ -350,7 +347,7 @@ const EditCaseStudy = () => {
             }));
         }
     };
-    
+
 
     const handleListItemChange = (cardIndex: number, listIndex: number, value: string) => {
         setFormData((prev) => ({
@@ -375,14 +372,14 @@ const EditCaseStudy = () => {
             },
         }));
     };
-    
+
 
 
     const generateSlug = (title: string) => {
         return title
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')  
-            .replace(/(^-|-$)+/g, '');     
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
     };
 
     useEffect(() => {
@@ -472,15 +469,15 @@ const EditCaseStudy = () => {
         }
     }
 
-      useEffect(() => {
-            if (websiteKey) fetchCaseStudy();
-        }, [websiteKey]);
+    useEffect(() => {
+        if (websiteKey) fetchCaseStudy();
+    }, [websiteKey]);
 
 
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
             <form onSubmit={handleSubmit}>
-            <label className="w-full flex flex-col gap-2 mb-5">
+                <label className="w-full flex flex-col gap-2 mb-5">
                     <span>Title</span>
                     <input
                         type="text"
@@ -584,7 +581,7 @@ const EditCaseStudy = () => {
                                     className="absolute top-2 right-2 text-red-500"
                                     onClick={() => removeCard(index, 'aboutSection')}
                                 >
-                                    <span className="text-xl">×</span> 
+                                    <span className="text-xl">×</span>
                                 </button>
                                 <div className="mb-4">
                                     <p className='mb-2 text-lg'>Card-{index + 1}</p>
@@ -667,7 +664,7 @@ const EditCaseStudy = () => {
                 <label className="block text-white mb-5">
                     <span className='text-xl'>Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-                     
+
 
                         <div className="mb-4">
                             <label htmlFor="heading" className="block text-gray-300 mb-2">
@@ -699,8 +696,8 @@ const EditCaseStudy = () => {
                             />
                         </div>
 
-   {/* Image Upload */}
-   <div className="mb-6">
+                        {/* Image Upload */}
+                        <div className="mb-6">
                             <label className="block text-gray-300 mb-2">Upload Image</label>
                             <label
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
@@ -731,96 +728,96 @@ const EditCaseStudy = () => {
                 </label>
 
                 <label className="block text-white mb-5">
-    <span className="text-xl">Process Section</span>
-    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-        <div className="mb-4">
-            <label htmlFor="heading" className="block text-gray-300 mb-2">
-                Heading
-            </label>
-            <input
-                type="text"
-                id="heading"
-                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter  Heading"
-                value={formData.content.processSection.heading}
-                onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
-                required
-            />
-        </div>
-        {/* Cards Section */}
-        {formData.content.processSection.cards.map((card, index) => (
-            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                {/* Remove the card from processSection */}
-                <button
-                    type="button"
-                    className="absolute top-2 right-2 text-red-500"
-                    onClick={() => removeCard(index, 'processSection')} 
-                >
-                    <span className="text-xl">×</span> 
-                </button>
-
-                <div className="mb-4">
-                    <p className="mb-2 text-lg">Card-{index + 1}</p>
-                    <label htmlFor={`card-heading-${index}`} className="block text-gray-300 mb-2">
-                        Heading
-                    </label>
-                    <input
-                        type="text"
-                        id={`card-heading-${index}`}
-                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter Heading"
-                        value={card.heading}
-                        onChange={(e) => handleCardChange(index, 'processSection', 'heading', e.target.value)}
-                        required
-                    />
-                </div>
-
-                {/* List section for cardList */}
-                <div className="mb-4">
-                    <label htmlFor={`card-list-${index}`} className="block text-gray-300 mb-2">
-                        List
-                    </label>
-                    {/* Only map over the current card's cardList */}
-                    {card.list.map((listItem, listIndex) => (
-                        <div key={listIndex} className="flex items-center justify-between mb-2">
+                    <span className="text-xl">Process Section</span>
+                    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
+                        <div className="mb-4">
+                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                                Heading
+                            </label>
                             <input
                                 type="text"
-                                id={`card-list-${index}-${listIndex}`}
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter List Item"
-                                value={listItem}
-                                onChange={(e) => handleListItemChange(index, listIndex, e.target.value)} 
+                                id="heading"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter  Heading"
+                                value={formData.content.processSection.heading}
+                                onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
                                 required
                             />
-                            <button
-                                type="button"
-                                className="ml-2 text-red-500"
-                                onClick={() => removeListItem(index, listIndex, 'processSection')} 
-                            >
-                                <span className="text-xl">×</span>
-                            </button>
                         </div>
-                    ))}
-                    <button
-                        type="button"
-                        className="mt-2 text-blue-500"
-                        onClick={() => addListItem(index, 'processSection')} 
-                    >
-                        Add Item
-                    </button>
-                </div>
-            </div>
-        ))}
+                        {/* Cards Section */}
+                        {formData.content.processSection.cards.map((card, index) => (
+                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
+                                {/* Remove the card from processSection */}
+                                <button
+                                    type="button"
+                                    className="absolute top-2 right-2 text-red-500"
+                                    onClick={() => removeCard(index, 'processSection')}
+                                >
+                                    <span className="text-xl">×</span>
+                                </button>
 
-        <button
-            type="button"
-            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-            onClick={processaddCard}
-        >
-            Add More
-        </button>
-    </div>
-</label>
+                                <div className="mb-4">
+                                    <p className="mb-2 text-lg">Card-{index + 1}</p>
+                                    <label htmlFor={`card-heading-${index}`} className="block text-gray-300 mb-2">
+                                        Heading
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id={`card-heading-${index}`}
+                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Enter Heading"
+                                        value={card.heading}
+                                        onChange={(e) => handleCardChange(index, 'processSection', 'heading', e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                {/* List section for cardList */}
+                                <div className="mb-4">
+                                    <label htmlFor={`card-list-${index}`} className="block text-gray-300 mb-2">
+                                        List
+                                    </label>
+                                    {/* Only map over the current card's cardList */}
+                                    {card.list.map((listItem, listIndex) => (
+                                        <div key={listIndex} className="flex items-center justify-between mb-2">
+                                            <input
+                                                type="text"
+                                                id={`card-list-${index}-${listIndex}`}
+                                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                placeholder="Enter List Item"
+                                                value={listItem}
+                                                onChange={(e) => handleListItemChange(index, listIndex, e.target.value)}
+                                                required
+                                            />
+                                            <button
+                                                type="button"
+                                                className="ml-2 text-red-500"
+                                                onClick={() => removeListItem(index, listIndex, 'processSection')}
+                                            >
+                                                <span className="text-xl">×</span>
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        className="mt-2 text-blue-500"
+                                        onClick={() => addListItem(index, 'processSection')}
+                                    >
+                                        Add Item
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+
+                        <button
+                            type="button"
+                            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                            onClick={processaddCard}
+                        >
+                            Add More
+                        </button>
+                    </div>
+                </label>
 
 
 
@@ -912,9 +909,9 @@ const EditCaseStudy = () => {
                                 <button
                                     type="button"
                                     className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'challengesSection')} 
+                                    onClick={() => removeCard(index, 'challengesSection')}
                                 >
-                                    <span className="text-xl">×</span> 
+                                    <span className="text-xl">×</span>
                                 </button>
                                 <div className="mb-4">
                                     <p className='mb-2 text-lg'>Card-{index + 1}</p>

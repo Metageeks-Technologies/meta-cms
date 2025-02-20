@@ -30,7 +30,6 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
             param.append('page', productCategoryPageNo.toString())
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories?${param.toString()}`, undefined, { websiteKey })
 
-            console.log(resp.data)
             if (resp?.status === 200 || resp?.status === 201) {
                 setProductCategories(resp?.data);
             } else {
