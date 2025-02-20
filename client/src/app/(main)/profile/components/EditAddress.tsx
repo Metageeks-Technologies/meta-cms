@@ -215,7 +215,7 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
             setEditAddress(prev => ({ 
                 ...prev, 
                 [field]: updatedValue 
-            } as Partial<AddressType>));
+            } as AddressType));
         }
     };
 

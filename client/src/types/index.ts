@@ -242,8 +242,8 @@ export interface Address {
 
 
 export type EditAddressProps = {
-  editAddress: Partial<AddressType>;
-  setEditAddress: React.Dispatch<React.SetStateAction<Partial<AddressType>>>;
+  editAddress: AddressType;
+  setEditAddress: React.Dispatch<React.SetStateAction<AddressType>>;
   getUserAddresses: () => void;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
