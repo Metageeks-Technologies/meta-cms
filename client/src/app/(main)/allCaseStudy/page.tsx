@@ -76,6 +76,7 @@ const columns = [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
@@ -95,8 +96,8 @@ const columns = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-800" />
+              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-gray-800" /> */}
 
               <DropdownMenuItem onClick={() => router.push(`caseStudy/${caseStudy.slug}`)} className="cursor-pointer px-3">
                 <VscPreview /> Preview

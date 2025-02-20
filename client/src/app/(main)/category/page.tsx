@@ -61,6 +61,7 @@ const columns = [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
@@ -164,8 +165,8 @@ const columns = [
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-gray-800" />
+                    {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-gray-800" /> */}
 
                     <AlertDialogTrigger>
                       <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">

@@ -90,13 +90,14 @@ const columns = [
   },
   {
     accessorKey: "role",
-    header: () => <div className="text-right">Role</div>,
+    header: "Role",
     cell: ({ row }: any) => (
-      <div className="capitalize text-right">{row.getValue("role")}</div>
+      <div className="capitalize">{row.getValue("role")}</div>
     ),
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
@@ -118,7 +119,7 @@ const columns = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
               {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-              <DropdownMenuSeparator className="bg-gray-800" />
+              {/* <DropdownMenuSeparator className="bg-gray-800" /> */}
 
               {/* Show options based on user's block status */}
               {user.block ? (
