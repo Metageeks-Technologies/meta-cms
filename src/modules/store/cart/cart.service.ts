@@ -191,9 +191,6 @@ export class CartService {
             .lean()
             .exec();
 
-            console.log(cart, "this is cart")
-
-
         if (!cart) {
             return null
         }
