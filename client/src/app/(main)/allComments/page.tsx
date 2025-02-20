@@ -138,7 +138,7 @@ const CommentsPage: React.FC = () => {
                     <div
                         key={status}
                         onClick={() => setFilter(status as 'awaiting approval' | 'published' | 'rejected' | 'deleted')}
-                        className={`bg-gray-900 px-4 py-2 sm:px-6 sm:py-3 rounded-lg border-[1px] border-gray-800 flex items-center gap-2 cursor-pointer ${filter === status ? 'text-blue-800 border-blue-800 bg-blue-500' : 'text-white'}`}
+                        className={`bg-gray-900 px-2 py-1 sm:px-2 sm:py-2 rounded-lg border-[1px] border-gray-800 flex items-center gap-2 cursor-pointer ${filter === status ? 'text-blue-800 border-blue-800 bg-blue-500' : 'text-white'}`}
                     >
                         {filter === status && (
                             <Check className="w-4 h-4 sm:w-6 sm:h-6" />

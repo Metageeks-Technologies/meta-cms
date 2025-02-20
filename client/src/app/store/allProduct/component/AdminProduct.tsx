@@ -150,7 +150,7 @@ const AdminAllProduct = () => {
 
     useEffect(() => {
         if (websiteKey) {
-            setProductData([]); // Clear previous data on filter or sort change
+            setProductData([]); 
             setPage(1);
             setLastId('');
             setHasMore(true);
@@ -173,7 +173,7 @@ const AdminAllProduct = () => {
     return (
         <div>
             <div className='w-full flex flex-row flex-wrap gap-2 sm:gap-4 lg:gap-8 px-2 ms:px-8 mt-6 md:mt-12'>
-                <div className='flex gap-2 flex-row items-center flex-wrap text-xs sm:text-sm'>
+                <div className='flex gap-2 flex-row mb-7 items-center flex-wrap text-xs sm:text-sm'>
                     {productStatusFilters.map((status, index) => (
                         <div
                             key={index}

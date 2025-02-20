@@ -3,7 +3,7 @@ import axiosCall from "@/utils/ApiCall";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal } from "lucide-react";
+import { Check, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getURL } from "@/utils/AWS_Config";
 import { OrderStatusEnum } from "@/constant/order";
@@ -16,8 +16,11 @@ const OrderTable = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [isAllOrders, setIsAllOrders] = useState<boolean>(true);
-  const { websiteKey } = useUserContext();
+  const { websiteKey,setLoading } = useUserContext();
+
   const fetchOrderData = async (url: string) => {
+    setLoading(true);
+
     try {
       const response = await axiosCall("get", url, undefined, { websiteKey });
       if (Array.isArray(response.data)) {
@@ -29,7 +32,12 @@ const OrderTable = () => {
       console.error("Error fetching order data:", error);
       setOrders([]);
     }
+    finally{
+      setLoading(false);
+
+    }
   };
+
 
   useEffect(() => {
     // Choose the appropriate API based on isAllOrders flag
@@ -187,20 +195,23 @@ const OrderTable = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <div>
-          <Button
-            onClick={() => setIsAllOrders(true)}
-            className={`mr-2 ${isAllOrders ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} hover:bg-blue-600`}
-          >
-            All Orders
-          </Button>
-          <Button
-            onClick={() => setIsAllOrders(false)}
-            className={`${!isAllOrders ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} hover:bg-blue-600`}
-          >
-            My Orders
-          </Button>
-        </div>
+ <div className='flex gap-2 flex-row mb-7 items-center flex-wrap text-xs sm:text-sm'>
+  <Button
+    onClick={() => setIsAllOrders(true)}
+    className={`bg-gray-900 px-2 py-1 sm:px-4 sm:py-2 rounded-lg border-[1px] border-gray-800 flex flex-row items-center gap-2 cursor-pointer ${isAllOrders ? 'text-blue-800 border-blue-800' : ''}`}
+  >
+    {isAllOrders ? <Check className='w-4 h-4 sm:w-6 sm:h-6' /> : null}
+    <span>All Orders</span>
+  </Button>
+  <Button
+    onClick={() => setIsAllOrders(false)}
+    className={`bg-gray-900 px-2 py-1 sm:px-4 sm:py-2 rounded-lg border-[1px] border-gray-800 flex flex-row items-center gap-2 cursor-pointer ${!isAllOrders ? 'text-blue-800 border-blue-800' : ''}`}
+  >
+    {!isAllOrders ? <Check className='w-4 h-4 sm:w-6 sm:h-6' /> : null}
+    <span>My Orders</span>
+  </Button>
+</div>
+
 
       </div>
 

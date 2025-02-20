@@ -15,9 +15,10 @@ const VendorOrder = () => {
     const [searchQuery, setSearchQuery] = useState<string>(""); 
     const [isPopupVisible, setIsPopupVisible] = useState(false);  
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null);  
-    const{websiteKey}=useUserContext()
+    const{websiteKey,setLoading}=useUserContext()
   
 const fetchOrderData = async () => {
+  setLoading(true);  
   try {
     const response = await axiosCall("get", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`,undefined,{websiteKey});
 
@@ -29,6 +30,9 @@ const fetchOrderData = async () => {
   } catch (error) {
     console.error("Error fetching order data:", error);
     setOrders([]); 
+  }
+  finally{
+    setLoading(false);
   }
 };
 
