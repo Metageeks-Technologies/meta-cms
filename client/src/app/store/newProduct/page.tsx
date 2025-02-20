@@ -244,7 +244,7 @@ const CreateProduct: React.FC = () => {
     description: string;
     category: string;
     status: string;
-    website: string;
+    // website: string;
     brand: string;
     attributes: ProductAttribute;
     publishedDate?: Date;
@@ -293,7 +293,7 @@ const CreateProduct: React.FC = () => {
         category: formData.category,
         brand: formData.brand,
         status: formData.status,
-        website: formData.website,
+        // website: formData.website,
         ...(formData.publishDate && { publishedDate: formData.publishDate }),
         attributes: formData.attributes,
         variants: formData.variants,
@@ -586,7 +586,7 @@ const CreateProduct: React.FC = () => {
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label htmlFor="website" className="text-white">Website</label>
             <select
               id="website"
@@ -604,7 +604,7 @@ const CreateProduct: React.FC = () => {
                 ))
               }
             </select>
-          </div>
+          </div> */}
 
           {/* {productStatus === "SCHEDULED" && (
             <div>

@@ -667,32 +667,7 @@ const EditCaseStudy = () => {
                 <label className="block text-white mb-5">
                     <span className='text-xl'>Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-                        {/* Image Upload */}
-                        <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
-                            <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
-                                htmlFor="contentImageSection"
-                            >
-                                {formData.content.serviceSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.serviceSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
-                                ) : (
-                                    <span className="text-white text-3xl">+</span>
-                                )}
-                            </label>
-                            <input
-                                type="file"
-                                id="contentImageSection"
-                                className="hidden"
-                                onChange={(e) => handleImageChange(e, 'serviceSection')}
-
-
-                            />
-                        </div>
+                     
 
                         <div className="mb-4">
                             <label htmlFor="heading" className="block text-gray-300 mb-2">
@@ -723,6 +698,35 @@ const EditCaseStudy = () => {
                                 required
                             />
                         </div>
+
+   {/* Image Upload */}
+   <div className="mb-6">
+                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                htmlFor="contentImageSection"
+                            >
+                                {formData.content.serviceSection.imageKey ? (
+                                    <img
+                                        src={getURL(formData.content.serviceSection.imageKey)}
+                                        alt="Preview"
+                                        className="object-contain w-full h-full rounded-lg"
+                                    />
+                                ) : (
+                                    <span className="text-white text-3xl">+</span>
+                                )}
+                            </label>
+                            <input
+                                type="file"
+                                id="contentImageSection"
+                                className="hidden"
+                                onChange={(e) => handleImageChange(e, 'serviceSection')}
+
+
+                            />
+                        </div>
+
+
                     </div>
                 </label>
 
