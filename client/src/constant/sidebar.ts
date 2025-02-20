@@ -18,7 +18,7 @@ import { GrServices } from "react-icons/gr";
 
 export const items: MenuItem[] = [
   {
-    title: "Dashboard",
+    title: "Dashboard",   
     url: "/dashboard",
     icon: Home,
   },

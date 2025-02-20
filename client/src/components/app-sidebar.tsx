@@ -11,9 +11,11 @@ import { StoreRole } from "@/constant/store";
 
 export function AppSidebar() {
   const router = useRouter();
-  const { user } = useUserContext();
+  const { user, websiteKey, website } = useUserContext();
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [permissions, setPermissions] = useState<string[]>([]);
+
 
 
   const getFilteredMenuItems = (user: any): any[] => {
@@ -21,43 +23,43 @@ export function AppSidebar() {
 
 
     const userRole = user?.role;
-    const userStoreRole = user?.storeRole;
 
     return items
       .filter((item) => {
-        if (userRole === userRoles.SUPERADMIN) {
-          return true;
-        }
-
+        
         const includedItems = new Set<string>(["Dashboard", "Notification", "Settings"]);
 
-        if (userRole === userRoles.ADMIN) {
-          if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+        if(userRole === userRole.SUPERADMIN){
+          ["Websites", "Admin"].forEach((title) => includedItems.add(title))
+        }
+
+        if (userRole === userRoles.ADMIN || userRole == userRoles.SUPERADMIN) {
+          if (permissions?.includes(PermissionEnum.BLOG)) {
             ["Post", "Comments", "Media"].forEach((title) => includedItems.add(title));
           }
-          if (user?.website?.permissions?.includes(PermissionEnum.PAGE)) {
+          if (permissions?.includes(PermissionEnum.PAGE)) {
             includedItems.add("Page");
           }
-          if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+          if (permissions?.includes(PermissionEnum.STORE)) {
             includedItems.add("Product");
           }
           ["Moderator", "Contributor"].forEach((title) => includedItems.add(title));
         }
 
         if (userRole === userRoles.MODERATOR) {
-          if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+          if (permissions?.includes(PermissionEnum.BLOG)) {
             ["Post", "Comments", "Media"].forEach((title) => includedItems.add(title));
           }
-          if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+          if (permissions?.includes(PermissionEnum.STORE)) {
             includedItems.add("Product");
           }
         }
 
         if (userRole === userRoles.CONTRIBUTOR) {
-          if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+          if (permissions?.includes(PermissionEnum.BLOG)) {
             ["Post", "Media"].forEach((title) => includedItems.add(title));
           }
-          if (user.website?.permissions?.includes(PermissionEnum.STORE)) {
+          if (permissions?.includes(PermissionEnum.STORE)) {
             includedItems.add("Product");
           }
         }
@@ -69,36 +71,36 @@ export function AppSidebar() {
           const filteredSubMenu = item.subMenu.filter((subItem) => {
             const includedSubItems = new Set<string>();
 
-            if (userRole === userRoles.SUPERADMIN || userStoreRole === StoreRole.SUPERADMIN) {
+            if (userRole === userRoles.SUPERADMIN) {
               return true;
             }
 
-            if (userRole === userRoles.ADMIN) {
-              if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+            if (userRole === userRoles.ADMIN || userRole === userRoles.SUPERADMIN) {
+              if (permissions?.includes(PermissionEnum.BLOG)) {
                 ["New Post", "All Post", "Category", "Tags"].forEach((title) => includedSubItems.add(title));
               }
-              if (user?.website?.permissions?.includes(PermissionEnum.PAGE)) {
+              if (permissions?.includes(PermissionEnum.PAGE)) {
                 ["New Page", "All Page", "Services", "Sub Services", "New CaseStudy", "All CaseStudy"].forEach((title) => includedSubItems.add(title));
               }
-              if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+              if (permissions?.includes(PermissionEnum.STORE)) {
                 ["New Product", "All Product", "Product Category", "Orders"].forEach((title) => includedSubItems.add(title));
               }
             }
 
             if (userRole === userRoles.MODERATOR) {
-              if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+              if (permissions?.includes(PermissionEnum.BLOG)) {
                 ["New Post", "All Post", "Category", "Tags"].forEach((title) => includedSubItems.add(title));
               }
-              if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+              if (permissions?.includes(PermissionEnum.STORE)) {
                 ["New Product", "All Product", "Product Category", "Orders"].forEach((title) => includedSubItems.add(title));
               }
             }
 
             if (userRole === userRoles.CONTRIBUTOR) {
-              if (user?.website?.permissions?.includes(PermissionEnum.BLOG)) {
+              if (permissions?.includes(PermissionEnum.BLOG)) {
                 ["New Post", "All Post", "Tags"].forEach((title) => includedSubItems.add(title));
               }
-              if (user?.website?.permissions?.includes(PermissionEnum.STORE)) {
+              if (permissions?.includes(PermissionEnum.STORE)) {
                 ["New Product", "All Product", "Orders"].forEach((title) => includedSubItems.add(title));
               }
             }
@@ -114,12 +116,24 @@ export function AppSidebar() {
       .filter(Boolean);
   };
 
+
+  useEffect(() => {
+    setFilteredItems([]);
+    if(Array.isArray(user?.website?.permissions) && user?.website?.permissions?.length > 0){
+      setPermissions(user?.website?.permissions)
+    }
+    
+    if(Array.isArray(website?.permissions) && website?.permissions?.length > 0){
+      setPermissions(website?.permissions)
+    }
+  }, [user, website])
+
   useEffect(() => {
     if (user) {
       setFilteredItems(getFilteredMenuItems(user));
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, permissions]);
 
   if (isLoading) return null; // Or a loading spinner
 
