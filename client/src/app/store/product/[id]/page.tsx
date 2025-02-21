@@ -52,6 +52,7 @@ const ProductCard: React.FC = () => {
     try {
       const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/products/variant/${id}/${editedVariant.variantId}`, editedVariant,{websiteKey});
 
+      
       const updatedProduct = { ...product };
       updatedProduct.variants = updatedProduct.variants.map((variant: any) =>
         variant.variantId === editedVariant.variantId ? editedVariant : variant
@@ -71,15 +72,14 @@ const ProductCard: React.FC = () => {
       toast.error('Variant ID is required', {
         duration: 2000,
       });
-      return; // Prevent further execution if variantId is missing
+      return; 
     }
 
-    // Check if sku is empty
     if (!newVariant.sku.trim()) {
       toast.error('SKU is required', {
         duration: 2000,
       });
-      return; // Prevent further execution if sku is missing
+      return;
     }
 
 
@@ -92,7 +92,6 @@ const ProductCard: React.FC = () => {
       return;
     }
 
-    // Check if the SKU already exists in the current product's variants
     const existingSku = product.variants.find((variant: any) => variant.sku === newVariant.sku);
     if (existingSku) {
       toast.error('SKU already exists', {
@@ -114,7 +113,7 @@ const ProductCard: React.FC = () => {
         variants: [...prev.variants, response.data],
       }));
       fetchProductData();
-      setIsAddModalOpen(false); // Close the modal after adding
+      setIsAddModalOpen(false); 
       setNewVariant({
         variantId: '',
         sku: '',
@@ -451,7 +450,7 @@ const ProductCard: React.FC = () => {
                                       </p>
                                   )}
                                   <p className="text-gray-400">
-                                      MRP Price:{' '}
+                                     Price:{' '}
                                       <span className="text-white ">
                                           ₹{selectedVariant.price.toFixed(2)}
                                       </span>

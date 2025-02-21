@@ -288,9 +288,7 @@ const columns = [
 
 function Category() {
   const [sorting, setSorting] = useState<SortingState>([])
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
-  // const [rowSelection, setRowSelection] = React.useState({})
+
 
   const { categories, fetchCategories, categoryPageNo, setCategoryPageNo }: any = usePostContext()
   const { user, websiteKey }: any = useUserContext();
@@ -306,13 +304,10 @@ function Category() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
-    // onRowSelectionChange: setRowSelection,
+   
     state: {
       sorting,
-      // columnFilters,
-      // columnVisibility,
-      // rowSelection,
+    
     },
   });
 

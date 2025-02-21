@@ -539,6 +539,30 @@ const EditPage = () => {
         }
     }
 
+
+    const generateSlug = (title: string) => {
+            return title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')  
+                .replace(/(^-|-$)+/g, '');     
+        };
+    
+        useEffect(() => {
+            if (formData.title) {
+                const generatedSlug = generateSlug(formData.title);
+                setFormData((prevData) => ({
+                    ...prevData,
+                    slug: generatedSlug
+                }));
+            }
+            else {
+                setFormData((prevData) => ({
+                    ...prevData,
+                    slug: '',
+                }));
+            }
+        }, [formData.title]);
+
     useEffect(() => {
         if (websiteKey) fetchPage();
     }, [websiteKey]);

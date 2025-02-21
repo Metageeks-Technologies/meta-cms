@@ -86,6 +86,15 @@ const OrderTable = () => {
               : order
           )
         );
+
+        const param = new URLSearchParams();
+        param.append('page', orderPageNo.toString());
+        const url = isAllOrders
+          ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all?${param.toString()}`
+          : `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor?${param.toString()}`;
+  
+        fetchOrderData(url);
+
       }
     } catch (error) {
       console.error("Error cancelling order:", error);
@@ -107,6 +116,13 @@ const OrderTable = () => {
               : order
           )
         );
+        const param = new URLSearchParams();
+        param.append('page', orderPageNo.toString());
+        const url = isAllOrders
+          ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all?${param.toString()}`
+          : `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor?${param.toString()}`;
+  
+        fetchOrderData(url);
       } else {
         toast.error(resp?.data?.message, { duration: 2000 });
       }
@@ -139,13 +155,62 @@ const OrderTable = () => {
     {
       header: "Shipping Status",
       accessor: "shippingStatus",
-      cell: (row: any) => <div>{row.shippingStatus}</div>,
+      cell: (row: any) => {
+        const shippingStatus = row.shippingStatus;
+        let statusClass = '';
+    
+        switch (shippingStatus) {
+          case 'delivered':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'shipped':
+            statusClass = 'bg-blue-900/50 text-blue-400 text-center border border-blue-700';
+            break;
+          case 'cancelled':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          case 'confirm':
+            statusClass = 'bg-yellow-900/50 text-center text-yellow-400 border border-yellow-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700'; 
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {shippingStatus}
+          </div>
+        );
+      },
     },
     {
       header: "Payment Status",
       accessor: "paymentStatus",
-      cell: (row: any) => <div>{row.paymentStatus}</div>,
+      cell: (row: any) => {
+        const paymentStatus = row.paymentStatus;
+        let statusClass = '';
+    
+        switch (paymentStatus) {
+          case 'paid':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'unpaid':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700';
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {paymentStatus}
+          </div>
+        );
+      },
     },
+    
     {
       header: "Actions",
       accessor: "actions",
@@ -294,9 +359,6 @@ const OrderTable = () => {
                   onClick={closePopup}
                   className="text-gray-400 hover:text-gray-200 transition-colors"
                 >
-                  {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg> */}
                 </button>
               </div>
             </div>
@@ -377,9 +439,6 @@ const OrderTable = () => {
                             alt={item.product.title}
                             className="w-full h-full object-cover rounded-md border border-gray-700"
                           />
-                          {/* <div className="absolute -top-2 -right-2 bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium">
-                          {item.quantity}
-                        </div> */}
                         </div>
 
                         <div className="flex-grow min-w-0">

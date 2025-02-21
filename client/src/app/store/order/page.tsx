@@ -5,7 +5,6 @@ import OrderTable from './component/OrderTable';
 import VendorOrder from './component/VendorTable';
 
 import { userRoles } from '@/constant/user';
-import { StoreRole } from '@/constant/store';
 import { useUserContext } from '@/context/userContext';
 
 
