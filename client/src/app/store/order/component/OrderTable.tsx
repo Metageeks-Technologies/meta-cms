@@ -284,8 +284,8 @@ const OrderTable = () => {
       </div>
 
       {isPopupVisible && selectedOrder && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-800">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4" onClick={closePopup} >
+          <div className="bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-800" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="p-6 border-b border-gray-800">
               <div className="flex justify-between items-center">
@@ -294,9 +294,7 @@ const OrderTable = () => {
                   onClick={closePopup}
                   className="text-gray-400 hover:text-gray-200 transition-colors"
                 >
-                  {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg> */}
+                  
                 </button>
               </div>
             </div>
@@ -325,7 +323,7 @@ const OrderTable = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <p className="text-gray-300">Status</p>
-                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${selectedOrder.paymentStatus === 'Paid'
+                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${selectedOrder.paymentStatus === 'paid'
                       ? 'bg-green-900/50 text-green-400 border border-green-700'
                       : 'bg-red-900/50 text-red-400 border border-red-700'
                       }`}>
@@ -339,11 +337,11 @@ const OrderTable = () => {
                   <h3 className="text-sm font-medium text-gray-400">Shipping Status</h3>
                   <div className="flex items-center justify-between">
                     <p className="text-gray-300">Current Status</p>
-                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${selectedOrder.shippingStatus === 'Delivered'
+                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${selectedOrder.shippingStatus === 'delivered'
                       ? 'bg-green-900/50 text-green-400 border border-green-700'
-                      : selectedOrder.shippingStatus === 'Shipped'
+                      : selectedOrder.shippingStatus === 'pending'
                         ? 'bg-blue-900/50 text-blue-400 border border-blue-700'
-                        : selectedOrder.shippingStatus === 'Cancelled'
+                        : selectedOrder.shippingStatus === 'cancelled'
                           ? 'bg-red-900/50 text-red-400 border border-red-700'
                           : 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
                       }`}>
@@ -356,7 +354,7 @@ const OrderTable = () => {
               {/* Order Items Section */}
               <div className="bg-gray-900 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-100 mb-4">Ordered Items</h3>
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2 styledScrollable">
                   {selectedOrder.items.map((item: any, index: number) => {
                     const variant = item.product.variants.find(
                       (v: any) => v.variantId === item.variantId
@@ -377,9 +375,7 @@ const OrderTable = () => {
                             alt={item.product.title}
                             className="w-full h-full object-cover rounded-md border border-gray-700"
                           />
-                          {/* <div className="absolute -top-2 -right-2 bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium">
-                          {item.quantity}
-                        </div> */}
+                          
                         </div>
 
                         <div className="flex-grow min-w-0">

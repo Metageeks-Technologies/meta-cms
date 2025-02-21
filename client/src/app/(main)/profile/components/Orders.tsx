@@ -7,17 +7,17 @@ const getStatusConfig = (status: string) => {
     switch (status) {
         case 'UNPAID':
             return {
-                color: 'bg-red-600 text-white border-red-700',
+                color: 'bg-red-500 text-white border-red-700',
                 icon: <AlertCircle className='w-5 h-5 text-white' />
             };
         case 'PAID':
             return {
-                color: 'bg-green-600 text-white border-green-700',
+                color: 'bg-green-500 text-white border-green-700',
                 icon: <CheckCircle className='w-5 h-5 text-white' />
             };
         default:
             return {
-                color: 'bg-gray-600 text-white border-gray-700',
+                color: 'bg-yellow-600 text-white border-yellow-700',
                 icon: <AlertCircle className='w-5 h-5 text-white' />
             };
     }
@@ -71,7 +71,13 @@ const OrderCard = ({ order }: { order: any }) => {
             </div>
 
             {/* Order Items */}
-            <div className="p-4">
+            <div
+                className={`p-4 ${
+                    order?.items?.length > 3
+                        ? 'overflow-y-auto max-h-96 styledScrollable'
+                        : ''
+                }`}
+            >
                 {order?.items?.map((item: any, index: number) => {
                     const { price, quantity, subtotal } = getItemPrice(item);
                     return (
