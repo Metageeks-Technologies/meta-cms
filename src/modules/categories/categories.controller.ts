@@ -26,7 +26,7 @@ export class CategoriesController {
     @Headers('websiteKey') websiteKey: string,
     @Query() query: CategoryQueryDto
   ) {
-    const categories = await this.categoriesService.findAll(websiteKey, query.page);
+    const categories = await this.categoriesService.findAll(websiteKey, query.page, query.search);
     return categories;
   }
 

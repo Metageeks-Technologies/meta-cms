@@ -120,3 +120,7 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
         default: false
     }
 }, { timestamps: true })
+
+
+
+caseStudySchema.index({ title: "text" })

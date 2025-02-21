@@ -26,6 +26,7 @@ import { FaClockRotateLeft } from "react-icons/fa6";
 import { usePageContext } from "@/context/pageContext"
 import { useUserContext } from "@/context/userContext"
 import AddSubServices from "./component/AddSubServices"
+import { debounce } from "lodash"
 const columns = [
   {
     accessorKey: "name",
@@ -135,10 +136,18 @@ const Page = () => {
   const { subServices, fetchSubServices, services, fetchServices, fetchSubServicesTotal, subServicePageNo, setSubServicePageNo } = usePageContext();
   const [servicesFetched, setServicesFetched] = useState(false);
   const { user } = useUserContext();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    if (user.role === "superadmin") fetchServices();
-  }, [websiteKey]);
+
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
 
 
   useEffect(() => {
@@ -155,18 +164,20 @@ const Page = () => {
     }
   }, [services]);
 
-  // useEffect(() => {
-  //   if (websiteKey && selectedService) {
-  //     fetchSubServices(selectedService); // fetch subservices based on selected service
-  //   }
-  // }, [selectedService, websiteKey]);
-
   useEffect(() => {
     if (websiteKey && selectedService) {
       setSubServicePageNo(1);
-      fetchSubServicesTotal(selectedService);
+      fetchSubServicesTotal(selectedService, searchQuery);
     }
   }, [selectedService, websiteKey, subServicePageNo]);
+
+  useEffect(() => {
+    if (subServicePageNo === 1 && websiteKey && selectedService) {
+      fetchSubServicesTotal(selectedService, searchQuery);
+    }
+    setSubServicePageNo(1)
+  }, [searchQuery])
+
 
   const table = useReactTable({
     data: subServices,
@@ -184,10 +195,10 @@ const Page = () => {
   return (
     <div className="w-full container mx-auto px-4">
 
-      <div className='flex mt-3 justify-end items-center gap-4 ml-auto'>
-
+      <div className='flex mt-3 justify-end items-center gap-4 my-2 ml-auto'>
+        {/* <label htmlFor="" className="text-lg font-bold">Service</label> */}
         <select
-          className='bg-[#06040B] text-gray-200 border-gray-800 p-2 rounded-md'
+          className='bg-[#06040B] text-gray-200 border-[1px] border-gray-800 px-2 py-1 rounded-md'
           value={selectedService ?? (services.length > 0 ? services[0]._id : "")}
           onChange={(e) => setSelectedService(e.target.value)}
         >
@@ -207,10 +218,7 @@ const Page = () => {
         {/* Search Input */}
         <Input
           placeholder="Search name..."
-          value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
 
