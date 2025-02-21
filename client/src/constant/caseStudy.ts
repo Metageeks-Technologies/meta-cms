@@ -24,7 +24,6 @@ export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
     },
     serviceSection: {
       imageKey: null,
-      heading: '',
       description: ''
     },
     processSection: {

@@ -411,6 +411,10 @@ export interface uiSection{
   imageKey: string | null;
 }
 
+export interface ServiceSection {
+  imageKey: string | null;
+  description: string
+}
 
 export interface caseStudyContent {
   _id?: any;
@@ -423,7 +427,7 @@ export interface caseStudyContent {
     heroSection:heroSection;
     aboutSection:StudyAbout;
     uiSection: uiSection;
-    serviceSection:Content;
+    serviceSection: ServiceSection;
     processSection:process;
     uiSection2: studyWebsite;
     challengesSection:studyChallange;
