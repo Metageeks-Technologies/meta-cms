@@ -1,27 +1,26 @@
 "use client"
 import * as React from "react"
-import {SortingState,flexRender,getCoreRowModel,getFilteredRowModel,getPaginationRowModel,getSortedRowModel,useReactTable,} from "@tanstack/react-table"
+import { SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table"
 import { MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import {DropdownMenu,DropdownMenuContent, DropdownMenuItem,DropdownMenuLabel,DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 
 import { useUserContext } from "@/context/userContext"
-import { usePostContext } from "@/context/postContext"
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,} from "@/components/ui/alert-dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "@/components/ui/alert-dialog"
 // import AddCategory from "./component/AddCategory"
 import AddProductCategory from "@/app/store/productCategory/component/AddProductCategory"
 import { getURL } from "@/utils/AWS_Config"
 import toast from "react-hot-toast"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axiosCall from "@/utils/ApiCall"
 import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
-import { StoreRole } from "@/constant/store"
+import { useProductContext } from "@/context/productContext"
 
 const columns = [
   {
@@ -60,21 +59,15 @@ const columns = [
       <div className="">{row.getValue("description")}</div>
     ),
   },
-  // {
-  //   accessorKey: "code",
-  //   header: "Code",  
-  //   cell: ({ row }: any) => (
-  //     <div className="">{row.getValue("code")}</div> 
-  //   ),
-  // },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
       const [isOpen, setIsOpen] = useState(false);
       const [productCategory, setProductCategory] = useState(row.original);
-      const { deleteProductCategory, fetchProductCategories } = usePostContext();
+      const { deleteProductCategory, fetchProductCategories } = useProductContext();
       const { user, setLoading, websiteKey }: any = useUserContext();
 
       const handleNonSuperAdminClick = () => {
@@ -93,7 +86,7 @@ const columns = [
             fileName: fileList?.[0].name,
             contentType: fileList?.[0].type
           }
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
 
           if (resp.status === 200 || resp.status === 201) {
             uploadToS3(websiteKey, resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_PRODUCTCATEGORY, null, setImageKey);
@@ -106,10 +99,10 @@ const columns = [
           setLoading(false);
         }
       };
-      
+
 
       const updateCategory = async (e: any) => {
-        if (!productCategory.name.trim() || !productCategory.description.trim() ) {
+        if (!productCategory.name.trim() || !productCategory.description.trim()) {
           toast.error("Please fill in all fields correctly.", {
             duration: 2000,
           });
@@ -125,7 +118,7 @@ const columns = [
             description: productCategory.description,
             bannerImageKey: productCategory.bannerImageKey
           }
-          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${productCategory._id}`, payload);
+          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${productCategory._id}`, payload, { websiteKey });
 
           if (resp.status === 200 || resp.status === 201) {
             toast.success(resp.data.message, {
@@ -158,7 +151,7 @@ const columns = [
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialog>
             {
-              user?.storeRole === StoreRole.SUPERADMIN ? (
+              user?.role === "superadmin" || user?.role === "admin" ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -167,8 +160,8 @@ const columns = [
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-gray-800" />
+                    {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-gray-800" /> */}
 
                     <AlertDialogTrigger>
                       <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
@@ -239,7 +232,7 @@ const columns = [
                   required
                 />
               </div>
-          
+
 
               <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
                 <Label htmlFor="img" className="text-right w-full ">
@@ -279,9 +272,8 @@ const columns = [
 function Category() {
   const [sorting, setSorting] = useState<SortingState>([])
 
-
-  const { productCategories, fetchProductCategories }: any = usePostContext()
-  const { user }: any = useUserContext();
+  const { productCategories, fetchProductCategories, productCategoryPageNo, setProductCategoryPageNo } = useProductContext();
+  const { user, websiteKey }: any = useUserContext();
 
 
   const table = useReactTable({
@@ -298,10 +290,9 @@ function Category() {
     },
   });
 
-
   useEffect(() => {
-    fetchProductCategories();
-  }, []);
+    if (websiteKey) fetchProductCategories();
+  }, [websiteKey, productCategoryPageNo]);
 
 
 
@@ -319,7 +310,7 @@ function Category() {
           />
 
           {
-            user?.storeRole === StoreRole.SUPERADMIN &&
+            user?.role === "superadmin" || user.role === "admin" &&
             <AddProductCategory />
           }
 
@@ -384,21 +375,22 @@ function Category() {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setProductCategoryPageNo(productCategoryPageNo - 1)}
+            disabled={productCategoryPageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{productCategoryPageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setProductCategoryPageNo(productCategoryPageNo + 1)}
+            disabled={productCategories.length < 10}
             className="text-black font-bold"
           >
             Next

@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IService } from './schema/service.schema';
@@ -8,6 +8,9 @@ import { UpdateServiceDto } from './dto/update-service-dto';
 
 @Injectable()
 export class ServiceService {
+
+  private readonly SERVICE_PAGE_BATCH_LIMIT = 10;
+
   constructor(
     @InjectModel("Service") private Service: Model<IService>,
     private readonly websiteService: WebsiteService
@@ -16,7 +19,7 @@ export class ServiceService {
   async create(websiteKey: string, newService: CreateServiceDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
 
@@ -37,7 +40,7 @@ export class ServiceService {
   async updateService(websiteKey: string, serviceId: string, serviceDetails: UpdateServiceDto) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const service = await this.findSubserviceByName(websiteKey, serviceDetails.name);
@@ -58,7 +61,7 @@ export class ServiceService {
   async deleteService(websiteKey: string, serviceId: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = await this.Service.updateOne(
@@ -75,7 +78,7 @@ export class ServiceService {
   async recoverService(websiteKey: string, serviceId: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = await this.Service.updateOne(
@@ -90,10 +93,10 @@ export class ServiceService {
   }
 
   // In ServiceService
-  async findAll(websiteKey: string, isDeleted?: boolean) {
+  async findAll(websiteKey: string, pageNo: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const query = { websiteKey };
@@ -101,15 +104,34 @@ export class ServiceService {
       query['isDeleted'] = isDeleted;
     }
 
-    const services = await this.Service.find(query).lean().exec();
-    return services;
+    if (pageNo) {
+      const page = parseInt(pageNo) || 1;
+      const skip = (page - 1) * this.SERVICE_PAGE_BATCH_LIMIT
+
+      const services = await this.Service.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(this.SERVICE_PAGE_BATCH_LIMIT)
+        .lean().exec();
+
+      return services;
+    } else {
+
+      const services = await this.Service.find(query)
+        .sort({ createdAt: -1 })
+        .lean().exec();
+
+      return services
+
+    }
+
   }
 
 
   async finById(websiteKey: string, id: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
-      throw new NotFoundException('Invalid website key')
+      throw new BadRequestException('Invalid website key')
     }
 
     const service = await this.Service.findOne({ _id: id, websiteKey }).exec();
@@ -118,6 +140,11 @@ export class ServiceService {
 
   async findSubserviceByName(websiteKey: string, name: string) {
     const service = this.Service.findOne({ websiteKey, name }).exec();
+    return service;
+  }
+
+  async getServiceByKey(websiteKey: string, key: string) {
+    const service = await this.Service.findOne({ websiteKey, key }).exec();
     return service;
   }
 

@@ -5,15 +5,20 @@ import mongoose, { Model } from "mongoose";
 import { IPage, PageServiceEnum, PageSubServiceEnum } from "./schema/page.schema";
 import { UpdatePageDto } from "./dto/update-page.dto";
 import { WebsiteService } from "../website/website.service";
+import { ServiceService } from "../services/service.service";
+import { SubserviceService } from "../subservices/subservice.service";
 
 
 
 @Injectable()
 export class PagesService {
+    private readonly PAGE_BATCH_LIMIT = 10;
 
     constructor(
         @InjectModel('Page') private Page: Model<IPage>,
-        private readonly websiteService: WebsiteService
+        private readonly websiteService: WebsiteService,
+        private readonly serviceService: ServiceService,
+        private readonly subserviceService: SubserviceService
     ) { }
 
 
@@ -24,6 +29,21 @@ export class PagesService {
             throw new BadRequestException("Invalid website key");
         }
 
+        const service = await this.serviceService.getServiceByKey(websiteKey, newPageDetails.service);
+        if (!service) {
+            throw new BadRequestException('Invalid Service');
+        }
+
+        const subService = await this.subserviceService.getSubServiceByKey(websiteKey, newPageDetails.subService);
+        if (!subService) {
+            throw new BadRequestException('Invalid Sub Service');
+        }
+
+        const page = await this.Page.findOne({ website: websiteKey, slug: newPageDetails.slug }).exec();
+        if (page) {
+            throw new BadRequestException('Slug already exists');
+        }
+
         const newPage = new this.Page(newPageDetails);
         newPage.website = websiteKey;
         newPage.authorId = mongoose.Types.ObjectId.createFromHexString(authorId);
@@ -31,11 +51,6 @@ export class PagesService {
         try {
             await newPage.save();
         } catch (error) {
-            if (error.code === 11000) {
-                //Duplicate key error
-                throw new ConflictException('Slug already exists');
-            }
-            // Re-throw the error if it's not a duplicate key error
             throw error;
         }
     }
@@ -111,29 +126,56 @@ export class PagesService {
             throw new BadRequestException("Invalid website key");
         }
 
-        const page = await this.Page.findOne({ _id: id, website: websiteKey }, { title: 1 }).exec();
+        const page = await this.Page.findOne({ _id: id, website: websiteKey }, { title: 1, slug: 1 }).exec();
 
         if (!page.title) {
             throw new NotFoundException('Page not found');
         }
 
+        const pageExist = await this.Page.findOne({ website: websiteKey, slug: updatePageDetails.slug, _id: { $ne: id } }).exec();
+        if (pageExist) {
+            throw new BadRequestException('Slug already exists')
+        }
+
+        const service = await this.serviceService.getServiceByKey(websiteKey, updatePageDetails.service);
+        if (updatePageDetails.service && !service) {
+            throw new BadRequestException('Invalid Service');
+        }
+
+        const subService = await this.subserviceService.getSubServiceByKey(websiteKey, updatePageDetails.subService);
+
+        if (updatePageDetails.subService && !subService) {
+            throw new BadRequestException('Invalid Sub Service');
+        }
+
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
-    async getAllPage(websiteKey: string): Promise<any> {
+    async getAllPage(websiteKey: string, pageNo: string) {
+
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
             throw new BadRequestException("Invalid website key");
         }
 
-        const allPage = await this.Page.find({ website: websiteKey }).sort({ createdAt: -1 }).lean().exec();
+        const page = parseInt(pageNo) || 1
+        const skip = (page - 1) * this.PAGE_BATCH_LIMIT;
+
+        const allPage = await this.Page.find({ website: websiteKey })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(this.PAGE_BATCH_LIMIT)
+            .lean()
+            .exec();
+
+
         return allPage
     }
 
     async getPageTitles(websiteKey: string, service: PageServiceEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
-          throw new BadRequestException("Invalid website key");
+            throw new BadRequestException("Invalid website key");
         }
 
         const query = { website: websiteKey, service, isDeleted: false }

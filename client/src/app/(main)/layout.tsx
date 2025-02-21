@@ -8,10 +8,7 @@ import Loader from "@/components/common/Loader";
 import { useEffect } from "react";
 import { PageProvider } from "@/context/pageContext";
 
-// export const metadata = {
-//   title: "Authentication - My Blogging Website",
-//   description: "Log in or sign up to access your account.",
-// };
+
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
 

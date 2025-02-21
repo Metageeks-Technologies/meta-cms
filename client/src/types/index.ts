@@ -176,9 +176,9 @@ export interface PostContextType {
     categories: any[];
     productCategories:any[];
     fetchCategories: () => Promise<void>;
-    fetchProductCategories:()=> Promise<void>;
+    // fetchProductCategories:()=> Promise<void>;
     deleteCategory: (id: string) => Promise<void>;
-    deleteProductCategory: (id: string) => Promise<void>;
+    // deleteProductCategory: (id: string) => Promise<void>;
     fetchMedia: (lastId: string) => Promise<void>;
     media: MediaType[];
     setMedia: (arr: MediaType[]) => void,
@@ -191,7 +191,9 @@ export interface PostContextType {
     selectedCategory: string;
     selectedProductCategory:string;
     setSelectedCategory: (category: string) => void;
-    setSelectedProductCategory: (category: string) => void;
+    setSelectedProductCategory: (category: string) => void; 
+    categoryPageNo: number;
+    setCategoryPageNo: (num: number) => void
 }
 
 export type ProductContextType = {
@@ -207,6 +209,8 @@ export type ProductContextType = {
   setSelectedProductCategory: (filter: string) => void;
   fetchProductCategories: () => Promise<void>;
   deleteProductCategory: (id: string) => Promise<void>;
+  productCategoryPageNo: number,
+  setProductCategoryPageNo: (num: number) => void;
 };
 
 
@@ -222,7 +226,36 @@ export interface Address {
     isDefault: boolean;
     isDeleted: boolean;
   }
-  
+  export interface AddressType {
+    _id: string;
+    name: string;
+    phone: string;
+    email: string;
+    house: string;
+    street: string;
+    landmark: string;
+    postalCode: number | string;  // Changed to allow both number and string
+    city: string;
+    state: string;
+    instruction?: string;
+}
+
+
+export type EditAddressProps = {
+  editAddress: AddressType;
+  setEditAddress: React.Dispatch<React.SetStateAction<AddressType>>;
+  getUserAddresses: () => void;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export type PostOfficeData = {
+  Status: string;
+  PostOffice: Array<{
+      District: string;
+      State: string;
+  }>;
+}
+
 
   export interface Vendor {
     name: string;
@@ -336,7 +369,7 @@ export interface aboutCard{
 export interface StudyAbout{
   heading: string;
   description: string;
-  aboutCards: aboutCard[];
+  cards: aboutCard[];
   
 }
 export interface Content {
@@ -351,7 +384,7 @@ export interface Item{
 
 export interface StudyCard{
   heading: string;
- cardList:Item[]; 
+ list:string[]; 
 }
 
 export interface process {
@@ -367,11 +400,14 @@ export interface studyWebsite{
 export interface studyChallange{
   heading: string;
   description: string;
-  StudyChallangeList:aboutCard[]
+  cards:aboutCard[]
 
 }
 
 export interface heroSection{
+  imageKey: string | null;
+}
+export interface uiSection{
   imageKey: string | null;
 }
 
@@ -380,13 +416,13 @@ export interface caseStudyContent {
   _id?: any;
   title: string;
   slug: string;
-  website: string;
-  service: string;
+  // website: string;
+  // service: string;
 
   content: {
     heroSection:heroSection;
     aboutSection:StudyAbout;
-    uiSection1: string | null;
+    uiSection: uiSection;
     serviceSection:Content;
     processSection:process;
     uiSection2: studyWebsite;
@@ -408,3 +444,80 @@ export interface AddressType {
     state: string;
     instruction?: string;
 }
+
+export interface WebsiteContextTypes {
+  deleteWebsite: (id: string) => void,
+  recoverWebsite: (id: string) => void,
+  updateWebsite: (e: any, website: any, setIsOpen: any) => void,
+  fetchWebsiteData: () => void,
+  websiteData: any[],
+  websitePageNo: number, 
+  setWebsitePageNo: (num: number) => void,
+}
+
+export interface PageContextType {
+  pageData: any,
+  caseStudyData: any[],
+  services: any,
+  subServices: any,
+  fetchPageData: () => void,
+  fetchCaseStudyAll: () => void,
+  recoverCaseStudy: (id: string) => void;
+  deleteCaseStudy: (id: string) => void;
+  fetchServices: () => void,
+  fetchAllServices: () => void,
+  fetchSubServices: (id: string) => void,
+
+  recoverPage: (id: string) => void,
+  recoverServices: (id: string) => void,
+  recoverSubServices: (id: string, serviceId: string) => void,
+  fetchSubServicesTotal: (id: string) => void,
+  deletePage: (id: string) => void,
+  deleteServices: (id: string) => void,
+  deleteSubServices: (id: string, serviceId: string) => void,
+  pageNo: number,
+  setPageNo: (num: number) => void,
+  servicePageNo: number,
+  setServicePageNo: (num: number) => void,
+  subServicePageNo: number,
+  setSubServicePageNo: (num: number) => void,
+  caseStudyPageNo: number, 
+  setCaseStudyPageNo: (num: number) => void,
+}
+
+
+export interface UserContextType {
+  user: UserProfile;
+  subscribers: UserProfile[];
+  contributors: UserProfile[];
+  moderators: UserProfile[];
+
+  adminData: UserProfile[];
+
+  storeUser: UserProfile[];
+  vendor: UserProfile[];
+  storeModerator: UserProfile[];
+
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  fetchUsers: (role: string) => Promise<void>;
+  fetchAdmins: () => Promise<void>;
+  fetchStoreRole: (storeRole: string) => Promise<void>;
+  changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
+  changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
+  getUserProfile: () => Promise<void>;
+  setUser: (user: UserProfile) => void;
+  blockUser: (userId: string, role: string) => Promise<void>;
+  unblockUser: (userId: string, role: string) => Promise<void>;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  website: any;
+  websiteKey: string;
+  setWebsiteKey: (key: string) => void;
+  websiteData: any[];
+  setWebsiteData: (data: any[]) => void;
+  userPageNo: number;
+  setUserPageNo: (num: number) => void;
+  adminPageNo: number; 
+  setAdminPageNo: (num: number) => void;
+};

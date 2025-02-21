@@ -1,4 +1,4 @@
-import { IsEnum, IsMongoId, IsOptional } from "class-validator";
+import { IsEnum, IsMongoId, IsOptional, IsString } from "class-validator";
 import { OrderStatusEnum } from "../schema/order.schema";
 
 
@@ -7,7 +7,7 @@ export class GetOrderQuery {
     @IsOptional()
     status: OrderStatusEnum
 
-    @IsMongoId()
     @IsOptional()
-    lastId: string
+    @IsString()
+    page: string
 }

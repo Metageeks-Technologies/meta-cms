@@ -6,27 +6,32 @@ import React, { useEffect, useState } from 'react'
 import { aboutCard } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import axios from 'axios';
-import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useUserContext } from '@/context/userContext';
+import { list } from 'postcss';
+import { useParams, useRouter } from 'next/navigation';
+
 
 
 const EditCaseStudy = () => {
 
-     const params = useParams();
-        const slug = params.slug;
-
     const [formData, setFormData] = useState<caseStudyContent>(INITIAL_CASESTUDY_CONTENT);
+    const { setLoading, websiteKey } = useUserContext();
+    const router = useRouter();
 
+
+    const params = useParams();
+    const slug = params.slug;
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
         if (id === 'slug') {
             const cleanedValue = value
-                .toLowerCase()              
-                .replace(/[^a-z0-9-]/g, ''); 
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, '');
 
             setFormData((prev) => ({
                 ...prev,
-                [id]: cleanedValue,  
+                [id]: cleanedValue,
             }));
         } else {
             setFormData((prev) => ({
@@ -46,9 +51,9 @@ const EditCaseStudy = () => {
             ...prev,
             content: {
                 ...prev.content,
-                about: {
+                aboutSection: {
                     ...prev.content.aboutSection,
-                    aboutCards: [...prev.content.aboutSection.aboutCards, newCard]
+                    aboutCards: [...prev.content.aboutSection.cards, newCard]
                 }
             }
         }));
@@ -63,9 +68,9 @@ const EditCaseStudy = () => {
             ...prev,
             content: {
                 ...prev.content,
-                challange: {
+                challengesSection: {
                     ...prev.content.challengesSection,
-                    StudyChallangeList: [...prev.content.challengesSection.StudyChallangeList, newCard]
+                    cards: [...prev.content.challengesSection.cards, newCard]
                 }
             }
         }));
@@ -74,19 +79,19 @@ const EditCaseStudy = () => {
 
     const removeCard = (
         index: number,
-        section: 'about' | 'processSection' | 'challange'
+        section: 'aboutSection' | 'processSection' | 'challengesSection'
     ) => {
         let updatedCards: any;
 
-        if (section === 'about') {
-            updatedCards = formData.content.aboutSection.aboutCards.filter(
+        if (section === 'aboutSection') {
+            updatedCards = formData.content.aboutSection.cards.filter(
                 (_, i) => i !== index
             );
             setFormData((prev) => ({
                 ...prev,
                 content: {
                     ...prev.content,
-                    about: {
+                    aboutSection: {
                         ...prev.content.aboutSection,
                         aboutCards: updatedCards,  // Correctly update aboutCards
                     },
@@ -106,17 +111,17 @@ const EditCaseStudy = () => {
                     },
                 },
             }));
-        } else if (section === 'challange') {
-            updatedCards = formData.content.challengesSection.StudyChallangeList.filter(
+        } else if (section === 'challengesSection') {
+            updatedCards = formData.content.challengesSection.cards.filter(
                 (_, i) => i !== index
             );
             setFormData((prev) => ({
                 ...prev,
                 content: {
                     ...prev.content,
-                    challange: {
+                    challengesSection: {
                         ...prev.content.challengesSection,
-                        StudyChallangeList: updatedCards,  // Correctly update StudyChallangeList
+                        cards: updatedCards,  // Correctly update StudyChallangeList
                     },
                 },
             }));
@@ -125,10 +130,7 @@ const EditCaseStudy = () => {
 
     const addListItem = (cardIndex: number, section: 'processSection') => {
         if (section === 'processSection') {
-            // Create a new empty list item with an empty string or a default value
-            const newListItem = { list: '' };
-    
-            // Update the cardList by adding the new list item to the correct card
+            const newListItem: string = "";
             setFormData((prev) => ({
                 ...prev,
                 content: {
@@ -137,23 +139,25 @@ const EditCaseStudy = () => {
                         ...prev.content.processSection,
                         cards: prev.content.processSection.cards.map((card, index) =>
                             index === cardIndex
-                                ? { 
-                                    ...card, 
-                                    cardList: [...card.cardList, newListItem] // Add the new list item only to the selected card
+                                ? {
+                                    ...card,
+                                    list: [...card.list, newListItem]
                                 }
-                                : card // Keep the rest of the cards unchanged
+                                : card
                         ),
                     },
                 },
             }));
         }
     };
-    
+
+
+
 
     const processaddCard = () => {
         const newCard = {
-            heading: '', // Default heading
-            cardList: [{ list: '' }] // Default cardList with one empty list item
+            heading: '',
+            list: []
         };
 
         setFormData((prev) => ({
@@ -173,7 +177,7 @@ const EditCaseStudy = () => {
         let updatedList: any;
 
         if (section === 'processSection') {
-            updatedList = formData.content.processSection.cards[cardIndex].cardList.filter(
+            updatedList = formData.content.processSection.cards[cardIndex].list.filter(
                 (_, i) => i !== listIndex
             );
             setFormData((prev) => ({
@@ -183,7 +187,7 @@ const EditCaseStudy = () => {
                     processSection: {
                         ...prev.content.processSection,
                         cards: prev.content.processSection.cards.map((card, index) =>
-                            index === cardIndex ? { ...card, cardList: updatedList } : card
+                            index === cardIndex ? { ...card, list: updatedList } : card
                         ),
                     },
                 },
@@ -194,78 +198,65 @@ const EditCaseStudy = () => {
 
     const handleImageChange = async (
         e: React.ChangeEvent<HTMLInputElement>,
-        section: 'heroSection' | 'uiSection1' | 'serviceSection' | 'uiSection2',
+        section: 'heroSection' | 'uiSection' | 'serviceSection' | 'uiSection2',
         index?: number
     ) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const payload = {
-                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CASESTUDIES,
-                fileName: file.name,
-                contentType: file.type
-            };
-    
-            try {
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
-                if (resp.status === 200 || resp.status === 201) {
-                    const response = await axios.put(resp?.data?.uploadUrl, file);
-                    if (response.status === 200 || response.status === 201) {
-                        const imageKey = resp?.data?.key;
-    
-                        // Update imageKey based on section
+        if (!e.target.files || e.target.files.length === 0) return; // Fallback if no files are selected
+        const file = e.target.files[0];
+
+        const payload = {
+            folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CASESTUDIES,
+            fileName: file.name,
+            contentType: file.type,
+        };
+
+        try {
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
+
+            if (resp.status === 200 || resp.status === 201) {
+                const response = await axios.put(resp?.data?.uploadUrl, file);
+                if (response.status === 200 || response.status === 201) {
+                    const imageKey = resp?.data?.key;
+
+                    // Ensure formData is updated correctly for the selected section
+                    setFormData((prev) => {
+                        const updatedContent = { ...prev.content };
+
                         if (section === 'heroSection') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    caseheroSection: {
-                                        ...prev.content.heroSection,
-                                        imageKey
-                                    }
-                                }
-                            }));
-                        } else if (section === 'uiSection1') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    contentImage: imageKey // Just assign the imageKey directly
-                                }
-                            }));
+                            updatedContent.heroSection = {
+                                ...updatedContent.heroSection,
+                                imageKey
+                            };
+                        } else if (section === 'uiSection') {
+                            updatedContent.uiSection = {
+                                ...updatedContent.uiSection,
+                                imageKey
+                            };
                         } else if (section === 'serviceSection') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    serviceSection: {
-                                        ...prev.content.serviceSection,
-                                        imageKey
-                                    }
-                                }
-                            }));
+                            updatedContent.serviceSection = {
+                                ...updatedContent.serviceSection,
+                                imageKey
+                            };
                         } else if (section === 'uiSection2') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    websiteUI: {
-                                        ...prev.content.uiSection2,
-                                        imageKey
-                                    }
-                                }
-                            }));
+                            updatedContent.uiSection2 = {
+                                ...updatedContent.uiSection2,
+                                imageKey
+                            };
                         }
-                    }
-                } else {
-                    toast.error(resp?.data?.message, { duration: 2000 });
+
+                        return { ...prev, content: updatedContent };
+                    });
                 }
-            } catch (error) {
-                console.log(error);
-                toast.error('Failed to upload the image', { duration: 2000 });
+            } else {
+                toast.error(resp?.data?.message || 'Failed to get upload URL', { duration: 2000 });
             }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            toast.error('Failed to upload the image', { duration: 2000 });
         }
     };
-    
+
+
 
     const handleSectionChange = (
         section: 'heroSection' | 'aboutSection' | 'serviceSection' | 'processSection' | 'uiSection2' | 'challengesSection',
@@ -296,7 +287,7 @@ const EditCaseStudy = () => {
 
         if (section === 'aboutSection') {
             // Handling the `aboutCards` array inside `about`
-            updatedCards = [...formData.content.aboutSection.aboutCards];
+            updatedCards = [...formData.content.aboutSection.cards];
             updatedCards[index] = {
                 ...updatedCards[index],
                 [field]: value
@@ -305,29 +296,29 @@ const EditCaseStudy = () => {
                 ...prev,
                 content: {
                     ...prev.content,
-                    about: {
+                    aboutSection: {
                         ...prev.content.aboutSection,
-                        aboutCards: updatedCards
+                        cards: updatedCards
                     }
                 }
             }));
         } else if (section === 'processSection') {
             updatedCards = [...formData.content.processSection.cards];
-    
+
             if (field === 'heading') {
                 updatedCards[index] = {
                     ...updatedCards[index],
-                    heading: value 
+                    heading: value
                 };
             } else if (field === 'list') {
                 updatedCards[index] = {
                     ...updatedCards[index],
-                    cardList: updatedCards[index].cardList.map((item: any, cardIndex: number) =>
-                        cardIndex === index ? { ...item, list: value } : item 
+                    list: updatedCards[index].list.map((item: any, cardIndex: number) =>
+                        cardIndex === index ? { ...item, list: value } : item
                     )
                 };
             }
-    
+
             setFormData((prev) => ({
                 ...prev,
                 content: {
@@ -338,8 +329,8 @@ const EditCaseStudy = () => {
                     }
                 }
             }));
-        }  else if (section === 'challengesSection') {
-            updatedList = [...formData.content.challengesSection.StudyChallangeList];
+        } else if (section === 'challengesSection') {
+            updatedList = [...formData.content.challengesSection.cards];
             updatedList[index] = {
                 ...updatedList[index],
                 [field]: value
@@ -348,49 +339,47 @@ const EditCaseStudy = () => {
                 ...prev,
                 content: {
                     ...prev.content,
-                    challange: {
+                    challengesSection: {  // Corrected this key
                         ...prev.content.challengesSection,
-                        StudyChallangeList: updatedList
+                        cards: updatedList
                     }
                 }
             }));
         }
     };
 
-    const handleListItemChange = (
-        cardIndex: number,
-        listIndex: number,
-        value: string
-    ) => {
+
+    const handleListItemChange = (cardIndex: number, listIndex: number, value: string) => {
         setFormData((prev) => ({
             ...prev,
             content: {
                 ...prev.content,
                 processSection: {
                     ...prev.content.processSection,
-                    cards: prev.content.processSection.cards.map((card, index) => {
-                        if (index === cardIndex) {
-                            const updatedCardList = card.cardList.map((listItem, listItemIndex) => {
-                                if (listItemIndex === listIndex) {
-                                    return { ...listItem, list: value };  // Update the specific list item
-                                }
-                                return listItem; // Keep other list items unchanged
-                            });
-                            return { ...card, cardList: updatedCardList };  // Update the card with modified cardList
-                        }
-                        return card;  // Keep other cards unchanged
-                    }),
+                    cards: prev.content.processSection.cards.map((card, index) =>
+                        index === cardIndex
+                            ? {
+                                ...card,
+                                list: card.list.map((item, listIdx) =>
+                                    listIdx === listIndex
+                                        ? value // Set the value directly as a string
+                                        : item
+                                ),
+                            }
+                            : card
+                    ),
                 },
             },
         }));
     };
 
 
+
     const generateSlug = (title: string) => {
         return title
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
-            .replace(/(^-|-$)+/g, '');     // Remove leading/trailing hyphens
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
     };
 
     useEffect(() => {
@@ -409,9 +398,85 @@ const EditCaseStudy = () => {
         }
     }, [formData.title]);
 
+
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
+        setLoading(true);
+        try {
+
+            const payload = {
+                title: formData.title,
+                slug: formData.slug,
+                service: formData.content.heroSection,
+                subService: formData.content.aboutSection,
+                content: formData.content.uiSection,
+                metaTitle: formData.content.processSection,
+                metaDescription: formData.content.uiSection2,
+                keywords: formData.content.challengesSection
+            };
+
+            const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${formData._id}`, payload, { websiteKey });
+
+            if (resp.status === 200 || resp.status === 201) {
+                toast.success(resp.data.message, { duration: 2000 });
+
+
+                setLoading(false);
+
+
+                const fetchUpdatedCaseStudy = async () => {
+                    const pageResp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${formData.slug}`, undefined, { websiteKey });
+
+                    if (pageResp.status === 200) {
+
+                        router.push(`/caseStudy/${formData.slug}`);
+                    } else {
+                        router.push('/allCaseStudy');
+                    }
+                };
+
+                fetchUpdatedCaseStudy();
+            } else {
+                toast.error(resp?.data?.message || 'Failed to update page', { duration: 2000 });
+            }
+        } catch (error) {
+            console.error("Error during page update:", error);
+            toast.error("An error occurred while updating the page.", { duration: 2000 });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const fetchCaseStudy = async () => {
+        setLoading(true);
+        try {
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${slug}`, undefined, { websiteKey });
+
+            if (resp.status === 200 || resp.status === 201) {
+                setFormData(resp?.data);
+            } else {
+                toast.error(resp.data.message, {
+                    duration: 2000,
+                });
+            }
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (websiteKey) fetchCaseStudy();
+    }, [websiteKey]);
+
+
     return (
         <div className="min-h-screen mt-10 text-white px-6 sm:px-8 md:px-12 lg:px-16">
-            <form >
+            <form onSubmit={handleSubmit}>
                 <label className="w-full flex flex-col gap-2 mb-5">
                     <span>Title</span>
                     <input
@@ -486,7 +551,7 @@ const EditCaseStudy = () => {
                                 type="text"
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
+                                placeholder="Enter Heading"
                                 value={formData.content.aboutSection.heading}
                                 onChange={(e) => handleSectionChange('aboutSection', 'heading', e.target.value)}
                                 required
@@ -509,14 +574,14 @@ const EditCaseStudy = () => {
                             />
                         </div>
                         {/* Cards Section */}
-                        {formData.content.aboutSection.aboutCards.map((card, index) => (
+                        {formData.content.aboutSection.cards.map((card, index) => (
                             <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
                                 <button
                                     type="button"
                                     className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'about')}
+                                    onClick={() => removeCard(index, 'aboutSection')}
                                 >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
+                                    <span className="text-xl">×</span>
                                 </button>
                                 <div className="mb-4">
                                     <p className='mb-2 text-lg'>Card-{index + 1}</p>
@@ -574,9 +639,9 @@ const EditCaseStudy = () => {
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
                                 htmlFor="contentImage"
                             >
-                                {formData.content.uiSection1 ? (
+                                {formData.content.uiSection.imageKey ? (
                                     <img
-                                        src={getURL(formData.content.uiSection1)}
+                                        src={getURL(formData.content.uiSection.imageKey)}
                                         alt="Preview"
                                         className="object-contain w-full h-full rounded-lg"
                                     />
@@ -588,7 +653,7 @@ const EditCaseStudy = () => {
                                 type="file"
                                 id="contentImage"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'uiSection1')}
+                                onChange={(e) => handleImageChange(e, 'uiSection')}
 
 
                             />
@@ -599,6 +664,38 @@ const EditCaseStudy = () => {
                 <label className="block text-white mb-5">
                     <span className='text-xl'>Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
+
+
+                        <div className="mb-4">
+                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                                Heading
+                            </label>
+                            <input
+                                type="text"
+                                id="heading"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter  Heading"
+                                value={formData.content.serviceSection.heading}
+                                onChange={(e) => handleSectionChange('serviceSection', 'heading', e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Description"
+                                value={formData.content.serviceSection.description}
+                                onChange={(e) => handleSectionChange('serviceSection', 'description', e.target.value)}
+                                rows={4}
+                                required
+                            />
+                        </div>
+
                         {/* Image Upload */}
                         <div className="mb-6">
                             <label className="block text-gray-300 mb-2">Upload Image</label>
@@ -626,6 +723,13 @@ const EditCaseStudy = () => {
                             />
                         </div>
 
+
+                    </div>
+                </label>
+
+                <label className="block text-white mb-5">
+                    <span className="text-xl">Process Section</span>
+                    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
                             <label htmlFor="heading" className="block text-gray-300 mb-2">
                                 Heading
@@ -634,125 +738,86 @@ const EditCaseStudy = () => {
                                 type="text"
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
-                                value={formData.content.serviceSection.heading}
-                                onChange={(e) => handleSectionChange('serviceSection', 'heading', e.target.value)}
+                                placeholder="Enter  Heading"
+                                value={formData.content.processSection.heading}
+                                onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
                                 required
                             />
                         </div>
+                        {/* Cards Section */}
+                        {formData.content.processSection.cards.map((card, index) => (
+                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
+                                {/* Remove the card from processSection */}
+                                <button
+                                    type="button"
+                                    className="absolute top-2 right-2 text-red-500"
+                                    onClick={() => removeCard(index, 'processSection')}
+                                >
+                                    <span className="text-xl">×</span>
+                                </button>
 
-                        <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
-                                Description
-                            </label>
-                            <textarea
-                                id="description"
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Description"
-                                value={formData.content.serviceSection.description}
-                                onChange={(e) => handleSectionChange('serviceSection', 'description', e.target.value)}
-                                rows={4}
-                                required
-                            />
-                        </div>
+                                <div className="mb-4">
+                                    <p className="mb-2 text-lg">Card-{index + 1}</p>
+                                    <label htmlFor={`card-heading-${index}`} className="block text-gray-300 mb-2">
+                                        Heading
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id={`card-heading-${index}`}
+                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Enter Heading"
+                                        value={card.heading}
+                                        onChange={(e) => handleCardChange(index, 'processSection', 'heading', e.target.value)}
+                                        required
+                                    />
+                                </div>
 
+                                {/* List section for cardList */}
+                                <div className="mb-4">
+                                    <label htmlFor={`card-list-${index}`} className="block text-gray-300 mb-2">
+                                        List
+                                    </label>
+                                    {/* Only map over the current card's cardList */}
+                                    {card.list.map((listItem, listIndex) => (
+                                        <div key={listIndex} className="flex items-center justify-between mb-2">
+                                            <input
+                                                type="text"
+                                                id={`card-list-${index}-${listIndex}`}
+                                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                placeholder="Enter List Item"
+                                                value={listItem}
+                                                onChange={(e) => handleListItemChange(index, listIndex, e.target.value)}
+                                                required
+                                            />
+                                            <button
+                                                type="button"
+                                                className="ml-2 text-red-500"
+                                                onClick={() => removeListItem(index, listIndex, 'processSection')}
+                                            >
+                                                <span className="text-xl">×</span>
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        className="mt-2 text-blue-500"
+                                        onClick={() => addListItem(index, 'processSection')}
+                                    >
+                                        Add Item
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
 
+                        <button
+                            type="button"
+                            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                            onClick={processaddCard}
+                        >
+                            Add More
+                        </button>
                     </div>
                 </label>
-
-                <label className="block text-white mb-5">
-    <span className="text-xl">Process Section</span>
-    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-        <div className="mb-4">
-            <label htmlFor="heading" className="block text-gray-300 mb-2">
-                Heading
-            </label>
-            <input
-                type="text"
-                id="heading"
-                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter Sub Heading"
-                value={formData.content.processSection.heading}
-                onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
-                required
-            />
-        </div>
-        {/* Cards Section */}
-        {formData.content.processSection.cards.map((card, index) => (
-            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                {/* Remove the card from processSection */}
-                <button
-                    type="button"
-                    className="absolute top-2 right-2 text-red-500"
-                    onClick={() => removeCard(index, 'processSection')} // Remove card logic
-                >
-                    <span className="text-xl">×</span> {/* "×" is the close icon */}
-                </button>
-
-                <div className="mb-4">
-                    <p className="mb-2 text-lg">Card-{index + 1}</p>
-                    <label htmlFor={`card-heading-${index}`} className="block text-gray-300 mb-2">
-                        Heading
-                    </label>
-                    <input
-                        type="text"
-                        id={`card-heading-${index}`}
-                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter Heading"
-                        value={card.heading}
-                        // Handle heading change here
-                        onChange={(e) => handleCardChange(index, 'processSection', 'heading', e.target.value)}
-                        required
-                    />
-                </div>
-
-                {/* List section for cardList */}
-                <div className="mb-4">
-                    <label htmlFor={`card-list-${index}`} className="block text-gray-300 mb-2">
-                        List
-                    </label>
-                    {/* Only map over the current card's cardList */}
-                    {card.cardList.map((listItem, listIndex) => (
-                        <div key={listIndex} className="flex items-center justify-between mb-2">
-                            <input
-                                type="text"
-                                id={`card-list-${index}-${listIndex}`}
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter List Item"
-                                value={listItem.list}
-                                onChange={(e) => handleListItemChange(index, listIndex, e.target.value)} // Handle list item change
-                                required
-                            />
-                            <button
-                                type="button"
-                                className="ml-2 text-red-500"
-                                onClick={() => removeListItem(index, listIndex, 'processSection')} // Remove list item logic
-                            >
-                                <span className="text-xl">×</span>
-                            </button>
-                        </div>
-                    ))}
-                    {/* Add new list item button for the current card */}
-                    <button
-                        type="button"
-                        className="mt-2 text-blue-500"
-                        onClick={() => addListItem(index, 'processSection')} // Add list item logic
-                    >
-                        Add Item
-                    </button>
-                </div>
-            </div>
-        ))}
-
-        <button
-            type="button"
-            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-            onClick={processaddCard}
-        >
-            Add More
-        </button>
-    </div>
-</label>
 
 
 
@@ -767,7 +832,7 @@ const EditCaseStudy = () => {
                                 type="text"
                                 id="Heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
+                                placeholder="Enter  Heading"
                                 value={formData.content.uiSection2.heading}
                                 onChange={(e) => handleSectionChange('uiSection2', 'heading', e.target.value)}
                                 required
@@ -815,7 +880,7 @@ const EditCaseStudy = () => {
                                 type="text"
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter Sub Heading"
+                                placeholder="Enter  Heading"
                                 value={formData.content.challengesSection.heading}
                                 onChange={(e) => handleSectionChange('challengesSection', 'heading', e.target.value)}
 
@@ -839,14 +904,14 @@ const EditCaseStudy = () => {
                             />
                         </div>
                         {/* Cards Section */}
-                        {formData.content.challengesSection.StudyChallangeList.map((card, index) => (
+                        {formData.content.challengesSection.cards.map((card, index) => (
                             <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
                                 <button
                                     type="button"
                                     className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'challange')} // This will now correctly remove the card from the challange section
+                                    onClick={() => removeCard(index, 'challengesSection')}
                                 >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
+                                    <span className="text-xl">×</span>
                                 </button>
                                 <div className="mb-4">
                                     <p className='mb-2 text-lg'>Card-{index + 1}</p>
@@ -888,7 +953,6 @@ const EditCaseStudy = () => {
                         >
                             Add More
                         </button>
-
                     </div>
                 </label>
 
@@ -896,7 +960,7 @@ const EditCaseStudy = () => {
                     type="submit"
                     className="px-6 py-3 mb-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
-                    Update Page
+                    Edit CaseStudy
                 </button>
 
             </form>

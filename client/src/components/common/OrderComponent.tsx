@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 const OrderComponent = ({user} : any) => {
 
-    const { setLoading } = useUserContext()
+    const { setLoading,websiteKey } = useUserContext()
 
     const [orders, setOrders] = useState([]);
 
@@ -15,7 +15,7 @@ const OrderComponent = ({user} : any) => {
         if (!user?._id) return;
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/${user._id}`)
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/${user._id}`,undefined,{websiteKey})
 
 
             if (resp.status === 200 || resp.status === 201) {

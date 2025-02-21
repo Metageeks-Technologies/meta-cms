@@ -3,8 +3,8 @@ import { caseStudyContent } from "@/types";
 export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
   title: '',
   slug: '',
-  website: '',
-  service: '',
+  // website: '',
+  // service: '',
   content: {
     heroSection: {
       imageKey: null,
@@ -12,14 +12,16 @@ export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
     aboutSection: {
       heading: '',
       description: '',
-      aboutCards: [
+      cards: [
         {
           heading: '',
           description: ''
         }
       ]
     },
-    uiSection1: null,
+    uiSection: {
+      imageKey:null
+    },
     serviceSection: {
       imageKey: null,
       heading: '',
@@ -30,11 +32,7 @@ export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
       cards: [
         {
           heading: '',
-          cardList: [
-            {
-              list: ''
-            }
-          ]
+          list: []
         }
       ]
     },
@@ -45,7 +43,7 @@ export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
     challengesSection: {
       heading: '',
       description: '',
-      StudyChallangeList: [
+      cards: [
         {
           heading: '',
           description: ''

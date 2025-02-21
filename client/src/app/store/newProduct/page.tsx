@@ -27,7 +27,7 @@ const CreateProduct: React.FC = () => {
   ]);
   const editorRef = useRef<any>(null);
 
-  const { setLoading, user } = useUserContext();
+  const { setLoading, user ,websiteKey} = useUserContext();
 
   const [categoryArr, setCategoryArr] = useState([]);
   const [websiteArr, setWebsiteArr] = useState([]);
@@ -42,7 +42,6 @@ const CreateProduct: React.FC = () => {
     brand: '',
     status: 'draft',
     publishDate: null,
-
     attributes: {},
     variants: [],
   });
@@ -51,7 +50,7 @@ const CreateProduct: React.FC = () => {
   const fetchCategory = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey});
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
@@ -68,7 +67,7 @@ const CreateProduct: React.FC = () => {
   const fetchWebsites = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`,undefined,{websiteKey});
       if (resp.status === 200 || resp.status === 201) {
         setWebsiteArr(resp?.data);
       } else {
@@ -192,7 +191,7 @@ const CreateProduct: React.FC = () => {
             contentType: file.type,
           };
 
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
 
           if (resp.status === 200 || resp.status === 201) {
             const uploadUrl = resp?.data?.uploadUrl;
@@ -244,7 +243,7 @@ const CreateProduct: React.FC = () => {
     description: string;
     category: string;
     status: string;
-    website: string;
+    // website: string;
     brand: string;
     attributes: ProductAttribute;
     publishedDate?: Date;
@@ -293,13 +292,13 @@ const CreateProduct: React.FC = () => {
         category: formData.category,
         brand: formData.brand,
         status: formData.status,
-        website: formData.website,
+        // website: formData.website,
         ...(formData.publishDate && { publishedDate: formData.publishDate }),
         attributes: formData.attributes,
         variants: formData.variants,
       };
 
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products`, payload);
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products`, payload,{websiteKey});
 
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
@@ -586,7 +585,7 @@ const CreateProduct: React.FC = () => {
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label htmlFor="website" className="text-white">Website</label>
             <select
               id="website"
@@ -604,7 +603,7 @@ const CreateProduct: React.FC = () => {
                 ))
               }
             </select>
-          </div>
+          </div> */}
 
           {/* {productStatus === "SCHEDULED" && (
             <div>

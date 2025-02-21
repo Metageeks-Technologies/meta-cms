@@ -47,6 +47,7 @@ import { FaClockRotateLeft } from "react-icons/fa6";
 import { VscPreview } from "react-icons/vsc";
 import { usePageContext } from "@/context/pageContext"
 import { useUserContext } from "@/context/userContext"
+import { userRoles } from "@/constant/user"
 
 
 
@@ -71,19 +72,20 @@ const columns = [
     header: "Status",
     cell: ({ row }: any) => {
       const isDeleted = row.getValue("isDeleted")
-      return <div>{isDeleted? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
+      return <div>{isDeleted ? <span className="text-red-500">InActive</span> : <span className="text-green-500">Active</span>}</div>
     },
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
       const page = row.original;
       const [clickedItem, setClickedItem] = useState(0);
       const router = useRouter();
-      const {recoverPage, deletePage} = usePageContext();
-      
+      const { recoverPage, deletePage } = usePageContext();
+
 
       return (
         <AlertDialog>
@@ -95,8 +97,6 @@ const columns = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-800" />
 
               <DropdownMenuItem onClick={() => router.push(`page/${page.slug}`)} className="cursor-pointer px-3">
                 <VscPreview /> Preview Page
@@ -160,12 +160,12 @@ const page = () => {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const {websiteKey} = useUserContext();
-  const { pageData, fetchPageData } = usePageContext();
+  const { user, websiteKey } = useUserContext();
+  const { pageData, fetchPageData, pageNo, setPageNo } = usePageContext();
 
   useEffect(() => {
-    if(websiteKey) fetchPageData();
-  }, [websiteKey])
+    if (websiteKey) fetchPageData();
+  }, [websiteKey, pageNo])
 
 
   const table = useReactTable({
@@ -261,21 +261,22 @@ const page = () => {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setPageNo(pageNo - 1)}
+            disabled={pageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{pageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setPageNo(pageNo + 1)}
+            disabled={pageData.length < 10}
             className="text-black font-bold"
           >
             Next

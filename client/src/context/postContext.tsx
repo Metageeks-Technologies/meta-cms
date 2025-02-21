@@ -27,10 +27,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const [hasMoreMedia, setHasMoreMedia] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
 
+    const [categoryPageNo, setCategoryPageNo] = useState(1);
+
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories`, undefined, { websiteKey })
+            const param = new URLSearchParams();
+            param.append('page', categoryPageNo.toString());
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories?${param.toString()}`, undefined, { websiteKey })
             if (resp?.status === 200 || resp?.status === 201) {
                 setCategeories(resp?.data);
             } else {
@@ -45,23 +49,23 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const fetchProductCategories = async () => {
-        setLoading(true);
-        try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`)
-            if (resp?.status === 200 || resp?.status === 201) {
-                setProductCategories(resp?.data);
-            } else {
-                toast.error(resp?.data?.message, {
-                    duration: 2000,
-                });
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
-        }
-    }
+    // const fetchProductCategories = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey})
+    //         if (resp?.status === 200 || resp?.status === 201) {
+    //             setProductCategories(resp?.data);
+    //         } else {
+    //             toast.error(resp?.data?.message, {
+    //                 duration: 2000,
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }
 
     const deleteCategory = async (id: string) => {
         setLoading(true);
@@ -86,27 +90,27 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
 
-    const deleteProductCategory = async (id: string) => {
-        setLoading(true);
-        try {
-            const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${id}`, undefined, { websiteKey });
+    // const deleteProductCategory = async (id: string) => {
+    //     setLoading(true);
+    //     try {
+    //         const resp = await axiosCall('delete', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/${id}`, undefined, { websiteKey });
 
-            if (resp.status === 200 || resp?.status === 201) {
-                toast.success(resp?.data?.message, {
-                    duration: 2000,
-                });
-                fetchProductCategories();
-            } else {
-                toast.error(resp?.data?.message, {
-                    duration: 2000,
-                });
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
-        }
-    }
+    //         if (resp.status === 200 || resp?.status === 201) {
+    //             toast.success(resp?.data?.message, {
+    //                 duration: 2000,
+    //             });
+    //             fetchProductCategories();
+    //         } else {
+    //             toast.error(resp?.data?.message, {
+    //                 duration: 2000,
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }
 
     const fetchMedia = async (lastId: string) => {
         if (isFetching) return;
@@ -153,8 +157,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         setSelectedCategory,
         selectedProductCategory,
         setSelectedProductCategory,
-        fetchProductCategories,
-        deleteProductCategory,
+        // fetchProductCategories,
+        // deleteProductCategory,
+        categoryPageNo,
+        setCategoryPageNo
     }
 
     return (

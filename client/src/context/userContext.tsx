@@ -3,40 +3,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import axiosCall from '@/utils/ApiCall';
-import { UserProfile } from '@/types';
+import { UserContextType, UserProfile } from '@/types';
 import { INITIAL_USER, userRoles } from '@/constant/user';
 import { StoreRole } from '@/constant/store';
-interface UserContextType {
-    user: UserProfile;
-    subscribers: UserProfile[];
-    contributors: UserProfile[];
-    moderators: UserProfile[];
-    
-    adminData: UserProfile[];
-
-    storeUser: UserProfile[];
-    vendor: UserProfile[];
-    storeModerator: UserProfile[];
-
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    fetchUsers: (role: string) => Promise<void>;
-    fetchAdmins: () => Promise<void>;
-    fetchStoreRole: (storeRole: string) => Promise<void>;
-    changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
-    changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
-    getUserProfile: () => Promise<void>;
-    setUser: (user: UserProfile) => void;
-    blockUser: (userId: string,role:string) => Promise<void>;
-    unblockUser: (userId: string,role:string) => Promise<void>;
-    loading: boolean;
-    setLoading: (loading: boolean) => void;
-    website: any;
-    websiteKey: string;
-    setWebsiteKey: (key: string) => void;
-    websiteData: any[];
-    setWebsiteData: (data: any[]) => void;
-};
 
 // Context Creation
 const UserContext = createContext<UserContextType | null>(null);
@@ -59,18 +28,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [websiteKey, setWebsiteKey] = useState<any>('');
     const [website, setWebsite] = useState<any>();
     const [websiteData, setWebsiteData] = useState<any[]>([]);
+    const [adminData, setAdminData] = useState<any[]>([]);
 
-
-    const [adminData, setAdminData] = useState<any[]>([]); 
+    const [userPageNo, setUserPageNo] = useState(1);
+    const [adminPageNo, setAdminPageNo] = useState(1);
 
 
     // API Calls
     const fetchUsers = async (role: string) => {
         setLoading(true);
         setIsLoading(true);
-
         try {
-            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-user/${role}`, undefined, {websiteKey: websiteKey});
+            const param = new URLSearchParams();
+            param.append('page', userPageNo.toString());
+            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-user/${role}?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
             if (response?.status === 200 || response?.status === 201) {
                 if (role === userRoles.SUBSCRIBER) {
@@ -98,22 +69,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchAdmins = async () => {
         setLoading(true);
         try {
-          const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin`)
-          // console.log(resp.data)
-    
-          if (resp?.status === 200 || resp?.status === 201) {
-            setAdminData(resp?.data);
-          } else {
-            toast.error(resp?.data?.message, {
-              duration: 2000,
-            });
-          }
+            const param = new URLSearchParams()
+            param.append('page', adminPageNo.toString());
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin?${param.toString()}`)
+
+            if (resp?.status === 200 || resp?.status === 201) {
+                setAdminData(resp?.data);
+            } else {
+                toast.error(resp?.data?.message, {
+                    duration: 2000,
+                });
+            }
         } catch (error) {
-          console.log(error);
+            console.log(error);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
 
     const fetchStoreRole = async (storeRole: string) => {
@@ -154,9 +126,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const response = await axiosCall('PUT', `${process.env.NEXT_PUBLIC_BASE_URL}/users/change-role`, {
                 _id: userId,
                 newRole
-            },{websiteKey: websiteKey});
+            }, { websiteKey: websiteKey });
 
-            // console.log(response.data);
 
             if (response.status === 200 || response.status === 201) {
                 await fetchUsers(currentRole); // Refresh the list for the current role
@@ -248,8 +219,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (userData.role === userRoles.SUPERADMIN) {
                 fetchWebsiteData();
-            }else{
-                
+            } else {
+
             }
 
             setIsAuthenticated(true);
@@ -267,9 +238,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         try {
             const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/block/${userId}`, undefined, { websiteKey: websiteKey });
-    
+
             if (response.status === 200) {
-                toast.success(response.data.message);     
+                toast.success(response.data.message);
                 if (role === userRoles.ADMIN) {
                     await fetchAdmins();
                 } else if (role === userRoles.CONTRIBUTOR) {
@@ -294,13 +265,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-    
+
 
     const unblockUser = async (userId: string, role: string) => {
         setLoading(true);
         try {
             const response = await axiosCall('PATCH', `${process.env.NEXT_PUBLIC_BASE_URL}/users/unBlock/${userId}`, undefined, { websiteKey: websiteKey });
-    
+
             if (response.status === 200) {
                 toast.success(response.data.message);
                 if (role === userRoles.ADMIN) {
@@ -327,7 +298,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         }
     };
-    
+
 
 
     useEffect(() => {
@@ -371,7 +342,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         websiteKey,
         setWebsiteKey,
         websiteData,
-        setWebsiteData
+        setWebsiteData,
+        userPageNo,
+        setUserPageNo,
+        adminPageNo, 
+        setAdminPageNo
     };
 
     return (

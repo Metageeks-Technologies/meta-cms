@@ -2,10 +2,10 @@ import { Body, Controller, Get, Headers, Param, Patch, Post, Query, Req, UseGuar
 import { OrderService } from "./order.service";
 import { AuthGuard } from "src/modules/auth/auth.guard";
 import { CreateOrderDto, CreateOrderWithoutPayDto } from "./dto/create-order-dto";
-import { AllowedRoles, AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
-import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { AllowedRoles } from "src/common/decorators/allowed-roles.decorator";
+import { UserRoleEnum } from "src/modules/users/schema/user.schema";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
-import { RolesGuard, StoreRolesGuard } from "src/modules/auth/role.guard";
+import { RolesGuard } from "src/modules/auth/role.guard";
 import { UpdateStatusDto } from "./dto/update-status-dto";
 import { GetOrderQuery } from "./dto/get-order-dto";
 
@@ -98,7 +98,8 @@ export class OrderController {
     }
 
     @Patch('vendor/update-status/:id')
-    @UseGuards(AuthGuard)
+    @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
     async changeOrderStatus(
         @Headers('websiteKey') websiteKey: string,
         @Req() req: Request,

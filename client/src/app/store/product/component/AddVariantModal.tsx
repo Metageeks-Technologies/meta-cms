@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useUserContext } from "@/context/userContext";
 
 interface AddVariantModalProps {
   newVariant: any;
@@ -15,9 +16,13 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
   setNewVariant,
   setIsAddModalOpen,
   handleAddVariant,
+  
 }) => {
   // State to hold image previews
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  
+
+  const {websiteKey}=useUserContext();
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -38,7 +43,7 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
         };
 
         try {
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
           if (resp.status === 200 || resp.status === 201) {
             const uploadUrl = resp?.data?.uploadUrl;
             const key = resp?.data?.key;

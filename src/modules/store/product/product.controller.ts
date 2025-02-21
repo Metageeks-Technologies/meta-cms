@@ -1,15 +1,14 @@
 import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { ProductService } from "./product.service";
-import { AllowedRoles, AllowedStoreRoles } from "src/common/decorators/allowed-roles.decorator";
-import { UserRoleEnum, UserStoreRoleEnum } from "src/modules/users/schema/user.schema";
+import { AllowedRoles } from "src/common/decorators/allowed-roles.decorator";
+import { UserRoleEnum } from "src/modules/users/schema/user.schema";
 import { AuthGuard } from "src/modules/auth/auth.guard";
-import { RolesGuard, StoreRolesGuard } from "src/modules/auth/role.guard";
+import { RolesGuard } from "src/modules/auth/role.guard";
 import { CreateProductDto, CreateVariantDto } from "./dto/create-product-dto";
 import { ValidateId } from "src/common/pipes/validate-id.pipe";
 import { UpdateProductDto, UpdateVariantDto } from "./dto/update-product-dto";
 import { GetProductQueryDto, GetPublicProductQueryDto } from "./dto/get-product-dto";
 import { ProductStatusEnum } from "./schema/product.schema";
-import { query } from "express";
 import { SearchProductQueryDto } from "./dto/search-product-dto";
 
 

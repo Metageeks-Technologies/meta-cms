@@ -31,10 +31,9 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
         setCreateForm({ ...createForm, bannerImageKey: key });
     }
 
-    const [isOpen, setIsOpen] = useState(false);
-
+    const [isOpen, setIsOpen] = useState(false);    
     const { fetchProductCategories } = usePostContext();
-    const { setLoading } = useUserContext();
+    const { setLoading ,websiteKey} = useUserContext();
 
     const handleCreateOrUpdateCategory = async (e: any) => {
         e.preventDefault();
@@ -62,7 +61,7 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
                 bannerImageKey: createForm.bannerImageKey,
             }
 
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`, payload);
+            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`, payload,{websiteKey});
 
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp?.data?.message, { duration: 2000 });
@@ -100,7 +99,7 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
                     contentType: file.type,
                 };
     
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey });
     
                 if (resp.status === 200 || resp.status === 201) {
                     const uploadUrl = resp?.data?.uploadUrl;

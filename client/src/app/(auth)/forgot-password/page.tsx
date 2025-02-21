@@ -16,11 +16,6 @@ const ForgotPasswordPage = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
-    // const [newPassword, setNewPassword] = useState('');
-    //   const [confirmPassword, setConfirmPassword] = useState('');
-    //   const [showNewPassword, setShowNewPassword] = useState(false);
-    //   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
     const [otpTimer, setOtpTimer] = useState(90); 
     const [otpExpired, setOtpExpired] = useState(false);
 

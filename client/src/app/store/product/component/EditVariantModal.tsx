@@ -3,6 +3,7 @@ import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { getURL } from "@/utils/AWS_Config";
+import { useUserContext } from "@/context/userContext";
 interface EditVariantModalProps {
   editedVariant: any;
   setEditedVariant: (variant: any) => void;
@@ -17,6 +18,7 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
   handleSaveEdit,
 }) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const {websiteKey}=useUserContext();
 
   useEffect(() => {
     const loadImagePreviews = async () => {
@@ -66,12 +68,15 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
         contentType: file.type,
       };
       try {
-        const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+        const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
         if (resp.status === 200 || resp.status === 201) {
           const uploadUrl = resp?.data?.uploadUrl;
           const key = resp?.data?.key;
           await axios.put(uploadUrl, file, {
-            headers: { "Content-Type": file.type },
+            headers: { 
+              "Content-Type": file.type,
+              websiteKey: websiteKey
+            },
           });
           const newImageKeys = [...editedVariant.imageKeys];
           newImageKeys[index] = key;

@@ -3,9 +3,10 @@ import { createContext, useContext, useState } from "react";
 import { useUserContext } from "./userContext";
 import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
+import { WebsiteContextTypes } from "@/types";
 
 
-const WebsiteContext = createContext<any>(null);
+const WebsiteContext = createContext<WebsiteContextTypes | null>(null);
 
 
 
@@ -13,6 +14,7 @@ export const WebsiteProvider = ({ children }: any) => {
 
     const { setLoading } = useUserContext();
     const [websiteData, setWebsiteData] = useState([]);
+    const [websitePageNo, setWebsitePageNo] = useState(1);
 
     const deleteWebsite = async (id: string) => {
         setLoading(true);
@@ -74,7 +76,9 @@ export const WebsiteProvider = ({ children }: any) => {
     const fetchWebsiteData = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website/all`)
+            const param = new URLSearchParams();
+            param.append('page', websitePageNo.toString())
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website/all?${param.toString()}`)
 
             if (resp.status === 200 || resp.status === 201) {
                 setWebsiteData(resp?.data);
@@ -90,12 +94,14 @@ export const WebsiteProvider = ({ children }: any) => {
     }
 
 
-    const contextValue: any = {
+    const contextValue: WebsiteContextTypes = {
         deleteWebsite,
         recoverWebsite,
         updateWebsite,
         fetchWebsiteData,
         websiteData,
+        websitePageNo, 
+        setWebsitePageNo
     }
 
 

@@ -1,9 +1,9 @@
 import { Controller, Get, Headers, Req, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
-import { AllowedRoles, AllowedStoreRoles } from 'src/common/decorators/allowed-roles.decorator';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
 import { AuthGuard } from '../auth/auth.guard';
-import { RolesGuard, StoreRolesGuard } from '../auth/role.guard';
-import { UserRoleEnum, UserStoreRoleEnum } from '../users/schema/user.schema';
+import { RolesGuard } from '../auth/role.guard';
+import { UserRoleEnum } from '../users/schema/user.schema';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -29,17 +29,16 @@ export class DashboardController {
   }
 
   @Get('store/admin')
-  @AllowedStoreRoles(UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, StoreRolesGuard)
+  @AllowedRoles(UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   async getStoreAdminDashboard(@Headers('websiteKey') websiteKey: string) {
     const dashboardData = await this.dashboardService.getStoreAdminData(websiteKey);
     return dashboardData;
   }
 
-
   @Get('store/vendor')
-  @AllowedStoreRoles(UserStoreRoleEnum.VENDOR, UserStoreRoleEnum.MODERATOR, UserStoreRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, StoreRolesGuard)
+  @AllowedRoles(UserRoleEnum.CONTRIBUTOR, UserRoleEnum.MODERATOR, UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   async getStoreVendorDashboard(@Headers('websiteKey') websiteKey: string, @Req() req: Request) {
     const user = (req as any).user;
     const dashboardData = await this.dashboardService.getStoreVendorData(websiteKey, user._id);

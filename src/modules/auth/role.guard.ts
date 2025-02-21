@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UsersService } from '../users/users.service';
-import { UserRoleEnum, UserStoreRoleEnum } from '../users/schema/user.schema';
+import { UserRoleEnum } from '../users/schema/user.schema';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -27,25 +27,27 @@ export class RolesGuard implements CanActivate {
 }
 
 
-@Injectable()
-export class StoreRolesGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private userService: UsersService
-  ) { }
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const allowedStoreRoles = this.reflector.get<UserStoreRoleEnum[]>('allowedStoreRoles', context.getHandler());
+// TODO: Remove this part when refactoring
+// @Injectable()
+// export class StoreRolesGuard implements CanActivate {
+//   constructor(
+//     private reflector: Reflector,
+//     private userService: UsersService
+//   ) { }
 
-    // Make sure to provide allowed roles in @AllowedStoreRoles decorator
-    // ohterwise StoreRolesGuard will allow all requests to process
-    if (!allowedStoreRoles) {
-      return true;
-    }
+//   async canActivate(context: ExecutionContext): Promise<boolean> {
+//     const allowedStoreRoles = this.reflector.get<UserStoreRoleEnum[]>('allowedStoreRoles', context.getHandler());
 
-    // Make sure to call AuthGuard before RolesGuard
-    const req = context.switchToHttp().getRequest();
-    req.user.storeRole = await this.userService.getStoreRole(req.user._id);
-    return allowedStoreRoles.includes(req.user.storeRole);
-  }
-}
+//     // Make sure to provide allowed roles in @AllowedStoreRoles decorator
+//     // ohterwise StoreRolesGuard will allow all requests to process
+//     if (!allowedStoreRoles) {
+//       return true;
+//     }
+
+//     // Make sure to call AuthGuard before RolesGuard
+//     const req = context.switchToHttp().getRequest();
+//     req.user.storeRole = await this.userService.getStoreRole(req.user._id);
+//     return allowedStoreRoles.includes(req.user.storeRole);
+//   }
+// }

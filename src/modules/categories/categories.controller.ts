@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -7,6 +7,7 @@ import { UserRoleEnum } from '../users/schema/user.schema';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role.guard';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
+import { CategoryQueryDto } from './dto/get-category-dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -21,8 +22,11 @@ export class CategoriesController {
   }
 
   @Get()
-  async findAll(@Headers('websiteKey') websiteKey: string) {
-    const categories = await this.categoriesService.findAll(websiteKey);
+  async findAll(
+    @Headers('websiteKey') websiteKey: string,
+    @Query() query: CategoryQueryDto
+  ) {
+    const categories = await this.categoriesService.findAll(websiteKey, query.page);
     return categories;
   }
 

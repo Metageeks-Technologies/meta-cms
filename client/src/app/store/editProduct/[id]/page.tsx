@@ -12,6 +12,8 @@ import DatePicker from 'react-datepicker';
 import { FaArrowLeft } from 'react-icons/fa6';
 
 const EditProduct: React.FC = () => {
+        
+    
     const [variantImages, setVariantImages] = useState<{ [key: string]: File[] }>({});
     const [productStatus, setProductStatus] = useState('DRAFT');
     const [attributes, setAttributes] = useState<{ name: string, value: string | number }[]>([{ name: '', value: '' }]); // Add one default attribute
@@ -32,7 +34,7 @@ const EditProduct: React.FC = () => {
     const router = useRouter();
     const id = params.id;
     const [product, setProduct] = useState<ProductTypes | null>(null);
-    const { setLoading, user } = useUserContext();
+    const { setLoading, user,websiteKey } = useUserContext();
     const [websiteArr, setWebsiteArr] = useState([]);
     const [categoryArr, setCategoryArr] = useState([]);
     const [filteredCategoryArr, setFilteredCategoryArr] = useState(categoryArr);
@@ -54,7 +56,7 @@ const EditProduct: React.FC = () => {
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 setCategoryArr(resp?.data);
                 setFilteredCategoryArr(resp?.data);
@@ -71,7 +73,7 @@ const EditProduct: React.FC = () => {
     const fetchWebsites = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`,undefined,{websiteKey});
             if (resp.status === 200 || resp.status === 201) {
                 setWebsiteArr(resp?.data);
             } else {
@@ -107,7 +109,7 @@ const EditProduct: React.FC = () => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`);
+            const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`,undefined,{websiteKey});
 
 
             if (response.status === 200 || response.status === 201) {
@@ -135,9 +137,11 @@ const EditProduct: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchProducts();
-    }, []);
-
+        if (websiteKey) {
+            fetchProducts();
+        }
+    }, [websiteKey]);  
+    
     const addAttribute = () => {
         setAttributes([...attributes, { name: '', value: '' }]);
     };
@@ -226,7 +230,7 @@ const EditProduct: React.FC = () => {
                         contentType: file.type,
                     };
 
-                    const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload);
+                    const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
 
                     if (resp.status === 200 || resp.status === 201) {
                         const uploadUrl = resp?.data?.uploadUrl;
@@ -305,7 +309,7 @@ const EditProduct: React.FC = () => {
                 variants: formData.variants,
             };
 
-            const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${product?._id}`, payload);
+            const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/products/${product?._id}`, payload,{websiteKey});
 
             if (resp.status === 200 || resp.status === 201) {
                 toast.success('Post updated successfully!', { duration: 2000 });
@@ -390,147 +394,7 @@ const EditProduct: React.FC = () => {
                             onInit={(evt, editor) => editorRef.current = editor}
                         />
                     </div>
-                    {/* Dynamic Attributes */}
-                    {/* <div>
-                        <h2>Attributes</h2>
-                        {attributes.map((attribute, index) => (
-                            <div key={index} className="mb-4">
-                                <div className="flex items-center space-x-2">
-                                    <input
-                                        type="text"
-                                        placeholder="Attribute Name "
-                                        value={attribute.name}
-                                        onChange={(e) => handleAttributeChange(index, 'name', e.target.value)}
-                                        className=" px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Value"
-                                        value={attribute.value}
-                                        onChange={(e) => handleAttributeChange(index, 'value', e.target.value)}
-                                        className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                    <button onClick={() => removeAttribute(index)} className="text-red-500 px-2">-</button>
-                                </div>
-                            </div>
-                        ))}
-                        <button onClick={addAttribute} className="bg-blue-600 text-white px-4 py-2 rounded-md">+ Add Attribute</button>
-                    </div> */}
-
-                    {/* Variants */}
-                    {/* <div>
-                        <h2>Variants</h2>
-                        {variants.map((variant, index) => (
-                            <div key={index}>
-                                <div className="flex gap-4 mb-4">
-                                    <input
-                                        type="text"
-                                        placeholder="Variant ID"
-                                        value={variant.variantId}
-                                        onChange={(e) => handleVariantChange(index, 'variantId', e.target.value)}
-                                        className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="SKU"
-                                        value={variant.sku}
-                                        onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
-                                        className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                </div>
-
-                                <div className="flex gap-4 mb-4">
-                                    <input
-                                        type="number"
-                                        placeholder="Price"
-                                        value={variant.price || ""}
-                                        onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
-                                        className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Discount Price"
-                                        value={variant.discountedPrice || ""}
-
-                                        onChange={(e) => handleVariantChange(index, 'discountedPrice', e.target.value)}
-                                        className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                </div>
-
-                                <div className="flex gap-4 mb-4">
-                                    <input
-                                        type="number"
-                                        placeholder="Quantity"
-                                        value={variant.quantity || ""}
-
-                                        onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
-                                        className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Size"
-                                        value={variant.size}
-                                        onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
-                                        className="w-1/2 px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
-                                    />
-                                </div>
-
-
-                                <div className="flex gap-6 mb-6">
-
-                                    <div className="flex flex-col items-center w-1/2">
-                                        <label className="block text-white mb-2">Select Color</label>
-                                        <input
-                                            type="color"
-                                            value={variant.color}
-                                            onChange={(e) => {
-                                                const hexColor = e.target.value;
-                                                if (/^#[0-9A-F]{6}$/i.test(hexColor)) {
-                                                    handleVariantChange(index, 'color', hexColor);
-                                                } else {
-                                                    console.error("Invalid hex color");
-                                                }
-                                            }}
-                                            className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
-                                        />
-
-                                        <div
-                                            className="mt-2 w-12 h-12 border rounded"
-                                            style={{ backgroundColor: variant.color }}
-                                        />
-                                    </div>
-
-
-                                    <div className="flex-1">
-                                        <label className="block text-white mb-2">Variant Images</label>
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*"
-                                            onChange={(e) => handleVariantImageChange(variant.variantId, e)}
-                                            className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white focus:outline-none"
-                                        />
-
-                                        {variantImages[variant.variantId]?.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 mt-2">
-                                                {variantImages[variant.variantId].map((image, idx) => (
-                                                    <img
-                                                        key={idx}
-                                                        src={URL.createObjectURL(image)}
-                                                        alt={`Variant ${idx}`}
-                                                        className="w-32 h-32 object-cover rounded-md shadow-lg"
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
- <button onClick={() => removeVariant(index)} className="text-red-500 px-2">-</button>
-                            </div>
-                        ))}
-                        <button onClick={addVariant} className="bg-blue-600 text-white px-2 py-1 rounded-md mt-4">+ Add Variant</button>
-                    </div> */}
-
+                    
                 </div>
                 {/* Right side (Post status, visibility, category) */}
                 <div className="w-full sm:w-[30%] flex flex-col space-y-4 border-2 border-solid border-gray-900 rounded-lg p-4">
@@ -571,19 +435,7 @@ const EditProduct: React.FC = () => {
                         </select>
                     </div>
 
-                    {/* {productStatus === "SCHEDULED" && (
-                        <div>
-                            <label htmlFor="publishDate" className="text-white block">Publish Date</label>
-                            <DatePicker
-                                selected={formData.publishDate}
-                                onChange={(date: Date | null) => setFormData({ ...formData, publishDate: date })}
-                                minDate={new Date()}
-                                className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
-                                dateFormat="yyyy-MM-dd"
-                                placeholderText="Select a publish date"
-                            />
-                        </div>
-                    )} */}
+                    
                     <div>
                         <label htmlFor="brand" className="text-white block mb-2">Brand</label>
                         <input
@@ -614,7 +466,7 @@ const EditProduct: React.FC = () => {
                 </div>
             </div>
 
-            {/* Create Product Button */}
+            {/* Create Product Button */} 
             <div className="mt-4 flex justify-end">
                 <button
                     onClick={handleEditProduct}

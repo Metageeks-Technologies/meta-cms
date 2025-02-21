@@ -12,6 +12,5 @@ export const INITIAL_STORE_USER = {
     email: '',
     role: '',
     storeRole:''
-
 };
 

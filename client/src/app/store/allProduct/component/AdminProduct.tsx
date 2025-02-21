@@ -11,8 +11,9 @@ import { useProductContext } from '@/context/productContext';
 import { productStatusFilters } from '@/constant/product';
 
 const AdminAllProduct = () => {
-    const { user } = useUserContext();
+    const { user, websiteKey } = useUserContext();
     const { filterBy, sortBy, setFilterBy, setSortBy, selectedCategory, setSelectedCategory } = useProductContext();
+
 
     const [category, setCategory] = useState([]);
     const [productData, setProductData] = useState<any>(null);
@@ -33,42 +34,40 @@ const AdminAllProduct = () => {
             const param = new URLSearchParams();
 
             // Check filter for deleted products
-            if (filterBy) {
-                if (filterBy === 'deleted') {
+            if (filterBy === 'deleted') {
 
-                    param.append('isDeleted', 'true');  // Add isDeleted filter as true
-
-                    if (selectedCategory) {
-                        param.append('categoryId', selectedCategory);  // Add categoryId if selected
-                    }
-                    // Use the new API endpoint for deleted products
-                    const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all/delete?${param.toString()}`);
-                    if (resp.status === 200 || resp.status === 201) {
-                        const deletedProducts = resp?.data;
-                        if (deletedProducts.length < 20) setHasMore(false);
-                        setProductData((prevData: any) => {
-                            const updatedData = [...(prevData || [])];
-                            deletedProducts.forEach((product: any) => {
-                                if (product.isDeleted) {
-                                    if (!updatedData.some((existingProduct: any) => existingProduct._id === product._id)) {
-                                        updatedData.push(product);
-                                    }
-                                }
-                            });
-
-                            return updatedData;
-                        });
-                    } else {
-                        toast.error(resp.data.message, { duration: 2000 });
-                        setHasMore(false);
-                    }
-
-                    return; // Exit early for deleted filter
-                } else if (filterBy !== 'all') {
-                    param.append('status', filterBy.toLowerCase());
-                    param.append('isDeleted', 'false');
+                if (selectedCategory) {
+                    param.append('categoryId', selectedCategory);  // Add categoryId if selected
                 }
+                // Use the new API endpoint for deleted products
+                const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all/delete?${param.toString()}`, undefined, { websiteKey });
+                if (resp.status === 200 || resp.status === 201) {
+                    const deletedProducts = resp?.data;
+                    if (deletedProducts.length < 20) setHasMore(false);
+                    setProductData((prevData: any) => {
+                        const updatedData = [...(prevData || [])];
+                        deletedProducts.forEach((product: any) => {
+                            if (product.isDeleted) {
+                                if (!updatedData.some((existingProduct: any) => existingProduct._id === product._id)) {
+                                    updatedData.push(product);
+                                }
+                            }
+                        });
+
+                        return updatedData;
+                    });
+                } else {
+                    toast.error(resp.data.message, { duration: 2000 });
+                    setHasMore(false);
+                }
+
+                return; // Exit early for deleted filter
             }
+
+            if(filterBy && filterBy !== 'all'){
+                param.append('status', filterBy.toLowerCase());
+            }
+            param.append('isDeleted', 'false');
 
             // Default behavior for active products
             if (sortBy) param.append('sortBy', sortBy);
@@ -76,7 +75,7 @@ const AdminAllProduct = () => {
             if (selectedCategory) param.append('categoryId', selectedCategory);
             if (searchText) param.append('searchQuery', searchText);
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all?${param.toString()}`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/products/all?${param.toString()}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
                 const newProducts = resp?.data;
@@ -106,7 +105,7 @@ const AdminAllProduct = () => {
     const fetchCategory = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`);
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`, undefined, { websiteKey });
             if (resp.status === 200 || resp.status === 201) {
                 setCategory(resp.data);
             }
@@ -142,20 +141,21 @@ const AdminAllProduct = () => {
     }, []);
 
     useEffect(() => {
-        if (hasMore && user.role) {
+        if (hasMore && websiteKey) {
             fetchAllProducts(lastId);
         }
     }, [page, hasMore]);
 
     useEffect(() => {
-        if (user.role) {
-            setProductData([]); // Clear previous data on filter or sort change
+        if (websiteKey) {
+            setProductData([]);
             setPage(1);
             setLastId('');
             setHasMore(true);
             fetchAllProducts();
         }
-    }, [filterBy, sortBy, selectedCategory, searchText]);
+    }, [filterBy, sortBy, selectedCategory, searchText, websiteKey]);
+
 
     useEffect(() => {
         setLastId(productData?.[productData.length - 1]?._id || null);
@@ -170,7 +170,8 @@ const AdminAllProduct = () => {
 
     return (
         <div>
-            <div className='w-full flex flex-row flex-wrap gap-2 sm:gap-4 lg:gap-8 px-2 ms:px-8 mt-6 md:mt-12'>
+            <div className='w-full flex flex-row flex-wrap items-center gap-2 sm:gap-4 lg:gap-8 px-2 ms:px-8 mt-6 md:mt-12'>
+
                 <div className='flex gap-2 flex-row items-center flex-wrap text-xs sm:text-sm'>
                     {productStatusFilters.map((status, index) => (
                         <div
@@ -214,7 +215,7 @@ const AdminAllProduct = () => {
                     </select>
                 </div>
 
-                {filterBy === '' && (
+                {filterBy === 'all' && (
                     <div>
                         <input
                             type="text"
@@ -228,7 +229,7 @@ const AdminAllProduct = () => {
 
             <div className='w-full h-full flex flex-row flex-wrap items-start justify-center gap-5 p-4'>
                 {productData && !loading ? (
-                    <div className='flex flex-row flex-wrap items-start justify-center gap-5'>
+                    <div className='flex flex-row flex-wrap items-start justify-center gap-5 mt-10'>
                         {productData.length > 0 ? (
                             productData.map((product: any, index: number) => (
                                 <ProductCard key={index} product={product} />

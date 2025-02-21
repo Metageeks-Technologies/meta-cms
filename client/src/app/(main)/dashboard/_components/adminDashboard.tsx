@@ -17,6 +17,7 @@ const AdminDashboard = () => {
   const [globalDashboardData, setGlobalDashboardData] = useState();
 
   const [isBlogDashboard, setIsBlogDashboard] = useState(true); // State to toggle between dashboards
+  const [currentTab, setCurrentTab] = useState('');
 
 
   const dashboardGlobal = async () => {
@@ -66,72 +67,88 @@ const AdminDashboard = () => {
     }
   }, [websiteKey]);
 
+  useEffect(() => {
+    setCurrentTab('')
+    if (user?.website?.permissions?.[0]) setCurrentTab(user?.website?.permissions[0])
+    if (website?.permissions?.[0]) setCurrentTab(website?.permissions[0])
+  }, [user, website, websiteKey])
 
   return (
     <div className="container mx-auto p-2">
 
       <h1 className='text-3xl font-bold my-4'>{website?.name}</h1>
 
-      <div className="flex justify-start my-5">
+
+      <div>
         {
-          user?.website?.permissions.includes('blog') || website?.permissions?.includes('blog') &&
-          <button
-            onClick={() => setIsBlogDashboard(true)}
-            className={`font-bold px-5 py-2 cursor-pointer ${isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
-            Blog Dashboard
-          </button>
-        }
-        {
-          user?.website?.permissions.includes('store') || website?.permissions?.includes('store') &&
-          <button
-            onClick={() => setIsBlogDashboard(false)}
-            className={`font-bold px-5 py-2 cursor-pointer ${!isBlogDashboard ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}        >
-            Store Dashboard
-          </button>
+          (user?.website?.permissions?.length ?? 0) > 0 ? (
+            user?.website?.permissions.map((permission, index) => {
+
+              // hide page dashboard because currently we cannot show dashboard for page functionality
+              if (permission === 'page') return;
+
+              return <button
+                key={index}
+                onClick={() => setCurrentTab(permission)}
+                className={`font-bold px-5 py-2 cursor-pointer ${currentTab === permission ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}
+              >{permission.slice(0, 1).toUpperCase() + permission.slice(1)} Dashboard</button>
+            })
+          ) : (
+            website?.permissions?.map((permission: string, index: number) => {
+
+              // hide page dashboard because currently we cannot show dashboard for page functionality
+              if (permission === 'page') return
+
+              return <button
+                key={index}
+                onClick={() => setCurrentTab(permission)}
+                className={`font-bold px-5 py-2 cursor-pointer ${currentTab === permission ? "text-yellow-500 border-b-2 border-yellow-500" : ""}`}
+              >{permission.slice(0, 1).toUpperCase() + permission.slice(1)} Dashboard</button>
+            })
+          )
         }
       </div>
 
 
-      {isBlogDashboard ? (
+      {
+        currentTab ?
+          (
+            currentTab === 'blog' ?
+              <>
+                {
+                  (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ?
+                    <CardsRow data={globalDashboardData} personalData={personalDashboardData} />
+                    : <CardsRow data={personalDashboardData} />
+                }
+                {
+                  (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
+                  <RecentPosts />
+                }
+                <MyRecentPosts />
 
-        (user?.website?.permissions.includes('blog') || website?.permissions?.includes('blog')) ?
-          <>
-            {
-              (user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ?
-                <CardsRow data={globalDashboardData} personalData={personalDashboardData} />
-                : <CardsRow data={personalDashboardData} />
-            }
-            {
-              (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
-              <RecentPosts />
-            }
-            <MyRecentPosts />
-
-            <div className={`
+                <div className={`
         ${(user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) ? "w-[97%]" : "w-[50%]"}
         mx-auto flex flex-row items-center gap-5 mt-20`}>
-              {
-                (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
-                <Chart heading="Global Monthly Posts" data={globalDashboardData} />
-              }
-              <Chart heading="My Monthly Posts" data={personalDashboardData} />
-            </div>
-          </>
+                  {
+                    (user?.role === userRoles.SUPERADMIN || user.role === userRoles.ADMIN || user.role === userRoles.MODERATOR) &&
+                    <Chart heading="Global Monthly Posts" data={globalDashboardData} />
+                  }
+                  <Chart heading="My Monthly Posts" data={personalDashboardData} />
+                </div>
+              </>
+              :
+              currentTab === 'store' ?
+                <StoreDashboard />
 
-          : <div className='text-center my-20'>
+                : <div className='text-center my-20'>
+                  <h1 className='text-3xl font-bold'>You don’t have permission to access this dashboard.</h1>
+                  <h3 className='text-gray-400 font-bold'>Please contact the administrator for assistance.</h3>
+                </div>
+          ) : <div className='text-center my-20'>
             <h1 className='text-3xl font-bold'>You don’t have permission to access this dashboard.</h1>
             <h3 className='text-gray-400 font-bold'>Please contact the administrator for assistance.</h3>
           </div>
-      ) : (
-        (user?.website?.permissions.includes('store') || website?.permissions?.includes('store')) ?
-          <StoreDashboard />
-          : <div className='text-center my-20'>
-            <h1 className='text-3xl font-bold'>You don’t have permission to access this dashboard.</h1>
-            <h3 className='text-gray-400 font-bold'>Please contact the administrator for assistance.</h3>
-          </div>
-      )}
-
-
+      }
 
     </div>
   );

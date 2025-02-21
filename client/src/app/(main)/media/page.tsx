@@ -66,6 +66,13 @@ const page = () => {
         setLastId(media?.[media.length - 1]?._id || '');
     }, [media]);
 
+    useEffect(() => {
+        if(websiteKey){
+            setMedia([]);
+            fetchMedia();
+        }
+    }, [websiteKey]);
+
 
     return (
         <Dialog>

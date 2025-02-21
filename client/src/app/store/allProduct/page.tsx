@@ -3,18 +3,18 @@ import React from 'react'
 
 import AdminAllProduct from './component/AdminProduct';
 import VendorProduct from './component/VendorProduct';
-import { StoreRole } from '@/constant/store';
 import { useUserContext } from '@/context/userContext';
+import { userRoles } from '@/constant/user';
 
 
 
 const page = () => {
-    const {user} = useUserContext();
+    const {user,websiteKey} = useUserContext();
 
     return (
         <div>
             {
-                user?.storeRole === StoreRole.SUPERADMIN || user?.storeRole === StoreRole.STOREMODERATOR ?
+                user?.role ===userRoles.SUPERADMIN  || user.role===userRoles.ADMIN  || user?.role ===userRoles.MODERATOR  ?
                     <AdminAllProduct />
                     :
                     <VendorProduct />

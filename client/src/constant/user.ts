@@ -1,8 +1,5 @@
 // import { UserProfile } from "@/types";
 
-
-
-
 export const userRoles = {
     SUBSCRIBER: 'subscriber',
     CONTRIBUTOR: 'contributor',

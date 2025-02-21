@@ -1,15 +1,16 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Req, Res, Query, Header, Headers } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { AllowedRoles, AllowedStoreRoles } from 'src/common/decorators/allowed-roles.decorator';
-import { UserRoleEnum, UserStoreRoleEnum } from './schema/user.schema';
-import { RolesGuard, StoreRolesGuard } from '../auth/role.guard';
-import { ChangeRoleDto, ChangeStoreRole } from './dto/change-role.dto';
+import { AllowedRoles } from 'src/common/decorators/allowed-roles.decorator';
+import { UserRoleEnum } from './schema/user.schema';
+import { RolesGuard } from '../auth/role.guard';
+import { ChangeRoleDto } from './dto/change-role.dto';
 import { Request, Response } from 'express';
 import { ValidateId } from 'src/common/pipes/validate-id.pipe';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserQueryDto } from './dto/get-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -60,20 +61,25 @@ export class UsersController {
   @Get('all-admin')
   @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllAdmin() {
-    const admins = await this.usersService.getAllAdmin()
+  async getAllAdmin(@Query() query: UserQueryDto) {
+    const admins = await this.usersService.getAllAdmin(query.page)
     return admins;
   }
 
   @Get('all-user/:role')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async getAllUser(@Headers('websiteKey') websiteKey: string, @Param('role') role: UserRoleEnum) {
-    
-    const users = await this.usersService.getAllUser(websiteKey, role)
+  async getAllUser(
+    @Headers('websiteKey') websiteKey: string, 
+    @Param('role') role: UserRoleEnum,
+    @Query() query: UserQueryDto
+  ) {
+    const users = await this.usersService.getAllUser(websiteKey, role, query.page)
     return users
   }
 
+
+  // TODO: Remove this part when refactoring
   @Get('all-moderator')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
@@ -85,6 +91,8 @@ export class UsersController {
     };
   }
 
+
+  // TODO: Remove this part when refactoring
   @Get('all-contributor')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
@@ -96,6 +104,8 @@ export class UsersController {
     };
   }
 
+
+  // TODO: Remove this part when refactoring
   @Get('all-subscriber')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
@@ -107,38 +117,41 @@ export class UsersController {
     };
   }
 
-  @Get('all-store-user')
-  @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, StoreRolesGuard)
-  async getAllStoreUser() {
-    const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.USER)
-    return {
-      message: "All Users fetched successfully",
-      users
-    };
-  }
+  // TODO: Remove this part when refactoring
+  // @Get('all-store-user')
+  // @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
+  // @UseGuards(AuthGuard, StoreRolesGuard)
+  // async getAllStoreUser() {
+  //   const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.USER)
+  //   return {
+  //     message: "All Users fetched successfully",
+  //     users
+  //   };
+  // }
 
-  @Get('all-store-vendor')
-  @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, StoreRolesGuard)
-  async getAllStoreVendor() {
-    const vendors = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.VENDOR)
-    return {
-      message: "All Vendors fetched successfully",
-      vendors
-    };
-  }
+  // TODO: Remove this part when refactoring
+  // @Get('all-store-vendor')
+  // @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
+  // @UseGuards(AuthGuard, StoreRolesGuard)
+  // async getAllStoreVendor() {
+  //   const vendors = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.VENDOR)
+  //   return {
+  //     message: "All Vendors fetched successfully",
+  //     vendors
+  //   };
+  // }
 
-  @Get('all-store-moderator')
-  @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, StoreRolesGuard)
-  async getAllStoreModerator() {
-    const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.MODERATOR)
-    return {
-      message: "All Moderator fetched successfully",
-      users
-    };
-  }
+  // TODO: Remove this part when refactoring
+  // @Get('all-store-moderator')
+  // @AllowedStoreRoles(UserStoreRoleEnum.SUPERADMIN)
+  // @UseGuards(AuthGuard, StoreRolesGuard)
+  // async getAllStoreModerator() {
+  //   const users = await this.usersService.getAllStoreUsers(UserStoreRoleEnum.MODERATOR)
+  //   return {
+  //     message: "All Moderator fetched successfully",
+  //     users
+  //   };
+  // }
 
   @Get(':id')
   async findById(@Param('id', ValidateId) id: string) {
@@ -155,14 +168,15 @@ export class UsersController {
     return { message: "User role changed successfully" };
   }
 
-  @Put('change-store-role')
-  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, RolesGuard)
-  async changeStoreRole(@Body() changeRoleDto: ChangeStoreRole) {
-    const { _id, newRole } = changeRoleDto;
-    await this.usersService.changeStoreRole(_id, newRole);
-    return { message: "User role changed successfully" };
-  }
+  // TODO: Remove this part when refactoring
+  // @Put('change-store-role')
+  // @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  // @UseGuards(AuthGuard, RolesGuard)
+  // async changeStoreRole(@Body() changeRoleDto: ChangeStoreRole) {
+  //   const { _id, newRole } = changeRoleDto;
+  //   await this.usersService.changeStoreRole(_id, newRole);
+  //   return { message: "User role changed successfully" };
+  // }
 
   @Patch('block/:id')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)

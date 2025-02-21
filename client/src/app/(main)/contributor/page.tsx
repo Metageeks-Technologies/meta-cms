@@ -80,9 +80,8 @@ const columns = [
       const user = row.original;
       return (
         <div
-          className={`${
-            user.block ? "text-red-500" : "text-green-500"
-          } font-semibold`}
+          className={`${user.block ? "text-red-500" : "text-green-500"
+            } font-semibold`}
         >
           {user.block ? "Inactive" : "Active"}
         </div>
@@ -91,13 +90,14 @@ const columns = [
   },
   {
     accessorKey: "role",
-    header: () => <div className="text-right">Role</div>,
+    header: "Role",
     cell: ({ row }: any) => (
-      <div className="capitalize text-right">{row.getValue("role")}</div>
+      <div className="capitalize">{row.getValue("role")}</div>
     ),
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
@@ -119,36 +119,36 @@ const columns = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
               {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-              <DropdownMenuSeparator className="bg-gray-800" />
+              {/* <DropdownMenuSeparator className="bg-gray-800" /> */}
 
-                {/* Show options based on user's block status */}
-                {user.block ? (
-              <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
-                <AlertDialogTrigger onClick={() => setClickedItem(3)} className="w-full text-left">
-                  Unblock User
-                </AlertDialogTrigger>
-              </DropdownMenuItem>
-            ) : (
-              <>
-                <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger className="w-full text-left">
-                    Promote to Moderator
+              {/* Show options based on user's block status */}
+              {user.block ? (
+                <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                  <AlertDialogTrigger onClick={() => setClickedItem(3)} className="w-full text-left">
+                    Unblock User
                   </AlertDialogTrigger>
                 </DropdownMenuItem>
+              ) : (
+                <>
+                  <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                    <AlertDialogTrigger className="w-full text-left">
+                      Promote to Moderator
+                    </AlertDialogTrigger>
+                  </DropdownMenuItem>
 
-                {/* <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
+                  {/* <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
                   <AlertDialogTrigger className="w-full text-left">
                     Demote to Subscriber
                   </AlertDialogTrigger>
                 </DropdownMenuItem> */}
 
-                <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger className="w-full text-left">
-                    Block User
-                  </AlertDialogTrigger>
-                </DropdownMenuItem>
-              </>
-            )}
+                  <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
+                    <AlertDialogTrigger className="w-full text-left">
+                      Block User
+                    </AlertDialogTrigger>
+                  </DropdownMenuItem>
+                </>
+              )}
 
             </DropdownMenuContent>
           </DropdownMenu>
@@ -167,25 +167,25 @@ const columns = [
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-  onClick={
-    clickedItem === 1
-      ? () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
-      : clickedItem === 2
-      ? () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
-      : clickedItem === 3
-      ? () => unblockUser(user._id,user.role)
-      : clickedItem === 4
-      ? () => blockUser(user._id,user.role)
-      : () => {}
-  }
->
-  Continue
-</AlertDialogAction>
+                onClick={
+                  clickedItem === 1
+                    ? () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
+                    : clickedItem === 2
+                      ? () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
+                      : clickedItem === 3
+                        ? () => unblockUser(user._id, user.role)
+                        : clickedItem === 4
+                          ? () => blockUser(user._id, user.role)
+                          : () => { }
+                }
+              >
+                Continue
+              </AlertDialogAction>
 
             </AlertDialogFooter>
 
           </AlertDialogContent>
-          
+
         </AlertDialog>
       )
     },
@@ -199,7 +199,7 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { contributors, fetchUsers, isLoading, websiteKey }: any = useUserContext();
+  const { contributors, fetchUsers, isLoading, websiteKey, userPageNo, setUserPageNo }: any = useUserContext();
 
   const table = useReactTable({
     data: contributors || [],
@@ -221,8 +221,8 @@ function User() {
   });
 
   useEffect(() => {
-    if(websiteKey) fetchUsers(userRoles.CONTRIBUTOR);
-  }, [websiteKey]);
+    if (websiteKey) fetchUsers(userRoles.CONTRIBUTOR);
+  }, [websiteKey, userPageNo]);
 
   return (
     <div className="w-full container mx-auto px-4">
@@ -235,7 +235,7 @@ function User() {
           }
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
-        <AddContributor/>
+        <AddContributor />
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">
@@ -299,21 +299,22 @@ function User() {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {!isLoading ? table.getFilteredRowModel().rows.length : 0} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!isLoading && !table.getCanPreviousPage()}
+            onClick={() => setUserPageNo(userPageNo - 1)}
+            disabled={userPageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{userPageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!isLoading && !table.getCanNextPage()}
+            onClick={() => setUserPageNo(userPageNo + 1)}
+            disabled={contributors.length < 10}
             className="text-black font-bold"
           >
             Next

@@ -12,12 +12,14 @@ import {
 import { MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import {Table,TableBody,TableCell,TableHead, TableHeader, TableRow,} from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 
-import { AlertDialog,AlertDialogAction, AlertDialogCancel,AlertDialogContent,AlertDialogDescription,AlertDialogFooter,AlertDialogHeader,AlertDialogTitle,AlertDialogTrigger,
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaClockRotateLeft } from "react-icons/fa6";
@@ -56,17 +58,16 @@ const columns = [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
       const subServices = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const { recoverSubServices, deleteSubServices,services } = usePageContext();
-
-      // console.log(services[0]._id)
+      const { recoverSubServices, deleteSubServices, services } = usePageContext();
 
 
-  return (
+      return (
         <AlertDialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -76,18 +77,18 @@ const columns = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-gray-800" />
+              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-gray-800" /> */}
               {
                 subServices.isDeleted ?
                   <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
                     <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
-                      <FaClockRotateLeft className="scale-x-[-1]" /> Recover 
+                      <FaClockRotateLeft className="scale-x-[-1]" /> Recover
                     </AlertDialogTrigger>
                   </DropdownMenuItem>
                   : <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3 text-red-500">
                     <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
-                      <RiDeleteBinLine /> Delete 
+                      <RiDeleteBinLine /> Delete
                     </AlertDialogTrigger>
                   </DropdownMenuItem>
               }
@@ -109,9 +110,9 @@ const columns = [
               <AlertDialogAction
                 onClick={
                   clickedItem === 1 ?
-                    () => recoverSubServices(subServices._id,services[0]._id)
+                    () => recoverSubServices(subServices._id, services[0]._id)
                     : clickedItem === 2 ?
-                      () => deleteSubServices(subServices._id,services[0]._id)
+                      () => deleteSubServices(subServices._id, services[0]._id)
                       : () => { }
                 }
               >
@@ -131,13 +132,13 @@ const Page = () => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const { websiteKey } = useUserContext();
-  const { subServices, fetchSubServices, services, fetchServices, fetchSubServicesTotal } = usePageContext();
+  const { subServices, fetchSubServices, services, fetchServices, fetchSubServicesTotal, subServicePageNo, setSubServicePageNo } = usePageContext();
   const [servicesFetched, setServicesFetched] = useState(false);
-  const{user} = useUserContext();
+  const { user } = useUserContext();
 
-    useEffect(() => {
-      if (user.role ==="superadmin") fetchServices();
-    }, [websiteKey]);
+  useEffect(() => {
+    if (user.role === "superadmin") fetchServices();
+  }, [websiteKey]);
 
 
   useEffect(() => {
@@ -162,9 +163,10 @@ const Page = () => {
 
   useEffect(() => {
     if (websiteKey && selectedService) {
-      fetchSubServicesTotal(selectedService); 
+      setSubServicePageNo(1);
+      fetchSubServicesTotal(selectedService);
     }
-  }, [selectedService, websiteKey]);
+  }, [selectedService, websiteKey, subServicePageNo]);
 
   const table = useReactTable({
     data: subServices,
@@ -182,26 +184,23 @@ const Page = () => {
   return (
     <div className="w-full container mx-auto px-4">
 
-     {
-      user.role === 'admin' && (
-        <div className='flex mt-3 justify-end items-center gap-4 ml-auto'>
+      <div className='flex mt-3 justify-end items-center gap-4 ml-auto'>
 
         <select
-            className='bg-[#06040B] text-gray-200 border-gray-800 p-2 rounded-md'
-            value={selectedService ?? (services.length > 0 ? services[0]._id : "")} 
-            onChange={(e) => setSelectedService(e.target.value)}
-          >
-            <option value="">---Select Service---</option> 
-            {services.map((service: any) => (
-              <option key={service._id} value={service._id}>
-                {service.name}
-              </option>
-            ))}
-          </select>
-  
-        </div>
-      )
-     }
+          className='bg-[#06040B] text-gray-200 border-gray-800 p-2 rounded-md'
+          value={selectedService ?? (services.length > 0 ? services[0]._id : "")}
+          onChange={(e) => setSelectedService(e.target.value)}
+        >
+          <option value="">---Select Service---</option>
+          {services.map((service: any) => (
+            <option key={service._id} value={service._id}>
+              {service.name}
+            </option>
+          ))}
+        </select>
+
+      </div>
+
 
       <div className="flex flex-row justify-between items-center py-4">
 
@@ -274,21 +273,22 @@ const Page = () => {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setSubServicePageNo(subServicePageNo - 1)}
+            disabled={subServicePageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{subServicePageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setSubServicePageNo(subServicePageNo + 1)}
+            disabled={subServices.length < 10}
             className="text-black font-bold"
           >
             Next

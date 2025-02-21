@@ -61,6 +61,7 @@ const columns = [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
 
@@ -122,7 +123,7 @@ const columns = [
             description: category.description,
             bannerImageKey: category.bannerImageKey
           }
-          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${category._id}`, payload,{websiteKey: websiteKey});
+          const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${category._id}`, payload, { websiteKey: websiteKey });
 
           if (resp.status === 200 || resp.status === 201) {
             toast.success(resp.data.message, {
@@ -164,8 +165,8 @@ const columns = [
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-gray-800" />
+                    {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-gray-800" /> */}
 
                     <AlertDialogTrigger>
                       <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
@@ -291,8 +292,9 @@ function Category() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { categories, fetchCategories }: any = usePostContext()
+  const { categories, fetchCategories, categoryPageNo, setCategoryPageNo }: any = usePostContext()
   const { user, websiteKey }: any = useUserContext();
+
 
 
   const table = useReactTable({
@@ -317,7 +319,7 @@ function Category() {
 
   useEffect(() => {
     if (websiteKey) fetchCategories();
-  }, [websiteKey]);
+  }, [websiteKey, categoryPageNo]);
 
 
 
@@ -400,21 +402,22 @@ function Category() {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setCategoryPageNo(categoryPageNo - 1)}
+            disabled={categoryPageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{categoryPageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setCategoryPageNo(categoryPageNo + 1)}
+            disabled={categories.length < 10}
             className="text-black font-bold"
           >
             Next

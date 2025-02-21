@@ -65,8 +65,11 @@ export class PagesController {
     @Get('all')
     @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    async getAllPage(@Headers('websiteKey') websiteKey: string): Promise<any> {
-        const allPage = await this.pagesService.getAllPage(websiteKey);
+    async getAllPage(
+        @Headers('websiteKey') websiteKey: string,
+        @Query() query: GetPageQueryDto
+    ): Promise<any> {
+        const allPage = await this.pagesService.getAllPage(websiteKey, query.page);
         return allPage
     }
 

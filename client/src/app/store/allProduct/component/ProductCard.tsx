@@ -26,12 +26,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     return (
         <div 
-            className="group relative bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 w-72"
+            className="group relative bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 w-72 cursor-pointer"
             onClick={() => router.push(`/store/product/${product._id}`)}
         >
             {/* Discount Badge */}
             {calculateDiscount() > 0 && (
-                <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
+                <div className="absolute top-2 right-2 z-[5]  bg-red-500 text-white px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
                     <Tag className="w-3 h-3" />
                     {calculateDiscount()}% OFF
                 </div>

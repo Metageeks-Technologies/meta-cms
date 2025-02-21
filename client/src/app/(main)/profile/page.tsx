@@ -51,7 +51,7 @@ const ProfilePage: React.FC = () => {
   const fetchAddress = async () => {
     try {
       setIsLoading(true);
-      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`);
+      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`,undefined,{websiteKey});
       
       if (response.data && response.data.length > 0) {
         const address = response.data[0]; // Assuming you need the first address
@@ -79,7 +79,7 @@ const ProfilePage: React.FC = () => {
       setIsLoading(true);
       const addressPayload = { ...userAddress };
       const addressId = '6790c56eaa0bcf6a67947d08'; // Replace with the actual address ID you want to update
-      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${addressId}`, addressPayload);
+      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${addressId}`, addressPayload,{websiteKey});
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Address updated successfully!');
@@ -132,7 +132,7 @@ const ProfilePage: React.FC = () => {
     setLoading(true);
     try {
       const payload = { ...userProfile };
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, { websiteKey: websiteKey });
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, {  websiteKey });
 
 
       if (resp.status === 200 || resp.status === 201) {
@@ -164,7 +164,7 @@ const ProfilePage: React.FC = () => {
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
       }
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey: websiteKey });
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
         const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
@@ -367,7 +367,7 @@ const ProfilePage: React.FC = () => {
                 </div>
   
                 {/* Store Role */}
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     <span className="flex items-center">
                       <Building2 className="w-4 h-4 mr-2" />
@@ -380,7 +380,7 @@ const ProfilePage: React.FC = () => {
                     disabled
                     className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 opacity-50 cursor-not-allowed"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

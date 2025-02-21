@@ -16,7 +16,7 @@ const page = () => {
     return (
         <div>
             {
-                user?.storeRole === StoreRole.SUPERADMIN || user?.storeRole === StoreRole.STOREMODERATOR ?
+                user?.role === userRoles.SUPERADMIN  || user?.role===userRoles.ADMIN || user?.role === userRoles.MODERATOR ?
                     <OrderTable />
                     :
                     <VendorOrder />

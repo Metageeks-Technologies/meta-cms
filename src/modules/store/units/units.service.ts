@@ -23,7 +23,7 @@ export class UnitService {
     async create(websiteKey: string, unitDetails: CreateUnitDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const newUnit = new this.Unit({ ...unitDetails, websiteKey });
@@ -45,7 +45,7 @@ export class UnitService {
     async updateById(websiteKey: string, unitId: string, unitDetails: UpdateUnitDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         try {
@@ -68,7 +68,7 @@ export class UnitService {
     async getAll(websiteKey: string, isDeleted?: boolean) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = { websiteKey };
@@ -83,7 +83,7 @@ export class UnitService {
     async deleteUnit(websiteKey: string, unitId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const unit = await this.Unit.findOne({ _id: unitId, websiteKey }, { isDeleted: 1 }).exec();
@@ -102,7 +102,7 @@ export class UnitService {
     async recoverUnit(websiteKey: string, unitId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if(!website){
-            throw new NotFoundException('Invalid website key')
+            throw new BadRequestException('Invalid website key')
         }
 
         const query = await this.Unit.updateOne({ _id: unitId, websiteKey }, { isDeleted: false }).lean().exec();

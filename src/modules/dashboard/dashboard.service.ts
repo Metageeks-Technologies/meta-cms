@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserRoleEnum } from '../users/schema/user.schema';
 import { PostsService } from '../posts/posts.service';
 import { UsersService } from '../users/users.service';
 import { OrderService } from '../store/order/order.service';
 import { ProductService } from '../store/product/product.service';
 import { postStatuEnum } from 'client/src/constant/post';
+import { WebsiteService } from '../website/website.service';
+import { ProductStatusEnum } from '../store/product/schema/product.schema';
 
 @Injectable()
 export class DashboardService {
@@ -13,6 +15,7 @@ export class DashboardService {
     private postsService: PostsService,
     private orderService: OrderService,
     private productService: ProductService,
+    private websiteService: WebsiteService
   ) { }
 
   async getPersonalData(websiteKey: string, userId: string, userRole: UserRoleEnum) {
@@ -38,30 +41,43 @@ export class DashboardService {
   }
 
   async getStoreAdminData(websiteKey: string) {
-    const [totalOrderCount, totalProductCount, storeUserCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct] = await Promise.all([
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey)
+    if (!website) {
+      throw new BadRequestException('Invalid website key')
+    }
+
+    const [totalOrderCount, totalProductCount, totalPublishedProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct] = await Promise.all([
       this.orderService.getTotalOrderCount(websiteKey, undefined),
-      this.productService.getProductCount(websiteKey, undefined),
-      this.usersService.getStoreUsersCount(),
+      this.productService.getProductCount(websiteKey, undefined, undefined),
+      this.productService.getProductCount(websiteKey, ProductStatusEnum.PUBLISHED, undefined),
       this.orderService.getlastOrder(websiteKey, undefined),
       this.productService.getLatestProduct(websiteKey, undefined),
       this.orderService.getMonthlyOrderCount(websiteKey, undefined),
       this.orderService.getTopSellingProducts(websiteKey, undefined)
-    ])
+    ]);
 
-    return { totalOrderCount, totalProductCount, storeUserCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct }
+    return { totalOrderCount, totalProductCount, totalPublishedProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct }
   }
 
   async getStoreVendorData(websiteKey: string, vendorId: string) {
-    const [totalOrderCount, totalProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct] = await Promise.all([
+
+    const website = await this.websiteService.getWebsiteByKey(websiteKey)
+    if (!website) {
+      throw new BadRequestException('Invalid website key')
+    }
+
+    const [totalOrderCount, totalProductCount, totalPublishedProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct] = await Promise.all([
       this.orderService.getTotalOrderCount(websiteKey, vendorId),
-      this.productService.getProductCount(websiteKey, vendorId),
+      this.productService.getProductCount(websiteKey, undefined, vendorId),
+      this.productService.getProductCount(websiteKey, ProductStatusEnum.PUBLISHED, vendorId),
       this.orderService.getlastOrder(websiteKey, vendorId),
       this.productService.getLatestProduct(websiteKey, vendorId),
       this.orderService.getMonthlyOrderCount(websiteKey, vendorId),
       this.orderService.getTopSellingProducts(websiteKey, vendorId)
     ])
 
-    return { totalOrderCount, totalProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct }
+    return { totalOrderCount, totalProductCount, totalPublishedProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct }
   }
 
 

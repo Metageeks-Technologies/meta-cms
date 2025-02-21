@@ -76,9 +76,8 @@ const columns = [
       const user = row.original;
       return (
         <div
-          className={`${
-            user.block ? "text-red-500" : "text-green-500"
-          } font-semibold`}
+          className={`${user.block ? "text-red-500" : "text-green-500"
+            } font-semibold`}
         >
           {user.block ? "Inactive" : "Active"}
         </div>
@@ -87,16 +86,16 @@ const columns = [
   },
   {
     accessorKey: "role",
-    header: () => <div className="text-right">Role</div>,
+    header: "Role",
     cell: ({ row }: any) => (
-      <div className="capitalize text-right">{row.getValue("role")}</div>
+      <div className="capitalize">{row.getValue("role")}</div>
     ),
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }: any) => {
-
       const user = row.original;
       const [clickedItem, setClickedItem] = useState(0);
       const { changeUserRole, blockUser, unblockUser }: any = useUserContext();
@@ -112,9 +111,7 @@ const columns = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
               {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-              <DropdownMenuSeparator className="bg-gray-800" />
-
-
+              {/* <DropdownMenuSeparator className="bg-gray-800" /> */}
 
               {/* block /unblock options */}
               {user.block ? (
@@ -170,9 +167,9 @@ const columns = [
                     : clickedItem === 2 ?
                       () => changeUserRole(user._id, user.role, userRoles.SUBSCRIBER)
                       : clickedItem === 3
-                        ? () => unblockUser(user._id,user.role)
+                        ? () => unblockUser(user._id, user.role)
                         : clickedItem === 4
-                          ? () => blockUser(user._id,user.role)
+                          ? () => blockUser(user._id, user.role)
                           : () => { }
                 }
               >
@@ -196,7 +193,7 @@ function User() {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
-  const { user, moderators, fetchUsers, websiteKey } = useUserContext();
+  const { user, moderators, fetchUsers, websiteKey, userPageNo, setUserPageNo } = useUserContext();
 
 
   const table = useReactTable({
@@ -221,7 +218,7 @@ function User() {
 
   useEffect(() => {
     if (websiteKey) fetchUsers(userRoles.MODERATOR);
-  }, [websiteKey]);
+  }, [websiteKey, userPageNo]);
 
 
 
@@ -237,7 +234,7 @@ function User() {
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
 
-        <AddModerator/>
+        <AddModerator />
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">
@@ -298,21 +295,22 @@ function User() {
         <div className="flex-1 text-sm text-muted-foreground">
           Total {table.getFilteredRowModel().rows.length} rows.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => setUserPageNo(userPageNo - 1)}
+            disabled={userPageNo <= 1}
             className="text-black font-bold"
           >
             Previous
           </Button>
+          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{userPageNo}</div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => setUserPageNo(userPageNo + 1)}
+            disabled={moderators.length < 10}
             className="text-black font-bold"
           >
             Next

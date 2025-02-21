@@ -18,7 +18,7 @@ import { GrServices } from "react-icons/gr";
 
 export const items: MenuItem[] = [
   {
-    title: "Dashboard",
+    title: "Dashboard",   
     url: "/dashboard",
     icon: Home,
   },
@@ -79,7 +79,7 @@ export const items: MenuItem[] = [
       },
       {
         title: "All CaseStudy",
-        url: "/allPage",
+        url: "/allCaseStudy",
         icon: ScrollText,
       },
     ]
@@ -121,21 +121,21 @@ export const items: MenuItem[] = [
     url: "/admin",
     icon: UsersRound,
   },
-  {
-    title: "Users",
-    url: "/store/users",
-    icon: UsersRound,
-  },
-  {
-    title: "Vendors",
-    url: "/store/vendor",
-    icon: UsersRound,
-  },
-  {
-    title: "Store Moderator",
-    url: "/store/storeModerator",
-    icon: UsersRound,
-  },
+  // {
+  //   title: "Users",
+  //   url: "/store/users",
+  //   icon: UsersRound,
+  // },
+  // {
+  //   title: "Vendors",
+  //   url: "/store/vendor",
+  //   icon: UsersRound,
+  // },
+  // {
+  //   title: "Store Moderator",
+  //   url: "/store/storeModerator",
+  //   icon: UsersRound,
+  // },
 
   {
     title: "Comments",
@@ -193,9 +193,9 @@ export const headerData = {
   productCategory: "Product Category",
   allProductCategory: "All Product Category",
   order:"Orders",
-  users: "Users",
-  vendor: "Vendors",
-  storeModerator: "Store Moderator",
+  // users: "Users",
+  // vendor: "Vendors",
+  // storeModerator: "Store Moderator",
   allComments: "All Comments",
   // subscribers: "Subscribers",
   contributor: "Contributor",
