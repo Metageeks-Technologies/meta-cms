@@ -465,7 +465,7 @@ export class OrderService {
 
     async cancelOrder(websiteKey: string, orderId: string, userId: string, vendorId: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if (website) {
+        if (!website) {
             throw new BadRequestException('Invalid website key')
         }
 
@@ -478,7 +478,6 @@ export class OrderService {
         if (userId) {
             query['user'] = userId;
         }
-
         if (vendorId) {
             query['vendor'] = vendorId;
         }
