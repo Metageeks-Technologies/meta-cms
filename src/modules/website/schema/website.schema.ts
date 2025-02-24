@@ -45,3 +45,6 @@ export const WebsiteSchema = new mongoose.Schema({
         default: false
     }
 }, { timestamps: true });
+
+
+WebsiteSchema.index({ name: "text" })

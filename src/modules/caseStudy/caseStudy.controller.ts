@@ -52,7 +52,7 @@ export class CaseStudyController {
     async getCaseStudy(
         @Headers('websiteKey') websiteKey: string,
     ) {
-        const caseStudies = await this.caseStudyService.getAll(websiteKey, undefined, false)
+        const caseStudies = await this.caseStudyService.getAll(websiteKey, undefined, undefined, false)
         return caseStudies;
     }
 
@@ -63,7 +63,7 @@ export class CaseStudyController {
         @Headers('websiteKey') websiteKey: string,
         @Query() query: CaseStudyQueryDto
     ) {
-        const caseStudies = await this.caseStudyService.getAll(websiteKey, query.page);
+        const caseStudies = await this.caseStudyService.getAll(websiteKey, query.page, query.search);
         return caseStudies;
     }
 

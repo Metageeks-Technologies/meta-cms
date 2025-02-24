@@ -27,10 +27,10 @@ class HeadingImageDto {
     imageKey: string;
 }
 
-class HeadingDescriptionDto {
+class ImageDescriptionDto {
     @IsNotEmpty()
     @IsString()
-    heading: string;
+    imageKey: string;
 
     @IsNotEmpty()
     @IsString()
@@ -133,8 +133,8 @@ class CreateContentDto {
     uiSection: ImageSectionDto;
 
     @ValidateNested()
-    @Type(() => HeadingDescriptionImageDto)
-    serviceSection: HeadingDescriptionImageDto;
+    @Type(() => ImageDescriptionDto)
+    serviceSection: ImageDescriptionDto;
 
     @ValidateNested()
     @Type(() => ProcessSectionDto)

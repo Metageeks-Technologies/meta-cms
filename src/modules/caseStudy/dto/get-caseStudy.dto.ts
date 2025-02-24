@@ -7,4 +7,8 @@ export class CaseStudyQueryDto {
     @IsOptional()
     @IsString()
     page: string;
+
+    @IsOptional()
+    @IsString()
+    search: string;
 }

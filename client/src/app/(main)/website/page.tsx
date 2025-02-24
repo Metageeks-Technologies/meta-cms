@@ -23,6 +23,7 @@ import { MdOutlineUpdate } from "react-icons/md";
 import { StoreRole } from "@/constant/store"
 import { useWebsiteContext } from "@/context/websiteContext"
 import AddWebsite from "./component/AddWebsite"
+import { debounce } from "lodash"
 
 const columns = [
   {
@@ -183,7 +184,28 @@ function Category() {
 
   const { user }: any = useUserContext();
   const { websiteData, fetchWebsiteData, websitePageNo, setWebsitePageNo } = useWebsiteContext()
+  const [searchQuery, setSearchQuery] = useState('')
 
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
+
+  useEffect(() => {
+    fetchWebsiteData(searchQuery);
+  }, [websitePageNo]);
+
+
+  useEffect(() => {
+    if (websitePageNo === 1) fetchWebsiteData(searchQuery)
+
+    setWebsitePageNo(1)
+  }, [searchQuery])
 
   const table = useReactTable({
     data: websiteData,
@@ -200,11 +222,6 @@ function Category() {
   });
 
 
-  useEffect(() => {
-    fetchWebsiteData();
-  }, [websitePageNo]);
-
-
 
   return (
     <div className="w-full container mx-auto px-4">
@@ -212,10 +229,7 @@ function Category() {
         <div className="flex flex-row items-center justify-between">
           <Input
             placeholder="Search name..."
-            value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table?.getColumn("name")?.setFilterValue(event.target.value)
-            }
+            onChange={handleSearch}
             className="max-w-sm border-[1px] border-gray-800 text-base"
           />
 

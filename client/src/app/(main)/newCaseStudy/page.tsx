@@ -601,22 +601,6 @@ const CreateCaseStudy = () => {
                 <label className="block text-white mb-5">
                     <span className='text-xl'>Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-                     
-
-                        <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
-                                Heading
-                            </label>
-                            <input
-                                type="text"
-                                id="heading"
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter  Heading"
-                                value={formData.content.serviceSection.heading}
-                                onChange={(e) => handleSectionChange('serviceSection', 'heading', e.target.value)}
-                                required
-                            />
-                        </div>
 
                         <div className="mb-4">
                             <label htmlFor="description" className="block  text-gray-300 mb-2">
@@ -633,8 +617,8 @@ const CreateCaseStudy = () => {
                             />
                         </div>
 
-   {/* Image Upload */}
-   <div className="mb-6">
+                        {/* Image Upload */}
+                        <div className="mb-6">
                             <label className="block text-gray-300 mb-2">Upload Image</label>
                             <label
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"

@@ -44,6 +44,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import AddModerator from "./components/AddModerator"
+import { debounce } from "lodash"
 
 
 
@@ -194,6 +195,28 @@ function User() {
   // const [rowSelection, setRowSelection] = React.useState({})
 
   const { user, moderators, fetchUsers, websiteKey, userPageNo, setUserPageNo } = useUserContext();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
+
+
+  useEffect(() => {
+    if (websiteKey) fetchUsers(userRoles.MODERATOR, searchQuery);
+  }, [websiteKey, userPageNo]);
+
+  useEffect(() => {
+    if (userPageNo === 1 && websiteKey) fetchUsers(userRoles.MODERATOR, searchQuery)
+
+    setUserPageNo(1)
+  }, [searchQuery])
+
 
 
   const table = useReactTable({
@@ -216,21 +239,14 @@ function User() {
   });
 
 
-  useEffect(() => {
-    if (websiteKey) fetchUsers(userRoles.MODERATOR);
-  }, [websiteKey, userPageNo]);
-
 
 
   return (
     <div className="w-full container mx-auto px-4">
       <div className="flex flex-row justify-between items-center py-4">
         <Input
-          placeholder="Search email..."
-          value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("email")?.setFilterValue(event.target.value)
-          }
+          placeholder="Search..."
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
 

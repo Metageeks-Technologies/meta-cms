@@ -120,3 +120,5 @@ export const OrderSchema = new mongoose.Schema<IOrder>(
     { timestamps: true }
 );
 
+
+OrderSchema.index({})

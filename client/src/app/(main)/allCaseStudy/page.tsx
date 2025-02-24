@@ -47,6 +47,7 @@ import { FaClockRotateLeft } from "react-icons/fa6";
 import { VscPreview } from "react-icons/vsc";
 import { usePageContext } from "@/context/pageContext"
 import { useUserContext } from "@/context/userContext"
+import { debounce } from "lodash"
 
 
 
@@ -163,11 +164,30 @@ const page = () => {
 
   const { websiteKey } = useUserContext();
   const { caseStudyData, fetchCaseStudyAll, caseStudyPageNo, setCaseStudyPageNo, } = usePageContext();
+  const [searchQuery, setSearchQuery] = useState('')
+
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
+
 
   useEffect(() => {
     if (websiteKey) fetchCaseStudyAll();
   }, [websiteKey, caseStudyPageNo])
 
+  useEffect(() => {
+    if(caseStudyPageNo === 1 && websiteKey){
+      fetchCaseStudyAll(searchQuery)
+    }
+    setCaseStudyPageNo(1);
+  }, [searchQuery])
+  
 
   const table = useReactTable({
     data: caseStudyData,
@@ -196,10 +216,7 @@ const page = () => {
       <div className="flex flex-col py-4">
         <Input
           placeholder="Search title..."
-          value={(table?.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("title")?.setFilterValue(event.target.value)
-          }
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
       </div>

@@ -23,7 +23,7 @@ export class ProductCategoriesController {
 
   @Get()
   async findCategories(@Headers('websiteKey') websiteKey: string) {
-    const categories = await this.productCategoriesService.findAll(websiteKey, undefined);
+    const categories = await this.productCategoriesService.findAll(websiteKey, undefined, undefined);
     return categories;
   }
 
@@ -32,7 +32,7 @@ export class ProductCategoriesController {
     @Headers('websiteKey') websiteKey: string,
     @Query() query: ProductCategoryQueryDto
   ) {
-    const categories = await this.productCategoriesService.findAll(websiteKey, query.page);
+    const categories = await this.productCategoriesService.findAll(websiteKey, query.page, query.search);
     return categories;
   }
 

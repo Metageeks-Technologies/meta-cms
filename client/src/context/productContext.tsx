@@ -23,12 +23,15 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
 
 
 
-    const fetchProductCategories = async () => {
+    const fetchProductCategories = async (searchQuery?: string) => {
         setLoading(true);
         try {
             const param = new URLSearchParams();
             param.append('page', productCategoryPageNo.toString())
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories?${param.toString()}`, undefined, { websiteKey })
+            if(searchQuery){
+                param.append('search', searchQuery)
+            }
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories/all?${param.toString()}`, undefined, { websiteKey })
 
             if (resp?.status === 200 || resp?.status === 201) {
                 setProductCategories(resp?.data);

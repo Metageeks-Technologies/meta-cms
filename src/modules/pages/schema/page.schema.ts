@@ -1,5 +1,6 @@
 import { timeStamp } from "console";
 import mongoose from "mongoose";
+import { title } from "process";
 
 
 export enum PageServiceEnum {
@@ -193,3 +194,6 @@ export const PageSchema = new mongoose.Schema<IPage>({
         default: true
     }
 }, { timestamps: true })
+
+
+PageSchema.index({ title: "text" })

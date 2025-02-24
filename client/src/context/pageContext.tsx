@@ -22,13 +22,14 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
 
   const { websiteKey } = useUserContext();
 
-
-
-  const fetchPageData = async () => {
+  const fetchPageData = async (searchQuery?: string) => {
     setLoading(true);
     try {
       const param = new URLSearchParams();
       param.append('page', pageNo.toString())
+      if (searchQuery) {
+        param.append('search', searchQuery)
+      }
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/pages/all?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
@@ -44,11 +45,14 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
   }
 
 
-  const fetchCaseStudyAll = async () => {
+  const fetchCaseStudyAll = async (searchQuery?: string) => {
     setLoading(true);
     try {
       const param = new URLSearchParams();
       param.append('page', caseStudyPageNo.toString())
+      if (searchQuery) {
+        param.append('search', searchQuery)
+      }
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/all?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
@@ -82,11 +86,14 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const fetchAllServices = async () => {
+  const fetchAllServices = async (searchQuery?: string) => {
     setLoading(true);
     try {
       const param = new URLSearchParams();
       param.append('page', servicePageNo.toString());
+      if (searchQuery) {
+        param.append('search', searchQuery)
+      }
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/services/all?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
@@ -227,11 +234,14 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const fetchSubServicesTotal = async (id: string) => {
+  const fetchSubServicesTotal = async (id: string, searchQuery?: string) => {
     setLoading(true);
     try {
       const param = new URLSearchParams();
       param.append('page', subServicePageNo.toString());
+      if (searchQuery) {
+        param.append('search', searchQuery)
+      }
       const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/total/${id}?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
       if (resp?.status === 200 || resp?.status === 201) {
@@ -310,7 +320,7 @@ export const PageProvider = ({ children }: { children: ReactNode }) => {
     setServicePageNo,
     subServicePageNo,
     setSubServicePageNo,
-    caseStudyPageNo, 
+    caseStudyPageNo,
     setCaseStudyPageNo,
   }
 

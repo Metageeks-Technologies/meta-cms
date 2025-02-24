@@ -27,7 +27,7 @@ export class WebsiteController {
     @Get()
     @UseGuards(AuthGuard)
     async getWebsites(@Query() query: WebsiteQueryDto) {
-        const websites = await this.websiteService.getWebsites(false, query.page)
+        const websites = await this.websiteService.getWebsites(false, query.page, query.search)
         return websites;
     }
 
@@ -35,7 +35,7 @@ export class WebsiteController {
     @AllowedRoles(UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
     async getAllWebsites(@Query() query: WebsiteQueryDto) {
-        const websites = await this.websiteService.getWebsites(undefined, query.page)
+        const websites = await this.websiteService.getWebsites(undefined, query.page, query.search)
         return websites
     }
 

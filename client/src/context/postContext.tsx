@@ -29,11 +29,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [categoryPageNo, setCategoryPageNo] = useState(1);
 
-    const fetchCategories = async () => {
+    const fetchCategories = async (searchQuery?: string) => {
         setLoading(true);
         try {
             const param = new URLSearchParams();
             param.append('page', categoryPageNo.toString());
+            if(searchQuery){
+                param.append('search', searchQuery)
+            }
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/categories?${param.toString()}`, undefined, { websiteKey })
             if (resp?.status === 200 || resp?.status === 201) {
                 setCategeories(resp?.data);

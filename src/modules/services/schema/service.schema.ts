@@ -33,4 +33,7 @@ export const ServiceSchema = new mongoose.Schema({
     required: true,
     default: false
   },
-}, { timestamps: true }) 
+}, { timestamps: true })
+
+
+ServiceSchema.index({ name: 'text' })

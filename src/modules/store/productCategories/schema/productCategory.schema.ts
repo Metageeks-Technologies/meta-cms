@@ -14,3 +14,6 @@ export const ProductCategorySchema = new mongoose.Schema({
   bannerImageKey: { type: String, required: true },
   websiteKey: { type: String, required: true }
 }, { timestamps: true });
+
+
+ProductCategorySchema.index({ name: "text" })

@@ -21,7 +21,7 @@ const otpGenerator = require('otp-generator');
 @Injectable()
 export class UsersService {
   private readonly USER_PAGE_BATCH_LIMIT = 10;
-  
+
   constructor(
     @InjectModel('User') private User: Model<IUser>,
     @InjectModel('Otp') private Otp: Model<IOtp>,
@@ -201,7 +201,7 @@ export class UsersService {
     // Assuming userId is valid and verified by JWT
 
     const website = await this.websiteService.getWebsiteByKey(websiteKey)
-    if(!website){
+    if (!website) {
       throw new BadRequestException('Invalid website key')
     }
 
@@ -209,37 +209,56 @@ export class UsersService {
     return bookmarks;
   }
 
-  async getAllAdmin(pageNo: string): Promise<IUser[]> {
+  async getAllAdmin(pageNo: string, searchQuery: string): Promise<IUser[]> {
 
     const page = parseInt(pageNo) || 1;
     const skip = (page - 1) * this.USER_PAGE_BATCH_LIMIT
 
-    const admins = await this.User.find({ role: UserRoleEnum.ADMIN })
-                                          .sort({ createdAt: -1 })
-                                            .skip(skip)
-                                              .limit(this.USER_PAGE_BATCH_LIMIT)
-                                                .select('-hash')
-                                                  .populate('website')
-                                                    .lean().exec();
+    const query = { role: UserRoleEnum.ADMIN }
+    let sortOption: any = { createdAt: -1 }
+
+    if (searchQuery) {
+      query['$text'] = { $search: searchQuery }
+      sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+    }
+
+    const admins = await this.User.find(query)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(this.USER_PAGE_BATCH_LIMIT)
+      .select('-hash')
+      .select(searchQuery && { score: { $meta: "textScore" } })
+      .populate('website')
+      .lean().exec();
+
     return admins;
   }
 
-  async getAllUser(websiteKey: string, role: UserRoleEnum, pageNo: string): Promise<IUser[]> {
+  async getAllUser(websiteKey: string, role: UserRoleEnum, pageNo: string, searchQuery: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException("Invalid website key");
     }
 
+    const query = { role: role, website: website._id }
+    let sortOption: any = { createdAt: -1 }
+
     const page = parseInt(pageNo) || 1;
     const skip = (page - 1) * this.USER_PAGE_BATCH_LIMIT
 
-    const user = await this.User.find({ role: role, website: website._id })
-                                      .sort({ createdAt: -1 })
-                                        .skip(skip)
-                                          .limit(this.USER_PAGE_BATCH_LIMIT)
-                                            .select('-hash')
-                                              .populate('website')
-                                                .lean().exec();
+    if (searchQuery) {
+      query['$text'] = { $search: searchQuery }
+      sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+    }
+
+    const user = await this.User.find(query)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(this.USER_PAGE_BATCH_LIMIT)
+      .select(searchQuery && { score: { $meta: "textScore" } })
+      .select('-hash')
+      .populate('website')
+      .lean().exec();
     return user;
   }
 
@@ -306,7 +325,7 @@ export class UsersService {
 
 
   // TODO: Remove this part when refactoring
-  
+
   // async getStoreUsersCount() {
   //   const result = await this.User.aggregate([{
   //     $group: {

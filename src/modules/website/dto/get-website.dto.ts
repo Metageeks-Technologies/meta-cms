@@ -7,4 +7,8 @@ export class WebsiteQueryDto {
     @IsOptional()
     @IsString()
     page: string;
+
+    @IsOptional()
+    @IsString()
+    search: string;
 }

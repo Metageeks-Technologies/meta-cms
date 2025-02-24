@@ -62,7 +62,7 @@ export class UsersController {
   @AllowedRoles(UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllAdmin(@Query() query: UserQueryDto) {
-    const admins = await this.usersService.getAllAdmin(query.page)
+    const admins = await this.usersService.getAllAdmin(query.page, query.search)
     return admins;
   }
 
@@ -74,7 +74,7 @@ export class UsersController {
     @Param('role') role: UserRoleEnum,
     @Query() query: UserQueryDto
   ) {
-    const users = await this.usersService.getAllUser(websiteKey, role, query.page)
+    const users = await this.usersService.getAllUser(websiteKey, role, query.page, query.search)
     return users
   }
 

@@ -37,20 +37,28 @@ export class WebsiteService {
         }
     }
 
-    async getWebsites(isDeleted: boolean, pageNo: string) {
+    async getWebsites(isDeleted: boolean, pageNo: string, searchQuery: string) {
 
         const page = parseInt(pageNo) || 1;
         const skip = (page - 1) * this.WEBSITE_PAGE_BATCH_LIMIT
 
         const query = {}
+        let sortOption: any = { createdAt: -1 }
         if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
         }
+
+        if (searchQuery) {
+            query['$text'] = { $search: searchQuery }
+            sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+        }
+
         const websites = await this.Website.find(query)
-                                                .sort({ createdAt: -1 })
-                                                    .skip(skip)
-                                                        .limit(this.WEBSITE_PAGE_BATCH_LIMIT)
-                                                            .lean().exec();
+            .sort(sortOption)
+            .skip(skip)
+            .limit(this.WEBSITE_PAGE_BATCH_LIMIT)
+            .select(searchQuery && { score: { $meta: "textScore" } })
+            .lean().exec();
         return websites;
     }
 
