@@ -41,3 +41,6 @@ export const SubserviceSchema = new mongoose.Schema({
     default: false
   }
 }, { timestamps: true });
+
+
+SubserviceSchema.index({ name: 'text' })

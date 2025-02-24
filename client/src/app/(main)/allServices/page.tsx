@@ -53,6 +53,7 @@ import { useUserContext } from "@/context/userContext"
 import AddServices from "./comonent/AddServices"
 import axiosCall from "@/utils/ApiCall"
 import toast from "react-hot-toast"
+import { debounce } from "lodash"
 
 
 
@@ -259,10 +260,30 @@ const page = () => {
   const [sorting, setSorting] = useState<SortingState>([])
   const { websiteKey } = useUserContext();
   const { services, fetchAllServices, servicePageNo, setServicePageNo } = usePageContext();
+  const [searchQuery, setSearchQuery] = useState('');
+
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
 
   useEffect(() => {
-    if (websiteKey) fetchAllServices();
+    if (websiteKey) fetchAllServices(searchQuery);
   }, [websiteKey, servicePageNo])
+
+  useEffect(() => {
+    if(servicePageNo === 1 && websiteKey){
+      fetchAllServices(searchQuery)
+    }
+    setServicePageNo(1)
+  }, [searchQuery])
+
+  
 
 
   const table = useReactTable({
@@ -282,10 +303,7 @@ const page = () => {
       <div className="flex flex-row justify-between items-center py-4">
         <Input
           placeholder="Search name..."
-          value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
         <AddServices />

@@ -3,6 +3,7 @@ import { caseStudyContent } from "@/types";
 export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
   title: '',
   slug: '',
+  projectType: '',
   // website: '',
   // service: '',
   content: {
@@ -24,7 +25,6 @@ export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
     },
     serviceSection: {
       imageKey: null,
-      heading: '',
       description: ''
     },
     processSection: {

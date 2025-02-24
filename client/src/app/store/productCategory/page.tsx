@@ -21,6 +21,7 @@ import axiosCall from "@/utils/ApiCall"
 import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
 import { useProductContext } from "@/context/productContext"
+import { debounce } from "lodash"
 
 const columns = [
   {
@@ -274,6 +275,28 @@ function Category() {
 
   const { productCategories, fetchProductCategories, productCategoryPageNo, setProductCategoryPageNo } = useProductContext();
   const { user, websiteKey }: any = useUserContext();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
+
+
+  useEffect(() => {
+    if (websiteKey) fetchProductCategories(searchQuery);
+  }, [websiteKey, productCategoryPageNo]);
+
+  useEffect(() => {
+    if (productCategoryPageNo === 1 && websiteKey) {
+      fetchProductCategories(searchQuery)
+    }
+    setProductCategoryPageNo(1)
+  }, [searchQuery])
 
 
   const table = useReactTable({
@@ -290,11 +313,6 @@ function Category() {
     },
   });
 
-  useEffect(() => {
-    if (websiteKey) fetchProductCategories();
-  }, [websiteKey, productCategoryPageNo]);
-
-
 
   return (
     <div className="w-full container mx-auto px-4">
@@ -302,10 +320,7 @@ function Category() {
         <div className="flex flex-row items-center justify-between">
           <Input
             placeholder="Search name..."
-            value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table?.getColumn("name")?.setFilterValue(event.target.value)
-            }
+            onChange={handleSearch}
             className="max-w-sm border-[1px] border-gray-800 text-base"
           />
 

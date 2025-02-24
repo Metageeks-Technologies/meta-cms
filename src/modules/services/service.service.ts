@@ -93,13 +93,20 @@ export class ServiceService {
   }
 
   // In ServiceService
-  async findAll(websiteKey: string, pageNo: string, isDeleted?: boolean) {
+  async findAll(websiteKey: string, pageNo: string, searchQuery: string, isDeleted?: boolean) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey);
     if (!website) {
       throw new BadRequestException('Invalid website key')
     }
 
     const query = { websiteKey };
+    let sortOption: any = { createdAt: -1 }
+
+    if (searchQuery) {
+      query['$text'] = { $search: searchQuery }
+      sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+    }
+
     if (isDeleted !== undefined) {
       query['isDeleted'] = isDeleted;
     }
@@ -109,9 +116,10 @@ export class ServiceService {
       const skip = (page - 1) * this.SERVICE_PAGE_BATCH_LIMIT
 
       const services = await this.Service.find(query)
-        .sort({ createdAt: -1 })
+        .sort(sortOption)
         .skip(skip)
         .limit(this.SERVICE_PAGE_BATCH_LIMIT)
+        .select(searchQuery && { score: { $meta: "textScore" } })
         .lean().exec();
 
       return services;

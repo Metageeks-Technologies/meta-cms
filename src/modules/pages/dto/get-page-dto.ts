@@ -12,4 +12,8 @@ export class GetPageQueryDto {
     @IsOptional()
     @IsString()
     page: string
+
+    @IsOptional()
+    @IsString()
+    search: string
 }

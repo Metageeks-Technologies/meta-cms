@@ -69,7 +69,7 @@ export class PagesController {
         @Headers('websiteKey') websiteKey: string,
         @Query() query: GetPageQueryDto
     ): Promise<any> {
-        const allPage = await this.pagesService.getAllPage(websiteKey, query.page);
+        const allPage = await this.pagesService.getAllPage(websiteKey, query.page, query.search);
         return allPage
     }
 

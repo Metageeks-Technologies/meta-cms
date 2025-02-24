@@ -7,4 +7,8 @@ export class CategoryQueryDto {
     @IsOptional()
     @IsString()
     page: string
+
+    @IsOptional()
+    @IsString()
+    search: string
 }

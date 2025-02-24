@@ -237,6 +237,11 @@ export class OrderService {
         }
 
         const query = { websiteKey }
+        let sortOption = { createdAt: -1 }
+
+        // if (searchQuery) {
+        //     query['']
+        // }
 
         if (userId) {
             query['user'] = userId
@@ -254,7 +259,7 @@ export class OrderService {
         const skip = (page - 1) * this.ORDER_PAGE_BATCH_LIMIT
 
         const orders = await this.Order.find(query)
-            .sort({ _id: -1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(this.ORDER_PAGE_BATCH_LIMIT)
             .populate({
@@ -418,7 +423,7 @@ export class OrderService {
 
 
         const topItems = await Promise.all(
-            result.map(async (item: any) => { 
+            result.map(async (item: any) => {
                 const product = await this.productService.getProductById(websiteKey, item.productId, undefined, undefined);
                 delete item.productId;
                 item['product'] = product;
@@ -428,7 +433,6 @@ export class OrderService {
 
         return topItems;
     }
-
 
 
     async getUserOrders(websiteKey: string, userId: string, query: GetOrderQuery) {
@@ -450,10 +454,10 @@ export class OrderService {
     async updateOrderStatus(query: any, newStatus: OrderStatusEnum) {
 
         const newDetails = {
-            shippingStatus: newStatus 
+            shippingStatus: newStatus
         }
 
-        if(newStatus === OrderStatusEnum.DELIVERED){
+        if (newStatus === OrderStatusEnum.DELIVERED) {
             newDetails['paymentStatus'] = PaymentStatusEnum.PAID
         }
         const order = await this.Order.findOneAndUpdate(query, newDetails);
@@ -497,7 +501,7 @@ export class OrderService {
 
     async changeOrderStatus(websiteKey: string, orderId: string, vendorId: string, newStatus: OrderStatusEnum) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
-        if(!website){
+        if (!website) {
             throw new BadRequestException('Invalid website key')
         }
         const query = {

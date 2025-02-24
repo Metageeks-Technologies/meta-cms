@@ -46,7 +46,7 @@ const page = () => {
     return (
         <div className='p-4 md:p-10' >
             <div className='mb-5 flex flex-row items-center justify-between'>
-                <button className='rounded-full text-2xl' onClick={() => router.back()}>
+                <button className='rounded-full text-2xl' onClick={() => router.push('/allCaseStudy')}>
                     <FaArrowLeft />
                 </button>
                 {
@@ -106,10 +106,6 @@ const page = () => {
                 {/* Service Section */}
                 <div className='w-full bg-gray-900 rounded-lg p-4'>
                     <h2 className='text-2xl font-bold my-2'>Services Section</h2>
-                    <p className='text-gray-400'>
-                        <span className='font-bold text-white'>Heading: </span>
-                        {caseStudyPage?.content?.serviceSection?.heading}
-                    </p>
                     <p className='text-gray-400'>
                         <span className='font-bold text-white'>Description: </span>
                         {caseStudyPage?.content?.serviceSection?.description}

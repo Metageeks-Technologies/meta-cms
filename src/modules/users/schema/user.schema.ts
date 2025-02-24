@@ -77,3 +77,7 @@ export const UserSchema = new mongoose.Schema({
   },
   lastLoginIp: { type: String }
 }, { timestamps: true });
+
+
+
+UserSchema.index({name: "text", email: "text"})
