@@ -124,7 +124,7 @@ export class CaseStudyService {
             throw new BadRequestException('Invalid website key')
         }
 
-        const caseStudies = await this.CaseStudy.find({ websiteKey, isDeleted: false }, { title: 1, slug: 1, "content.heroSection": 1 }).exec()
+        const caseStudies = await this.CaseStudy.find({ websiteKey, isDeleted: false }, { title: 1, slug: 1, projectType: 1, "content.heroSection": 1 }).exec()
         return caseStudies;
     }
 
