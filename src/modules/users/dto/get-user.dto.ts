@@ -8,4 +8,10 @@ export class UserQueryDto {
     @IsOptional()
     @IsString()
     page: string
+    
+
+
+    @IsOptional()
+    @IsString()
+    search: string
 }

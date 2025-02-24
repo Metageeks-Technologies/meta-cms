@@ -35,12 +35,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
     // API Calls
-    const fetchUsers = async (role: string) => {
+    const fetchUsers = async (role: string, searchQuery?: string) => {
         setLoading(true);
         setIsLoading(true);
         try {
             const param = new URLSearchParams();
             param.append('page', userPageNo.toString());
+            if (searchQuery) {
+                param.append('search', searchQuery)
+            }
             const response = await axiosCall('GET', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-user/${role}?${param.toString()}`, undefined, { websiteKey: websiteKey });
 
             if (response?.status === 200 || response?.status === 201) {
@@ -66,11 +69,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
 
-    const fetchAdmins = async () => {
+    const fetchAdmins = async (searchQuery?: string) => {
         setLoading(true);
         try {
             const param = new URLSearchParams()
             param.append('page', adminPageNo.toString());
+            if (searchQuery) {
+                param.append('search', searchQuery)
+            }
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/users/all-admin?${param.toString()}`)
 
             if (resp?.status === 200 || resp?.status === 201) {
@@ -345,7 +351,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setWebsiteData,
         userPageNo,
         setUserPageNo,
-        adminPageNo, 
+        adminPageNo,
         setAdminPageNo
     };
 

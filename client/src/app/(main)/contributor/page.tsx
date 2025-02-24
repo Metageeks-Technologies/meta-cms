@@ -46,6 +46,7 @@ import toast from "react-hot-toast"
 import { userRoles } from "@/constant/user"
 import { useUserContext } from "@/context/userContext"
 import AddContributor from "./components/AddContributor"
+import { debounce } from "lodash"
 
 
 
@@ -200,6 +201,30 @@ function User() {
   // const [rowSelection, setRowSelection] = React.useState({})
 
   const { contributors, fetchUsers, isLoading, websiteKey, userPageNo, setUserPageNo }: any = useUserContext();
+  const [searchQuery, setSearchQuery] = useState('');
+
+
+
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
+
+  useEffect(() => {
+    if (websiteKey) fetchUsers(userRoles.CONTRIBUTOR, searchQuery);
+  }, [websiteKey, userPageNo]);
+
+  useEffect(() => {
+    if (userPageNo === 1 && websiteKey) fetchUsers(userRoles.CONTRIBUTOR, searchQuery)
+
+    setUserPageNo(1)
+  }, [searchQuery])
+
 
   const table = useReactTable({
     data: contributors || [],
@@ -220,19 +245,13 @@ function User() {
     },
   });
 
-  useEffect(() => {
-    if (websiteKey) fetchUsers(userRoles.CONTRIBUTOR);
-  }, [websiteKey, userPageNo]);
 
   return (
     <div className="w-full container mx-auto px-4">
       <div className="flex flex-row items-center justify-between py-4">
         <Input
-          placeholder="Search email..."
-          value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("email")?.setFilterValue(event.target.value)
-          }
+          placeholder="Search..."
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
         <AddContributor />
