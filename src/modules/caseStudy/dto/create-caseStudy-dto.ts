@@ -162,6 +162,10 @@ export class CreateCaseStudyDto {
     slug: string;
 
     @IsNotEmpty()
+    @IsString()
+    projectType: string;
+
+    @IsNotEmpty()
     @ValidateNested()
     @Type(() => CreateContentDto)
     content: CreateContentDto;

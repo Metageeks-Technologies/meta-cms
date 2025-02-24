@@ -46,7 +46,7 @@ const page = () => {
     return (
         <div className='p-4 md:p-10' >
             <div className='mb-5 flex flex-row items-center justify-between'>
-                <button className='rounded-full text-2xl' onClick={() => router.back()}>
+                <button className='rounded-full text-2xl' onClick={() => router.push('/allCaseStudy')}>
                     <FaArrowLeft />
                 </button>
                 {

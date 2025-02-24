@@ -446,6 +446,22 @@ const CreateCaseStudy = () => {
                         />
                     </label>
                 </div>
+
+                <label className="w-full flex flex-col gap-2 mb-5">
+                    <span>Project Type</span>
+                    <input
+                        type="text"
+                        className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
+                        id="projectType"
+                        placeholder="Enter project type"
+                        value={formData.projectType}
+                        onChange={handleChange}
+                        maxLength={120}
+                        required
+                    />
+                </label>
+
+
                 <label className="block text-white mb-5">
                     <span className='text-xl'>Hero Section </span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
