@@ -33,7 +33,7 @@ export const AddressSchema = new mongoose.Schema({
     postalCode: { type: Number, required: true },
     city: { type: String, required: true },
     state: { type: String, required: true },
-    instruction: { type: String, required: true },
+    instruction: { type: String },
     websiteKey: {type: String, required: true},
     isDefault: {
         type: Boolean,
