@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 export interface ICaseStudy extends mongoose.Document {
     title: string;
     websiteKey: string;
+    projectType: string;
     authorId: mongoose.Types.ObjectId;
     slug: string;
     content: {
@@ -55,6 +56,10 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
         required: true
     },
     websiteKey: {
+        type: String,
+        required: true
+    },
+    projectType: {
         type: String,
         required: true
     },
