@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserQueryDto } from './dto/get-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -70,7 +71,7 @@ export class UsersController {
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllUser(
-    @Headers('websiteKey') websiteKey: string, 
+    @Headers('websiteKey') websiteKey: string,
     @Param('role') role: UserRoleEnum,
     @Query() query: UserQueryDto
   ) {
@@ -192,6 +193,18 @@ export class UsersController {
   async unBlockUser(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) userId: string) {
     await this.usersService.unBlockUser(websiteKey, userId)
     return { message: "User unblock succesfully" }
+  }
+
+
+  @Post('change-password')
+  @UseGuards(AuthGuard)
+  async changeUserPaswword(
+    @Req() req: Request,
+    @Body() newDeatils: ChangePasswordDto
+  ) {
+    const user = (req as any).user;
+    await this.usersService.changeUserPassword(user._id, newDeatils.oldPassword, newDeatils.newPassword)
+    return { message: "Password change successfully" }
   }
 
 }

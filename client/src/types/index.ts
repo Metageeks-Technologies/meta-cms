@@ -526,3 +526,12 @@ export interface UserContextType {
   adminPageNo: number; 
   setAdminPageNo: (num: number) => void;
 };
+
+
+
+
+export interface ChangePasswordFormType {
+  oldPass: string,
+  newPass: string,
+  confirmNewPass: string
+}

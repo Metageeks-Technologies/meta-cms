@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
 import { IUser, UserRoleEnum } from './schema/user.schema';
 import mongoose, { Model } from 'mongoose';
@@ -9,7 +9,7 @@ import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { IOtp } from './schema/otp.schema';
 import { sendEmail } from 'src/utils/emailService';
-import { emailVerificationOtpTemplate, resetPasswordOtpTemplate } from 'src/utils/emailTemplates';
+import { emailVerificationOtpTemplate, newUserWelcomeTemplate, resetPasswordOtpTemplate } from 'src/utils/emailTemplates';
 import { CloudCog } from 'lucide-react';
 import { RedisService } from '../redis/redis.service';
 import { RedisKeys } from 'src/utils/constant';
@@ -80,9 +80,11 @@ export class UsersService {
 
     try {
       await newUser.save();
+      sendEmail(newUser.email, "🎉 Welcome to Meta CMS – Your Account Details Inside!", newUserWelcomeTemplate(newUser.name, newUser.email, newUserDetails.password, newUser.role))
     } catch (error) {
       if (error.code === 11000) {
-        // Duplicate key error
+        // Duplicate key error          text-transform: capitalize;
+
         throw new ConflictException('Email already exists');
       }
 
@@ -421,6 +423,21 @@ export class UsersService {
 
     if (!user.name) {
       throw new NotFoundException('User not found')
+    }
+  }
+
+
+  async changeUserPassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await this.User.findById(userId)
+    if(!user){
+      throw new BadRequestException('User not found')
+    }
+
+    if(await bcrypt.compare(oldPassword, user.hash)){
+      user.hash = await bcrypt.hash(newPassword, 10)
+      await user.save();
+    }else{
+      throw new ForbiddenException('Wrong password')
     }
   }
 

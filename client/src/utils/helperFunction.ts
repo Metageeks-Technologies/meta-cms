@@ -58,3 +58,9 @@ export const uploadToS3 = async (websiteKey: string, uploadUrl: string, file: Fi
         setLoaing(false)
     }
 }
+
+
+export const isValidUrl = (url: string): boolean => {
+    const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w-.~:/?#[\]@!$&'()*+,;=%]*)?$/;
+    return urlRegex.test(url);
+};

@@ -109,6 +109,7 @@ const Card = ({ post, index }: any) => {
                     <span className={`
                         px-2 py-1 
                         rounded-md text-[10px] font-medium
+                        capitalize
                         ${getStatusColor(post.status)}
                     `}>
                         {post.status}

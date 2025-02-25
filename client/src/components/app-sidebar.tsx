@@ -147,7 +147,7 @@ export function AppSidebar() {
             className="h-16 -my-[0.5px] ml-2 text-2xl md:text-2xl text-gray-200 font-bold cursor-pointer"
           >
             <div>
-              CMS
+              Meta CMS
               <p className="text-sm font-thin">Content Management System</p>
             </div>
           </SidebarGroupLabel>

@@ -15,9 +15,11 @@ import { getURL } from '@/utils/AWS_Config';
 import ProfileTabs from './components/ProfileTabs';
 import { BsTwitterX } from "react-icons/bs";
 import { User, Phone, Mail, Briefcase, Building2, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { isValidUrl } from '@/utils/helperFunction';
+import ChangePassword from './components/ChangePassword';
 
 const ProfilePage: React.FC = () => {
-  const { user, getUserProfile, setLoading, websiteKey}: any = useUserContext();
+  const { user, getUserProfile, setLoading, websiteKey }: any = useUserContext();
 
 
   const [userProfile, setUserProfile] = useState({
@@ -51,8 +53,8 @@ const ProfilePage: React.FC = () => {
   const fetchAddress = async () => {
     try {
       setIsLoading(true);
-      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`,undefined,{websiteKey});
-      
+      const response = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/address`, undefined, { websiteKey });
+
       if (response.data && response.data.length > 0) {
         const address = response.data[0]; // Assuming you need the first address
         setUserAddress({
@@ -79,7 +81,7 @@ const ProfilePage: React.FC = () => {
       setIsLoading(true);
       const addressPayload = { ...userAddress };
       const addressId = '6790c56eaa0bcf6a67947d08'; // Replace with the actual address ID you want to update
-      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${addressId}`, addressPayload,{websiteKey});
+      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${addressId}`, addressPayload, { websiteKey });
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Address updated successfully!');
@@ -129,10 +131,31 @@ const ProfilePage: React.FC = () => {
 
 
   const handleSave = async () => {
+
+    if (userProfile?.socialLinks?.facebook && !isValidUrl(userProfile?.socialLinks?.facebook)) {
+      toast.error('Enter a valid Facebook Url')
+      return
+    }
+
+    if (userProfile?.socialLinks?.linkedIn && !isValidUrl(userProfile?.socialLinks?.linkedIn)) {
+      toast.error('Enter a valid LinkedIn Url')
+      return
+    }
+
+    if (userProfile?.socialLinks?.twitter && !isValidUrl(userProfile?.socialLinks?.twitter)) {
+      toast.error('Enter a valid X Url')
+      return
+    }
+
+    if (userProfile?.socialLinks?.instagram && !isValidUrl(userProfile?.socialLinks?.instagram)) {
+      toast.error('Enter a valid Instagram Url')
+      return
+    }
+
     setLoading(true);
     try {
       const payload = { ...userProfile };
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, {  websiteKey });
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, { websiteKey });
 
 
       if (resp.status === 200 || resp.status === 201) {
@@ -164,7 +187,7 @@ const ProfilePage: React.FC = () => {
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
       }
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey });
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
         const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
@@ -201,7 +224,7 @@ const ProfilePage: React.FC = () => {
               <label>
                 <div className="relative">
                   <Avatar className="w-20 h-20 border-2 border-gray-700">
-                    <AvatarImage 
+                    <AvatarImage
                       src={userProfile?.imageKey ? getURL(userProfile?.imageKey) : "https://github.com/shadcn.png"}
                       alt="Profile"
                     />
@@ -215,14 +238,14 @@ const ProfilePage: React.FC = () => {
               </label>
             ) : (
               <Avatar className="w-20 h-20 border-2 border-gray-700">
-                <AvatarImage 
+                <AvatarImage
                   src={user?.imageKey ? getURL(user?.imageKey) : "https://github.com/shadcn.png"}
                   alt="Profile"
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             )}
-            
+
             <div className="space-y-1">
               <h2 className="text-xl font-semibold text-gray-200 flex items-center gap-2">
                 <User className="w-5 h-5" />
@@ -231,7 +254,7 @@ const ProfilePage: React.FC = () => {
               <p className="text-gray-400">{userProfile?.role?.replace(/^\w/, (c) => c.toUpperCase())}</p>
             </div>
           </div>
-  
+
           <div className="flex items-center gap-4">
             {userProfile?.socialLinks?.facebook && (
               <a href={userProfile?.socialLinks.facebook} target="_blank" className="hover:opacity-80 transition-opacity">
@@ -255,7 +278,7 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
         </div>
-  
+
         {/* Form Grid */}
         <div className="space-y-8">
           {/* Name and Phone Section */}
@@ -285,7 +308,7 @@ const ProfilePage: React.FC = () => {
                 />
               </div>
             </div>
-  
+
             {/* Phone */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="phone">
@@ -311,7 +334,7 @@ const ProfilePage: React.FC = () => {
               />
             </div>
           </div>
-  
+
           {/* Bio Section */}
           <div className="col-span-full">
             <h2 className="text-xl font-semibold text-gray-200 mb-4">About</h2>
@@ -327,7 +350,7 @@ const ProfilePage: React.FC = () => {
                 ${isEditing ? 'focus:ring-yellow-500 hover:border-gray-500' : 'opacity-50 cursor-not-allowed'}`}
             />
           </div>
-  
+
           {/* Contact and Roles Section */}
           <div>
             <h2 className="text-xl font-semibold text-gray-200 mb-4">Contact & Role</h2>
@@ -347,7 +370,7 @@ const ProfilePage: React.FC = () => {
                   className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 opacity-50 cursor-not-allowed"
                 />
               </div>
-  
+
               {/* Roles */}
               <div className="grid grid-cols-2 gap-4">
                 {/* Role */}
@@ -365,7 +388,7 @@ const ProfilePage: React.FC = () => {
                     className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 opacity-50 cursor-not-allowed"
                   />
                 </div>
-  
+
                 {/* Store Role */}
                 {/* <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -384,7 +407,7 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
           </div>
-  
+
           {/* Social Links Section */}
           {isEditing && (
             <div className="col-span-2">
@@ -415,7 +438,7 @@ const ProfilePage: React.FC = () => {
                     className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-yellow-500"
                   />
                 </div>
-  
+
                 {/* Instagram */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="instagram">
@@ -441,7 +464,7 @@ const ProfilePage: React.FC = () => {
                     className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-yellow-500"
                   />
                 </div>
-  
+
                 {/* LinkedIn */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="linkedin">
@@ -467,7 +490,7 @@ const ProfilePage: React.FC = () => {
                     className="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-yellow-500"
                   />
                 </div>
-  
+
                 {/* Twitter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2" htmlFor="x">
@@ -496,7 +519,7 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
           )}
-  
+
           {/* Action Buttons */}
           <div className="flex items-center justify-end space-x-4 pt-4">
             {isEditing ? (
@@ -515,17 +538,20 @@ const ProfilePage: React.FC = () => {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm sm:text-base flex items-center gap-2 transition-colors"
-              >
-                <FaEdit className="text-sm" /> Edit Profile
-              </button>
+              <>
+                <ChangePassword />
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm sm:text-base flex items-center gap-2 transition-colors"
+                >
+                  <FaEdit className="text-sm" /> Edit Profile
+                </button>
+              </>
             )}
           </div>
         </div>
       </div>
-  
+
       <div className="mt-8">
         <ProfileTabs />
       </div>
@@ -533,4 +559,3 @@ const ProfilePage: React.FC = () => {
   );
 };
 export default ProfilePage;
-  
