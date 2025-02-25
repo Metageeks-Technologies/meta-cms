@@ -189,7 +189,7 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
                         <DialogFooter className="mt-6">
                             <Button 
                                 type="submit" 
-                                className='bg-green-500 text-white font-bold text-base hover:bg-green-600 w-full'
+                                className='bg-green-500 text-white font-bold text-base hover:bg-green-600 '
                             >
                                 {categoryToUpdate ? 'Update' : 'Create'}
                             </Button>

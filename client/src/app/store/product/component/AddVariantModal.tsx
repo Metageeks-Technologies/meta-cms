@@ -70,8 +70,8 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50" onClick={() => setIsAddModalOpen(false)}>
-      <div className="bg-gray-700 p-6 rounded-lg w-1/2">
-        <h3 className="text-2xl font-bold mb-4"  onClick={(e) => e.stopPropagation()}>Add New Variant</h3>
+      <div className="bg-gray-700 p-6 rounded-lg w-1/2"onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-2xl font-bold mb-4"  >Add New Variant</h3>
         <form>
   {/* Variant Pair 1 */}
   <div className="flex gap-4 mb-4">

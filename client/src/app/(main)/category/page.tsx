@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 import { SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table"
-import { MoreHorizontal, TriangleAlert } from "lucide-react"
+import { MoreHorizontal, TriangleAlert,Upload } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
@@ -252,28 +252,34 @@ const columns = [
                 />
               </div>
 
-              <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
-                <Label htmlFor="img" className="text-right w-full ">
-                  Select Image
-                </Label>
-                <input
-                  type="file"
-                  id="img"
-                  // value={createForm.bannerImageKey}
-                  onChange={(e: any) => uploadNewFile(e.target.files)}
-                  className='hidden'
-                />
-              </div>
+              <div>
+                            <Label className="mb-2 block">Select Image</Label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    id="img"
+                                    onChange={(e: any) => uploadNewFile(e.target.files)}
+                                    className='absolute inset-0 opacity-0 cursor-pointer z-10'
+                                />
+                                <div className="border-[1px] border-gray-200 px-4 py-3 rounded-md flex items-center justify-between">
+                                    <span className="text-gray-400">Choose file</span>
+                                    <Upload className="w-5 h-5 text-gray-400" />
+                                </div>
+                            </div>
+                        </div>
 
-              {
-                category.bannerImageKey &&
-                <div className='w-[100px] h-[70px]'>
-                  <img src={getURL(category.bannerImageKey)} alt="" className='w-full h-full object-cover' />
-                </div>
-              }
+                        {category.bannerImageKey && (
+                            <div className='w-full max-w-[200px] h-[150px] mx-auto mt-4 rounded-lg overflow-hidden shadow-sm'>
+                                <img 
+                                    src={getURL(category.bannerImageKey)} 
+                                    alt="Banner" 
+                                    className='w-full h-full object-cover' 
+                                />
+                            </div>
+                        )}
               <DialogFooter>
-                <Button type="button" onClick={handleCancel}>Cancel</Button>
-                <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Update</Button>
+                <Button type="button" className='mt-4'onClick={handleCancel}>Cancel</Button>
+                <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600 mt-4'>Update</Button>
               </DialogFooter>
             </form>
           </DialogContent>
