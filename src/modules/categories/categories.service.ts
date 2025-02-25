@@ -22,7 +22,7 @@ export class CategoriesService {
         @InjectModel('Category') private Category: Model<ICategory>,
         private readonly redisService: RedisService,
         private readonly websiteService: WebsiteService,
-    ) {}
+    ) { }
 
     async create(websiteKey: string, newCategoryData: CreateCategoryDto) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
@@ -52,19 +52,28 @@ export class CategoriesService {
         }
     }
 
-    async findAll(websiteKey: string, pageNo: string) {
+    async findAll(websiteKey: string, pageNo: string, searchQuery: string) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
             throw new BadRequestException('Invalid website key');
         }
 
+        const query = { websiteKey }
+        let sortOption: any = { createdAt: -1 }
+
         const page = parseInt(pageNo) || 1;
         const skip = (page - 1) * this.CATEGORY_PAGE_BATCH_LIMIT;
 
-        const categories = await this.Category.find({ websiteKey })
-            .sort({ createdAt: -1 })
+        if (searchQuery) {
+            query['$text'] = { $search: searchQuery }
+            sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+        }
+
+        const categories = await this.Category.find(query)
+            .sort(sortOption)
             .skip(skip)
             .limit(this.CATEGORY_PAGE_BATCH_LIMIT)
+            .select(searchQuery && { score: { $meta: "textScore" } })
             .lean()
             .exec();
 

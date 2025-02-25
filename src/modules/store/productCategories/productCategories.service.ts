@@ -43,7 +43,7 @@ export class ProductCategoriesService {
     }
   }
 
-  async findAll(websiteKey: string, pageNo: string) {
+  async findAll(websiteKey: string, pageNo: string, searchQuery: string) {
     const website = await this.websiteService.getWebsiteByKey(websiteKey)
     if (!website) {
       throw new BadRequestException('Invalid website key')
@@ -57,15 +57,24 @@ export class ProductCategoriesService {
     //   return JSON.parse(categoriesData);
     // }
 
+    const query = { websiteKey }
+    let sortOption: any = { createdAt: -1 }
+
+    if (searchQuery) {
+      query['$text'] = { $search: searchQuery }
+      sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+    }
+
 
     if (pageNo) {
       const page = parseInt(pageNo) || 1
       const skip = (page - 1) * this.PRODUCT_CATEGORY_PAGE_BATCH_LIMIT
 
-      const categories = await this.ProductCategory.find({ websiteKey })
-        .sort({ createdAt: -1 })
+      const categories = await this.ProductCategory.find(query)
+        .sort(sortOption)
         .skip(skip)
         .limit(this.PRODUCT_CATEGORY_PAGE_BATCH_LIMIT)
+        .select(searchQuery && { socre: { $meta: "textScore" } })
         .lean().exec();
 
 
@@ -74,7 +83,7 @@ export class ProductCategoriesService {
 
 
       return categories as IProductCategory[];
-      
+
     } else {
       const categories = await this.ProductCategory.find({ websiteKey }).sort({ createdAt: -1 }).lean().exec();
       return categories as IProductCategory[];

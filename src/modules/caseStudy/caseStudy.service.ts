@@ -79,13 +79,19 @@ export class CaseStudyService {
         }
     }
 
-    async getAll(websiteKey: string, pageNo: string, isDeleted?: boolean) {
+    async getAll(websiteKey: string, pageNo: string, searchQuery: string, isDeleted?: boolean) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
             throw new BadRequestException('Invalid website key')
         }
 
         const query = { websiteKey }
+        let sortOption: any = { createdAt: -1 }
+
+        if (searchQuery) {
+            query['$text'] = { $search: searchQuery }
+            sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+        }
 
         if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
@@ -96,10 +102,11 @@ export class CaseStudyService {
             const skip = (page - 1) * this.CASESTUDY_PAGE_BATCH_LIMIT;
 
             const caseStudies = await this.CaseStudy.find(query)
-                .sort({ createdAt: -1 })
+                .sort(sortOption)
                 .skip(skip)
                 .limit(this.CASESTUDY_PAGE_BATCH_LIMIT)
                 .populate('authorId')
+                .select(searchQuery && { score: { $meta: "textScore" } })
                 .exec()
 
             return caseStudies;

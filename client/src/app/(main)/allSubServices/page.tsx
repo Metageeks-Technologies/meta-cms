@@ -9,16 +9,19 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { CloudLightning, MoreHorizontal, TriangleAlert } from "lucide-react"
+import { MoreHorizontal, TriangleAlert } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
+
+
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
@@ -27,6 +30,7 @@ import { FaClockRotateLeft } from "react-icons/fa6";
 import { usePageContext } from "@/context/pageContext"
 import { useUserContext } from "@/context/userContext"
 import AddSubServices from "./component/AddSubServices"
+import { debounce } from "lodash"
 import toast from "react-hot-toast"
 import axiosCall from "@/utils/ApiCall"
 import { VscPreview } from "react-icons/vsc"
@@ -68,21 +72,32 @@ const columns = [
 
       const subServices = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const { recoverSubServices, deleteSubServices, services,fetchSubServicesTotal } = usePageContext();
+      const { recoverSubServices, deleteSubServices, services, fetchSubServicesTotal } = usePageContext();
       const [isOpen, setIsOpen] = useState(false);
-      const [subServicess, setSubServices] = useState(row.original);
-      const { setLoading, websiteKey } = useUserContext();
+      const { user, setLoading, websiteKey }: any = useUserContext();
+      const [subServicess, setSubServicess] = useState(row.original);
+      const [selectedService, setSelectedService] = useState<string | null>(null);
+
+      useEffect(() => {
+        if (services.length > 0) {
+          const defaultService = services[0]._id;
+          setSelectedService(defaultService);
+        }
+      }, [services]);
+
+
+      useEffect(()=>{
+        setSubServicess(row.original)
+      },[row.original])
+
+
+
       const handleCancel = () => {
-        setSubServices(row.original);
+        setSubServicess(row.original);
         setIsOpen(false);
       }
 
-      useEffect(() => {
-        setSubServices(row.original);  
-      }, [row.original]); 
-
-
-      const updateSubServices = async (id: string) => {
+      const updateServices = async (id: string) => {
 
         if (!subServicess.name.trim() || !subServicess.description.trim()) {
           toast.error("Please fill in all fields correctly.", {
@@ -91,6 +106,8 @@ const columns = [
           setLoading(false);
           return;
         }
+
+
         setLoading(true);
         try {
           const payload = {
@@ -104,7 +121,7 @@ const columns = [
             toast.success(resp.data.message, {
               duration: 2000,
             });
-            fetchSubServicesTotal(services[0]._id);
+            fetchSubServicesTotal(selectedService);
             setIsOpen(false);
           } else {
             toast.error(resp.data.message, {
@@ -117,7 +134,8 @@ const columns = [
           setLoading(false);
         }
       }
-      
+
+
       return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
 
@@ -129,7 +147,9 @@ const columns = [
                   <MoreHorizontal />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800">
+              <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+                {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-gray-800" /> */}
                 {
                   subServices.isDeleted ?
                     <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
@@ -142,24 +162,22 @@ const columns = [
                         <RiDeleteBinLine /> Delete
                       </AlertDialogTrigger>
                     </DropdownMenuItem>
-                    
                 }
-                  <DropdownMenuItem onClick={() => {
-                                  setIsOpen(true); // Open the dialog
-                                }} className="hover:bg-gray-800 cursor-pointer px-3">
-                                  <VscPreview /> Update
-                                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  setIsOpen(true); // Open the dialog
+                }} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <VscPreview /> Update
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             <AlertDialogContent className='bg-black border-gray-800'>
               <AlertDialogHeader>
                 <AlertDialogTitle></AlertDialogTitle>
-                <AlertDialogDescription className='h-24'>
+                <AlertDialogDescription className='h-24' >
                   <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
                 </AlertDialogDescription>
                 <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
-                  Are you sure?
+                  Are you sure ?
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -168,9 +186,9 @@ const columns = [
                 <AlertDialogAction
                   onClick={
                     clickedItem === 1 ?
-                      () => recoverSubServices(subServices._id, services[0]._id)
+                      () => recoverSubServices(subServices._id, selectedService)
                       : clickedItem === 2 ?
-                        () => deleteSubServices(subServices._id, services[0]._id)
+                        () => deleteSubServices(subServices._id, selectedService)
                         : () => { }
                   }
                 >
@@ -180,27 +198,27 @@ const columns = [
 
             </AlertDialogContent>
           </AlertDialog>
-
           <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">
             <DialogHeader>
-              <DialogTitle className='text-2xl'>Update SubService</DialogTitle>
+              <DialogTitle className='text-2xl'>Update Services</DialogTitle>
             </DialogHeader>
             <form
               className="py-4"
               onSubmit={async (event: any) => {
-                event.preventDefault(); 
-                await updateSubServices(subServicess._id);
+                event.preventDefault(); // Prevent the default form submission behavior
+                await updateServices(subServicess._id);
               }}
             >
               <div className="mb-4">
                 <Label htmlFor="name" className="text-right">
-                  SubService name
+                  Service name
                 </Label>
                 <Input
                   id="name"
                   value={subServicess.name}
                   placeholder='Enter Name'
-                  onChange={(e) => setSubServices({ ...subServicess, name: e.target.value })}
+                  className=""
+                  onChange={(e) => setSubServicess({ ...subServicess, name: e.target.value })}
                   required
                 />
               </div>
@@ -212,7 +230,8 @@ const columns = [
                   id="description"
                   value={subServicess.description}
                   placeholder='Enter description'
-                  onChange={(e) => setSubServices({ ...subServicess, description: e.target.value })}
+                  className=""
+                  onChange={(e) => setSubServicess({ ...subServicess, description: e.target.value })}
                   required
                 />
               </div>
@@ -227,6 +246,7 @@ const columns = [
     },
   },
 ]
+
 const Page = () => {
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -235,10 +255,18 @@ const Page = () => {
   const { subServices, fetchSubServices, services, fetchServices, fetchSubServicesTotal, subServicePageNo, setSubServicePageNo } = usePageContext();
   const [servicesFetched, setServicesFetched] = useState(false);
   const { user } = useUserContext();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    if (user.role === "superadmin") fetchServices();
-  }, [websiteKey]);
+
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
 
 
   useEffect(() => {
@@ -255,14 +283,20 @@ const Page = () => {
     }
   }, [services]);
 
- 
-
   useEffect(() => {
     if (websiteKey && selectedService) {
       setSubServicePageNo(1);
-      fetchSubServicesTotal(selectedService);
+      fetchSubServicesTotal(selectedService, searchQuery);
     }
   }, [selectedService, websiteKey, subServicePageNo]);
+
+  useEffect(() => {
+    if (subServicePageNo === 1 && websiteKey && selectedService) {
+      fetchSubServicesTotal(selectedService, searchQuery);
+    }
+    setSubServicePageNo(1)
+  }, [searchQuery])
+
 
   const table = useReactTable({
     data: subServices,
@@ -280,10 +314,10 @@ const Page = () => {
   return (
     <div className="w-full container mx-auto px-4">
 
-      <div className='flex mt-3 justify-end items-center gap-4 ml-auto'>
-
+      <div className='flex mt-3 justify-end items-center gap-4 my-2 ml-auto'>
+        {/* <label htmlFor="" className="text-lg font-bold">Service</label> */}
         <select
-          className='bg-[#06040B] text-gray-200 border-gray-800 p-2 rounded-md'
+          className='bg-[#06040B] text-gray-200 border-[1px] border-gray-800 px-2 py-1 rounded-md'
           value={selectedService ?? (services.length > 0 ? services[0]._id : "")}
           onChange={(e) => setSelectedService(e.target.value)}
         >
@@ -303,10 +337,7 @@ const Page = () => {
         {/* Search Input */}
         <Input
           placeholder="Search name..."
-          value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
 

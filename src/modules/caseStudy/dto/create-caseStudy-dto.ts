@@ -27,10 +27,10 @@ class HeadingImageDto {
     imageKey: string;
 }
 
-class HeadingDescriptionDto {
+class ImageDescriptionDto {
     @IsNotEmpty()
     @IsString()
-    heading: string;
+    imageKey: string;
 
     @IsNotEmpty()
     @IsString()
@@ -133,8 +133,8 @@ class CreateContentDto {
     uiSection: ImageSectionDto;
 
     @ValidateNested()
-    @Type(() => HeadingDescriptionImageDto)
-    serviceSection: HeadingDescriptionImageDto;
+    @Type(() => ImageDescriptionDto)
+    serviceSection: ImageDescriptionDto;
 
     @ValidateNested()
     @Type(() => ProcessSectionDto)
@@ -160,6 +160,10 @@ export class CreateCaseStudyDto {
     @Matches(/^[a-z0-9-_/]+$/, { message: "Invalid Slug" })
     @MaxLength(128)
     slug: string;
+
+    @IsNotEmpty()
+    @IsString()
+    projectType: string;
 
     @IsNotEmpty()
     @ValidateNested()

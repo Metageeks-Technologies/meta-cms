@@ -8,7 +8,6 @@ import axiosCall from '@/utils/ApiCall';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
-import { list } from 'postcss';
 import { useParams, useRouter } from 'next/navigation';
 
 
@@ -402,18 +401,31 @@ const EditCaseStudy = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
+        if (!formData.content.heroSection?.imageKey) {
+            toast.error("Hero section image is required", { duration: 2000 });
+            return;
+        }
+        if (!formData.content.uiSection?.imageKey) {
+            toast.error("UI section 1 image is required", { duration: 2000 });
+            return;
+        }
+        if (!formData.content.serviceSection?.imageKey) {
+            toast.error("Service section image is required", { duration: 2000 });
+            return;
+        }
+        if (!formData.content.uiSection2?.imageKey) {
+            toast.error("UI section 2 image is required", { duration: 2000 });
+            return;
+        }
+
         setLoading(true);
         try {
 
             const payload = {
                 title: formData.title,
                 slug: formData.slug,
-                service: formData.content.heroSection,
-                subService: formData.content.aboutSection,
-                content: formData.content.uiSection,
-                metaTitle: formData.content.processSection,
-                metaDescription: formData.content.uiSection2,
-                keywords: formData.content.challengesSection
+                projectType: formData.projectType,
+                content: formData.content,
             };
 
             const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy/${formData._id}`, payload, { websiteKey });
@@ -507,6 +519,22 @@ const EditCaseStudy = () => {
                         />
                     </label>
                 </div>
+
+                <label className="w-full flex flex-col gap-2 mb-5">
+                    <span>Project Type</span>
+                    <input
+                        type="text"
+                        className="w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none"
+                        id="projectType"
+                        placeholder="Enter project type"
+                        value={formData.projectType}
+                        onChange={handleChange}
+                        maxLength={120}
+                        required
+                    />
+                </label>
+
+
                 <label className="block text-white mb-5">
                     <span className='text-xl'>Hero Section </span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
@@ -517,9 +545,9 @@ const EditCaseStudy = () => {
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
                                 htmlFor="mainImage"
                             >
-                                {formData.content.heroSection.imageKey ? (
+                                {formData.content.heroSection?.imageKey ? (
                                     <img
-                                        src={getURL(formData.content.heroSection.imageKey)}
+                                        src={getURL(formData.content.heroSection?.imageKey)}
                                         alt="Preview"
                                         className="object-contain w-full h-full rounded-lg"
                                     />
@@ -552,7 +580,7 @@ const EditCaseStudy = () => {
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
-                                value={formData.content.aboutSection.heading}
+                                value={formData.content.aboutSection?.heading}
                                 onChange={(e) => handleSectionChange('aboutSection', 'heading', e.target.value)}
                                 required
                             />
@@ -566,7 +594,7 @@ const EditCaseStudy = () => {
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.aboutSection.description}
+                                value={formData.content.aboutSection?.description}
                                 onChange={(e) => handleSectionChange('aboutSection', 'description', e.target.value)}
 
                                 rows={4}
@@ -593,7 +621,7 @@ const EditCaseStudy = () => {
                                         id={`card-heading-${index}`}
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Heading"
-                                        value={card.heading}
+                                        value={card?.heading}
                                         onChange={(e) => handleCardChange(index, 'aboutSection', 'heading', e.target.value)}
                                         required
                                     />
@@ -607,7 +635,7 @@ const EditCaseStudy = () => {
                                         id={`card-description-${index}`}
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Description"
-                                        value={card.description}
+                                        value={card?.description}
                                         onChange={(e) => handleCardChange(index, 'aboutSection', 'description', e.target.value)}
                                         rows={3}
                                         required
@@ -639,9 +667,9 @@ const EditCaseStudy = () => {
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
                                 htmlFor="contentImage"
                             >
-                                {formData.content.uiSection.imageKey ? (
+                                {formData.content.uiSection?.imageKey ? (
                                     <img
-                                        src={getURL(formData.content.uiSection.imageKey)}
+                                        src={getURL(formData.content.uiSection?.imageKey)}
                                         alt="Preview"
                                         className="object-contain w-full h-full rounded-lg"
                                     />
@@ -665,22 +693,6 @@ const EditCaseStudy = () => {
                     <span className='text-xl'>Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
 
-
-                        <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
-                                Heading
-                            </label>
-                            <input
-                                type="text"
-                                id="heading"
-                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter  Heading"
-                                value={formData.content.serviceSection.heading}
-                                onChange={(e) => handleSectionChange('serviceSection', 'heading', e.target.value)}
-                                required
-                            />
-                        </div>
-
                         <div className="mb-4">
                             <label htmlFor="description" className="block  text-gray-300 mb-2">
                                 Description
@@ -689,7 +701,7 @@ const EditCaseStudy = () => {
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.serviceSection.description}
+                                value={formData.content.serviceSection?.description}
                                 onChange={(e) => handleSectionChange('serviceSection', 'description', e.target.value)}
                                 rows={4}
                                 required
@@ -703,9 +715,9 @@ const EditCaseStudy = () => {
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
                                 htmlFor="contentImageSection"
                             >
-                                {formData.content.serviceSection.imageKey ? (
+                                {formData.content.serviceSection?.imageKey ? (
                                     <img
-                                        src={getURL(formData.content.serviceSection.imageKey)}
+                                        src={getURL(formData.content.serviceSection?.imageKey)}
                                         alt="Preview"
                                         className="object-contain w-full h-full rounded-lg"
                                     />
@@ -739,7 +751,7 @@ const EditCaseStudy = () => {
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter  Heading"
-                                value={formData.content.processSection.heading}
+                                value={formData.content.processSection?.heading}
                                 onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
                                 required
                             />
@@ -766,7 +778,7 @@ const EditCaseStudy = () => {
                                         id={`card-heading-${index}`}
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Heading"
-                                        value={card.heading}
+                                        value={card?.heading}
                                         onChange={(e) => handleCardChange(index, 'processSection', 'heading', e.target.value)}
                                         required
                                     />
@@ -833,7 +845,7 @@ const EditCaseStudy = () => {
                                 id="Heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter  Heading"
-                                value={formData.content.uiSection2.heading}
+                                value={formData.content.uiSection2?.heading}
                                 onChange={(e) => handleSectionChange('uiSection2', 'heading', e.target.value)}
                                 required
                             />
@@ -845,9 +857,9 @@ const EditCaseStudy = () => {
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
                                 htmlFor="imageInputSolution2"
                             >
-                                {formData.content.serviceSection.imageKey ? (
+                                {formData.content.serviceSection?.imageKey ? (
                                     <img
-                                        src={formData.content.uiSection2.imageKey ? getURL(formData.content.uiSection2.imageKey) : undefined}
+                                        src={formData.content.uiSection2?.imageKey ? getURL(formData.content.uiSection2?.imageKey) : undefined}
                                         alt="Preview"
                                         className="object-contain w-full h-full rounded-lg"
                                     />
@@ -881,7 +893,7 @@ const EditCaseStudy = () => {
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter  Heading"
-                                value={formData.content.challengesSection.heading}
+                                value={formData.content.challengesSection?.heading}
                                 onChange={(e) => handleSectionChange('challengesSection', 'heading', e.target.value)}
 
                                 required
@@ -896,7 +908,7 @@ const EditCaseStudy = () => {
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.challengesSection.description}
+                                value={formData.content.challengesSection?.description}
                                 onChange={(e) => handleSectionChange('challengesSection', 'description', e.target.value)}
 
                                 rows={4}
@@ -923,7 +935,7 @@ const EditCaseStudy = () => {
                                         id={`challange-card-heading-${index}`}
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Heading"
-                                        value={card.heading}
+                                        value={card?.heading}
                                         onChange={(e) => handleCardChange(index, 'challengesSection', 'heading', e.target.value)}
                                         required
                                     />
@@ -937,7 +949,7 @@ const EditCaseStudy = () => {
                                         id={`challange-card-description-${index}`}
                                         className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter Description"
-                                        value={card.description}
+                                        value={card?.description}
                                         onChange={(e) => handleCardChange(index, 'challengesSection', 'description', e.target.value)}
                                         rows={3}
                                         required

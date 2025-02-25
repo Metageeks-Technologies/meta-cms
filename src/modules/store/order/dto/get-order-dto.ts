@@ -10,4 +10,8 @@ export class GetOrderQuery {
     @IsOptional()
     @IsString()
     page: string
+
+    @IsOptional()
+    @IsString()
+    search: string
 }

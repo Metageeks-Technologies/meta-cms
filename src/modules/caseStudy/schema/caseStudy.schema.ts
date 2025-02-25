@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 export interface ICaseStudy extends mongoose.Document {
     title: string;
     websiteKey: string;
+    projectType: string;
     authorId: mongoose.Types.ObjectId;
     slug: string;
     content: {
@@ -22,7 +23,6 @@ export interface ICaseStudy extends mongoose.Document {
             imageKey: string
         },
         serviceSection: {
-            heading: string,
             description: string,
             imageKey: string
         },
@@ -59,6 +59,10 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
         type: String,
         required: true
     },
+    projectType: {
+        type: String,
+        required: true
+    },
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -86,7 +90,6 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
             imageKey: { type: String, required: true }
         },
         serviceSection: {
-            heading: { type: String, required: true },
             description: { type: String, required: true },
             imageKey: { type: String, required: true }
         },
@@ -122,3 +125,7 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
         default: false
     }
 }, { timestamps: true })
+
+
+
+caseStudySchema.index({ title: "text" })

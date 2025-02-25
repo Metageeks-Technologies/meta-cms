@@ -44,6 +44,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import AddAdmin from "./component/AddAdmin"
+import { debounce } from "lodash"
 
 
 
@@ -175,7 +176,27 @@ const columns = [
 function User() {
   const [sorting, setSorting] = useState<SortingState>([])
   const { adminData, fetchAdmins, adminPageNo, setAdminPageNo } = useUserContext();
+  const [searchQuery, setSearchQuery] = useState('')
 
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
+
+  useEffect(() => {
+    fetchAdmins(searchQuery);
+  }, [adminPageNo]);
+
+  useEffect(() => {
+    if (adminPageNo === 1) fetchAdmins(searchQuery)
+
+    setAdminPageNo(1)
+  }, [searchQuery])
 
 
   const table = useReactTable({
@@ -192,21 +213,13 @@ function User() {
   });
 
 
-  useEffect(() => {
-    fetchAdmins();
-  }, [adminPageNo]);
-
-
 
   return (
     <div className="w-full container mx-auto px-4">
       <div className="flex flex-row justify-between items-center py-4">
         <Input
-          placeholder="Search email..."
-          value={(table?.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("email")?.setFilterValue(event.target.value)
-          }
+          placeholder="Search..."
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
 

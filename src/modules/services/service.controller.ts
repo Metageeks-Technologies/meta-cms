@@ -26,7 +26,7 @@ export class ServiceController {
   async getService(
     @Headers("websiteKey") websiteKey: string
   ) {
-    const services = await this.serviceService.findAll(websiteKey, undefined, false);
+    const services = await this.serviceService.findAll(websiteKey, undefined, undefined, false);
     return services;
   }
 
@@ -37,7 +37,7 @@ export class ServiceController {
     @Headers("websiteKey") websiteKey: string,
     @Query() query: ServiceQueryDto
   ) {
-    const services = await this.serviceService.findAll(websiteKey, query.page);
+    const services = await this.serviceService.findAll(websiteKey, query.page, query.search);
     return services;
   }
 

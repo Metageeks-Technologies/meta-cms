@@ -104,8 +104,9 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-gray-700 p-6 rounded-lg w-1/2">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50"   onClick={() => setIsEditModalOpen(false)}
+>
+      <div className="bg-gray-700 p-6 rounded-lg w-1/2"     onClick={(e) => e.stopPropagation()} >
         <h3 className="text-2xl font-bold mb-4">Edit Variant</h3>
         <form>
           {/* Input fields here */}

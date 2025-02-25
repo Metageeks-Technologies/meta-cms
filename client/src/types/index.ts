@@ -243,9 +243,9 @@ export interface Address {
 
 export type EditAddressProps = {
   editAddress: AddressType;
-  setEditAddress: React.Dispatch<React.SetStateAction<AddressType>>;
+  setEditAddress: (address: AddressType | ((prev: AddressType) => AddressType)) => void;
   getUserAddresses: () => void;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsOpen: (isOpen: boolean) => void;
 }
 
 export type PostOfficeData = {
@@ -411,11 +411,16 @@ export interface uiSection{
   imageKey: string | null;
 }
 
+export interface ServiceSection {
+  imageKey: string | null;
+  description: string
+}
 
 export interface caseStudyContent {
   _id?: any;
   title: string;
   slug: string;
+  projectType: string;
   // website: string;
   // service: string;
 
@@ -423,7 +428,7 @@ export interface caseStudyContent {
     heroSection:heroSection;
     aboutSection:StudyAbout;
     uiSection: uiSection;
-    serviceSection:Content;
+    serviceSection: ServiceSection;
     processSection:process;
     uiSection2: studyWebsite;
     challengesSection:studyChallange;
@@ -449,7 +454,7 @@ export interface WebsiteContextTypes {
   deleteWebsite: (id: string) => void,
   recoverWebsite: (id: string) => void,
   updateWebsite: (e: any, website: any, setIsOpen: any) => void,
-  fetchWebsiteData: () => void,
+  fetchWebsiteData: (searchQuery?: string) => void,
   websiteData: any[],
   websitePageNo: number, 
   setWebsitePageNo: (num: number) => void,
@@ -500,8 +505,8 @@ export interface UserContextType {
 
   isAuthenticated: boolean;
   isLoading: boolean;
-  fetchUsers: (role: string) => Promise<void>;
-  fetchAdmins: () => Promise<void>;
+  fetchUsers: (role: string, searchQuery?: string) => Promise<void>;
+  fetchAdmins: (searchQuery?: string) => Promise<void>;
   fetchStoreRole: (storeRole: string) => Promise<void>;
   changeUserRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;
   changeStoreRole: (userId: string, currentRole: string, newRole: string) => Promise<void>;

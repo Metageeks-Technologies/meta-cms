@@ -151,20 +151,29 @@ export class PagesService {
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
     }
 
-    async getAllPage(websiteKey: string, pageNo: string) {
+    async getAllPage(websiteKey: string, pageNo: string, searchQuery: string) {
 
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
             throw new BadRequestException("Invalid website key");
         }
 
+        const query = { website: websiteKey }
+        let sortOption: any = { createdAt: -1 }
+
         const page = parseInt(pageNo) || 1
         const skip = (page - 1) * this.PAGE_BATCH_LIMIT;
 
-        const allPage = await this.Page.find({ website: websiteKey })
-            .sort({ createdAt: -1 })
+        if (searchQuery) {
+            query['$text'] = { $search: searchQuery }
+            sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
+        }
+
+        const allPage = await this.Page.find(query)
+            .sort(sortOption)
             .skip(skip)
             .limit(this.PAGE_BATCH_LIMIT)
+            .select(searchQuery && { score: { $meta: "textScore" } })
             .lean()
             .exec();
 

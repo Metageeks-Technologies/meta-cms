@@ -36,14 +36,17 @@ export class SubserviceController {
     @Param('id', ValidateId) serviceId: string,
     @Query() query: SubServiceQueryDto
   ) {
-    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, query.page)
+    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, query.page, query.search)
     return subServices;
   }
 
   @Get('all/:id')
   @UseGuards(AuthGuard)
-  async getallSubserviceByServiceId(@Headers("websiteKey") websiteKey: string, @Param('id', ValidateId) serviceId: string) {
-    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, undefined, false);
+  async getallSubserviceByServiceId(
+    @Headers("websiteKey") websiteKey: string, 
+    @Param('id', ValidateId) serviceId: string
+  ) {
+    const subServices = await this.subserviceService.findByServiceId(websiteKey, serviceId, undefined, undefined, false);
     return subServices;
   }
 

@@ -16,8 +16,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -47,7 +45,7 @@ import { FaClockRotateLeft } from "react-icons/fa6";
 import { VscPreview } from "react-icons/vsc";
 import { usePageContext } from "@/context/pageContext"
 import { useUserContext } from "@/context/userContext"
-import { userRoles } from "@/constant/user"
+import debounce from 'lodash/debounce';
 
 
 
@@ -160,12 +158,30 @@ const page = () => {
   // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
   // const [rowSelection, setRowSelection] = React.useState({})
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
+
   const { user, websiteKey } = useUserContext();
   const { pageData, fetchPageData, pageNo, setPageNo } = usePageContext();
 
   useEffect(() => {
-    if (websiteKey) fetchPageData();
+    if (websiteKey) fetchPageData(searchQuery);
   }, [websiteKey, pageNo])
+
+  useEffect(() => {
+    if(pageNo === 1 &&websiteKey){
+      fetchPageData(searchQuery)
+    }
+    setPageNo(1);
+  }, [searchQuery])
 
 
   const table = useReactTable({
@@ -195,10 +211,7 @@ const page = () => {
       <div className="flex flex-col py-4">
         <Input
           placeholder="Search title..."
-          value={(table?.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table?.getColumn("title")?.setFilterValue(event.target.value)
-          }
+          onChange={handleSearch}
           className="max-w-sm border-[1px] border-gray-800 text-base"
         />
       </div>

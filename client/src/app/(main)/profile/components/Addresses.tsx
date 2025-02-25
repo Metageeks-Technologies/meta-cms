@@ -18,13 +18,14 @@ import {
 } from "@/components/ui/dialog";
 import { TriangleAlert, MapPin, Home, Phone, Mail, Edit2, Trash2, Star, Info, Plus } from 'lucide-react';
 import EditAddress from './EditAddress';
+import { AddressType } from '@/types';
 
-const AddressCard = ({ 
-    address, 
-    onEdit, 
-    onDelete, 
-    onSetDefault 
-}: { 
+const AddressCard = ({
+    address,
+    onEdit,
+    onDelete,
+    onSetDefault
+}: {
     address: any;
     onEdit: (address: any) => void;
     onDelete: (id: string) => void;
@@ -38,10 +39,10 @@ const AddressCard = ({
                     <span>Default</span>
                 </div>
             )}
-            
+
             <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-100 mb-4 break-words">{address?.name}</h3>
-                
+
                 <div className="space-y-3 text-gray-300">
                     <div className="flex items-start gap-3">
                         <Home className="w-5 h-5 text-gray-400 mt-1 flex-shrink-0" />
@@ -51,17 +52,17 @@ const AddressCard = ({
                             <p>{address?.city}, {address?.state}, {address?.postalCode}</p>
                         </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                         <Phone className="w-5 h-5 text-gray-400" />
                         <p>{address?.phone}</p>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                         <Mail className="w-5 h-5 text-gray-400" />
                         <p>{address?.email}</p>
                     </div>
-                    
+
                     {address?.instruction && (
                         <div className="flex items-start gap-3">
                             <Info className="w-5 h-5 text-gray-400 mt-1" />
@@ -73,7 +74,7 @@ const AddressCard = ({
 
             <div className="px-6 pb-6">
                 <div className="flex flex-wrap gap-3">
-                    <button 
+                    <button
                         onClick={() => onEdit(address)}
                         className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors duration-200 text-sm"
                     >
@@ -103,7 +104,7 @@ const AddressCard = ({
 
                             <AlertDialogFooter>
                                 <AlertDialogCancel className="bg-gray-800 hover:bg-gray-700">Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
+                                <AlertDialogAction
                                     onClick={() => onDelete(address._id)}
                                     className="bg-red-500 hover:bg-red-600"
                                 >
@@ -131,7 +132,19 @@ const AddressCard = ({
 const Addresses = ({ addresses, getUserAddresses }: any) => {
     const { loading, setLoading, websiteKey } = useUserContext();
     const [isOpen, setIsOpen] = useState(false);
-    const [editAddress, setEditAddress] = useState<any>({});
+    const [editAddress, setEditAddress] = useState<AddressType>({
+        _id: "",
+        name: "",
+        phone: "",
+        email: "",
+        house: "",
+        street: "",
+        landmark: "",
+        postalCode: "", 
+        city: "",
+        state: "",
+        instruction: "",
+    });
 
     const setDefault = async (id: string) => {
         setLoading(true);
@@ -162,7 +175,19 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
     };
 
     const handleAddNewClick = () => {
-        setEditAddress({});
+        setEditAddress({
+            _id: "",
+            name: "",
+            phone: "",
+            email: "",
+            house: "",
+            street: "",
+            landmark: "",
+            postalCode: "", 
+            city: "",
+            state: "",
+            instruction: "",
+        });
         setIsOpen(true);
     };
 
@@ -186,7 +211,7 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
                         Add Address
                     </button>
                 </div>
-                
+
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                     <EditAddress
                         editAddress={editAddress}
@@ -214,14 +239,14 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
             </div>
 
             <div className="flex justify-center mt-6">
-    <button
-        onClick={handleAddNewClick}
-        className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
-    >
-        <Plus className="w-6 h-6" />
-        <span>Add Address</span>
-    </button>
-</div>
+                <button
+                    onClick={handleAddNewClick}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+                >
+                    <Plus className="w-6 h-6" />
+                    <span>Add Address</span>
+                </button>
+            </div>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <EditAddress

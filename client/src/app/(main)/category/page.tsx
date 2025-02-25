@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label"
 import axiosCall from "@/utils/ApiCall"
 import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
+import { debounce } from "lodash"
 
 const columns = [
   {
@@ -221,7 +222,7 @@ const columns = [
 
           <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">
             <DialogHeader>
-              <DialogTitle className='text-2xl'>Create Category</DialogTitle>
+              <DialogTitle className='text-2xl'>Update Category</DialogTitle>
             </DialogHeader>
             <form className="py-4" onSubmit={updateCategory}>
               <div className="mb-4">
@@ -290,9 +291,19 @@ function Category() {
   const [sorting, setSorting] = useState<SortingState>([])
 
 
+  const [searchQuery, setSearchQuery] = useState('')
   const { categories, fetchCategories, categoryPageNo, setCategoryPageNo }: any = usePostContext()
   const { user, websiteKey }: any = useUserContext();
 
+
+  const debouncedSetSearchText = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 900);
+
+  const handleSearch = async (e: any) => {
+    const { value } = e.target;
+    debouncedSetSearchText(value);
+  }
 
 
   const table = useReactTable({
@@ -313,8 +324,15 @@ function Category() {
 
 
   useEffect(() => {
-    if (websiteKey) fetchCategories();
+    if (websiteKey) fetchCategories(searchQuery);
   }, [websiteKey, categoryPageNo]);
+
+  useEffect(() => {
+    if (categoryPageNo === 1 && websiteKey) {
+      fetchCategories(searchQuery)
+    }
+    setCategoryPageNo(1)
+  }, [searchQuery])
 
 
 
@@ -324,10 +342,7 @@ function Category() {
         <div className="flex flex-row items-center justify-between">
           <Input
             placeholder="Search name..."
-            value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table?.getColumn("name")?.setFilterValue(event.target.value)
-            }
+            onChange={handleSearch}
             className="max-w-sm border-[1px] border-gray-800 text-base"
           />
 

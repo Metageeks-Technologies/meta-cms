@@ -26,14 +26,15 @@ export function AppSidebar() {
 
     return items
       .filter((item) => {
-        
-        const includedItems = new Set<string>(["Dashboard", "Notification", "Settings"]);
 
-        if(userRole === userRole.SUPERADMIN){
+        const includedItems = new Set<string>(["Dashboard", "Notification", "Settings"]);
+        
+        if (userRole === userRoles.SUPERADMIN) {
           ["Websites", "Admin"].forEach((title) => includedItems.add(title))
         }
 
         if (userRole === userRoles.ADMIN || userRole == userRoles.SUPERADMIN) {
+
           if (permissions?.includes(PermissionEnum.BLOG)) {
             ["Post", "Comments", "Media"].forEach((title) => includedItems.add(title));
           }
@@ -119,11 +120,11 @@ export function AppSidebar() {
 
   useEffect(() => {
     setFilteredItems([]);
-    if(Array.isArray(user?.website?.permissions) && user?.website?.permissions?.length > 0){
+    if (Array.isArray(user?.website?.permissions) && user?.website?.permissions?.length > 0) {
       setPermissions(user?.website?.permissions)
     }
-    
-    if(Array.isArray(website?.permissions) && website?.permissions?.length > 0){
+
+    if (Array.isArray(website?.permissions) && website?.permissions?.length > 0) {
       setPermissions(website?.permissions)
     }
   }, [user, website])
