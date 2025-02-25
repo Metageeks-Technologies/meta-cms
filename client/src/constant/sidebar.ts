@@ -203,7 +203,8 @@ export const headerData = {
   media: "Media",
   notification: "Notification",
   profile: "Settings",
-  admin: "Admin"
+  admin: "Admin",
+  website: "Websites",
 }
 
 

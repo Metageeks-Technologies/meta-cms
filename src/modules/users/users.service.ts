@@ -400,43 +400,57 @@ export class UsersService {
   }
 
 
-  async blockUser(websiteKey: string, userId: string) {
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
-      throw new BadRequestException("Invalid website key");
+  async blockUser(websiteKey: string, userRole: UserRoleEnum, userId: string) {
+
+    if (userRole !== UserRoleEnum.SUPERADMIN) {
+      const website = await this.websiteService.getWebsiteByKey(websiteKey);
+      if (!website) {
+        throw new BadRequestException("Invalid website key");
+      }
     }
 
-    const user = await this.User.findByIdAndUpdate(userId, { block: true }, { new: true })
+    const user = await this.User.findByIdAndUpdate(userId, { block: true })
 
     if (!user.name) {
       throw new NotFoundException('User not found')
     }
+
+    if (user.role === UserRoleEnum.ADMIN) {
+      await this.websiteService.deleteWebsite(user.website)
+    }
+
   }
 
-  async unBlockUser(websiteKey: string, userId: string) {
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
-      throw new BadRequestException("Invalid website key");
+  async unBlockUser(websiteKey: string, userRole: UserRoleEnum, userId: string) {
+    if (userRole !== UserRoleEnum.SUPERADMIN) {
+      const website = await this.websiteService.getWebsiteByKey(websiteKey);
+      if (!website) {
+        throw new BadRequestException("Invalid website key");
+      }
     }
 
-    const user = await this.User.findByIdAndUpdate(userId, { block: false }, { new: true })
+    const user = await this.User.findByIdAndUpdate(userId, { block: false })
 
     if (!user.name) {
       throw new NotFoundException('User not found')
+    }
+
+    if (user.role === UserRoleEnum.ADMIN) {
+      await this.websiteService.recoverWebsite(user.website)
     }
   }
 
 
   async changeUserPassword(userId: string, oldPassword: string, newPassword: string) {
     const user = await this.User.findById(userId)
-    if(!user){
+    if (!user) {
       throw new BadRequestException('User not found')
     }
 
-    if(await bcrypt.compare(oldPassword, user.hash)){
+    if (await bcrypt.compare(oldPassword, user.hash)) {
       user.hash = await bcrypt.hash(newPassword, 10)
       await user.save();
-    }else{
+    } else {
       throw new ForbiddenException('Wrong password')
     }
   }

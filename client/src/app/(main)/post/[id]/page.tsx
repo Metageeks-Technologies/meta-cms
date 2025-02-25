@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { userRoles } from '@/constant/user'
-import { useUserContext } from '@/context/userContext'
+import { useUserContext } from '@/context/userContext' 
 import { getURL } from '@/utils/AWS_Config'
 import { IComment } from '@/types'
 import { FaClock } from "react-icons/fa6"
@@ -41,9 +41,9 @@ const page = () => {
     const [comments, setComments] = useState<IComment[]>([])
     const [categoryList, setCategoryList] = useState('')
 
-    const router = useRouter()
-    const params = useParams()
-    const slug = params.id
+    const router = useRouter();
+    const params = useParams();
+    const slug = params.id;
 
     const fetchPost = async () => {
         setLoading(true)

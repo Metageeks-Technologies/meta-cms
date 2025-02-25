@@ -206,7 +206,7 @@ export class PorductController {
         @Body() productDetails: UpdateProductDto
     ) {
         const user = (req as any).user;
-        await this.productService.updateProduct(websiteKey, porductId, productDetails, user._id, user.storeRole)
+        await this.productService.updateProduct(websiteKey, porductId, productDetails, user._id, user.role)
         return { message: "Product update successfully" }
     }
 

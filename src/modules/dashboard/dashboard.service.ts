@@ -47,7 +47,15 @@ export class DashboardService {
       throw new BadRequestException('Invalid website key')
     }
 
-    const [totalOrderCount, totalProductCount, totalPublishedProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct] = await Promise.all([
+    const [
+      totalOrderCount,
+      totalProductCount,
+      totalPublishedProductCount,
+      recentOrder,
+      recentProduct,
+      monthlyOrdersCount,
+      topSellingProduct
+    ] = await Promise.all([
       this.orderService.getTotalOrderCount(websiteKey, undefined),
       this.productService.getProductCount(websiteKey, undefined, undefined),
       this.productService.getProductCount(websiteKey, ProductStatusEnum.PUBLISHED, undefined),
@@ -57,7 +65,15 @@ export class DashboardService {
       this.orderService.getTopSellingProducts(websiteKey, undefined)
     ]);
 
-    return { totalOrderCount, totalProductCount, totalPublishedProductCount, recentOrder, recentProduct, monthlyOrdersCount, topSellingProduct }
+    return {
+      totalOrderCount,
+      totalProductCount,
+      totalPublishedProductCount,
+      recentOrder,
+      recentProduct,
+      monthlyOrdersCount,
+      topSellingProduct
+    }
   }
 
   async getStoreVendorData(websiteKey: string, vendorId: string) {

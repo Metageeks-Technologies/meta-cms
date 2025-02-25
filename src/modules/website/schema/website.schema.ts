@@ -11,7 +11,7 @@ export interface IWebsite {
     _id: mongoose.Types.ObjectId,
     name: string,
     key: string,
-    premissions: PermissionEnum[],
+    permissions: PermissionEnum[],
     admin: mongoose.Types.ObjectId,
     isDeleted: boolean
 }

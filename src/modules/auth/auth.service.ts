@@ -10,6 +10,7 @@ import { Request } from '@nestjs/common';
 import { sendEmail } from 'src/utils/emailService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { WebsiteService } from '../website/website.service';
 
 
 
@@ -20,6 +21,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private readonly websiteService: WebsiteService
   ) { }
 
   async login(loginDetails: LoginDto, isAdminLogin: boolean) {
@@ -28,6 +30,15 @@ export class AuthService {
 
     if (user.block) {
       throw new ForbiddenException('Account blocked contact to Admin');
+    }
+
+
+    if(user.role !== UserRoleEnum.SUPERADMIN){ 
+      const website = await  this.websiteService.getWebsiteById(user.website);
+      
+      if(!website){
+        throw new ForbiddenException('Access Denied')
+      }
     }
 
     if (isAdminLogin && (user.role === UserRoleEnum.SUBSCRIBER)) {
