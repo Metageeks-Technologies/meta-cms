@@ -44,7 +44,7 @@ export class SubserviceService {
       throw new BadRequestException('Invalid website key');
     }
 
-    const subService = await this.findSubserviceByName(websiteKey, subServiceDeatail.name)
+    const subService = await this.findSubserviceByName(websiteKey, subServiceDeatail.name, subserviceId)
     if (subService) {
       throw new ConflictException('Subservice name already exists')
     }
@@ -145,8 +145,12 @@ export class SubserviceService {
   }
 
 
-  async findSubserviceByName(websiteKey: string, name: string) {
-    const subService = await this.Subservice.findOne({ websiteKey, name }).exec();
+  async findSubserviceByName(websiteKey: string, name: string, subserviceId?: string) {
+    const query = { websiteKey, name }
+    if (subserviceId) {
+      query['_id'] = { $ne: subserviceId }
+    }
+    const subService = await this.Subservice.findOne(query).exec();
     return subService;
   }
 
