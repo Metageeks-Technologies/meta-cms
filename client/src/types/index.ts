@@ -125,7 +125,6 @@ export interface UserProfile {
     phoneNo?: string;
     bio?: string;
     role: string;
-    storeRole: string;
     imageKey?:string;
     website?: IWebsite;
     block?: boolean;
