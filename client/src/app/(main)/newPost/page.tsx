@@ -268,7 +268,7 @@ const App: React.FC = () => {
               className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
             />
             {/* Slug */}
-            <label className='w-full flex flex-col gap-2'>
+            <label className='w-full flex flex-col gap-2 mt-3'>
               <span> Slug</span>
               <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
               <input

@@ -329,12 +329,12 @@ const page = () => {
                                 user?.role === userRoles.MODERATOR ||
                                 user?.role === userRoles.ADMIN) &&
                                 post?.status ===
-                                    postStatuEnum.AWAITING_APPROVAL &&
+                                postStatuEnum.AWAITING_APPROVAL &&
                                 !(
                                     user?.role !== userRoles.SUPERADMIN &&
                                     user?.role !== userRoles.ADMIN &&
                                     post?.author?.role === userRoles.SUPERADMIN
-                                ) && (
+                                )&& (!post?.isDeleted ) && (
                                     <div className="flex gap-4 mb-8">
                                         <button
                                             onClick={handleRejectPost}
@@ -358,7 +358,7 @@ const page = () => {
                                         user?.role !== userRoles.SUPERADMIN &&
                                         user?.role !== userRoles.ADMIN &&
                                         post?.author?.role ===
-                                            userRoles.SUPERADMIN
+                                        userRoles.SUPERADMIN
                                     ) && (
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -366,10 +366,10 @@ const page = () => {
                                                     Delete Post
                                                 </Button>
                                             </AlertDialogTrigger>
-                                            <AlertDialogContent className="bg-black border border-gray-800">
+                                            <AlertDialogContent className="bg-black text-white border border-gray-800">
                                                 <AlertDialogHeader>
                                                     <AlertDialogTitle>
-                                                        Confirm Deletion
+                                                        Are you sure you want to delete ?
                                                     </AlertDialogTitle>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
@@ -396,7 +396,7 @@ const page = () => {
                                         user?.role !== userRoles.SUPERADMIN &&
                                         user?.role !== userRoles.ADMIN &&
                                         post?.author?.role ===
-                                            userRoles.SUPERADMIN
+                                        userRoles.SUPERADMIN
                                     ) && (
                                         <button
                                             onClick={() =>
@@ -404,11 +404,36 @@ const page = () => {
                                                     `/editpost/${post.slug}`,
                                                 )
                                             }
-                                            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                                            className="px-6 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
                                         >
                                             Edit Post
                                         </button>
                                     )}
+
+
+                                {
+                                
+                                post.status === 'draft' || post.status==="rejected" && (
+                                    <Button
+                                        onClick={() => handlePublished(post._id)}
+                                        className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                                    >
+                                        Publish Post
+                                    </Button>
+                                )}
+
+                                {
+                                    (
+                                        user.role === userRoles.SUPERADMIN ||
+                                        user.role === userRoles.ADMIN) &&
+                                post.isDeleted && (
+                                    <Button
+                                        onClick={handleRecoverPost}
+                                        className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                                    >
+                                        Recover Post
+                                    </Button>
+                                )}
                             </div>
 
                             {/* Tags */}
@@ -446,58 +471,58 @@ const page = () => {
                                         <div className="flex gap-4">
                                             {post.author?.socialLinks
                                                 ?.facebook && (
-                                                <a
-                                                    href={
-                                                        post.author?.socialLinks
-                                                            .facebook
-                                                    }
-                                                    target="_blank"
-                                                    className="text-blue-400 hover:text-blue-300"
-                                                >
-                                                    <SiFacebook size={24} />
-                                                </a>
-                                            )}
+                                                    <a
+                                                        href={
+                                                            post.author?.socialLinks
+                                                                .facebook
+                                                        }
+                                                        target="_blank"
+                                                        className="text-blue-400 hover:text-blue-300"
+                                                    >
+                                                        <SiFacebook size={24} />
+                                                    </a>
+                                                )}
                                             {post.author?.socialLinks
                                                 ?.instagram && (
-                                                <a
-                                                    href={
-                                                        post.author?.socialLinks
-                                                            .instagram
-                                                    }
-                                                    target="_blank"
-                                                    className="text-rose-400 hover:text-rose-300"
-                                                >
-                                                    <RiInstagramFill
-                                                        size={24}
-                                                    />
-                                                </a>
-                                            )}
+                                                    <a
+                                                        href={
+                                                            post.author?.socialLinks
+                                                                .instagram
+                                                        }
+                                                        target="_blank"
+                                                        className="text-rose-400 hover:text-rose-300"
+                                                    >
+                                                        <RiInstagramFill
+                                                            size={24}
+                                                        />
+                                                    </a>
+                                                )}
                                             {post.author?.socialLinks
                                                 ?.linkedIn && (
-                                                <a
-                                                    href={
-                                                        post.author?.socialLinks
-                                                            .linkedIn
-                                                    }
-                                                    target="_blank"
-                                                    className="text-blue-400 hover:text-blue-300"
-                                                >
-                                                    <ImLinkedin size={24} />
-                                                </a>
-                                            )}
+                                                    <a
+                                                        href={
+                                                            post.author?.socialLinks
+                                                                .linkedIn
+                                                        }
+                                                        target="_blank"
+                                                        className="text-blue-400 hover:text-blue-300"
+                                                    >
+                                                        <ImLinkedin size={24} />
+                                                    </a>
+                                                )}
                                             {post.author?.socialLinks
                                                 ?.twitter && (
-                                                <a
-                                                    href={
-                                                        post.author?.socialLinks
-                                                            .twitter
-                                                    }
-                                                    target="_blank"
-                                                    className="text-gray-400 hover:text-gray-300"
-                                                >
-                                                    <BsTwitterX size={24} />
-                                                </a>
-                                            )}
+                                                    <a
+                                                        href={
+                                                            post.author?.socialLinks
+                                                                .twitter
+                                                        }
+                                                        target="_blank"
+                                                        className="text-gray-400 hover:text-gray-300"
+                                                    >
+                                                        <BsTwitterX size={24} />
+                                                    </a>
+                                                )}
                                         </div>
                                     </div>
                                 </div>
@@ -524,8 +549,8 @@ const page = () => {
                                                                     src={
                                                                         user?.imageKey
                                                                             ? getURL(
-                                                                                  user?.imageKey,
-                                                                              )
+                                                                                user?.imageKey,
+                                                                            )
                                                                             : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`
                                                                     }
                                                                     alt={
@@ -555,20 +580,20 @@ const page = () => {
                                                                     .userDetails
                                                                     ?.id ||
                                                                 user.role ===
-                                                                    userRoles.SUPERADMIN ||
+                                                                userRoles.SUPERADMIN ||
                                                                 user.role ===
-                                                                    userRoles.MODERATOR) && (
-                                                                <button
-                                                                    onClick={() =>
-                                                                        handleDeleteComment(
-                                                                            comment._id,
-                                                                        )
-                                                                    }
-                                                                    className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            )}
+                                                                userRoles.MODERATOR) && (
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            handleDeleteComment(
+                                                                                comment._id,
+                                                                            )
+                                                                        }
+                                                                        className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                )}
                                                         </div>
                                                         <p className="text-gray-300">
                                                             {comment.message}

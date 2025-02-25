@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true, // Ignore ESLint during builds
   },
+  images: {
+    domains: ['cdn.metacms.us'], // Add the domain to this array
+  },
 };
 
 

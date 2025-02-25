@@ -8,7 +8,7 @@ import EditVariantModal from "../component/EditVariantModal";
 import AddVariantModal from "../component/AddVariantModal";
 import { useRouter } from "next/navigation";
 import { useUserContext } from "@/context/userContext";
-import { StoreRole } from "@/constant/store";
+import Image from 'next/image';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -313,11 +313,14 @@ const ProductCard: React.FC = () => {
               <div className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:max-w-lg bg-black rounded-lg shadow-sm p-4">
                   {/* Product Image */}
                   <div className="relative w-[500px] h-[500px] bg-white rounded-lg border border-gray-300 overflow-hidden ml-10 flex items-center justify-center">
-                      <img
-                          alt={product?.title || 'Product'}
-                          src={getURL(selectedImage)}
-                          className="w-full h-full object-cover"
-                      />
+                  <Image
+  alt={product?.title || 'Product'}
+  src={getURL(selectedImage)}
+  layout="responsive"
+  width={1200}
+  height={800}
+  className="w-full h-full object-cover"
+/>
                   </div>
 
                   {/* Thumbnails Section */}
@@ -411,8 +414,9 @@ const ProductCard: React.FC = () => {
                                                   className="block w-12 h-12 rounded-lg border border-gray-600"
                                               />
                                           ) : variant.size ? (
-                                              <span className="block w-12 h-12 rounded-lg border border-gray-600 items-center justify-center bg-gray-800">
-                                                  {variant.size}
+                                              <span className="flex w-12 h-12 rounded-lg border  border-gray-600 items-center justify-center ">
+                                                <span>{variant.size}</span>
+                                          
                                               </span>
                                           ) : null}
                                       </button>

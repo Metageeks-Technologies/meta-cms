@@ -9,6 +9,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+
 
 
 
@@ -52,7 +54,7 @@ const EditCaseStudy = () => {
                 ...prev.content,
                 aboutSection: {
                     ...prev.content.aboutSection,
-                    aboutCards: [...prev.content.aboutSection.cards, newCard]
+                    cards: [...prev.content.aboutSection.cards, newCard]
                 }
             }
         }));
@@ -92,7 +94,7 @@ const EditCaseStudy = () => {
                     ...prev.content,
                     aboutSection: {
                         ...prev.content.aboutSection,
-                        aboutCards: updatedCards,  // Correctly update aboutCards
+                        cards: updatedCards,  // Correctly update aboutCards
                     },
                 },
             }));
@@ -546,11 +548,15 @@ const EditCaseStudy = () => {
                                 htmlFor="mainImage"
                             >
                                 {formData.content.heroSection?.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.heroSection?.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                   <Image
+                                   src={getURL(formData.content.heroSection?.imageKey)} // Dynamically load the image
+                                   alt="Preview"
+                                   className="object-contain rounded-lg" // Apply object-contain and rounded corners
+                                   layout="responsive" // Makes the image responsive
+                                   width={1200} // Replace with the actual width of the image
+                                   height={800} // Replace with the actual height of the image
+                                 />
+                                 
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -668,11 +674,15 @@ const EditCaseStudy = () => {
                                 htmlFor="contentImage"
                             >
                                 {formData.content.uiSection?.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.uiSection?.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                  <Image
+                                  src={getURL(formData.content.uiSection?.imageKey)} 
+                                  alt="Preview"
+                                  className="object-contain rounded-lg" 
+                                  layout="responsive" 
+                                  width={1200} 
+                                  height={800} 
+                                />
+                                
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -716,11 +726,16 @@ const EditCaseStudy = () => {
                                 htmlFor="contentImageSection"
                             >
                                 {formData.content.serviceSection?.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.serviceSection?.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                    <Image
+                                    src={getURL(formData.content.serviceSection?.imageKey)}
+                                    alt="Preview"
+                                    className="object-contain rounded-lg" 
+                                    layout="responsive" 
+                                    width={1200} 
+                                    height={800} 
+                                  />
+                                  
+                                 
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}

@@ -22,6 +22,8 @@ import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
 import { useProductContext } from "@/context/productContext"
 import { debounce } from "lodash"
+import Image from 'next/image';
+
 
 const columns = [
   {
@@ -249,7 +251,15 @@ const columns = [
 
               {productCategory.bannerImageKey && (
                 <div className='w-[100px] h-[70px]'>
-                  <img src={getURL(productCategory.bannerImageKey)} alt="" className='w-full h-full object-cover' />
+<Image
+  src={getURL(productCategory.bannerImageKey)}
+  alt=""
+  layout="responsive"
+  width={1200}
+  height={800}
+  className="w-full h-full object-cover"
+/>
+
                 </div>
               )}
 

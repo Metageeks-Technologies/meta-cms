@@ -18,6 +18,8 @@ import { useUserContext } from '@/context/userContext'
 import { uploadToS3 } from '@/utils/helperFunction'
 import { getURL } from '@/utils/AWS_Config'
 import axios from 'axios'
+import Image from 'next/image';
+
 
 
 const AddCategory = () => {
@@ -190,7 +192,15 @@ const AddCategory = () => {
                         {
                             createForm.bannerImageKey &&
                             <div className='w-[100px] h-[70px]'>
-                                <img src={getURL(createForm.bannerImageKey)} alt="" className='w-full h-full object-cover' />
+                                <Image
+  src={getURL(createForm.bannerImageKey)}
+  alt=""
+  className="w-full h-full object-cover"
+  layout="responsive" // Ensures the image is responsive
+  width={1200} // Replace with the actual width of your image
+  height={500} // Replace with the actual height of your image
+/>
+                                
                             </div>
                         }
                         <DialogFooter>

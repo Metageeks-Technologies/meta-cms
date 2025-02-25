@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { getURL } from "@/utils/AWS_Config";
 import { useUserContext } from "@/context/userContext";
+import Image from 'next/image';
+
 interface EditVariantModalProps {
   editedVariant: any;
   setEditedVariant: (variant: any) => void;
@@ -211,11 +213,16 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
             <div key={index} className="flex space-x-2 mb-2 items-center">
               {/* Image preview */}
               {imagePreviews[index] && (
-                <img
-                  src={imagePreviews[index]}
-                  alt={`Image Preview ${index}`}
-                  className="w-16 h-16 object-cover"
-                />
+              <Image
+              src={imagePreviews[index]}
+              alt={`Image Preview ${index}`}
+              layout="intrinsic"
+              width={64}
+              height={64}
+              className="w-16 h-16 object-cover"
+            />
+            
+            
               )}
 
               {/* Show file input only for images that need to be uploaded */}

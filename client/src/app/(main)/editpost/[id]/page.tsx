@@ -306,7 +306,7 @@ const App: React.FC = () => {
             </label>
           </div>
           {/* Preview image input */}
-          <div>
+          {/* <div>
             <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
             <div
               onClick={() => setIsMediaModalOpen(true)}
@@ -323,7 +323,7 @@ const App: React.FC = () => {
               )}
 
             </div>
-          </div>
+          </div> */}
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
@@ -515,6 +515,27 @@ const App: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+
+                {/* preview image  */}
+
+                <div className='space-y-2'>
+            <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
+            <div
+              onClick={() => setIsMediaModalOpen(true)}
+              className="cursor-pointer w-full flex justify-center items-center p-2 bg-[#1A1A1A] rounded-md text-white border-2 border-dashed border-gray-400 h-48"
+            >
+              {formData.previewImg ? (
+                <img
+                  src={typeof formData.previewImg === 'string' ? getURL(formData.previewImg) : URL.createObjectURL(formData.previewImg)}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-md"
+                />
+              ) : (
+                <span className="sm:text-xs md:text-sm lg:text-lg xl:text-xl">+ Upload your preview Image</span> // Placeholder for no image selected
+              )}
             </div>
           </div>
 

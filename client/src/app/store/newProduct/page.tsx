@@ -8,6 +8,8 @@ import { CreateProductFormData, ProductVariant, ProductAttribute } from '@/types
 import { Check } from 'lucide-react';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
+import Image from 'next/image';
+
 
 const CreateProduct: React.FC = () => {
   const [variantImages, setVariantImages] = useState<{ [key: string]: File[] }>({});
@@ -541,12 +543,17 @@ const CreateProduct: React.FC = () => {
                     {variantImages[variant.variantId]?.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {variantImages[variant.variantId].map((image, idx) => (
-                          <img
-                            key={idx}
-                            src={URL.createObjectURL(image)}
-                            alt={`Variant ${idx}`}
-                            className="w-32 h-32 object-cover rounded-md shadow-lg"
-                          />
+                        <Image
+                        key={idx}
+                        src={URL.createObjectURL(image)}
+                        alt={`Variant ${idx}`}
+                        layout="intrinsic"
+                        width={128}  
+                        height={128} 
+                        className="w-32 h-32 object-cover rounded-md shadow-lg"
+                      />
+                      
+                      
                         ))}
                       </div>
                     )}
