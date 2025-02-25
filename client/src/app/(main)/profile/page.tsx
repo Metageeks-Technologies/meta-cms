@@ -7,14 +7,14 @@ import toast from 'react-hot-toast';
 import { SiFacebook } from "react-icons/si";
 import { RiInstagramFill } from "react-icons/ri";
 import { ImLinkedin } from "react-icons/im";
-import { FaSquareXTwitter } from "react-icons/fa6";
 import { useUserContext } from '@/context/userContext';
 import { MdEdit } from "react-icons/md";
 import axios from 'axios';
 import { getURL } from '@/utils/AWS_Config';
 import ProfileTabs from './components/ProfileTabs';
 import { BsTwitterX } from "react-icons/bs";
-import { User, Phone, Mail, Briefcase, Building2, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { User, Phone, Mail, Briefcase } from 'lucide-react';
+import { IoIosContact } from "react-icons/io";
 import { isValidUrl } from '@/utils/helperFunction';
 import ChangePassword from './components/ChangePassword';
 
@@ -44,10 +44,11 @@ const ProfilePage: React.FC = () => {
     postalCode: "",
     city: "",
     state: "",
-  })
+  });
 
   const [isLoading, setIsLoading] = useState(false);
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [addressEditing, setAddressEditing] = useState(false);
 
   const fetchAddress = async () => {
     try {
@@ -74,37 +75,6 @@ const ProfilePage: React.FC = () => {
   };
 
 
-  // Update the address using PATCH
-  const updateAddress = async () => {
-    try {
-      setIsLoading(true);
-      const addressPayload = { ...userAddress };
-      const addressId = '6790c56eaa0bcf6a67947d08'; // Replace with the actual address ID you want to update
-      const response = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/address/${addressId}`, addressPayload, { websiteKey });
-
-      if (response.status === 200 || response.status === 201) {
-        toast.success('Address updated successfully!');
-        setAddressEditing(false);
-        fetchAddress(); // Re-fetch the updated address
-      } else {
-        toast.error('Failed to update address');
-      }
-    } catch (error) {
-      toast.error('Error updating address');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAddress();
-  }, []);
-
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [addressEditing, setAddressEditing] = useState(false);
-
   const fetchUser = () => {
     setUserProfile({
       name: user?.name,
@@ -119,14 +89,13 @@ const ProfilePage: React.FC = () => {
         linkedIn: user?.socialLinks?.linkedIn ? user?.socialLinks?.linkedIn : "",
         twitter: user?.socialLinks?.twitter ? user?.socialLinks?.twitter : "",
       }
-    })
-  }
+    });
+  };
 
   const handleCancel = () => {
     fetchUser();
     setIsEditing(false);
   };
-
 
   const handleSave = async () => {
 
@@ -153,8 +122,7 @@ const ProfilePage: React.FC = () => {
     setLoading(true);
     try {
       const payload = { ...userProfile };
-      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, { websiteKey });
-
+      const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`, payload, {  websiteKey });
 
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, {
@@ -167,13 +135,12 @@ const ProfilePage: React.FC = () => {
           duration: 2000,
         });
       }
-
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleUploadProfile = async (fileList: FileList | null) => {
     if (!isEditing) return;
@@ -184,29 +151,29 @@ const ProfilePage: React.FC = () => {
         folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_POSTS,
         fileName: fileList?.[0].name,
         contentType: fileList?.[0].type
-      }
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
+      };
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{ websiteKey });
       if (resp.status === 200 || resp.status === 201) {
-        // uploadToS3(resp?.data?.uploadUrl, fileList?.[0], resp?.data?.key, setLoading, process.env.NEXT_PUBLIC_AWS_FOLDER_USER, setUserProfile);
         const response = await axios.put(resp?.data?.uploadUrl, fileList?.[0]);
 
         if (response.status === 200 || response.status === 201) {
-          setUserProfile({ ...userProfile, imageKey: resp?.data?.key })
+          setUserProfile({ ...userProfile, imageKey: resp?.data?.key });
         }
-
       } else {
         toast.error(resp.data.message, {
           duration: 2000
         });
       }
-
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
+  };
 
-  }
+  useEffect(() => {
+    fetchAddress();
+  }, []);
 
   useEffect(() => {
     fetchUser();
@@ -556,4 +523,5 @@ const ProfilePage: React.FC = () => {
     </div>
   );
 };
+
 export default ProfilePage;
