@@ -20,7 +20,7 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
   handleSaveEdit,
 }) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const { websiteKey } = useUserContext();
+  const {websiteKey}=useUserContext();
 
   useEffect(() => {
     const loadImagePreviews = async () => {
@@ -28,7 +28,7 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
 
       for (const imageKey of editedVariant.imageKeys) {
         if (imageKey) {
-          const imageUrl = getURL(imageKey);
+          const imageUrl = getURL(imageKey); 
           previews.push(imageUrl);
         }
       }
@@ -42,12 +42,15 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
     if (name === "variantId" || name === "sku") {
       if (value.length > 128) return; // Stop if length exceeds limit
     }
+    
     const parsedValue = (name === "quantity" || name === "price" || name === "discountedPrice")
       ? (value === "" ? 0 : parseFloat(value))
       : value;
+      
     setEditedVariant((prev: any) => ({ ...prev, [name]: parsedValue }));
   };
 
@@ -70,12 +73,12 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
         contentType: file.type,
       };
       try {
-        const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
+        const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
         if (resp.status === 200 || resp.status === 201) {
           const uploadUrl = resp?.data?.uploadUrl;
           const key = resp?.data?.key;
           await axios.put(uploadUrl, file, {
-            headers: {
+            headers: { 
               "Content-Type": file.type,
               websiteKey: websiteKey
             },
@@ -109,173 +112,169 @@ const EditVariantModal: React.FC<EditVariantModalProps> = ({
   const shouldShowScrollbar = editedVariant.imageKeys.length > 3;
 
   return (
-
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50" onClick={() => setIsEditModalOpen(false)}>
-      <div className="bg-gray-700 p-6 rounded-lg w-1/2" onClick={(e) => e.stopPropagation()} >
-        <h3 className="text-2xl font-bold mb-4">Edit Variant</h3>
-        <form>
-          {/* Input fields here */}
-          <div className="mb-4 flex space-x-4">
-            <div className="flex-1">
-              <label className="block text-sm font-semibold">Id</label>
-              <input
-                type="text"
-                name="variantId"
-                value={editedVariant.variantId}
-                onChange={handleInputChange}
-                className="w-full bg-gray-600 p-2 border rounded-md"
-                disabled
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold mb-1">SKU</label>
-            <input
-              type="text"
-              name="sku"
-              value={editedVariant.sku}
-              onChange={handleInputChange}
-              className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold mb-1">Price</label>
-            <input
-              type="text"
-              name="price"
-              value={editedVariant.price}
-              onChange={handleInputChange}
-              className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold mb-1">Color</label>
-            <input
-              type="color"
-              name="color"
-              value={editedVariant.color}
-              onChange={handleInputChange}
-              className="w-full h-8 rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
-            />
-          </div>
-
-        </form >
-
-      </div>
-
-      {/* Right column */}
-      <div className="space-y-3">
-        <div>
-          <label className="block text-xs font-semibold mb-1">Discounted Price</label>
-          <input
-            type="text"
-            name="discountedPrice"
-            value={editedVariant.discountedPrice}
-            onChange={handleInputChange}
-            className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold mb-1">Quantity</label>
-          <input
-            type="text"
-            name="quantity"
-            value={editedVariant.quantity}
-            onChange={handleInputChange}
-            className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold mb-1">Size</label>
-          <input
-            type="text"
-            name="size"
-            value={editedVariant.size}
-            onChange={handleInputChange}
-            className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
-          />
-        </div>
-      </div>
-
-
-
-
-      {/* Images Section */}
-      <div>
-        <label className="block text-xs font-semibold mb-1">Images</label>
-        <div className={`${shouldShowScrollbar ? 'max-h-48 overflow-y-auto styledScrollable pr-1' : ''}`}>
-          {editedVariant.imageKeys.map((image: string, index: number) => (
-            <div key={index} className="flex space-x-2 mb-2 items-center">
-              {/* Image preview */}
-              {imagePreviews[index] && (
-              <Image
-              src={imagePreviews[index]}
-              alt={`Image Preview ${index}`}
-              layout="intrinsic"
-              width={64}
-              height={64}
-              className="w-16 h-16 object-cover"
-            />
-            
-            
-              )}
-
-              {/* Show file input only for images that need to be uploaded */}
-              {!imagePreviews[index] && (
+      <div className="bg-gray-700 p-4 rounded-lg w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-xl font-bold mb-3">Edit Variant</h3>
+        <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+          {/* Two columns layout for form fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Left column */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1">Id</label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, index)}
+                  type="text"
+                  name="variantId"
+                  value={editedVariant.variantId || ''}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
+                  
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">SKU</label>
+                <input
+                  type="text"
+                  name="sku"
+                  value={editedVariant.sku || ''}
+                  onChange={handleInputChange}
                   className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
                 />
-              )}
+              </div>
 
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(index)}
-                className="text-red-500 text-sm"
-              >
-                Remove
-              </button>
+              <div>
+                <label className="block text-xs font-semibold mb-1">Price</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={editedVariant.price || 0}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">Color</label>
+                <input
+                  type="color"
+                  name="color"
+                  value={editedVariant.color || '#000000'}
+                  onChange={handleInputChange}
+                  className="w-full h-8 rounded-md bg-[#1A1A1A] text-white focus:outline-none cursor-pointer"
+                />
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Button to add a new image */}
-        <button
-          type="button"
-          onClick={handleAddImage}
-          className="bg-blue-500 text-white px-3 py-1.5 rounded-md mt-2 text-sm"
-        >
-          Add Image
-        </button>
+            {/* Right column */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold mb-1">Discounted Price</label>
+                <input
+                  type="number"
+                  name="discountedPrice"
+                  value={editedVariant.discountedPrice || 0}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">Quantity</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={editedVariant.quantity || 0}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
+                  min="0"
+                  step="1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">Size</label>
+                <input
+                  type="text"
+                  name="size"
+                  value={editedVariant.size || ''}
+                  onChange={handleInputChange}
+                  className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Images Section */}
+          <div>
+            <label className="block text-xs font-semibold mb-1">Images</label>
+            <div className={`${shouldShowScrollbar ? 'max-h-48 overflow-y-auto styledScrollable pr-1' : ''}`}>
+              {editedVariant.imageKeys.map((image: string, index: number) => (
+                <div key={index} className="flex space-x-2 mb-2 items-center">
+                  {/* Image preview */}
+                  {imagePreviews[index] && (
+                    <img
+                      src={imagePreviews[index]}
+                      alt={`Image Preview ${index}`}
+                      className="w-16 h-16 object-cover"
+                    />
+                  )}
+
+                  {/* Show file input only for images that need to be uploaded */}
+                  {!imagePreviews[index] && (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, index)}
+                      className="w-full bg-gray-600 p-1.5 border rounded-md text-sm"
+                    />
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="text-red-500 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Button to add a new image */}
+            <button
+              type="button"
+              onClick={handleAddImage}
+              className="bg-blue-500 text-white px-3 py-1.5 rounded-md mt-2 text-sm"
+            >
+              Add Image
+            </button>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-between pt-2">
+            <button
+              type="button"
+              onClick={handleSaveEdit}
+              className="bg-green-600 text-white px-3 py-1.5 rounded-md text-sm"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditModalOpen(false)}
+              className="bg-gray-500 text-white px-3 py-1.5 rounded-md text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
-
-      {/* Buttons */}
-      <div className="flex justify-between pt-2">
-        <button
-          type="button"
-          onClick={handleSaveEdit}
-          className="bg-green-600 text-white px-3 py-1.5 rounded-md text-sm"
-        >
-          Save Changes
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsEditModalOpen(false)}
-          className="bg-gray-500 text-white px-3 py-1.5 rounded-md text-sm"
-        >
-          Cancel
-        </button>
-      </div>
-
-
-    </div >
+    </div>
   );
 };
 
