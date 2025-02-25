@@ -222,7 +222,7 @@ const columns = [
 
           <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">
             <DialogHeader>
-              <DialogTitle className='text-2xl'>Create Category</DialogTitle>
+              <DialogTitle className='text-2xl'>Update Category</DialogTitle>
             </DialogHeader>
             <form className="py-4" onSubmit={updateCategory}>
               <div className="mb-4">
@@ -289,9 +289,7 @@ const columns = [
 
 function Category() {
   const [sorting, setSorting] = useState<SortingState>([])
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
-  // const [rowSelection, setRowSelection] = React.useState({})
+
 
   const [searchQuery, setSearchQuery] = useState('')
   const { categories, fetchCategories, categoryPageNo, setCategoryPageNo }: any = usePostContext()
@@ -317,13 +315,10 @@ function Category() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
-    // onRowSelectionChange: setRowSelection,
+   
     state: {
       sorting,
-      // columnFilters,
-      // columnVisibility,
-      // rowSelection,
+    
     },
   });
 

@@ -13,7 +13,6 @@ export const INITIAL_USER = {
     name: '',
     email: '',
     role: '',
-    storeRole: ''
 };
 
 

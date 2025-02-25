@@ -47,7 +47,7 @@ const CreateCaseStudy = () => {
                 ...prev.content,
                 aboutSection: {
                     ...prev.content.aboutSection,
-                    aboutCards: [...prev.content.aboutSection.cards, newCard]
+                    cards: [...prev.content.aboutSection.cards, newCard]
                 }
             }
         }));
@@ -87,7 +87,7 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     aboutSection: {
                         ...prev.content.aboutSection,
-                        aboutCards: updatedCards,  // Correctly update aboutCards
+                        cards: updatedCards,  // Correctly update aboutCards
                     },
                 },
             }));

@@ -77,6 +77,7 @@ const VendorOrder = () => {
               : order
           )
         );
+        fetchOrderData();
       }
     } catch (error) {
       console.error("Error cancelling order:", error);
@@ -97,6 +98,7 @@ const VendorOrder = () => {
               : order
           )
         );
+        fetchOrderData();
       }
     } catch (error) {
       console.error("Error updating order status:", error);
@@ -127,12 +129,64 @@ const VendorOrder = () => {
     {
       header: "Shipping Status",
       accessor: "shippingStatus",
-      cell: (row: any) => <div>{row.shippingStatus}</div>,
+      cell: (row: any) => {
+        const shippingStatus = row.shippingStatus;
+        let statusClass = '';
+    
+        switch (shippingStatus) {
+          case 'delivered':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'shipped':
+            statusClass = 'bg-blue-900/50 text-blue-400 text-center border border-blue-700';
+            break;
+          case 'cancelled':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          case 'confirm':
+            statusClass = 'bg-yellow-900/50 text-center text-yellow-400 border border-yellow-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700'; 
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {shippingStatus}
+          </div>
+        );
+      },
     },
+    
+    
+    
+    
     {
       header: "Payment Status",
       accessor: "paymentStatus",
-      cell: (row: any) => <div>{row.paymentStatus}</div>,
+      cell: (row: any) => {
+        const paymentStatus = row.paymentStatus;
+        let statusClass = '';
+    
+        switch (paymentStatus) {
+          case 'paid':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'unpaid':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700';
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {paymentStatus}
+          </div>
+        );
+      },
     },
     {
       header: "Actions",

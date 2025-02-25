@@ -16,7 +16,11 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+
 
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -27,6 +31,9 @@ import { usePageContext } from "@/context/pageContext"
 import { useUserContext } from "@/context/userContext"
 import AddSubServices from "./component/AddSubServices"
 import { debounce } from "lodash"
+import toast from "react-hot-toast"
+import axiosCall from "@/utils/ApiCall"
+import { VscPreview } from "react-icons/vsc"
 const columns = [
   {
     accessorKey: "name",
@@ -65,64 +72,176 @@ const columns = [
 
       const subServices = row.original;
       const [clickedItem, setClickedItem] = useState(0);
-      const { recoverSubServices, deleteSubServices, services } = usePageContext();
+      const { recoverSubServices, deleteSubServices, services, fetchSubServicesTotal } = usePageContext();
+      const [isOpen, setIsOpen] = useState(false);
+      const { user, setLoading, websiteKey }: any = useUserContext();
+      const [subServicess, setSubServicess] = useState(row.original);
+      const [selectedService, setSelectedService] = useState<string | null>(null);
+
+      useEffect(() => {
+        if (services.length > 0) {
+          const defaultService = services[0]._id;
+          setSelectedService(defaultService);
+        }
+      }, [services]);
+
+
+      useEffect(()=>{
+        setSubServicess(row.original)
+      },[row.original])
+
+
+
+      const handleCancel = () => {
+        setSubServicess(row.original);
+        setIsOpen(false);
+      }
+
+      const updateServices = async (id: string) => {
+
+        if (!subServicess.name.trim() || !subServicess.description.trim()) {
+          toast.error("Please fill in all fields correctly.", {
+            duration: 2000,
+          });
+          setLoading(false);
+          return;
+        }
+
+
+        setLoading(true);
+        try {
+          const payload = {
+            name: subServicess.name,
+            description: subServicess.description,
+          }
+          const resp = await axiosCall('put', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/${id}`, payload, { websiteKey: websiteKey });
+
+
+          if (resp.status === 200 || resp.status === 201) {
+            toast.success(resp.data.message, {
+              duration: 2000,
+            });
+            fetchSubServicesTotal(selectedService);
+            setIsOpen(false);
+          } else {
+            toast.error(resp.data.message, {
+              duration: 2000,
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      }
 
 
       return (
-        <AlertDialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+                {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-800" /> */}
-              {
-                subServices.isDeleted ?
-                  <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
-                    <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
-                      <FaClockRotateLeft className="scale-x-[-1]" /> Recover
-                    </AlertDialogTrigger>
-                  </DropdownMenuItem>
-                  : <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3 text-red-500">
-                    <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
-                      <RiDeleteBinLine /> Delete
-                    </AlertDialogTrigger>
-                  </DropdownMenuItem>
-              }
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AlertDialogContent className='bg-black border-gray-800'>
-            <AlertDialogHeader>
-              <AlertDialogTitle></AlertDialogTitle>
-              <AlertDialogDescription className='h-24' >
-                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
-              </AlertDialogDescription>
-              <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
-                Are you sure ?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={
-                  clickedItem === 1 ?
-                    () => recoverSubServices(subServices._id, services[0]._id)
-                    : clickedItem === 2 ?
-                      () => deleteSubServices(subServices._id, services[0]._id)
-                      : () => { }
+                {
+                  subServices.isDeleted ?
+                    <DropdownMenuItem onClick={() => setClickedItem(1)} className="hover:bg-gray-800 cursor-pointer px-3">
+                      <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
+                        <FaClockRotateLeft className="scale-x-[-1]" /> Recover
+                      </AlertDialogTrigger>
+                    </DropdownMenuItem>
+                    : <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3 text-red-500">
+                      <AlertDialogTrigger className="flex flex-row items-center gap-[10px]">
+                        <RiDeleteBinLine /> Delete
+                      </AlertDialogTrigger>
+                    </DropdownMenuItem>
                 }
-              >
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
+                <DropdownMenuItem onClick={() => {
+                  setIsOpen(true); // Open the dialog
+                }} className="hover:bg-gray-800 cursor-pointer px-3">
+                  <VscPreview /> Update
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent className='bg-black border-gray-800'>
+              <AlertDialogHeader>
+                <AlertDialogTitle></AlertDialogTitle>
+                <AlertDialogDescription className='h-24' >
+                  <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+                </AlertDialogDescription>
+                <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+                  Are you sure ?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
 
-          </AlertDialogContent>
-        </AlertDialog>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={
+                    clickedItem === 1 ?
+                      () => recoverSubServices(subServices._id, selectedService)
+                      : clickedItem === 2 ?
+                        () => deleteSubServices(subServices._id, selectedService)
+                        : () => { }
+                  }
+                >
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+
+            </AlertDialogContent>
+          </AlertDialog>
+          <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">
+            <DialogHeader>
+              <DialogTitle className='text-2xl'>Update Services</DialogTitle>
+            </DialogHeader>
+            <form
+              className="py-4"
+              onSubmit={async (event: any) => {
+                event.preventDefault(); // Prevent the default form submission behavior
+                await updateServices(subServicess._id);
+              }}
+            >
+              <div className="mb-4">
+                <Label htmlFor="name" className="text-right">
+                  Service name
+                </Label>
+                <Input
+                  id="name"
+                  value={subServicess.name}
+                  placeholder='Enter Name'
+                  className=""
+                  onChange={(e) => setSubServicess({ ...subServicess, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  value={subServicess.description}
+                  placeholder='Enter description'
+                  className=""
+                  onChange={(e) => setSubServicess({ ...subServicess, description: e.target.value })}
+                  required
+                />
+              </div>
+              <DialogFooter>
+                <Button type="button" onClick={handleCancel}>Cancel</Button>
+                <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Update</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       )
     },
   },

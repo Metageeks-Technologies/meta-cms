@@ -23,6 +23,8 @@ import { MdOutlineUpdate } from "react-icons/md";
 import { StoreRole } from "@/constant/store"
 import { useWebsiteContext } from "@/context/websiteContext"
 import AddWebsite from "./component/AddWebsite"
+import { PermissionEnum } from '@/constant/sidebar'
+
 import { debounce } from "lodash"
 
 const columns = [
@@ -74,6 +76,16 @@ const columns = [
       }, [row.original]);
 
 
+      const handlePermissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value, checked } = e.target;
+        setWebsite((prevWebsite: any) => {
+          const updatedPermissions = checked
+            ? [...prevWebsite.permissions, value] 
+            : prevWebsite.permissions.filter((perm: string) => perm !== value);
+          return { ...prevWebsite, permissions: updatedPermissions };
+        });
+      };
+
       return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialog>
@@ -106,6 +118,14 @@ const columns = [
                           </DropdownMenuItem>
                         </AlertDialogTrigger>
                     }
+
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
+                        <MdOutlineUpdate />
+                        Update Website
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
@@ -164,6 +184,26 @@ const columns = [
                   onChange={(e) => setWebsite({ ...website, name: e.target.value })}
                   required
                 />
+                <div className="mb-4 mt-3">
+                <Label className="text-right">Permissions</Label>
+                <div className="flex flex-wrap gap-4">
+                  {Object.values(PermissionEnum).map((permission) => (
+                    <div key={permission} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={permission}
+                        value={permission}
+                        checked={website.permissions.includes(permission)}
+                        onChange={handlePermissionChange}
+                        className="h-4 w-4"
+                      />
+                      <Label htmlFor={permission} className="text-right">
+                        {permission.charAt(0).toUpperCase() + permission.slice(1)}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                </div>
               </div>
 
               <DialogFooter>

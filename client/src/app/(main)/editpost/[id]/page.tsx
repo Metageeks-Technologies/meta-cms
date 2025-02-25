@@ -46,7 +46,7 @@ const App: React.FC = () => {
   });
 
 
-  
+
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [keywordValue, setKeywordValue] = useState('');
 
@@ -109,7 +109,7 @@ const App: React.FC = () => {
     setKeywordValue(value);
 
     const keywordArr = value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword.length > 0);
-    setFormData(prev => ({...prev, keywords: keywordArr}));
+    setFormData(prev => ({ ...prev, keywords: keywordArr }));
   }
 
 
@@ -235,6 +235,32 @@ const App: React.FC = () => {
     setFormData({ ...formData, tags: filteredTags });
   }
 
+    // Function to generate slug from title
+    const generateSlug = (title: string) => {
+        return title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
+            .replace(/(^-|-$)+/g, '');     // Remove leading/trailing hyphens
+    };
+
+    // Automatically generate slug when title changes
+    useEffect(() => {
+        if (formData.postTitle) {
+            const generatedSlug = generateSlug(formData.postTitle);
+            setFormData((prevData) => ({
+                ...prevData,
+                slug: generatedSlug
+            }));
+        }
+        else {
+            // If title is empty, clear the slug as well
+            setFormData((prevData) => ({
+                ...prevData,
+                slug: '',
+            }));
+        }
+    }, [formData.postTitle]);
+
 
   useEffect(() => {
     if (websiteKey) {
@@ -266,6 +292,18 @@ const App: React.FC = () => {
               placeholder="Enter post title"
               className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
             />
+
+            <label className='w-full flex flex-col gap-2 mt-5'>
+              <span>Create Slug</span>
+              <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+              <input
+                type="text"
+                className='w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none'
+                placeholder='Enter slug'
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              />
+            </label>
           </div>
           {/* Preview image input */}
           <div>
@@ -448,7 +486,7 @@ const App: React.FC = () => {
 
 
           {/* Slug */}
-          <label className='w-full flex flex-col gap-2'>
+          {/* <label className='w-full flex flex-col gap-2'>
             <span>Create Slug</span>
             <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
             <input
@@ -458,7 +496,7 @@ const App: React.FC = () => {
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             />
-          </label>
+          </label> */}
 
           {/* Category Selection */}
           <div className="space-y-2">

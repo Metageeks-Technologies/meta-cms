@@ -27,7 +27,6 @@ const ProfilePage: React.FC = () => {
     email: "",
     imageKey: "",
     role: "",
-    storeRole: "",
     phoneNo: "",
     bio: "",
     socialLinks: {
@@ -112,7 +111,6 @@ const ProfilePage: React.FC = () => {
       email: user?.email,
       imageKey: user?.imageKey,
       role: user?.role,
-      storeRole: user?.storeRole,
       phoneNo: user?.phoneNo ? user?.phoneNo : "",
       bio: user?.bio ? user?.bio : "",
       socialLinks: {
@@ -372,7 +370,7 @@ const ProfilePage: React.FC = () => {
               </div>
 
               {/* Roles */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid  gap-4">
                 {/* Role */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">

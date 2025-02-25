@@ -55,7 +55,8 @@ export const WebsiteProvider = ({ children }: any) => {
         setLoading(true);
         try {
             const payload = {
-                name: website.name
+                name: website.name,
+                permissions: website.permissions,
             }
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/website/${website._id}`, payload);
             if (resp.status === 200 || resp.status === 201) {
