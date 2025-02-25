@@ -3,6 +3,8 @@ import { getURL } from '@/utils/AWS_Config';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Tag } from 'lucide-react';
+import Image from 'next/image';
+
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const router = useRouter();
@@ -11,21 +13,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         if (product.variants?.[0]) {
             const originalPrice = product.variants[0].price;
             const discountedPrice = product.variants[0].discountedPrice;
-    
+
             // If the discounted price is 0, return 0% discount
             if (discountedPrice === 0) {
                 return 0;
             }
-    
+
             const discount = ((originalPrice - discountedPrice) / originalPrice) * 100;
             return Math.round(discount);
         }
         return 0;
     };
-    
+
 
     return (
-        <div 
+        <div
             className="group relative bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 w-72 cursor-pointer"
             onClick={() => router.push(`/store/product/${product._id}`)}
         >
@@ -39,11 +41,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
             {/* Image Container */}
             <div className="relative w-72 h-72 overflow-hidden bg-white flex items-center justify-center">
-                <img
+                <Image
                     src={getURL(product?.variants[0]?.imageKeys[0])}
                     alt={product.title}
+                    layout="intrinsic"
+                    width={1200}
+                    height={800}
                     className="w-full h-full object-contain p-4 transform group-hover:scale-105 transition-transform duration-300"
                 />
+
+
             </div>
 
             {/* Content Section */}
@@ -68,24 +75,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 {/* Price Section */}
                 {product.variants && product.variants.length > 0 ? (
                     <div className="flex items-center gap-2 mb-3">
-                    {product.variants[0].discountedPrice > 0 ? (
-                        <>
-                            <span className="text-lg font-bold text-white">
-                                ₹{product.variants[0].discountedPrice.toFixed(2)}
-                            </span>
-                            {product.variants[0].discountedPrice < product.variants[0].price && (
-                                <span className="text-gray-500 text-sm line-through">
-                                    ₹{product.variants[0].price.toFixed(2)}
+                        {product.variants[0].discountedPrice > 0 ? (
+                            <>
+                                <span className="text-lg font-bold text-white">
+                                    ₹{product.variants[0].discountedPrice.toFixed(2)}
                                 </span>
-                            )}
-                        </>
-                    ) : (
-                        <span className="text-lg font-bold text-white">
-                            ₹{product.variants[0].price.toFixed(2)}
-                        </span>
-                    )}
-                </div>
-                
+                                {product.variants[0].discountedPrice < product.variants[0].price && (
+                                    <span className="text-gray-500 text-sm line-through">
+                                        ₹{product.variants[0].price.toFixed(2)}
+                                    </span>
+                                )}
+                            </>
+                        ) : (
+                            <span className="text-lg font-bold text-white">
+                                ₹{product.variants[0].price.toFixed(2)}
+                            </span>
+                        )}
+                    </div>
+
                 ) : (
                     <p className="text-red-500 text-sm mb-3">No variants available</p>
                 )}

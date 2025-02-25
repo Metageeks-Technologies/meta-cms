@@ -8,6 +8,8 @@ import DOMPurify from 'dompurify';
 import { useRouter } from 'next/navigation';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
+import Image from 'next/image';
+
 
 const RecentPosts = () => {
 
@@ -74,8 +76,14 @@ const RecentPosts = () => {
                                 onClick={() => router.push(`/post/${post.slug}`)}
                             >
                                 <div className="w-[200px] h-[130px]">
-                                    <img src={getURL(post.previewImageKey)} alt="" className='w-full h-full object-cover rounded-lg'/>
-                                    {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
+                                <Image
+  src={getURL(post.previewImageKey)} // The dynamic URL or path to your image
+  alt=""
+  className="object-cover rounded-lg"
+  layout="responsive" // Makes the image responsive
+  width={1200} // Replace with the actual width of the image
+  height={800} // Replace with the actual height of the image
+/>                                    {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
                                 </div>
 
                                 <div className="flex-1">

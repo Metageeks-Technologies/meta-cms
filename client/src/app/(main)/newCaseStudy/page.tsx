@@ -8,6 +8,8 @@ import axiosCall from '@/utils/ApiCall';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
+import Image from 'next/image';
+
 
 
 const CreateCaseStudy = () => {
@@ -473,11 +475,16 @@ const CreateCaseStudy = () => {
                                 htmlFor="mainImage"
                             >
                                 {formData.content.heroSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.heroSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+
+                                  <Image
+                                    src={getURL(formData.content.heroSection.imageKey)}
+                                    alt="Preview"
+                                    layout="responsive"  // Makes the image responsive, maintaining its aspect ratio
+                                    width={1200}  // Specify the width for the image (adjust to your needs)
+                                    height={800}  // Specify the height for the image (adjust to your needs)
+                                    className="object-contain w-full h-full rounded-lg"
+                                  />
+                                  
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -593,11 +600,16 @@ const CreateCaseStudy = () => {
                                 htmlFor="contentImage"
                             >
                                 {formData.content.uiSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.uiSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+
+                                  <Image
+                                    src={getURL(formData.content.uiSection.imageKey)}
+                                    alt="Preview"
+                                    layout="responsive"  
+                                    width={1200}  
+                                    height={800}  
+                                    className="object-contain w-full h-full rounded-lg"
+                                  />
+                                  
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -641,11 +653,16 @@ const CreateCaseStudy = () => {
                                 htmlFor="contentImageSection"
                             >
                                 {formData.content.serviceSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.serviceSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+
+                                 <Image
+                                   src={getURL(formData.content.serviceSection.imageKey)}
+                                   alt="Preview"
+                                   layout="responsive"  
+                                   width={1200}
+                                   height={800} 
+                                   className="object-contain w-full h-full rounded-lg"
+                                 />
+                                 
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}

@@ -415,7 +415,7 @@ const EditProduct: React.FC = () => {
                         </select>
                     </div>
 
-                    <div>
+                    {/* <div>
                         <label htmlFor="website" className="text-white">Website</label>
                         <select
                             id="website"
@@ -433,7 +433,7 @@ const EditProduct: React.FC = () => {
                                 ))
                             }
                         </select>
-                    </div>
+                    </div> */}
 
                     
                     <div>
@@ -466,7 +466,7 @@ const EditProduct: React.FC = () => {
                 </div>
             </div>
 
-            {/* Create Product Button */} 
+            {/* Edit Product Button */} 
             <div className="mt-4 flex justify-end">
                 <button
                     onClick={handleEditProduct}

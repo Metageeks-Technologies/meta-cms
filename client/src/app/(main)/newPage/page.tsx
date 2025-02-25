@@ -11,6 +11,8 @@ import { Card, Feature, PageContent } from '@/types';
 import { userRoles } from '@/constant/user';
 import AddNewService from './components/AddNewService';
 import AddNewSubService from './components/AddNewSubService';
+import Image from 'next/image';
+
 
 
 const CreatePage = () => {
@@ -699,11 +701,14 @@ const CreatePage = () => {
                                 htmlFor="imageInputHero"
                             >
                                 {formData.content.heroSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.heroSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                   <Image
+                                   src={getURL(formData.content.heroSection.imageKey)}
+                                   alt="Preview"
+                                   layout="responsive"  
+                                   width={1200} 
+                                   height={800}  
+                                   className="object-contain w-full h-full rounded-lg"
+                                 />
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -776,11 +781,14 @@ const CreatePage = () => {
                                 htmlFor="imageInputSolution"
                             >
                                 {formData.content.solutionSection1.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.solutionSection1.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                   <Image
+                                   src={getURL(formData.content.solutionSection1.imageKey)}
+                                   alt="Preview"
+                                   layout="responsive"
+                                   width={1200}
+                                   height={800}
+                                   className="object-contain w-full h-full rounded-lg"
+                                 />
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -878,11 +886,14 @@ const CreatePage = () => {
                                         htmlFor={`imageInputCard-${index}`}
                                     >
                                         {card.imageKey ? (
-                                            <img
-                                                src={getURL(card.imageKey)}
-                                                alt="Card Preview"
-                                                className="object-contain w-full h-full rounded-lg"
-                                            />
+                                         <Image
+                                         src={getURL(card.imageKey)}
+                                         alt="Card Preview"
+                                         layout="responsive"
+                                         width={1200}
+                                         height={800}
+                                         className="object-contain w-full h-full rounded-lg"
+                                       />
                                         ) : (
                                             <span className="text-white text-3xl">+</span>
                                         )}
@@ -1035,11 +1046,14 @@ const CreatePage = () => {
                                 htmlFor="imageInputSolution2"
                             >
                                 {formData.content.solutionSection2.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.solutionSection2.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                  <Image
+                                  src={getURL(formData.content.solutionSection2.imageKey)}
+                                  alt="Preview"
+                                  layout="responsive"
+                                  width={1200}
+                                  height={800}
+                                  className="object-contain w-full h-full rounded-lg"
+                                />
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -1124,11 +1138,16 @@ const CreatePage = () => {
                                         htmlFor={`imageInputFeature-${index}`}
                                     >
                                         {feature.imageKey ? (
-                                            <img
-                                                src={getURL(feature.imageKey)}
-                                                alt="Feature Preview"
-                                                className="object-contain w-full h-full rounded-lg"
-                                            />
+                                          <Image
+                                          src={getURL(feature.imageKey)}
+                                          alt="Feature Preview"
+                                          layout="responsive"
+                                          width={1200}
+                                          height={800}
+                                          className="object-contain w-full h-full rounded-lg"
+                                        />
+                                        
+                                        
                                         ) : (
                                             <span className="text-white text-3xl">+</span>
                                         )}
@@ -1198,11 +1217,16 @@ const CreatePage = () => {
                                 htmlFor="imageInputMarket"
                             >
                                 {formData.content.marketForecastSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.marketForecastSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                    <Image
+                                    src={getURL(formData.content.marketForecastSection.imageKey)}
+                                    alt="Preview"
+                                    layout="responsive"
+                                    width={1200}
+                                    height={800}
+                                    className="object-contain w-full h-full rounded-lg"
+                                  />
+                                  
+                                  
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}

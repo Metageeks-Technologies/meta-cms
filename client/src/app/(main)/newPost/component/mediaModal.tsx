@@ -7,6 +7,8 @@ import { useUserContext } from '@/context/userContext';
 import { usePostContext } from '@/context/postContext';
 import { getURL } from '@/utils/AWS_Config';
 import { debounce } from 'lodash';
+import Image from 'next/image';
+
 
 interface MediaPageProps {
   onSelectImage: (imageUrl: string) => void;
@@ -127,8 +129,14 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
             className="w-[220px] h-[150px] cursor-pointer"
             onClick={() => onSelectImage(media.key)}
           >
-            <img src={getURL(media.key)} alt="" className="w-full h-full object-cover rounded-md" />
-          </div>
+<Image
+  src={getURL(media.key)}
+  alt=""
+  layout="responsive"
+  width={1200}
+  height={800}
+  className="w-full h-full object-cover rounded-md"
+/>          </div>
         ))}
       </div>
 

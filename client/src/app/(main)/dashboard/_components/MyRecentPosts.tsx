@@ -8,6 +8,8 @@ import toast from 'react-hot-toast';
 import { handleDate } from '@/utils/helperFunction';
 import { useUserContext } from '@/context/userContext';
 import { getURL } from '@/utils/AWS_Config';
+import Image from 'next/image';
+
 
 
 const MyRecentPosts = () => {
@@ -76,7 +78,14 @@ const MyRecentPosts = () => {
                                 onClick={() => router.push(`/post/${post.slug}`)}
                             >
                                 <div className="w-[200px] h-[130px]">
-                                    <img src={getURL(post.previewImageKey)} alt="" className='w-full h-full object-cover rounded-lg'/>
+
+<Image
+  src={getURL(post.previewImageKey)} // The dynamic URL or path
+  alt=""
+  className="w-full h-full object-cover rounded-lg"
+  width={1200} // Replace with the actual width of the image
+  height={800} // Replace with the actual height of the image
+/>
                                     {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
                                 </div>
 

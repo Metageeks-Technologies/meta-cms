@@ -8,6 +8,8 @@ import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaArrowLeft } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import Image from 'next/image';
+
 
 const CaseStudyPage = () => {
     const { setLoading, user, websiteKey } = useUserContext();
@@ -62,11 +64,14 @@ const CaseStudyPage = () => {
                 {/* Hero Section */}
                 <section className="bg-gray-900 rounded-lg overflow-hidden">
                     <h2 className="text-3xl font-bold text-white p-6">Hero Section</h2>
-                    <img
-                        src={getURL(caseStudyPage?.content?.heroSection?.imageKey)}
-                        alt="Hero Section"
-                        className="w-full object-cover h-80"
-                    />
+                    <Image
+  src={getURL(caseStudyPage?.content?.heroSection?.imageKey)}
+  alt="Hero Section"
+  className="w-full object-cover"
+  layout="responsive"
+  width={1200} 
+  height={320} 
+/>
                 </section>
 
                 {/* About Section */}
@@ -102,11 +107,14 @@ const CaseStudyPage = () => {
                 {/* UI Section 1 */}
                 <section className="bg-gray-900 rounded-lg overflow-hidden">
                     <h2 className="text-3xl font-bold text-white p-6">UI Section 1</h2>
-                    <img
-                        src={getURL(caseStudyPage?.content?.uiSection?.imageKey)}
-                        alt="UI Section 1"
-                        className="w-full object-cover h-80"
-                    />
+                    <Image
+  src={getURL(caseStudyPage?.content?.uiSection?.imageKey)}
+  alt="UI Section 1"
+  className="w-full object-cover"
+  layout="responsive" 
+  width={1200} 
+  height={320} 
+/>
                 </section>
 
                 {/* Service Section */}
@@ -116,11 +124,15 @@ const CaseStudyPage = () => {
                         <span className="font-semibold text-white">Description: </span>
                         {caseStudyPage?.content?.serviceSection?.description}
                     </p>
-                    <img
+
+                    <Image
                         src={getURL(caseStudyPage?.content?.serviceSection?.imageKey)}
                         alt="Service Section"
-                        className="w-full object-cover h-80"
-                    />
+  className="w-full object-cover"
+  layout="responsive" 
+  width={1200} 
+  height={320} 
+/>
                 </section>
 
                 {/* Process Section */}
@@ -150,11 +162,15 @@ const CaseStudyPage = () => {
                 {/* UI Section 2 */}
                 <section className="bg-gray-900 rounded-lg overflow-hidden">
                     <h2 className="text-3xl font-bold text-white p-6">UI Section 2</h2>
-                    <img
+                    <Image
                         src={getURL(caseStudyPage?.content?.uiSection2?.imageKey)}
                         alt="UI Section 2"
-                        className="w-full object-cover h-80"
-                    />
+  className="w-full object-cover"
+  layout="responsive" 
+  width={1200} 
+  height={320} 
+/>
+                   
                 </section>
 
                 {/* Challenges Section */}

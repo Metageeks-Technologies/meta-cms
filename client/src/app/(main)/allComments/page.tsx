@@ -133,7 +133,7 @@ const CommentsPage: React.FC = () => {
 
     return (
         <div className="p-6 mx-auto bg-black text-white mb-9">
-            <div className="mb-4 flex space-x-4">
+            <div className="mb-8 flex space-x-4">
                 {['awaiting approval', 'published', 'rejected', 'deleted'].map(status => (
                     <div
                         key={status}

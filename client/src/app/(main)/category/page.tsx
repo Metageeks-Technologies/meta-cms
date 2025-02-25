@@ -22,6 +22,7 @@ import axiosCall from "@/utils/ApiCall"
 import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
 import { debounce } from "lodash"
+import Image from "next/image"
 
 const columns = [
   {
@@ -40,12 +41,14 @@ const columns = [
       return (
         <div className="flex items-center justify-start">
           {imagekey ? (
-            <img
-              src={getURL(imagekey)}
-              // src="/blogImg.png"
-              alt="Category Image"
-              className="h-20 w-32 object-cover rounded-md"
-            />
+          <Image
+          src={getURL(imagekey)}  
+          alt="Category Image"
+          className="h-20 w-32 object-cover rounded-md"
+          width={128}
+          height={80} 
+        />
+        
           ) : (
             <span className="text-gray-500">No image</span>
           )}
@@ -268,7 +271,16 @@ const columns = [
               {
                 category.bannerImageKey &&
                 <div className='w-[100px] h-[70px]'>
-                  <img src={getURL(category.bannerImageKey)} alt="" className='w-full h-full object-cover' />
+                  {/* <img src={getURL(category.bannerImageKey)} alt="" className='w-full h-full object-cover' /> */}
+                  <Image 
+  src={getURL(category.bannerImageKey)} 
+  alt="" 
+  layout="responsive" 
+  width={1200} 
+  height={500} 
+  objectFit="cover" 
+/>
+
                 </div>
               }
               <DialogFooter>

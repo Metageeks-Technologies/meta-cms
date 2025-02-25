@@ -15,6 +15,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import Image from 'next/image';
+
 
 
 
@@ -85,7 +87,15 @@ const page = () => {
                         media?.map((media: MediaType, index: number) => (
                             <DialogTrigger key={index} onClick={() => setImage(media.key)}>
                                 <div key={media._id} className='w-80 h-80'>
-                                    <img src={getURL(media.key)} alt="" loading='lazy' className='w-full h-full object-contain' />
+
+<Image
+  src={getURL(media.key)} 
+  alt="" 
+  layout="responsive"  // "responsive" maintains aspect ratio
+  width={500} // Specify a width for the image
+  height={500} // Specify a height for the image
+  className="object-contain w-full h-full"
+/>
                                 </div>
                             </DialogTrigger>
                         ))
