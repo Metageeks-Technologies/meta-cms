@@ -311,27 +311,26 @@ const ProductCard: React.FC = () => {
 
           <div className="flex flex-col lg:flex-row gap-4 ">
               {/* Image Section */}
-              <div className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:max-w-lg bg-black rounded-lg shadow-sm">
-
-
-                  <div className="aspect-square w-full relative ">
+              <div className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:max-w-lg bg-black rounded-lg shadow-sm p-4">
+                  {/* Product Image */}
+                  <div className="relative w-[500px] h-[500px] bg-white rounded-lg border border-gray-300 overflow-hidden ml-10 flex items-center justify-center">
                       <img
                           alt={product?.title || 'Product'}
                           src={getURL(selectedImage)}
-                          className="absolute inset-0 w-full h-full object-contain p-4"
+                          className="w-full h-full object-cover"
                       />
                   </div>
-              </div>
-              
-                      {/* Thumbnails */}
-                      <div className="grid grid-cols-5 gap-2 mt-3">
-                          {selectedVariant?.imageKeys.map(
+
+                  {/* Thumbnails Section */}
+                  {selectedVariant?.imageKeys?.length > 0 && (
+                      <div className="flex space-x-2 mt-2">
+                          {selectedVariant.imageKeys.map(
                               (image: string, index: number) => (
                                   <button
                                       key={index}
                                       onClick={() => setSelectedImage(image)}
-                                      className={`w-12 h-12 bg-white rounded-lg overflow-hidden border-2 transition-all
-          ${selectedImage === image ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-300'}`}
+                                      className={`w-14 h-14 bg-white rounded-lg overflow-hidden border-2 transition-all 
+                    ${selectedImage === image ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-300'}`}
                                   >
                                       <img
                                           src={getURL(image)}
@@ -342,10 +341,11 @@ const ProductCard: React.FC = () => {
                               ),
                           )}
                       </div>
-                  
+                  )}
+              </div>
 
               {/* Product Details */}
-              <div className="lg:w-1/2 space-y-6">
+              <div className="lg:w-1/2 space-y-6  ml-20">
                   <div>
                       {/* Status Badge */}
                       <div className="flex items-center gap-3 mb-4">
@@ -522,8 +522,6 @@ const ProductCard: React.FC = () => {
                           </div>
                       </div>
                   )}
-
-                  
               </div>
           </div>
 
@@ -535,8 +533,6 @@ const ProductCard: React.FC = () => {
                   dangerouslySetInnerHTML={{ __html: description }}
               />
           </div>
-
-          
 
           {/* Action Buttons Section */}
           <div className="mt-8 flex flex-wrap gap-4">
@@ -569,7 +565,8 @@ const ProductCard: React.FC = () => {
               )}
 
               {(user?.id === product?.authorId ||
-                  user.role === "superadmin" || user.role==="admin") && (
+                  user.role === 'superadmin' ||
+                  user.role === 'admin') && (
                   <Button
                       onClick={handleEdit}
                       className="bg-blue-500 text-white hover:bg-blue-900"
