@@ -15,7 +15,7 @@ import Image from 'next/image';
 const MyRecentPosts = () => {
 
     const router = useRouter();
-    const {setLoading, user, websiteKey} = useUserContext();
+    const { setLoading, user, websiteKey } = useUserContext();
     const [posts, setPosts] = useState<any>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -41,11 +41,11 @@ const MyRecentPosts = () => {
             param.append('status', postStatuEnum.PUBLISHED);
             param.append('sortBy', postSortByEnum.RECENT);
 
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/all?${param.toString()}`, undefined, {websiteKey});
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/my/all?${param.toString()}`, undefined, { websiteKey });
 
             if (resp.status === 200 || resp.status === 201) {
-                setPosts(resp?.data?.slice(0,10));
-                
+                setPosts(resp?.data?.slice(0, 10));
+
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
@@ -60,7 +60,7 @@ const MyRecentPosts = () => {
     }
 
     useEffect(() => {
-        if(websiteKey) fetchUserAllRecentPublishedPosts();
+        if (websiteKey) fetchUserAllRecentPublishedPosts();
     }, [websiteKey])
 
 
@@ -79,13 +79,13 @@ const MyRecentPosts = () => {
                             >
                                 <div className="w-[200px] h-[130px]">
 
-<Image
-  src={getURL(post.previewImageKey)} // The dynamic URL or path
-  alt=""
-  className="w-full h-full object-cover rounded-lg"
-  width={1200} // Replace with the actual width of the image
-  height={800} // Replace with the actual height of the image
-/>
+                                    <Image
+                                        src={getURL(post.previewImageKey)}
+                                        alt=""
+                                        className="w-full h-full object-cover rounded-lg"
+                                        width={1200}
+                                        height={800}
+                                    />
                                     {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
                                 </div>
 

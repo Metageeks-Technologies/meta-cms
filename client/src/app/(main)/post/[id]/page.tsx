@@ -318,7 +318,7 @@ const page = () => {
 
                             {/* Post Content */}
                             <div
-                                className="prose prose-invert max-w-none mb-8"
+                                className="prose prose-invert max-w-none mb-8 break-words"
                                 dangerouslySetInnerHTML={{
                                     __html: post?.description,
                                 }}
@@ -413,7 +413,7 @@ const page = () => {
 
                                 {
                                 
-                                post.status === 'draft' || post.status==="rejected" && (
+                                post.status === 'draft'  && (
                                     <Button
                                         onClick={() => handlePublished(post._id)}
                                         className="bg-green-500/20 text-green-400 hover:bg-green-500/30"

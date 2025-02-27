@@ -69,7 +69,7 @@ const page = () => {
     }, [media]);
 
     useEffect(() => {
-        if(websiteKey){
+        if (websiteKey) {
             setMedia([]);
             fetchMedia();
         }
@@ -88,14 +88,14 @@ const page = () => {
                             <DialogTrigger key={index} onClick={() => setImage(media.key)}>
                                 <div key={media._id} className='w-80 h-80'>
 
-<Image
-  src={getURL(media.key)} 
-  alt="" 
-  layout="responsive"  // "responsive" maintains aspect ratio
-  width={500} // Specify a width for the image
-  height={500} // Specify a height for the image
-  className="object-contain w-full h-full"
-/>
+                                    <Image
+                                        src={getURL(media.key)}
+                                        alt=""
+                                        layout="responsive"
+                                        width={500}
+                                        height={500}
+                                        className="object-contain w-full h-full"
+                                    />
                                 </div>
                             </DialogTrigger>
                         ))

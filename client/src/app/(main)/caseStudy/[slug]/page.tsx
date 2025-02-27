@@ -55,23 +55,23 @@ const CaseStudyPage = () => {
 
             <div className="space-y-8">
 
-            <section className="bg-gray-900 rounded-lg p-6">
+                <section className="bg-gray-900 rounded-lg p-6">
                     <h2 className="text-3xl font-bold text-white mb-4">Project Type : <span>{caseStudyPage?.projectType}</span></h2>
-                   
-                    </section>
+
+                </section>
 
 
                 {/* Hero Section */}
                 <section className="bg-gray-900 rounded-lg overflow-hidden">
                     <h2 className="text-3xl font-bold text-white p-6">Hero Section</h2>
                     <Image
-  src={getURL(caseStudyPage?.content?.heroSection?.imageKey)}
-  alt="Hero Section"
-  className="w-full object-cover"
-  layout="responsive"
-  width={1200} 
-  height={320} 
-/>
+                        src={getURL(caseStudyPage?.content?.heroSection?.imageKey)}
+                        alt="Hero Section"
+                        className="w-full object-cover"
+                        layout="responsive"
+                        width={1200}
+                        height={320}
+                    />
                 </section>
 
                 {/* About Section */}
@@ -108,13 +108,13 @@ const CaseStudyPage = () => {
                 <section className="bg-gray-900 rounded-lg overflow-hidden">
                     <h2 className="text-3xl font-bold text-white p-6">UI Section 1</h2>
                     <Image
-  src={getURL(caseStudyPage?.content?.uiSection?.imageKey)}
-  alt="UI Section 1"
-  className="w-full object-cover"
-  layout="responsive" 
-  width={1200} 
-  height={320} 
-/>
+                        src={getURL(caseStudyPage?.content?.uiSection?.imageKey)}
+                        alt="UI Section 1"
+                        className="w-full object-cover"
+                        layout="responsive"
+                        width={1200}
+                        height={320}
+                    />
                 </section>
 
                 {/* Service Section */}
@@ -128,11 +128,11 @@ const CaseStudyPage = () => {
                     <Image
                         src={getURL(caseStudyPage?.content?.serviceSection?.imageKey)}
                         alt="Service Section"
-  className="w-full object-cover"
-  layout="responsive" 
-  width={1200} 
-  height={320} 
-/>
+                        className="w-full object-cover"
+                        layout="responsive"
+                        width={1200}
+                        height={320}
+                    />
                 </section>
 
                 {/* Process Section */}
@@ -165,12 +165,12 @@ const CaseStudyPage = () => {
                     <Image
                         src={getURL(caseStudyPage?.content?.uiSection2?.imageKey)}
                         alt="UI Section 2"
-  className="w-full object-cover"
-  layout="responsive" 
-  width={1200} 
-  height={320} 
-/>
-                   
+                        className="w-full object-cover"
+                        layout="responsive"
+                        width={1200}
+                        height={320}
+                    />
+
                 </section>
 
                 {/* Challenges Section */}
