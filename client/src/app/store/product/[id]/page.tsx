@@ -18,9 +18,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertDialogDescription
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft,TriangleAlert,Trash2 } from "lucide-react";
 
 
 const ProductCard: React.FC = () => {
@@ -309,20 +313,20 @@ const ProductCard: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 ">
-        {/* Image Section */}
-        <div className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:max-w-lg bg-black rounded-lg shadow-sm p-4">
-          {/* Product Image */}
-          <div className="relative w-[500px] h-[500px] bg-white rounded-lg border border-gray-300 overflow-hidden ml-10 flex items-center justify-center">
-            <Image
-              alt={product?.title || 'Product'}
-              src={getURL(selectedImage)}
-              layout="responsive"
-               width={1200}
-              height={800}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <div className="flex flex-col lg:flex-row gap-4 ">
+              {/* Image Section */}
+              <div className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:max-w-lg bg-black rounded-lg shadow-sm p-4">
+                  {/* Product Image */}
+                  <div className="relative w-[500px] h-[500px] bg-white rounded-lg border border-gray-300 overflow-hidden ml-10 flex items-center justify-center">
+                      <Image
+                          alt={product?.title || 'Product'}
+                          src={getURL(selectedImage)}
+                          layout="responsive"
+                          width={1200}
+                          height={800}
+                          className="w-full h-full object-cover"
+                      />
+                  </div>
 
           {/* Thumbnails Section */}
           {selectedVariant?.imageKeys?.length > 0 && (
@@ -384,46 +388,46 @@ const ProductCard: React.FC = () => {
             )}
           </div>
 
-          {/* Variant Selection */}
-          {variants && variants.length > 0 && (
-            <div className="mt-8">
-              <h4 className="font-semibold text-xl mb-4">
-                Product Variants
-              </h4>
-              <div className="flex flex-wrap gap-3">
-                {variants
-                  .filter((variant: any) => !variant.isDeleted)
-                  .map((variant: any, index: number) => (
-                    <button
-                      key={variant.variantId || index}
-                      onClick={() =>
-                        handleVariantChange(variant)
-                      }
-                      className={`relative rounded-lg transition-all ${selectedVariant?.variantId ===
-                          variant.variantId
-                          ? 'ring-2 ring-blue-500'
-                          : ''
-                        }`}
-                    >
-                      {variant.color ? (
-                        <span
-                          style={{
-                            backgroundColor:
-                              variant.color,
-                          }}
-                          className="block w-12 h-12 rounded-lg border border-gray-600"
-                        />
-                      ) : variant.size ? (
-                        <span className="flex w-12 h-12 rounded-lg border  border-gray-600 items-center justify-center ">
-                          <span>{variant.size}</span>
-
-                        </span>
-                      ) : null}
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
+                  {/* Variant Selection */}
+                  {variants && variants.length > 0 && (
+                      <div className="mt-8">
+                          <h4 className="font-semibold text-xl mb-4">
+                              Product Variants
+                          </h4>
+                          <div className="flex flex-wrap gap-3">
+                              {variants
+                                  .filter((variant: any) => !variant.isDeleted)
+                                  .map((variant: any, index: number) => (
+                                      <button
+                                          key={variant.variantId || index}
+                                          onClick={() =>
+                                              handleVariantChange(variant)
+                                          }
+                                          className={`relative rounded-lg transition-all ${
+                                              selectedVariant?.variantId ===
+                                              variant.variantId
+                                                  ? 'ring-2 ring-blue-500'
+                                                  : ''
+                                          }`}
+                                      >
+                                          {variant.color ? (
+                                              <span
+                                                  style={{
+                                                      backgroundColor:
+                                                          variant.color,
+                                                  }}
+                                                  className="block w-12 h-12 rounded-lg border border-gray-600"
+                                              />
+                                          ) : variant.size ? (
+                                              <span className="flex w-12 h-12 rounded-lg border  border-gray-600 items-center justify-center ">
+                                                  <span>{variant.size}</span>
+                                              </span>
+                                          ) : null}
+                                      </button>
+                                  ))}
+                          </div>
+                      </div>
+                  )}
 
           {/* Variant Details */}
           {selectedVariant && (
@@ -537,35 +541,46 @@ const ProductCard: React.FC = () => {
         />
       </div>
 
-      {/* Action Buttons Section */}
-      <div className="mt-8 flex flex-wrap gap-4">
-        {!product.isDeleted && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button className="bg-red-500 text-white hover:bg-red-900">
-                Delete Product
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="bg-gray-900 border border-gray-800">
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Delete Product?
-                </AlertDialogTitle>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="bg-gray-800">
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-red-500 hover:bg-red-600"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+          {/* Action Buttons Section */}
+          <div className="mt-8 flex flex-wrap gap-4">
+              {!product.isDeleted && (
+                  <AlertDialog>
+                      <AlertDialogTrigger className="flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 text-sm">
+                          <Trash2 className="w-4 h-4" />
+                          <span>Delete</span>
+                      </AlertDialogTrigger>
+
+                      <AlertDialogContent className="bg-gray-900 border-gray-800">
+                          <AlertDialogHeader>
+                              <AlertDialogTitle></AlertDialogTitle>
+                              <AlertDialogDescription>
+                                  <div className="flex flex-col items-center gap-4">
+                                      <TriangleAlert className="w-16 h-16 text-red-500 " />
+                                      <h2 className="text-xl font-semibold text-gray-100">
+                                          Delete Product
+                                      </h2>
+                                      <p className="text-gray-400 text-center">
+                                          Are you sure you want to delete this
+                                          Product? This action cannot be undone.
+                                      </p>
+                                  </div>
+                              </AlertDialogDescription>
+                          </AlertDialogHeader>
+
+                          <AlertDialogFooter>
+                              <AlertDialogCancel className="bg-gray-800 hover:bg-gray-700">
+                                  Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                  onClick={handleDelete}
+                                  className="bg-red-500 text-white hover:bg-red-600"
+                              >
+                                  Delete
+                              </AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
+              )}
 
         {(user?.id === product?.authorId ||
           user.role === 'superadmin' ||
@@ -578,15 +593,41 @@ const ProductCard: React.FC = () => {
             </Button>
           )}
 
-        {product.status === 'draft' || product.status === "awaiting approval" && (
-          <Button
-            onClick={handleApprove}
-            className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
-          >
-            Publish Product
-          </Button>
-        )}
-      </div>
+              {/* Only admin, superadmin, or moderator can see Publish & Reject buttons */}
+              {(user.role === 'superadmin' ||
+                  user.role === 'admin' ||
+                  user.role === 'moderator') &&
+                  (product.status === 'draft' ||
+                      product.status === 'awaiting approval') && (
+                      <div className="flex gap-4">
+                          <Button
+                              onClick={handleApprove}
+                              className="bg-green-700 text-white hover:bg-green-500/30"
+                          >
+                              Publish Product
+                          </Button>
+                          <Button
+                              onClick={handleRejected}
+                              className="bg-red-700 text-white hover:bg-red-500/30"
+                          >
+                              Reject Product
+                          </Button>
+                      </div>
+                  )}
+
+              {/* Only admin, superadmin, or moderator can see Recover button */}
+              {(user.role === 'superadmin' ||
+                  user.role === 'admin' ||
+                  user.role === 'moderator') &&
+                  product.isDeleted && (
+                      <Button
+                          onClick={handleRecover}
+                          className="bg-yellow-500 text-white hover:bg-yellow-600"
+                      >
+                          Recover Product
+                      </Button>
+                  )}
+          </div>
 
       {/* Modals */}
       {isEditModalOpen && editedVariant && (

@@ -64,48 +64,64 @@ const RecentPosts = () => {
 
     return (
         <div className="w-[97%] text-white p-6 rounded-lg mx-auto border-[1px] border-gray-800 mt-5">
-            <h2 className="text-2xl font-bold mb-6 mt-2 text-center">Global Recent Published Posts</h2>
+            <h2 className="text-2xl font-bold mb-6 mt-2 text-center">
+                Global Recent Published Posts
+            </h2>
             <div className="space-y-2 max-h-[500px] overflow-y-auto styledScrollable">
                 {!isLoading ? (
-
-                    posts.length > 0 ?
+                    posts.length > 0 ? (
                         posts.map((post: any, index: number) => (
                             <div
                                 key={index}
                                 className="p-4 shadow-md flex gap-4 items-start border-b-[1px] border-gray-800 group cursor-pointer "
-                                onClick={() => router.push(`/post/${post.slug}`)}
+                                onClick={() =>
+                                    router.push(`/post/${post.slug}`)
+                                }
                             >
                                 <div className="w-[200px] h-[130px]">
                                     <Image
-                                        src={getURL(post.previewImageKey)}
+                                        src={getURL(post.previewImageKey)} // The dynamic URL or path
                                         alt=""
-                                        className="w-full h-full object-cover rounded-lg"
-                                        width={1200}
-                                        height={800}
+                                        className="w-full h-full object-cover rounded-lg group-hover:scale-105"
+                                        width={1200} // Replace with the actual width of the image
+                                        height={800} // Replace with the actual height of the image
                                     />
+                                    {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
                                 </div>
 
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-semibold group-hover:underline">{post.title.length > 75 ? `${post.title.slice(0, 75)}...` : post.title}</h3>
+                                    <h3 className="text-lg font-semibold group-hover:underline group-hover:text-blue-500">
+                                        {post.title.length > 75
+                                            ? `${post.title.slice(0, 75)}...`
+                                            : post.title}
+                                    </h3>
 
                                     <div className="text-gray-400 mt-1 text-sm">
                                         {PreviewHTML(post.description)}
                                     </div>
 
                                     <p className="text-gray-400 text-sm mt-2">
-                                        By <span className="text-white">{post.author.name}</span> · {handleDate(post.publishedDate)}
+                                        By{' '}
+                                        <span className="text-white">
+                                            {post.author.name}
+                                        </span>{' '}
+                                        · {handleDate(post.publishedDate)}
                                     </p>
-                                    <p className="text-green-400 text-sm mt-2">Likes: {post.likesCount}</p>
+                                    <p className="text-green-400 text-sm mt-2">
+                                        Likes: {post.likesCount}
+                                    </p>
                                 </div>
                             </div>
                         ))
-                        : <p className='text-center'>No Post Found</p>
+                    ) : (
+                        <p className="text-center">No Post Found</p>
+                    )
                 ) : (
-                    <p className='text-center'>Loading...</p>
+                    <p className="text-center">Loading...</p>
                 )}
             </div>
         </div>
-    )
+    );
 }
 
 export default RecentPosts
