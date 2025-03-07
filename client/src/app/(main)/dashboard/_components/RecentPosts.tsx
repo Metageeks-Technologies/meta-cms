@@ -15,7 +15,7 @@ const RecentPosts = () => {
 
     const router = useRouter();
 
-    const {setLoading, user, websiteKey} = useUserContext();
+    const { setLoading, user, websiteKey } = useUserContext();
 
     const [posts, setPosts] = useState<any>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -43,9 +43,9 @@ const RecentPosts = () => {
 
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/public?${param.toString()}`);
 
-            
+
             if (resp.status === 200 || resp.status === 201) {
-                setPosts(resp?.data?.slice(0,10));
+                setPosts(resp?.data?.slice(0, 10));
             } else {
                 toast.error(resp.data.message, { duration: 2000 });
             }
@@ -58,15 +58,15 @@ const RecentPosts = () => {
     }
 
 
-    useEffect(()=> {
-        if(websiteKey) fetchAllRecentPublishedPosts();
+    useEffect(() => {
+        if (websiteKey) fetchAllRecentPublishedPosts();
     }, [websiteKey]);
 
     return (
         <div className="w-[97%] text-white p-6 rounded-lg mx-auto border-[1px] border-gray-800 mt-5">
             <h2 className="text-2xl font-bold mb-6 mt-2 text-center">Global Recent Published Posts</h2>
             <div className="space-y-2 max-h-[500px] overflow-y-auto styledScrollable">
-                {!isLoading? (
+                {!isLoading ? (
 
                     posts.length > 0 ?
                         posts.map((post: any, index: number) => (
@@ -76,14 +76,13 @@ const RecentPosts = () => {
                                 onClick={() => router.push(`/post/${post.slug}`)}
                             >
                                 <div className="w-[200px] h-[130px]">
-                                <Image
-  src={getURL(post.previewImageKey)} // The dynamic URL or path to your image
-  alt=""
-  className="object-cover rounded-lg"
-  layout="responsive" // Makes the image responsive
-  width={1200} // Replace with the actual width of the image
-  height={800} // Replace with the actual height of the image
-/>                                    {/* <img src="/blogImg.png" alt="" className='w-full object-cover rounded-lg' /> */}
+                                    <Image
+                                        src={getURL(post.previewImageKey)}
+                                        alt=""
+                                        className="w-full h-full object-cover rounded-lg"
+                                        width={1200} 
+                                        height={800} 
+                                    />
                                 </div>
 
                                 <div className="flex-1">

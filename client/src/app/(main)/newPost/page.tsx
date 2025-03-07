@@ -14,7 +14,7 @@ import { getURL } from '@/utils/AWS_Config';
 import { postStatuEnum, WebsiteEnum } from '@/constant/post';
 
 const App: React.FC = () => {
-  const { setLoading, user, websiteKey } = useUserContext();
+  const { loading, setLoading, user, websiteKey } = useUserContext();
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
@@ -72,7 +72,7 @@ const App: React.FC = () => {
     setKeywordValue(value);
 
     const keywordArr = value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword.length > 0);
-    setFormData(prev => ({...prev, keywords: keywordArr}));
+    setFormData(prev => ({ ...prev, keywords: keywordArr }));
   }
 
   interface PayloadType {
@@ -458,17 +458,21 @@ const App: React.FC = () => {
             <input type="text" onChange={(e) => filterCategory(e.target.value)} className='w-full bg-gray-800 p-2 rounded-lg border-gray-950 outline-none' placeholder='Search...' />
 
             <div className='h-[300px] flex flex-col overflow-y-auto'>
-              {filteredCategoryArr.map((category: any) => (
-                <div key={category._id} onClick={() => toggleCategory(category._id)} className="flex items-center justify-between cursor-pointer hover:bg-gray-800 rounded-lg p-2">
-                  <p>{category.name}</p>
-                  <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm ${formData.category.includes(category._id) && "bg-blue-500"}`}>
-                    {
-                      formData.category.includes(category._id) &&
-                      <Check className='w-full h-full object-cover' />
-                    }
-                  </div>
-                </div>
-              ))}
+              {
+                filteredCategoryArr.length > 0 && !loading ?
+                  filteredCategoryArr.map((category: any) => (
+                    <div key={category._id} onClick={() => toggleCategory(category._id)} className="flex items-center justify-between cursor-pointer hover:bg-gray-800 rounded-lg p-2">
+                      <p>{category.name}</p>
+                      <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm ${formData.category.includes(category._id) && "bg-blue-500"}`}>
+                        {
+                          formData.category.includes(category._id) &&
+                          <Check className='w-full h-full object-cover' />
+                        }
+                      </div>
+                    </div>
+                  ))
+                    : <p className=' text-center mt-5'>No Category found</p>
+                }
             </div>
           </div>
 

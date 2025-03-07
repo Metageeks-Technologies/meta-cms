@@ -29,7 +29,7 @@ const CreateProduct: React.FC = () => {
   ]);
   const editorRef = useRef<any>(null);
 
-  const { setLoading, user ,websiteKey} = useUserContext();
+  const { loading, setLoading, user, websiteKey } = useUserContext();
 
   const [categoryArr, setCategoryArr] = useState([]);
   const [websiteArr, setWebsiteArr] = useState([]);
@@ -52,7 +52,7 @@ const CreateProduct: React.FC = () => {
   const fetchCategory = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`,undefined,{websiteKey});
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/product-categories`, undefined, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         setCategoryArr(resp?.data);
         setFilteredCategoryArr(resp?.data);
@@ -69,7 +69,7 @@ const CreateProduct: React.FC = () => {
   const fetchWebsites = async () => {
     setLoading(true);
     try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`,undefined,{websiteKey});
+      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website`, undefined, { websiteKey });
       if (resp.status === 200 || resp.status === 201) {
         setWebsiteArr(resp?.data);
       } else {
@@ -83,10 +83,10 @@ const CreateProduct: React.FC = () => {
   }
 
   useEffect(() => {
-    if (user.role){
+    if (user.role) {
       fetchCategory();
       fetchWebsites();
-    } 
+    }
   }, [user]);
 
   const toggleCategory = (id: string) => {
@@ -193,7 +193,7 @@ const CreateProduct: React.FC = () => {
             contentType: file.type,
           };
 
-          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload,{websiteKey});
+          const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
 
           if (resp.status === 200 || resp.status === 201) {
             const uploadUrl = resp?.data?.uploadUrl;
@@ -300,7 +300,7 @@ const CreateProduct: React.FC = () => {
         variants: formData.variants,
       };
 
-      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products`, payload,{websiteKey});
+      const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/products`, payload, { websiteKey });
 
       if (resp.status === 200 || resp.status === 201) {
         toast.success(resp.data.message, { duration: 2000 });
@@ -543,17 +543,17 @@ const CreateProduct: React.FC = () => {
                     {variantImages[variant.variantId]?.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {variantImages[variant.variantId].map((image, idx) => (
-                        <Image
-                        key={idx}
-                        src={URL.createObjectURL(image)}
-                        alt={`Variant ${idx}`}
-                        layout="intrinsic"
-                        width={128}  
-                        height={128} 
-                        className="w-32 h-32 object-cover rounded-md shadow-lg"
-                      />
-                      
-                      
+                          <Image
+                            key={idx}
+                            src={URL.createObjectURL(image)}
+                            alt={`Variant ${idx}`}
+                            layout="intrinsic"
+                            width={128}
+                            height={128}
+                            className="w-32 h-32 object-cover rounded-md shadow-lg"
+                          />
+
+
                         ))}
                       </div>
                     )}
@@ -645,14 +645,18 @@ const CreateProduct: React.FC = () => {
             <input type="text" onChange={(e) => filterCategory(e.target.value)} className='w-full bg-gray-800 p-2 rounded-lg border-gray-950 outline-none' placeholder='Search...' />
 
             <div className='h-[300px] flex flex-col overflow-y-auto'>
-              {filteredCategoryArr.map((category: any) => (
-                <div key={category._id} onClick={() => toggleCategory(category._id)} className="flex items-center justify-between cursor-pointer hover:bg-gray-800 rounded-lg p-2">
-                  <p>{category.name}</p>
-                  <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm ${formData.category === category._id && "bg-blue-500"}`}>
-                    {formData.category === category._id && <Check className='w-full h-full object-cover' />}
-                  </div>
-                </div>
-              ))}
+              {
+                filteredCategoryArr.length > 0 && !loading ?
+                  filteredCategoryArr.map((category: any) => (
+                    <div key={category._id} onClick={() => toggleCategory(category._id)} className="flex items-center justify-between cursor-pointer hover:bg-gray-800 rounded-lg p-2">
+                      <p>{category.name}</p>
+                      <div className={`w-4 h-4 border-[1px] border-gray-500 rounded-sm ${formData.category === category._id && "bg-blue-500"}`}>
+                        {formData.category === category._id && <Check className='w-full h-full object-cover' />}
+                      </div>
+                    </div>
+                  ))
+                  : <p className='text-center mt-5'>No Category found</p>
+              }
             </div>
           </div>
         </div>

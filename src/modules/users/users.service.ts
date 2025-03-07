@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, ForbiddenException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
 import { IUser, UserRoleEnum } from './schema/user.schema';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -9,11 +9,8 @@ import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { IOtp } from './schema/otp.schema';
 import { sendEmail } from 'src/utils/emailService';
-import { emailVerificationOtpTemplate, newUserWelcomeTemplate, resetPasswordOtpTemplate } from 'src/utils/emailTemplates';
-import { CloudCog } from 'lucide-react';
+import { newUserWelcomeTemplate, resetPasswordOtpTemplate, userRoleChangeTemplate } from 'src/utils/emailTemplates';
 import { RedisService } from '../redis/redis.service';
-import { RedisKeys } from 'src/utils/constant';
-import { generateTempPassword } from 'src/utils/helperFunctions';
 import { WebsiteService } from '../website/website.service';
 const otpGenerator = require('otp-generator');
 
@@ -171,10 +168,14 @@ export class UsersService {
       throw new BadRequestException("Only Superadmin can chnage admin role")
     }
 
-    const query = await this.User.updateOne({ _id: _id, website: website._id }, { $set: { role: newRole } }).exec();
-    if (query.matchedCount == 0) {
-      throw new NotFoundException("User ID not found");
+    const user = await this.User.findOne({ _id: _id, website: website._id }).lean().exec()
+    if (!user) {
+      throw new BadRequestException('User not found')
     }
+
+    await this.User.updateOne({ _id: _id, website: website._id }, { $set: { role: newRole } }).exec();
+
+    sendEmail(user.email, "🚀 Your Role Has Been Updated in Meta CMS", userRoleChangeTemplate(user.name, newRole))
 
     // await this.redisService.deleteCache(`${RedisKeys.User}_${_id}`);
   }
@@ -454,5 +455,7 @@ export class UsersService {
       throw new ForbiddenException('Wrong password')
     }
   }
+
+  
 
 }

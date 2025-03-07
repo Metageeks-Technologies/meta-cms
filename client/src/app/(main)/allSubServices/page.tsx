@@ -254,12 +254,9 @@ const Page = () => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const { websiteKey } = useUserContext();
-  const { subServices, fetchSubServices, services, fetchServices, fetchSubServicesTotal, subServicePageNo, setSubServicePageNo } = usePageContext();
+  const { subServices, services, fetchServices, fetchSubServicesTotal, subServicePageNo, setSubServicePageNo } = usePageContext();
   const [servicesFetched, setServicesFetched] = useState(false);
-  const { user } = useUserContext();
   const [searchQuery, setSearchQuery] = useState('');
-
-
 
   const debouncedSetSearchText = debounce((value: string) => {
     setSearchQuery(value);

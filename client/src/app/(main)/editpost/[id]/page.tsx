@@ -93,7 +93,7 @@ const App: React.FC = () => {
           metaDescription: resp.data.metaDescription,
           keywords: resp.data.keywords
         });
-        setKeywordValue(resp.data.keywords.join(", "));
+        setKeywordValue(resp?.data?.keywords?.join(", "));
       } else {
         toast.error(resp.data.message, { duration: 2000 });
       }

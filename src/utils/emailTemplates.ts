@@ -112,3 +112,49 @@ export const newUserWelcomeTemplate = (name: string, email: string, password: st
 </body>
 </html>
 `;
+
+
+export const userRoleChangeTemplate = (name: string, newRole: string) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Role Update Notification</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+  <div style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 30px; max-width: 600px; margin: 0 auto; text-align: center;">
+    
+    <h2 style="color: #2a9d8f;">🔔 Your Role Has Been Updated</h2>
+    
+    <p style="font-size: 16px; color: #333333;">Hello <strong>${name}</strong>,</p>
+    
+    <p style="font-size: 16px; color: #333333;">
+      We wanted to inform you that your role in <strong>Meta CMS</strong> has been updated. Your new role is:
+    </p>
+    
+    <div style="background-color: #f1f1f1; padding: 15px; border-radius: 5px; margin: 20px 0;">
+      <p style="font-size: 16px; color: #2a9d8f; text-transform: capitalize;"><strong>New Role:</strong> ${newRole}</p>
+    </div>
+
+    <p style="font-size: 16px; color: #333333;">
+      If you have any questions or believe this change was made in error, please contact our support team.
+    </p>
+
+    <a href="https://metacms.us/login" 
+       style="display: inline-block; background-color: #2a9d8f; color: white; text-decoration: none; padding: 12px 24px; border-radius: 5px; font-size: 16px; font-weight: bold; margin-top: 20px;">
+      Login to Meta CMS
+    </a>
+
+    <p style="font-size: 14px; color: #777777; margin-top: 20px;">
+      If you need assistance, feel free to reach out to our support team.
+    </p>
+
+    <p style="font-size: 14px; color: #777777; margin-top: 10px;">
+      Best regards,<br> 
+      <strong>Meta CMS Team</strong>
+    </p>
+  </div>
+</body>
+</html>
+`;
