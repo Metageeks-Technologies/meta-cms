@@ -1,8 +1,8 @@
-'use client'
+'use client';
 import { INITIAL_CASESTUDY_CONTENT } from '@/constant/caseStudy';
 import { caseStudyContent } from '@/types';
 import { getURL } from '@/utils/AWS_Config';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { aboutCard } from '@/types';
 import axiosCall from '@/utils/ApiCall';
 import axios from 'axios';
@@ -11,17 +11,15 @@ import { useUserContext } from '@/context/userContext';
 import Image from 'next/image';
 
 const CreateCaseStudy = () => {
-
-    const [formData, setFormData] = useState<caseStudyContent>(INITIAL_CASESTUDY_CONTENT);
+    const [formData, setFormData] = useState<caseStudyContent>(
+        INITIAL_CASESTUDY_CONTENT,
+    );
     const { setLoading, websiteKey } = useUserContext();
-
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
         if (id === 'slug') {
-            const cleanedValue = value
-                .toLowerCase()
-                .replace(/[^a-z0-9-]/g, '');
+            const cleanedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
 
             setFormData((prev) => ({
                 ...prev,
@@ -33,13 +31,12 @@ const CreateCaseStudy = () => {
                 [id]: value,
             }));
         }
-
     };
 
     const addCard = () => {
         const newCard: aboutCard = {
             heading: '',
-            description: ''
+            description: '',
         };
         setFormData((prev) => ({
             ...prev,
@@ -47,16 +44,16 @@ const CreateCaseStudy = () => {
                 ...prev.content,
                 aboutSection: {
                     ...prev.content.aboutSection,
-                    cards: [...prev.content.aboutSection.cards, newCard]
-                }
-            }
+                    cards: [...prev.content.aboutSection.cards, newCard],
+                },
+            },
         }));
     };
 
     const addCardChallange = () => {
         const newCard: aboutCard = {
             heading: '',
-            description: ''
+            description: '',
         };
         setFormData((prev) => ({
             ...prev,
@@ -64,22 +61,21 @@ const CreateCaseStudy = () => {
                 ...prev.content,
                 challengesSection: {
                     ...prev.content.challengesSection,
-                    cards: [...prev.content.challengesSection.cards, newCard]
-                }
-            }
+                    cards: [...prev.content.challengesSection.cards, newCard],
+                },
+            },
         }));
     };
 
-
     const removeCard = (
         index: number,
-        section: 'aboutSection' | 'processSection' | 'challengesSection'
+        section: 'aboutSection' | 'processSection' | 'challengesSection',
     ) => {
         let updatedCards: any;
 
         if (section === 'aboutSection') {
             updatedCards = formData.content.aboutSection.cards.filter(
-                (_, i) => i !== index
+                (_, i) => i !== index,
             );
             setFormData((prev) => ({
                 ...prev,
@@ -87,13 +83,13 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     aboutSection: {
                         ...prev.content.aboutSection,
-                        cards: updatedCards,  // Correctly update aboutCards
+                        cards: updatedCards, // Correctly update aboutCards
                     },
                 },
             }));
         } else if (section === 'processSection') {
             updatedCards = formData.content.processSection.cards.filter(
-                (_, i) => i !== index
+                (_, i) => i !== index,
             );
             setFormData((prev) => ({
                 ...prev,
@@ -107,7 +103,7 @@ const CreateCaseStudy = () => {
             }));
         } else if (section === 'challengesSection') {
             updatedCards = formData.content.challengesSection.cards.filter(
-                (_, i) => i !== index
+                (_, i) => i !== index,
             );
             setFormData((prev) => ({
                 ...prev,
@@ -115,7 +111,7 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     challengesSection: {
                         ...prev.content.challengesSection,
-                        cards: updatedCards,  // Correctly update StudyChallangeList
+                        cards: updatedCards, // Correctly update StudyChallangeList
                     },
                 },
             }));
@@ -124,20 +120,21 @@ const CreateCaseStudy = () => {
 
     const addListItem = (cardIndex: number, section: 'processSection') => {
         if (section === 'processSection') {
-            const newListItem: string = "";
+            const newListItem: string = '';
             setFormData((prev) => ({
                 ...prev,
                 content: {
                     ...prev.content,
                     processSection: {
                         ...prev.content.processSection,
-                        cards: prev.content.processSection.cards.map((card, index) =>
-                            index === cardIndex
-                                ? {
-                                    ...card,
-                                    list: [...card.list, newListItem]
-                                }
-                                : card
+                        cards: prev.content.processSection.cards.map(
+                            (card, index) =>
+                                index === cardIndex
+                                    ? {
+                                          ...card,
+                                          list: [...card.list, newListItem],
+                                      }
+                                    : card,
                         ),
                     },
                 },
@@ -145,13 +142,10 @@ const CreateCaseStudy = () => {
         }
     };
 
-
-
-
     const processaddCard = () => {
         const newCard = {
             heading: '',
-            list: []
+            list: [],
         };
 
         setFormData((prev) => ({
@@ -160,28 +154,34 @@ const CreateCaseStudy = () => {
                 ...prev.content,
                 processSection: {
                     ...prev.content.processSection,
-                    cards: [...prev.content.processSection.cards, newCard] // Append the new card
-                }
-            }
+                    cards: [...prev.content.processSection.cards, newCard], // Append the new card
+                },
+            },
         }));
     };
 
-
-    const removeListItem = (cardIndex: number, listIndex: number, section: 'processSection') => {
+    const removeListItem = (
+        cardIndex: number,
+        listIndex: number,
+        section: 'processSection',
+    ) => {
         let updatedList: any;
 
         if (section === 'processSection') {
-            updatedList = formData.content.processSection.cards[cardIndex].list.filter(
-                (_, i) => i !== listIndex
-            );
+            updatedList = formData.content.processSection.cards[
+                cardIndex
+            ].list.filter((_, i) => i !== listIndex);
             setFormData((prev) => ({
                 ...prev,
                 content: {
                     ...prev.content,
                     processSection: {
                         ...prev.content.processSection,
-                        cards: prev.content.processSection.cards.map((card, index) =>
-                            index === cardIndex ? { ...card, list: updatedList } : card
+                        cards: prev.content.processSection.cards.map(
+                            (card, index) =>
+                                index === cardIndex
+                                    ? { ...card, list: updatedList }
+                                    : card,
                         ),
                     },
                 },
@@ -189,11 +189,10 @@ const CreateCaseStudy = () => {
         }
     };
 
-
     const handleImageChange = async (
         e: React.ChangeEvent<HTMLInputElement>,
         section: 'heroSection' | 'uiSection' | 'serviceSection' | 'uiSection2',
-        index?: number
+        index?: number,
     ) => {
         if (!e.target.files || e.target.files.length === 0) return;
         const file = e.target.files[0];
@@ -205,7 +204,12 @@ const CreateCaseStudy = () => {
         };
 
         try {
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
+            const resp = await axiosCall(
+                'post',
+                `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`,
+                payload,
+                { websiteKey },
+            );
 
             if (resp.status === 200 || resp.status === 201) {
                 const response = await axios.put(resp?.data?.uploadUrl, file);
@@ -218,22 +222,22 @@ const CreateCaseStudy = () => {
                         if (section === 'heroSection') {
                             updatedContent.heroSection = {
                                 ...updatedContent.heroSection,
-                                imageKey
+                                imageKey,
                             };
                         } else if (section === 'uiSection') {
                             updatedContent.uiSection = {
                                 ...updatedContent.uiSection,
-                                imageKey
+                                imageKey,
                             };
                         } else if (section === 'serviceSection') {
                             updatedContent.serviceSection = {
                                 ...updatedContent.serviceSection,
-                                imageKey
+                                imageKey,
                             };
                         } else if (section === 'uiSection2') {
                             updatedContent.uiSection2 = {
                                 ...updatedContent.uiSection2,
-                                imageKey
+                                imageKey,
                             };
                         }
 
@@ -241,7 +245,9 @@ const CreateCaseStudy = () => {
                     });
                 }
             } else {
-                toast.error(resp?.data?.message || 'Failed to get upload URL', { duration: 2000 });
+                toast.error(resp?.data?.message || 'Failed to get upload URL', {
+                    duration: 2000,
+                });
             }
         } catch (error) {
             console.error('Image upload error:', error);
@@ -250,9 +256,15 @@ const CreateCaseStudy = () => {
     };
 
     const handleSectionChange = (
-        section: 'heroSection' | 'aboutSection' | 'serviceSection' | 'processSection' | 'uiSection2' | 'challengesSection',
+        section:
+            | 'heroSection'
+            | 'aboutSection'
+            | 'serviceSection'
+            | 'processSection'
+            | 'uiSection2'
+            | 'challengesSection',
         field: string,
-        value: string
+        value: string,
     ) => {
         setFormData((prev) => ({
             ...prev,
@@ -260,9 +272,9 @@ const CreateCaseStudy = () => {
                 ...prev.content,
                 [section]: {
                     ...prev.content[section],
-                    [field]: value
-                }
-            }
+                    [field]: value,
+                },
+            },
         }));
     };
 
@@ -270,7 +282,7 @@ const CreateCaseStudy = () => {
         index: number,
         section: 'aboutSection' | 'processSection' | 'challengesSection',
         field: 'heading' | 'description' | 'list',
-        value: string
+        value: string,
     ) => {
         let updatedCards: any;
         let updatedList: any;
@@ -280,7 +292,7 @@ const CreateCaseStudy = () => {
             updatedCards = [...formData.content.aboutSection.cards];
             updatedCards[index] = {
                 ...updatedCards[index],
-                [field]: value
+                [field]: value,
             };
             setFormData((prev) => ({
                 ...prev,
@@ -288,9 +300,9 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     aboutSection: {
                         ...prev.content.aboutSection,
-                        cards: updatedCards
-                    }
-                }
+                        cards: updatedCards,
+                    },
+                },
             }));
         } else if (section === 'processSection') {
             updatedCards = [...formData.content.processSection.cards];
@@ -298,14 +310,17 @@ const CreateCaseStudy = () => {
             if (field === 'heading') {
                 updatedCards[index] = {
                     ...updatedCards[index],
-                    heading: value
+                    heading: value,
                 };
             } else if (field === 'list') {
                 updatedCards[index] = {
                     ...updatedCards[index],
-                    list: updatedCards[index].list.map((item: any, cardIndex: number) =>
-                        cardIndex === index ? { ...item, list: value } : item
-                    )
+                    list: updatedCards[index].list.map(
+                        (item: any, cardIndex: number) =>
+                            cardIndex === index
+                                ? { ...item, list: value }
+                                : item,
+                    ),
                 };
             }
 
@@ -315,47 +330,53 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     processSection: {
                         ...prev.content.processSection,
-                        cards: updatedCards
-                    }
-                }
+                        cards: updatedCards,
+                    },
+                },
             }));
         } else if (section === 'challengesSection') {
             updatedList = [...formData.content.challengesSection.cards];
             updatedList[index] = {
                 ...updatedList[index],
-                [field]: value
+                [field]: value,
             };
             setFormData((prev) => ({
                 ...prev,
                 content: {
                     ...prev.content,
-                    challengesSection: {  // Corrected this key
+                    challengesSection: {
+                        // Corrected this key
                         ...prev.content.challengesSection,
-                        cards: updatedList
-                    }
-                }
+                        cards: updatedList,
+                    },
+                },
             }));
         }
     };
 
-    const handleListItemChange = (cardIndex: number, listIndex: number, value: string) => {
+    const handleListItemChange = (
+        cardIndex: number,
+        listIndex: number,
+        value: string,
+    ) => {
         setFormData((prev) => ({
             ...prev,
             content: {
                 ...prev.content,
                 processSection: {
                     ...prev.content.processSection,
-                    cards: prev.content.processSection.cards.map((card, index) =>
-                        index === cardIndex
-                            ? {
-                                ...card,
-                                list: card.list.map((item, listIdx) =>
-                                    listIdx === listIndex
-                                        ? value // Set the value directly as a string
-                                        : item
-                                ),
-                            }
-                            : card
+                    cards: prev.content.processSection.cards.map(
+                        (card, index) =>
+                            index === cardIndex
+                                ? {
+                                      ...card,
+                                      list: card.list.map((item, listIdx) =>
+                                          listIdx === listIndex
+                                              ? value // Set the value directly as a string
+                                              : item,
+                                      ),
+                                  }
+                                : card,
                     ),
                 },
             },
@@ -374,10 +395,9 @@ const CreateCaseStudy = () => {
             const generatedSlug = generateSlug(formData.title);
             setFormData((prevData) => ({
                 ...prevData,
-                slug: generatedSlug
+                slug: generatedSlug,
             }));
-        }
-        else {
+        } else {
             setFormData((prevData) => ({
                 ...prevData,
                 slug: '',
@@ -385,14 +405,17 @@ const CreateCaseStudy = () => {
         }
     }, [formData.title]);
 
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-
         setLoading(true);
         try {
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy`, formData, { websiteKey });
+            const resp = await axiosCall(
+                'post',
+                `${process.env.NEXT_PUBLIC_BASE_URL}/caseStudy`,
+                formData,
+                { websiteKey },
+            );
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp.data.message, { duration: 2000 });
                 setFormData(INITIAL_CASESTUDY_CONTENT);
@@ -418,16 +441,18 @@ const CreateCaseStudy = () => {
                         placeholder="Enter title"
                         value={formData.title}
                         onChange={handleChange}
-
                         maxLength={120}
                         required
                     />
                 </label>
 
-                <div className='flex flex-row gap-5 items-end'>
+                <div className="flex flex-row gap-5 items-end">
                     <label className="w-full flex flex-col gap-2 mb-5">
                         <span>Enter Slug</span>
-                        <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+                        <span className="text-xs italic text-gray-400 -mt-3">
+                            (Contain only lowercase letters, numbers, hyphens,
+                            and underscores)
+                        </span>
                         <input
                             type="text"
                             id="slug"
@@ -454,50 +479,81 @@ const CreateCaseStudy = () => {
                     />
                 </label>
 
-
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Hero Section </span>
+                    <span className="text-xl">Hero Section </span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="mainImage"
                             >
                                 {formData.content.heroSection.imageKey ? (
-
-                                    <Image
-                                        src={getURL(formData.content.heroSection.imageKey)}
-                                        alt="Preview"
-                                        layout="responsive"  
-                                        width={1200}  
-                                        height={800}  
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
-
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content.heroSection
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        heroSection: {
+                                                            ...prev.content
+                                                                .heroSection,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="mainImage"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'heroSection')}
-
+                                onChange={(e) =>
+                                    handleImageChange(e, 'heroSection')
+                                }
                             />
                         </div>
                     </div>
                 </label>
 
-
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>About Section</span>
+                    <span className="text-xl">About Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         {/* Hero Section Fields */}
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -506,68 +562,113 @@ const CreateCaseStudy = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
                                 value={formData.content.aboutSection.heading}
-                                onChange={(e) => handleSectionChange('aboutSection', 'heading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'aboutSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="description"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Description
                             </label>
                             <textarea
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.aboutSection.description}
-                                onChange={(e) => handleSectionChange('aboutSection', 'description', e.target.value)}
+                                value={
+                                    formData.content.aboutSection.description
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'aboutSection',
+                                        'description',
+                                        e.target.value,
+                                    )
+                                }
                                 rows={4}
                                 required
                             />
                         </div>
                         {/* Cards Section */}
-                        {formData.content.aboutSection.cards.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'aboutSection')}
+                        {formData.content.aboutSection.cards.map(
+                            (card, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-[#222222] p-4 rounded-lg mb-4 relative"
                                 >
-                                    <span className="text-xl">×</span>
-                                </button>
-                                <div className="mb-4">
-                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
-                                    <label htmlFor={`service-card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Heading"
-                                        value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'aboutSection', 'heading', e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                    <button
+                                        type="button"
+                                        className="absolute top-2 right-2 text-red-500"
+                                        onClick={() =>
+                                            removeCard(index, 'aboutSection')
+                                        }
+                                    >
+                                        <span className="text-xl">×</span>
+                                    </button>
+                                    <div className="mb-4">
+                                        <p className="mb-2 text-lg">
+                                            Card-{index + 1}
+                                        </p>
+                                        <label
+                                            htmlFor={`service-card-heading-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Heading
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`card-heading-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Heading"
+                                            value={card.heading}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'aboutSection',
+                                                    'heading',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
 
-                                <div className="mb-4">
-                                    <label htmlFor={`service-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        id={`card-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Description"
-                                        value={card.description}
-                                        onChange={(e) => handleCardChange(index, 'aboutSection', 'description', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`service-card-description-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Description
+                                        </label>
+                                        <textarea
+                                            id={`card-description-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Description"
+                                            value={card.description}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'aboutSection',
+                                                    'description',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={3}
+                                            required
+                                        />
+                                    </div>
                                 </div>
-
-                            </div>
-                        ))}
+                            ),
+                        )}
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -575,62 +676,99 @@ const CreateCaseStudy = () => {
                         >
                             Add More
                         </button>
-
                     </div>
                 </label>
 
-
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>UI Section </span>
+                    <span className="text-xl">UI Section </span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="contentImage"
                             >
                                 {formData.content.uiSection.imageKey ? (
-
-                                    <Image
-                                        src={getURL(formData.content.uiSection.imageKey)}
-                                        alt="Preview"
-                                        layout="responsive"
-                                        width={1200}
-                                        height={800}
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
-
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content.uiSection
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        uiSection: {
+                                                            ...prev.content
+                                                                .uiSection,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="contentImage"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'uiSection')}
-
-
+                                onChange={(e) =>
+                                    handleImageChange(e, 'uiSection')
+                                }
                             />
                         </div>
                     </div>
                 </label>
 
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Service Section</span>
+                    <span className="text-xl">Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-
                         <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="description"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Description
                             </label>
                             <textarea
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.serviceSection.description}
-                                onChange={(e) => handleSectionChange('serviceSection', 'description', e.target.value)}
+                                value={
+                                    formData.content.serviceSection.description
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'serviceSection',
+                                        'description',
+                                        e.target.value,
+                                    )
+                                }
                                 rows={4}
                                 required
                             />
@@ -638,37 +776,65 @@ const CreateCaseStudy = () => {
 
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="contentImageSection"
                             >
                                 {formData.content.serviceSection.imageKey ? (
-
-                                    <Image
-                                        src={getURL(formData.content.serviceSection.imageKey)}
-                                        alt="Preview"
-                                        layout="responsive"
-                                        width={1200}
-                                        height={800}
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
-
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content
+                                                        .serviceSection
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        serviceSection: {
+                                                            ...prev.content
+                                                                .serviceSection,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="contentImageSection"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'serviceSection')}
-
-
+                                onChange={(e) =>
+                                    handleImageChange(e, 'serviceSection')
+                                }
                             />
                         </div>
-
-
                     </div>
                 </label>
 
@@ -676,7 +842,10 @@ const CreateCaseStudy = () => {
                     <span className="text-xl">Process Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -685,74 +854,126 @@ const CreateCaseStudy = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter  Heading"
                                 value={formData.content.processSection.heading}
-                                onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'processSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
                         {/* Cards Section */}
-                        {formData.content.processSection.cards.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                {/* Remove the card from processSection */}
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'processSection')}
+                        {formData.content.processSection.cards.map(
+                            (card, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-[#222222] p-4 rounded-lg mb-4 relative"
                                 >
-                                    <span className="text-xl">×</span>
-                                </button>
-
-                                <div className="mb-4">
-                                    <p className="mb-2 text-lg">Card-{index + 1}</p>
-                                    <label htmlFor={`card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Heading"
-                                        value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'processSection', 'heading', e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                {/* List section for cardList */}
-                                <div className="mb-4">
-                                    <label htmlFor={`card-list-${index}`} className="block text-gray-300 mb-2">
-                                        List
-                                    </label>
-                                    {/* Only map over the current card's cardList */}
-                                    {card.list.map((listItem, listIndex) => (
-                                        <div key={listIndex} className="flex items-center justify-between mb-2">
-                                            <input
-                                                type="text"
-                                                id={`card-list-${index}-${listIndex}`}
-                                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Enter List Item"
-                                                value={listItem}
-                                                onChange={(e) => handleListItemChange(index, listIndex, e.target.value)}
-                                                required
-                                            />
-                                            <button
-                                                type="button"
-                                                className="ml-2 text-red-500"
-                                                onClick={() => removeListItem(index, listIndex, 'processSection')}
-                                            >
-                                                <span className="text-xl">×</span>
-                                            </button>
-                                        </div>
-                                    ))}
+                                    {/* Remove the card from processSection */}
                                     <button
                                         type="button"
-                                        className="mt-2 text-blue-500"
-                                        onClick={() => addListItem(index, 'processSection')}
+                                        className="absolute top-2 right-2 text-red-500"
+                                        onClick={() =>
+                                            removeCard(index, 'processSection')
+                                        }
                                     >
-                                        Add Item
+                                        <span className="text-xl">×</span>
                                     </button>
+
+                                    <div className="mb-4">
+                                        <p className="mb-2 text-lg">
+                                            Card-{index + 1}
+                                        </p>
+                                        <label
+                                            htmlFor={`card-heading-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Heading
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`card-heading-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Heading"
+                                            value={card.heading}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'processSection',
+                                                    'heading',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* List section for cardList */}
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`card-list-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            List
+                                        </label>
+                                        {/* Only map over the current card's cardList */}
+                                        {card.list.map(
+                                            (listItem, listIndex) => (
+                                                <div
+                                                    key={listIndex}
+                                                    className="flex items-center justify-between mb-2"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        id={`card-list-${index}-${listIndex}`}
+                                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        placeholder="Enter List Item"
+                                                        value={listItem}
+                                                        onChange={(e) =>
+                                                            handleListItemChange(
+                                                                index,
+                                                                listIndex,
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="ml-2 text-red-500"
+                                                        onClick={() =>
+                                                            removeListItem(
+                                                                index,
+                                                                listIndex,
+                                                                'processSection',
+                                                            )
+                                                        }
+                                                    >
+                                                        <span className="text-xl">
+                                                            ×
+                                                        </span>
+                                                    </button>
+                                                </div>
+                                            ),
+                                        )}
+                                        <button
+                                            type="button"
+                                            className="mt-2 text-blue-500"
+                                            onClick={() =>
+                                                addListItem(
+                                                    index,
+                                                    'processSection',
+                                                )
+                                            }
+                                        >
+                                            Add Item
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ),
+                        )}
 
                         <button
                             type="button"
@@ -764,13 +985,14 @@ const CreateCaseStudy = () => {
                     </div>
                 </label>
 
-
-
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>UI Section 2</span>
+                    <span className="text-xl">UI Section 2</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -779,46 +1001,87 @@ const CreateCaseStudy = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter  Heading"
                                 value={formData.content.uiSection2.heading}
-                                onChange={(e) => handleSectionChange('uiSection2', 'heading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'uiSection2',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="imageInputSolution2"
                             >
-                                {formData.content.serviceSection.imageKey ? (
-                                    <img
-                                        src={formData.content.uiSection2.imageKey ? getURL(formData.content.uiSection2.imageKey) : undefined}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                {formData.content.uiSection2?.imageKey ? (
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content.uiSection2
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        uiSection2: {
+                                                            ...prev.content
+                                                                .uiSection2,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="imageInputSolution2"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'uiSection2')}
-
+                                onChange={(e) =>
+                                    handleImageChange(e, 'uiSection2')
+                                }
                             />
                         </div>
-
-
                     </div>
                 </label>
 
-
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Challanges Section</span>
+                    <span className="text-xl">Challanges Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -826,70 +1089,120 @@ const CreateCaseStudy = () => {
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter  Heading"
-                                value={formData.content.challengesSection.heading}
-                                onChange={(e) => handleSectionChange('challengesSection', 'heading', e.target.value)}
-
+                                value={
+                                    formData.content.challengesSection.heading
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'challengesSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="description"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Description
                             </label>
                             <textarea
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.challengesSection.description}
-                                onChange={(e) => handleSectionChange('challengesSection', 'description', e.target.value)}
-
+                                value={
+                                    formData.content.challengesSection
+                                        .description
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'challengesSection',
+                                        'description',
+                                        e.target.value,
+                                    )
+                                }
                                 rows={4}
                                 required
                             />
                         </div>
                         {/* Cards Section */}
-                        {formData.content.challengesSection.cards.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'challengesSection')}
+                        {formData.content.challengesSection.cards.map(
+                            (card, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-[#222222] p-4 rounded-lg mb-4 relative"
                                 >
-                                    <span className="text-xl">×</span>
-                                </button>
-                                <div className="mb-4">
-                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
-                                    <label htmlFor={`challange-card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`challange-card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Heading"
-                                        value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'challengesSection', 'heading', e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                    <button
+                                        type="button"
+                                        className="absolute top-2 right-2 text-red-500"
+                                        onClick={() =>
+                                            removeCard(
+                                                index,
+                                                'challengesSection',
+                                            )
+                                        }
+                                    >
+                                        <span className="text-xl">×</span>
+                                    </button>
+                                    <div className="mb-4">
+                                        <p className="mb-2 text-lg">
+                                            Card-{index + 1}
+                                        </p>
+                                        <label
+                                            htmlFor={`challange-card-heading-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Heading
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`challange-card-heading-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Heading"
+                                            value={card.heading}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'challengesSection',
+                                                    'heading',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
 
-                                <div className="mb-4">
-                                    <label htmlFor={`challange-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        id={`challange-card-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Description"
-                                        value={card.description}
-                                        onChange={(e) => handleCardChange(index, 'challengesSection', 'description', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`challange-card-description-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Description
+                                        </label>
+                                        <textarea
+                                            id={`challange-card-description-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Description"
+                                            value={card.description}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'challengesSection',
+                                                    'description',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={3}
+                                            required
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ),
+                        )}
 
                         <button
                             type="button"
@@ -907,10 +1220,9 @@ const CreateCaseStudy = () => {
                 >
                     Create CaseStudy
                 </button>
-
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default CreateCaseStudy
+export default CreateCaseStudy;

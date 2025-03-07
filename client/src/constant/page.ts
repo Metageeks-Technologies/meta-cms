@@ -61,6 +61,11 @@ export const INITIAL_PAGE_CONTENT: PageContent = {
                 point: '',
             }]
         },
+        openGraph: {
+            title: '',
+            description: '',
+            imageKey: ''
+        }
     },
     metaTitle: '',
     metaDescription: '',

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/saroj_dev
 import React from 'react';
 import {
     DialogContent,

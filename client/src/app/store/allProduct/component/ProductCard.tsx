@@ -31,6 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             className="group relative bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 w-72 cursor-pointer"
             onClick={() => router.push(`/store/product/${product._id}`)}
         >
+            
             {/* Discount Badge */}
             {calculateDiscount() > 0 && (
                 <div className="absolute top-2 right-2 z-[5]  bg-red-500 text-white px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1">
@@ -63,12 +64,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 )}
 
                 {/* Title */}
-                <h2 className="text-base font-medium text-gray-100 mb-1 line-clamp-1">
+                <h2 className="text-white font-semibold text-lg transition-all duration-300 group-hover:text-blue-500 mb-1 line-clamp-1">
                     {product.title}
                 </h2>
 
                 {/* Description */}
-                <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                <p className="text-gray-400 text-sm mb-3 line-clamp-2 min-h-[2.5rem]">
                     {product.subDescription}
                 </p>
 

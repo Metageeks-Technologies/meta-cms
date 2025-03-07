@@ -1,7 +1,7 @@
 'use client'
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight,TriangleAlert,Trash2 } from 'lucide-react'
 import { PostTypes } from '@/types'
 import { postStatuEnum } from '@/constant/post'
 import axiosCall from '@/utils/ApiCall'
@@ -16,6 +16,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
+    AlertDialogDescription
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { userRoles } from '@/constant/user'
@@ -313,7 +314,7 @@ const page = () => {
                             <img
                                 src={getURL(post?.previewImageKey)}
                                 alt={post?.title}
-                                className="w-full rounded-lg mb-8 object-cover max-h-[500px]"
+                                className="w-full rounded-lg mb-8 object-contain max-h-[500px]"
                             />
 
                             {/* Post Content */}
@@ -329,7 +330,7 @@ const page = () => {
                                 user?.role === userRoles.MODERATOR ||
                                 user?.role === userRoles.ADMIN) &&
                                 post?.status ===
-                                postStatuEnum.AWAITING_APPROVAL &&
+                                    postStatuEnum.AWAITING_APPROVAL &&
                                 !(
                                     user?.role !== userRoles.SUPERADMIN &&
                                     user?.role !== userRoles.ADMIN &&
@@ -358,22 +359,36 @@ const page = () => {
                                         user?.role !== userRoles.SUPERADMIN &&
                                         user?.role !== userRoles.ADMIN &&
                                         post?.author?.role ===
-                                        userRoles.SUPERADMIN
+                                            userRoles.SUPERADMIN
                                     ) && (
                                         <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button className="bg-red-500 hover:bg-red-600 text-white">
-                                                    Delete Post
-                                                </Button>
+                                            <AlertDialogTrigger className="flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 text-sm">
+                                                <Trash2 className="w-4 h-4" />
+                                                <span>Delete</span>
                                             </AlertDialogTrigger>
-                                            <AlertDialogContent className="bg-black text-white border border-gray-800">
+
+                                            <AlertDialogContent className="bg-gray-900 border-gray-800">
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>
-                                                        Are you sure you want to delete ?
-                                                    </AlertDialogTitle>
+                                                    <AlertDialogTitle></AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        <div className="flex flex-col items-center gap-4">
+                                                            <TriangleAlert className="w-16 h-16 text-red-500 " />
+                                                            <h2 className="text-xl font-semibold text-gray-100">
+                                                                Delete Post
+                                                            </h2>
+                                                            <p className="text-gray-400 text-center">
+                                                                Are you sure you
+                                                                want to delete
+                                                                this Post? This
+                                                                action cannot be
+                                                                undone.
+                                                            </p>
+                                                        </div>
+                                                    </AlertDialogDescription>
                                                 </AlertDialogHeader>
+
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel className="bg-gray-800 text-white hover:bg-gray-700">
+                                                    <AlertDialogCancel className="bg-gray-800 hover:bg-gray-700">
                                                         Cancel
                                                     </AlertDialogCancel>
                                                     <AlertDialogAction
@@ -396,7 +411,7 @@ const page = () => {
                                         user?.role !== userRoles.SUPERADMIN &&
                                         user?.role !== userRoles.ADMIN &&
                                         post?.author?.role ===
-                                        userRoles.SUPERADMIN
+                                            userRoles.SUPERADMIN
                                     ) && (
                                         <button
                                             onClick={() =>
@@ -410,22 +425,20 @@ const page = () => {
                                         </button>
                                     )}
 
-
-                                {
-
-                                    post.status === 'draft' && (
+                                {post.status === 'draft' ||
+                                    (post.status === 'rejected' && (
                                         <Button
-                                            onClick={() => handlePublished(post._id)}
+                                            onClick={() =>
+                                                handlePublished(post._id)
+                                            }
                                             className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
                                         >
                                             Publish Post
                                         </Button>
-                                    )}
+                                    ))}
 
-                                {
-                                    (
-                                        user.role === userRoles.SUPERADMIN ||
-                                        user.role === userRoles.ADMIN) &&
+                                {(user.role === userRoles.SUPERADMIN ||
+                                    user.role === userRoles.ADMIN) &&
                                     post.isDeleted && (
                                         <Button
                                             onClick={handleRecoverPost}
@@ -471,58 +484,58 @@ const page = () => {
                                         <div className="flex gap-4">
                                             {post.author?.socialLinks
                                                 ?.facebook && (
-                                                    <a
-                                                        href={
-                                                            post.author?.socialLinks
-                                                                .facebook
-                                                        }
-                                                        target="_blank"
-                                                        className="text-blue-400 hover:text-blue-300"
-                                                    >
-                                                        <SiFacebook size={24} />
-                                                    </a>
-                                                )}
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .facebook
+                                                    }
+                                                    target="_blank"
+                                                    className="text-blue-400 hover:text-blue-300"
+                                                >
+                                                    <SiFacebook size={24} />
+                                                </a>
+                                            )}
                                             {post.author?.socialLinks
                                                 ?.instagram && (
-                                                    <a
-                                                        href={
-                                                            post.author?.socialLinks
-                                                                .instagram
-                                                        }
-                                                        target="_blank"
-                                                        className="text-rose-400 hover:text-rose-300"
-                                                    >
-                                                        <RiInstagramFill
-                                                            size={24}
-                                                        />
-                                                    </a>
-                                                )}
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .instagram
+                                                    }
+                                                    target="_blank"
+                                                    className="text-rose-400 hover:text-rose-300"
+                                                >
+                                                    <RiInstagramFill
+                                                        size={24}
+                                                    />
+                                                </a>
+                                            )}
                                             {post.author?.socialLinks
                                                 ?.linkedIn && (
-                                                    <a
-                                                        href={
-                                                            post.author?.socialLinks
-                                                                .linkedIn
-                                                        }
-                                                        target="_blank"
-                                                        className="text-blue-400 hover:text-blue-300"
-                                                    >
-                                                        <ImLinkedin size={24} />
-                                                    </a>
-                                                )}
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .linkedIn
+                                                    }
+                                                    target="_blank"
+                                                    className="text-blue-400 hover:text-blue-300"
+                                                >
+                                                    <ImLinkedin size={24} />
+                                                </a>
+                                            )}
                                             {post.author?.socialLinks
                                                 ?.twitter && (
-                                                    <a
-                                                        href={
-                                                            post.author?.socialLinks
-                                                                .twitter
-                                                        }
-                                                        target="_blank"
-                                                        className="text-gray-400 hover:text-gray-300"
-                                                    >
-                                                        <BsTwitterX size={24} />
-                                                    </a>
-                                                )}
+                                                <a
+                                                    href={
+                                                        post.author?.socialLinks
+                                                            .twitter
+                                                    }
+                                                    target="_blank"
+                                                    className="text-gray-400 hover:text-gray-300"
+                                                >
+                                                    <BsTwitterX size={24} />
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -536,111 +549,84 @@ const page = () => {
                                         <h2 className="text-xl font-semibold mb-6">
                                             Comments ({comments.length})
                                         </h2>
-                                        <div
-                                            className="bg-gray-900 rounded-xl  p-6 max-h-[500px] border border-gray-700 overflow-y-auto styledScrollable"
-                                        >
-                                            <div className="space-y-6 border border-gray-800 p-3 rounded-2xl last:border-0">
-                                                {comments.map(
-                                                    (comment: IComment) => (
-                                                        <div
-                                                            key={comment._id}
-                                                            className="border border-gray-800 p-3 rounded-2xl last:border-0"
-                                                        >
-                                                            <div className="flex justify-between items-start mb-4">
-                                                                <div className="flex gap-3">
-                                                                    <img
-                                                                        src={
-                                                                            user?.imageKey
-                                                                                ? getURL(
-                                                                                    user?.imageKey,
-                                                                                )
-                                                                                : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`
-                                                                        }
-                                                                        alt={
+                                        <div className="space-y-6">
+                                            {comments.map(
+                                                (comment: IComment) => (
+                                                    <div
+                                                        key={comment._id}
+                                                        className="border-b border-gray-800 pb-6 last:border-0"
+                                                    >
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <div className="flex gap-3">
+                                                                <img
+                                                                    src={
+                                                                        user?.imageKey
+                                                                            ? getURL(
+                                                                                  user?.imageKey,
+                                                                              )
+                                                                            : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`
+                                                                    }
+                                                                    alt={
+                                                                        comment
+                                                                            .userDetails
+                                                                            ?.name
+                                                                    }
+                                                                    className="w-10 h-10 rounded-full"
+                                                                />
+                                                                <div>
+                                                                    <p className="text-blue-400 font-medium">
+                                                                        {
                                                                             comment
                                                                                 .userDetails
                                                                                 ?.name
                                                                         }
-                                                                        className="w-10 h-10 rounded-full"
-                                                                    />
-                                                                    <div>
-                                                                        <p className="text-blue-400 font-medium">
-                                                                            {
-                                                                                comment
-                                                                                    .userDetails
-                                                                                    ?.name
-                                                                            }
-                                                                        </p>
-                                                                        <p className="text-gray-400 text-sm">
-                                                                            {handleDate(
-                                                                                comment.createdAt,
-                                                                            )}
-                                                                        </p>
-                                                                    </div>
+                                                                    </p>
+                                                                    <p className="text-gray-400 text-sm">
+                                                                        {handleDate(
+                                                                            comment.createdAt,
+                                                                        )}
+                                                                    </p>
                                                                 </div>
-                                                                {/* {(user?.id ===
-                                                                    comment
-                                                                        .userDetails
-                                                                        ?.id ||
-                                                                    user.role ===
-                                                                    userRoles.SUPERADMIN ||
-                                                                    user.role ===
-                                                                    userRoles.MODERATOR) && (
-                                                                        <button
-                                                                            onClick={() =>
-                                                                                handleDeleteComment(
-                                                                                    comment._id,
-                                                                                )
-                                                                            }
-                                                                            className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    )} */}
                                                             </div>
-                                                            <div className='border-t border-gray-800 rounded-lg p-4'>
-                                                            <p className="text-gray-300">
-                                                                {comment.message}
-                                                            </p>
-                                                            <div className='flex justify-end '>  {(user?.id ===
-                                                                    comment
-                                                                        .userDetails
-                                                                        ?.id ||
-                                                                    user.role ===
+                                                            {(user?.id ===
+                                                                comment
+                                                                    .userDetails
+                                                                    ?.id ||
+                                                                user.role ===
                                                                     userRoles.SUPERADMIN ||
-                                                                    user.role ===
+                                                                user.role ===
                                                                     userRoles.MODERATOR) && (
-                                                                        <button
-                                                                            onClick={() =>
-                                                                                handleDeleteComment(
-                                                                                    comment._id,
-                                                                                )
-                                                                            }
-                                                                            className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    )}</div>
-                                                            </div>
-                                                          
-                                                            
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleDeleteComment(
+                                                                            comment._id,
+                                                                        )
+                                                                    }
+                                                                    className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                    ),
-                                                )}
-                                                {hasMore && (
-                                                    <button
-                                                        onClick={() =>
-                                                            fetchComments(
-                                                                post?._id,
-                                                                lastId,
-                                                            )
-                                                        }
-                                                        className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                                                    >
-                                                        Load More Comments
-                                                    </button>
-                                                )}
-                                            </div>
+                                                        <p className="text-gray-300">
+                                                            {comment.message}
+                                                        </p>
+                                                    </div>
+                                                ),
+                                            )}
+                                            {hasMore && (
+                                                <button
+                                                    onClick={() =>
+                                                        fetchComments(
+                                                            post?._id,
+                                                            lastId,
+                                                        )
+                                                    }
+                                                    className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                                                >
+                                                    Load More Comments
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 )}
