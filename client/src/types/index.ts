@@ -332,6 +332,9 @@ export interface PageContent {
   website: string;
   service: string;
   subService: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImageKey: string;
   content: {
     heroSection: SectionContent;
     solutionSection1: SectionContent;
@@ -340,11 +343,7 @@ export interface PageContent {
     solutionSection2: SectionContent;
     featureSection: FeatureSection;
     marketForecastSection: ForecastContent;
-    openGraph: {
-      title: string;
-      description: string;
-      imageKey: string;
-  };
+   
   };
   
   metaTitle: string,

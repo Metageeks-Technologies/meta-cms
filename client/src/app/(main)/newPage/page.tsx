@@ -50,8 +50,7 @@ const CreatePage = () => {
             | 'processSection'
             | 'solutionSection2'
             | 'featureSection'
-            | 'marketForecastSection'
-            | 'openGraph',
+            | 'marketForecastSection',
         field: string,
         value: string,
     ) => {
@@ -164,8 +163,8 @@ const CreatePage = () => {
             | 'servicesSection'
             | 'solutionSection2'
             | 'featureSection'
-            | 'marketForecastSection'
-            | 'openGraph',
+            | 'marketForecastSection',
+
         index?: number,
     ) => {
         if (!websiteKey) return toast.error('Website key required');
@@ -280,18 +279,46 @@ const CreatePage = () => {
                                     },
                                 },
                             }));
-                        } else if (section === 'openGraph') {
-                            setFormData((prev) => ({
-                                ...prev,
-                                content: {
-                                    ...prev.content,
-                                    openGraph: {
-                                        ...prev.content.openGraph,
-                                        imageKey,
-                                    },
-                                },
-                            }));
                         }
+                    }
+                } else {
+                    toast.error(resp?.data?.message, { duration: 2000 });
+                }
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to upload the image', { duration: 2000 });
+            }
+        }
+    };
+    const handleOgImageChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        if (!websiteKey) return toast.error('Website key required');
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const payload = {
+                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PAGES,
+                fileName: file.name,
+                contentType: file.type,
+            };
+            try {
+                const resp = await axiosCall(
+                    'post',
+                    `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`,
+                    payload,
+                    { websiteKey },
+                );
+                if (resp.status === 200 || resp.status === 201) {
+                    const response = await axios.put(
+                        resp?.data?.uploadUrl,
+                        file,
+                    );
+                    if (response.status === 200 || response.status === 201) {
+                        const imageKey = resp?.data?.key;
+                        setFormData((prev) => ({
+                            ...prev,
+                            ogImageKey: imageKey,
+                        }));
                     }
                 } else {
                     toast.error(resp?.data?.message, { duration: 2000 });
@@ -461,6 +488,12 @@ const CreatePage = () => {
             .filter((keyword) => keyword.length > 0);
         setFormData((prev) => ({ ...prev, keywords: keywordArr }));
     };
+    const handleOgChange = (field: string, value: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -559,13 +592,10 @@ const CreatePage = () => {
     };
 
     const handleEditSlug = (value: string) => {
-        const cleanedValue = value
-            .toLowerCase()
-            .replace(/[^a-z0-9-]/g, '') 
+        const cleanedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
 
         setFormData({ ...formData, slug: cleanedValue });
     };
-
 
     // Function to generate slug from title
     const generateSlug = (title: string) => {
@@ -1892,10 +1922,11 @@ const CreatePage = () => {
                     <span className="text-xl">Meta Details</span>
 
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
+                        {/* Meta Title Section */}
                         <div className="mb-4">
                             <label
                                 htmlFor="metaTitle"
-                                className="block  text-gray-300 mb-2"
+                                className="block text-gray-300 mb-2"
                             >
                                 Meta Title
                             </label>
@@ -1914,10 +1945,11 @@ const CreatePage = () => {
                             />
                         </div>
 
+                        {/* Meta Description Section */}
                         <div className="mb-4">
                             <label
                                 htmlFor="metaDescription"
-                                className="block  text-gray-300 mb-2"
+                                className="block text-gray-300 mb-2"
                             >
                                 Meta Description
                             </label>
@@ -1935,10 +1967,11 @@ const CreatePage = () => {
                             />
                         </div>
 
+                        {/* Keywords Section */}
                         <div className="mb-4">
                             <label
                                 htmlFor="heading"
-                                className="block  text-gray-300 mb-2"
+                                className="block text-gray-300 mb-2"
                             >
                                 Keywords{' '}
                                 <span className="text-sm italic text-gray-400">
@@ -1956,58 +1989,44 @@ const CreatePage = () => {
                                 }
                             />
                         </div>
-                    </div>
-                </label>
 
-                {/* Open Graph */}
-                <label className="block text-white mb-5">
-                    <span className="text-xl">Open Graph</span>
-                    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
+                        {/* Open Graph Title */}
                         <div className="mb-4">
                             <label
                                 htmlFor="ogTitle"
                                 className="block text-gray-300 mb-2"
                             >
-                                Title
+                                Open Graph Title
                             </label>
                             <input
                                 type="text"
                                 id="ogTitle"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Open Graph Title"
-                                value={formData.content.openGraph?.title || ''}
+                                value={formData.ogTitle}
                                 onChange={(e) =>
-                                    handleSectionChange(
-                                        'openGraph',
-                                        'title',
-                                        e.target.value,
-                                    )
+                                    handleOgChange('ogTitle', e.target.value)
                                 }
                                 required
                             />
                         </div>
 
+                        {/* Open Graph Description */}
                         <div className="mb-4">
                             <label
                                 htmlFor="ogDescription"
                                 className="block text-gray-300 mb-2"
                             >
-                                Description
+                                Open Graph Description
                             </label>
                             <textarea
                                 id="ogDescription"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Open Graph Description"
-                                value={
-                                    (formData.content.openGraph &&
-                                        formData.content.openGraph
-                                            .description) ||
-                                    ''
-                                }
+                                value={formData.ogDescription}
                                 onChange={(e) =>
-                                    handleSectionChange(
-                                        'openGraph',
-                                        'description',
+                                    handleOgChange(
+                                        'ogDescription',
                                         e.target.value,
                                     )
                                 }
@@ -2025,13 +2044,12 @@ const CreatePage = () => {
                                 className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="imageInputOG"
                             >
-                                {formData.content.openGraph?.imageKey ? (
+                                {formData.ogImageKey ? (
                                     <div className="relative w-full h-full">
                                         <div className="absolute inset-0 overflow-hidden">
                                             <Image
                                                 src={getURL(
-                                                    formData.content.openGraph
-                                                        .imageKey,
+                                                    formData.ogImageKey,
                                                 )}
                                                 alt="Open Graph Preview"
                                                 layout="fill"
@@ -2047,14 +2065,7 @@ const CreatePage = () => {
                                                 e.stopPropagation();
                                                 setFormData((prev) => ({
                                                     ...prev,
-                                                    content: {
-                                                        ...prev.content,
-                                                        openGraph: {
-                                                            ...prev.content
-                                                                .openGraph,
-                                                            imageKey: '',
-                                                        },
-                                                    },
+                                                    ogImageKey: '',
                                                 }));
                                             }}
                                         >
@@ -2071,9 +2082,7 @@ const CreatePage = () => {
                                 type="file"
                                 id="imageInputOG"
                                 className="hidden"
-                                onChange={(e) =>
-                                    handleImageChange(e, 'openGraph')
-                                }
+                                onChange={handleOgImageChange}
                             />
                         </div>
                     </div>
