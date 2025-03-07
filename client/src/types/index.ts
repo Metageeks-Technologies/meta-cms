@@ -31,6 +31,9 @@ export interface NewPostFormData {
   metaTitle: string;
   metaDescription: string;
   keywords: string[];
+  ogTitle: string;
+  ogDescription: string;
+  ogImageKey: string;
 }
 
 export interface ProductAttribute {
@@ -104,6 +107,12 @@ export interface PostTypes {
   commentCount: number;
   readTime?: string;
   website?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImageKey?: string;
 }
 
 export interface IWebsite {
@@ -411,8 +420,12 @@ export interface caseStudyContent {
   title: string;
   slug: string;
   projectType: string;
-  // website: string;
-  // service: string;
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string[];
+  ogTitle: string;
+  ogDescription: string;
+  ogImageKey: string;
 
   content: {
     heroSection: heroSection;

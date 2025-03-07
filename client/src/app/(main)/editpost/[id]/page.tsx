@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const router = useRouter();
 
   const [post, setPost] = useState<PostTypes | null>(null);
+  const [isOgMediaModalOpen, setIsOgMediaModalOpen] = useState(false);
 
   const editorRef = useRef<any>(null);
   const [categoryArr, setCategoryArr] = useState([]);
@@ -42,7 +43,10 @@ const App: React.FC = () => {
     previewImg: '',
     metaTitle: '',
     metaDescription: '',
-    keywords: []
+    keywords: [],
+    ogTitle: '',
+    ogDescription: '',
+    ogImageKey: ''
   });
 
 
@@ -67,6 +71,10 @@ const App: React.FC = () => {
       setLoading(false);
     }
   };
+  const handleOgImageChange = (imageKey: string) => {
+    setFormData({ ...formData, ogImageKey: imageKey });
+    setIsOgMediaModalOpen(false); // Close modal after selection
+  };
 
   const handlePreviewImageChange = (imageKey: string) => {
     setFormData({ ...formData, previewImg: imageKey });
@@ -90,7 +98,11 @@ const App: React.FC = () => {
           previewImg: resp.data.previewImageKey,
           metaTitle: resp.data.metaTitle,
           metaDescription: resp.data.metaDescription,
-          keywords: resp.data.keywords
+          keywords: resp.data.keywords,
+          ogTitle: resp.data.ogTitle || '',
+          ogDescription: resp.data.ogDescription || '',
+          ogImageKey: resp.data.ogImageKey || '',
+      
         });
         setKeywordValue(resp?.data?.keywords?.join(", "));
       } else {
@@ -124,7 +136,10 @@ const App: React.FC = () => {
     publishedDate?: Date,
     metaTitle: string,
     metaDescription: string,
-    keywords: string[]
+    keywords: string[],
+    ogTitle: string;
+    ogDescription: string;
+    ogImageKey: string;
   }
 
   // Handle post update
@@ -176,7 +191,10 @@ const App: React.FC = () => {
         status: formData.postStatus,
         metaTitle: formData.metaTitle,
         metaDescription: formData.metaDescription,
-        keywords: formData.keywords
+        keywords: formData.keywords,
+        ogTitle: formData.ogTitle,
+        ogDescription: formData.ogDescription,
+        ogImageKey: formData.ogImageKey
       };
 
       const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${post?._id}`, payload, { websiteKey });
@@ -427,6 +445,55 @@ const App: React.FC = () => {
               onChange={(e) => handleKeywordChange(e.target.value)}
             />
           </div>
+          <div className="mb-4">
+    <label htmlFor="ogTitle" className="block text-gray-300 mb-2">
+      OG Title
+    </label>
+    <input
+      type="text"
+      id="ogTitle"
+      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+      placeholder="Enter Open Graph Title"
+      value={formData.ogTitle}
+      onChange={(e) => setFormData((prev) => ({ ...prev, ogTitle: e.target.value }))}
+    />
+  </div>
+
+  <div className="mb-4">
+    <label htmlFor="ogDescription" className="block text-gray-300 mb-2">
+      OG Description
+    </label>
+    <textarea
+      id="ogDescription"
+      className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-white"
+      placeholder="Enter Open Graph Description"
+      value={formData.ogDescription}
+      onChange={(e) => setFormData(prev => ({ ...prev, ogDescription: e.target.value }))}
+      rows={3}
+    />
+  </div>
+
+  {/* OG Image Upload */}
+  <div className="mb-4">
+  <label className="block text-gray-300 mb-2">
+    Open Graph Image
+  </label>
+  <div
+    onClick={() => setIsOgMediaModalOpen(true)}
+    className="cursor-pointer w-full flex justify-center items-center p-2 bg-[#1A1A1A] rounded-md text-white border-2 border-dashed border-gray-400 h-48"
+  >
+    {formData.ogImageKey ? (
+      <img
+        src={getURL(formData.ogImageKey)}
+        alt="OG Preview"
+        className="w-full h-full object-cover rounded-md"
+      />
+    ) : (
+      <span className="sm:text-xs md:text-sm lg:text-lg xl:text-xl">+ Upload Open Graph Image</span>
+    )}
+  </div>
+
+  </div>
 
 
 
@@ -535,15 +602,20 @@ const App: React.FC = () => {
       </div>
 
 
-      {/* Media Modal */}
-      {
-        isMediaModalOpen && (
-          <MediaModal
-            onSelectImage={handlePreviewImageChange}
-            setIsMediaModalOpen={setIsMediaModalOpen}
-          />
-        )
-      }
+      
+      {/* Media Modals */}
+      {isMediaModalOpen && (
+        <MediaModal
+          onSelectImage={handlePreviewImageChange}
+          setIsMediaModalOpen={setIsMediaModalOpen}
+        />
+      )}
+      {isOgMediaModalOpen && (
+        <MediaModal
+          onSelectImage={handleOgImageChange}
+          setIsMediaModalOpen={setIsOgMediaModalOpen}
+        />
+      )}
 
     </div >
   );

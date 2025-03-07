@@ -33,6 +33,9 @@ export interface IPost extends mongoose.Document {
     metaTitle: string;
     metaDescription: string;
     keywords: string[];
+    ogTitle: string;
+    ogDescription: string;
+    ogImageKey: string;
 };
 
 export const PostSchema = new mongoose.Schema({
@@ -72,6 +75,9 @@ export const PostSchema = new mongoose.Schema({
     metaTitle: { type: String },
     metaDescription: { type: String },
     keywords: [{ type: String }],
+    ogTitle: {type: String},
+    ogDescription: {type: String},
+    ogImageKey: {type: String},
     isDeleted: { type: Boolean, required: true, default: false },
     slug: { type: String, required: true, unique: true },
     publishedDate: { type: Date, required: true, default: Date.now },

@@ -14,6 +14,7 @@ const CreateCaseStudy = () => {
     const [formData, setFormData] = useState<caseStudyContent>(
         INITIAL_CASESTUDY_CONTENT,
     );
+    const [keywordValue, setKeywordValue] = useState('');
     const { setLoading, websiteKey } = useUserContext();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,6 +278,18 @@ const CreateCaseStudy = () => {
             },
         }));
     };
+    const handleKeywordChange = (value: string) => {
+        setKeywordValue(value);
+        const keywordsArray = value
+            .split(',')
+            .map(keyword => keyword.trim())
+            .filter(keyword => keyword !== ''); 
+        
+        setFormData(prev => ({
+            ...prev,
+            keywords: keywordsArray
+        }));
+    };
 
     const handleCardChange = (
         index: number,
@@ -351,6 +364,46 @@ const CreateCaseStudy = () => {
                     },
                 },
             }));
+        }
+    };
+    const handleOgImageChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+
+        const payload = {
+            folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_CASESTUDIES,
+            fileName: file.name,
+            contentType: file.type,
+        };
+
+        try {
+            const resp = await axiosCall(
+                'post',
+                `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`,
+                payload,
+                { websiteKey },
+            );
+
+            if (resp.status === 200 || resp.status === 201) {
+                const response = await axios.put(resp?.data?.uploadUrl, file);
+                if (response.status === 200 || response.status === 201) {
+                    const imageKey = resp?.data?.key;
+
+                    setFormData((prev) => ({
+                        ...prev,
+                        ogImageKey: imageKey,
+                    }));
+                }
+            } else {
+                toast.error(resp?.data?.message || 'Failed to get upload URL', {
+                    duration: 2000,
+                });
+            }
+        } catch (error) {
+            console.error('OG Image upload error:', error);
+            toast.error('Failed to upload the OG image', { duration: 2000 });
         }
     };
 
@@ -1203,7 +1256,6 @@ const CreateCaseStudy = () => {
                                 </div>
                             ),
                         )}
-
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -1213,7 +1265,178 @@ const CreateCaseStudy = () => {
                         </button>
                     </div>
                 </label>
+                <label className="block text-white mb-5">
+    <span className="text-xl">Meta Details</span>
 
+    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
+        {/* Meta Title */}
+        <div className="mb-4">
+            <label
+                htmlFor="metaTitle"
+                className="block text-gray-300 mb-2"
+            >
+                Meta Title
+            </label>
+            <input
+                type="text"
+                id="metaTitle"
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter Meta Title"
+                value={formData.metaTitle || ''}
+                onChange={(e) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        metaTitle: e.target.value,
+                    }))
+                }
+            />
+        </div>
+
+        {/* Meta Description */}
+        <div className="mb-4">
+            <label
+                htmlFor="metaDescription"
+                className="block text-gray-300 mb-2"
+            >
+                Meta Description
+            </label>
+            <textarea
+                id="metaDescription"
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter Meta Description"
+                value={formData.metaDescription || ''}
+                onChange={(e) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        metaDescription: e.target.value,
+                    }))
+                }
+                rows={3}
+            />
+        </div>
+
+        {/* Keywords */}
+        <div className="mb-4">
+            <label
+                htmlFor="keywords"
+                className="block text-gray-300 mb-2"
+            >
+                Keywords{' '}
+                <span className="text-sm italic text-gray-400">
+                    (separated by commas)
+                </span>
+            </label>
+            <input
+                type="text"
+                id="keywords"
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter Keywords"
+                value={keywordValue}
+                onChange={(e) => handleKeywordChange(e.target.value)}
+            />
+        </div>
+
+        
+        
+
+        {/* OG Title */}
+        <div className="mb-4">
+            <label
+                htmlFor="ogTitle"
+                className="block text-gray-300 mb-2"
+            >
+                Open Graph Title
+            </label>
+            <input
+                type="text"
+                id="ogTitle"
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter Open Graph Title"
+                value={formData.ogTitle || ''}
+                onChange={(e) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        ogTitle: e.target.value,
+                    }))
+                }
+            />
+        </div>
+
+        {/* OG Description */}
+        <div className="mb-4">
+            <label
+                htmlFor="ogDescription"
+                className="block text-gray-300 mb-2"
+            >
+                Open Graph Description
+            </label>
+            <textarea
+                id="ogDescription"
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter Open Graph Description"
+                value={formData.ogDescription || ''}
+                onChange={(e) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        ogDescription: e.target.value,
+                    }))
+                }
+                rows={3}
+            />
+        </div>
+
+        {/* OG Image Upload */}
+        <div className="mb-6">
+            <label className="block text-gray-300 mb-2">
+                Open Graph Image
+            </label>
+            <label
+                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
+                htmlFor="imageInputOG"
+            >
+                {formData.ogImageKey ? (
+                    <div className="relative w-full h-full">
+                        <div className="absolute inset-0 overflow-hidden">
+                            <Image
+                                src={getURL(
+                                    formData.ogImageKey,
+                                )}
+                                alt="Open Graph Preview"
+                                layout="fill"
+                                objectFit="contain"
+                                className="rounded-lg"
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    ogImageKey: '',
+                                }));
+                            }}
+                        >
+                            ×
+                        </button>
+                    </div>
+                ) : (
+                    <span className="text-white text-3xl">
+                        +
+                    </span>
+                )}
+            </label>
+            <input
+                type="file"
+                id="imageInputOG"
+                className="hidden"
+                onChange={(e) => handleOgImageChange(e)}
+            />
+        </div>
+    </div>
+</label>
                 <button
                     type="submit"
                     className="px-6 py-3 mb-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"

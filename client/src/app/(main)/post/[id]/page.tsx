@@ -540,7 +540,74 @@ const page = () => {
                                     </div>
                                 </div>
                             </div>
-
+                           {/* Metadata Section */}
+{(user?.role === userRoles.SUPERADMIN || user?.role === userRoles.ADMIN || user?.role === userRoles.MODERATOR) && (
+  <div className="bg-gray-900 rounded-lg p-6 mb-8 border border-gray-800">
+    <h2 className="text-xl font-semibold mb-4 flex items-center">
+      <span className="mr-2"></span> Metadata Information
+    </h2>
+    
+    {/* Meta Data Section */}
+    <div className="mb-6">
+      <h3 className="text-lg text-blue-400 font-medium mb-3">Meta Data</h3>
+      
+      <div className="mb-3">
+        <p className="text-gray-400 text-sm">Meta Title:</p>
+        <p className="text-white">{post?.metaTitle || "Not set"}</p>
+      </div>
+      
+      <div className="mb-3">
+        <p className="text-gray-400 text-sm">Meta Description:</p>
+        <p className="text-white">{post?.metaDescription || "Not set"}</p>
+      </div>
+      
+      <div>
+        <p className="text-gray-400 text-sm">Keywords:</p>
+        {post?.keywords && Array.isArray(post.keywords) && post.keywords.length > 0 ? (
+          <div className="flex flex-wrap gap-2 mt-1">
+            {post.keywords.map((keyword, index) => (
+              <span key={index} className="px-2 py-1 bg-gray-800 text-gray-300 rounded-md text-sm">
+                {keyword}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 italic">No keywords set</p>
+        )}
+      </div>
+    </div>
+    
+    {/* Open Graph Section */}
+    <div className="pt-5 border-t border-gray-800">
+      <h3 className="text-lg text-green-400 font-medium mb-3">Open Graph Data</h3>
+      
+      <div className="mb-3">
+        <p className="text-gray-400 text-sm">OG Title:</p>
+        <p className="text-white">{post?.ogTitle || "Not set"}</p>
+      </div>
+      
+      <div className="mb-3">
+        <p className="text-gray-400 text-sm">OG Description:</p>
+        <p className="text-white">{post?.ogDescription || "Not set"}</p>
+      </div>
+      
+      <div>
+        <p className="text-gray-400 text-sm mb-2">OG Image:</p>
+        {post?.ogImageKey ? (
+          <img 
+            src={getURL(post.ogImageKey)} 
+            alt="Open Graph Image"
+            className="w-full max-w-md h-auto rounded-lg border border-gray-700"
+          />
+        ) : (
+          <p className="text-gray-500 italic">No OG image set</p>
+        )}
+      </div>
+    </div>
+    
+   
+  </div>
+)}
                             {/* Comments */}
                             {post.status !== postStatuEnum.DRAFT &&
                                 post.status !== postStatuEnum.SCHEDULED &&
