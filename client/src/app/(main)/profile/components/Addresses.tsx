@@ -92,15 +92,13 @@ const AddressCard = ({
                         <AlertDialogContent className="bg-gray-900 border-gray-800">
                             <AlertDialogHeader>
                                 <AlertDialogTitle></AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    <div className="flex flex-col items-center gap-4">
-                                        <TriangleAlert className="w-16 h-16 text-red-500" />
-                                        <h2 className="text-xl font-semibold text-gray-100">Delete Address</h2>
-                                        <p className="text-gray-400 text-center">
-                                            Are you sure you want to delete this address? This action cannot be undone.
-                                        </p>
-                                    </div>
-                                </AlertDialogDescription>
+                                <div className="flex flex-col items-center gap-4">
+                                    <TriangleAlert className="w-16 h-16 text-red-500" />
+                                    <h2 className="text-xl font-semibold text-gray-100">Delete Address</h2>
+                                    <AlertDialogDescription>
+                                        Are you sure you want to delete this address? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                </div>
                             </AlertDialogHeader>
 
                             <AlertDialogFooter>

@@ -340,7 +340,13 @@ export interface PageContent {
     solutionSection2: SectionContent;
     featureSection: FeatureSection;
     marketForecastSection: ForecastContent;
+    openGraph: {
+      title: string;
+      description: string;
+      imageKey: string;
   };
+  };
+  
   metaTitle: string,
   metaDescription: string,
   keywords: string[],
