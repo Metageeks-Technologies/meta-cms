@@ -15,8 +15,6 @@ import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
 import { useUserContext } from '@/context/userContext'
 
-
-
 const AddNewSubService = ({ fetchSubServices, serviceId }: any) => {
     const [isOpen, setIsOpen] = useState(false);
     const { websiteKey, user, setLoading } = useUserContext();

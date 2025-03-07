@@ -81,7 +81,7 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
   };
 
 
-  
+
   useEffect(() => {
     // Initial fetch when the component mounts
     fetchMoreMedia();
@@ -102,10 +102,10 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
   }, [media, hasMoreMedia, isFetching]);
 
   useEffect(() => {
-    if(websiteKey){
+    if (websiteKey) {
       setMedia([]);
       fetchMedia();
-    } 
+    }
   }, [websiteKey])
 
 
@@ -129,14 +129,14 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
             className="w-[220px] h-[150px] cursor-pointer"
             onClick={() => onSelectImage(media.key)}
           >
-<Image
-  src={getURL(media.key)}
-  alt=""
-  layout="responsive"
-  width={1200}
-  height={800}
-  className="w-full h-full object-cover rounded-md"
-/>          </div>
+            <Image
+              src={getURL(media.key)}
+              alt=""
+              layout="responsive"
+              width={1200}
+              height={800}
+              className="w-full h-full object-cover rounded-md"
+            />          </div>
         ))}
       </div>
 

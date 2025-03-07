@@ -68,10 +68,9 @@ const App: React.FC = () => {
     }
   };
 
-  // Handle image selection from MediaPage modal
   const handlePreviewImageChange = (imageKey: string) => {
     setFormData({ ...formData, previewImg: imageKey });
-    setIsMediaModalOpen(false); // Close modal after selection
+    setIsMediaModalOpen(false); 
   };
 
   const fetchPost = async () => {
@@ -204,12 +203,12 @@ const App: React.FC = () => {
       if (category.includes(id)) {
         return {
           ...prevData,
-          category: category.filter((catId) => catId !== id), // Remove the ID if already included
+          category: category.filter((catId) => catId !== id), 
         };
       } else {
         return {
           ...prevData,
-          category: [...category, id], // Add the ID if not included
+          category: [...category, id], 
         };
       }
     });
@@ -305,25 +304,7 @@ const App: React.FC = () => {
               />
             </label>
           </div>
-          {/* Preview image input */}
-          {/* <div>
-            <label htmlFor="postTitle" className="text-white block mb-2">Preview image</label>
-            <div
-              onClick={() => setIsMediaModalOpen(true)}
-              className="cursor-pointer w-full flex justify-center items-center p-4 bg-[#1A1A1A] rounded-md text-white border-collapse"
-            >
-              {formData.previewImg ? (
-                <img
-                  src={typeof formData.previewImg === 'string' ? getURL(formData.previewImg) : URL.createObjectURL(formData.previewImg)}
-                  alt="Preview"
-                  className="w-20 h-20 object-cover rounded-md"
-                />
-              ) : (
-                <span className="text-xl">+  Upload your preview Image</span> // Placeholder for no image selected
-              )}
-
-            </div>
-          </div> */}
+      
           {/* Post Description (TinyMCE Editor) */}
           <div>
             <label htmlFor="postDescription" className="text-white block mb-2">Post Description</label>
@@ -534,7 +515,7 @@ const App: React.FC = () => {
                   className="w-full h-full object-cover rounded-md"
                 />
               ) : (
-                <span className="sm:text-xs md:text-sm lg:text-lg xl:text-xl">+ Upload your preview Image</span> // Placeholder for no image selected
+                <span className="sm:text-xs md:text-sm lg:text-lg xl:text-xl">+ Upload your preview Image</span> 
               )}
             </div>
           </div>

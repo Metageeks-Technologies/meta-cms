@@ -10,8 +10,6 @@ import toast from 'react-hot-toast';
 import { useUserContext } from '@/context/userContext';
 import Image from 'next/image';
 
-
-
 const CreateCaseStudy = () => {
 
     const [formData, setFormData] = useState<caseStudyContent>(INITIAL_CASESTUDY_CONTENT);
@@ -197,7 +195,7 @@ const CreateCaseStudy = () => {
         section: 'heroSection' | 'uiSection' | 'serviceSection' | 'uiSection2',
         index?: number
     ) => {
-        if (!e.target.files || e.target.files.length === 0) return; // Fallback if no files are selected
+        if (!e.target.files || e.target.files.length === 0) return;
         const file = e.target.files[0];
 
         const payload = {
@@ -214,7 +212,6 @@ const CreateCaseStudy = () => {
                 if (response.status === 200 || response.status === 201) {
                     const imageKey = resp?.data?.key;
 
-                    // Ensure formData is updated correctly for the selected section
                     setFormData((prev) => {
                         const updatedContent = { ...prev.content };
 
@@ -252,8 +249,6 @@ const CreateCaseStudy = () => {
         }
     };
 
-
-
     const handleSectionChange = (
         section: 'heroSection' | 'aboutSection' | 'serviceSection' | 'processSection' | 'uiSection2' | 'challengesSection',
         field: string,
@@ -270,7 +265,6 @@ const CreateCaseStudy = () => {
             }
         }));
     };
-
 
     const handleCardChange = (
         index: number,
@@ -344,7 +338,6 @@ const CreateCaseStudy = () => {
         }
     };
 
-
     const handleListItemChange = (cardIndex: number, listIndex: number, value: string) => {
         setFormData((prev) => ({
             ...prev,
@@ -368,8 +361,6 @@ const CreateCaseStudy = () => {
             },
         }));
     };
-
-
 
     const generateSlug = (title: string) => {
         return title
@@ -476,15 +467,15 @@ const CreateCaseStudy = () => {
                             >
                                 {formData.content.heroSection.imageKey ? (
 
-                                  <Image
-                                    src={getURL(formData.content.heroSection.imageKey)}
-                                    alt="Preview"
-                                    layout="responsive"  // Makes the image responsive, maintaining its aspect ratio
-                                    width={1200}  // Specify the width for the image (adjust to your needs)
-                                    height={800}  // Specify the height for the image (adjust to your needs)
-                                    className="object-contain w-full h-full rounded-lg"
-                                  />
-                                  
+                                    <Image
+                                        src={getURL(formData.content.heroSection.imageKey)}
+                                        alt="Preview"
+                                        layout="responsive"  
+                                        width={1200}  
+                                        height={800}  
+                                        className="object-contain w-full h-full rounded-lg"
+                                    />
+
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -601,15 +592,15 @@ const CreateCaseStudy = () => {
                             >
                                 {formData.content.uiSection.imageKey ? (
 
-                                  <Image
-                                    src={getURL(formData.content.uiSection.imageKey)}
-                                    alt="Preview"
-                                    layout="responsive"  
-                                    width={1200}  
-                                    height={800}  
-                                    className="object-contain w-full h-full rounded-lg"
-                                  />
-                                  
+                                    <Image
+                                        src={getURL(formData.content.uiSection.imageKey)}
+                                        alt="Preview"
+                                        layout="responsive"
+                                        width={1200}
+                                        height={800}
+                                        className="object-contain w-full h-full rounded-lg"
+                                    />
+
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -654,15 +645,15 @@ const CreateCaseStudy = () => {
                             >
                                 {formData.content.serviceSection.imageKey ? (
 
-                                 <Image
-                                   src={getURL(formData.content.serviceSection.imageKey)}
-                                   alt="Preview"
-                                   layout="responsive"  
-                                   width={1200}
-                                   height={800} 
-                                   className="object-contain w-full h-full rounded-lg"
-                                 />
-                                 
+                                    <Image
+                                        src={getURL(formData.content.serviceSection.imageKey)}
+                                        alt="Preview"
+                                        layout="responsive"
+                                        width={1200}
+                                        height={800}
+                                        className="object-contain w-full h-full rounded-lg"
+                                    />
+
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}

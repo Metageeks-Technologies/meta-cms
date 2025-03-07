@@ -200,9 +200,9 @@ const AddCategory = () => {
                                     src={getURL(createForm.bannerImageKey)}
                                     alt=""
                                     className="w-full h-full object-cover"
-                                    layout="responsive" // Ensures the image is responsive
-                                    width={1200} // Replace with the actual width of your image
-                                    height={500} // Replace with the actual height of your image
+                                    layout="responsive" 
+                                    width={1200} 
+                                    height={500} 
                                 />
 
                             </div>

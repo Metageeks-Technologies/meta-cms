@@ -482,24 +482,21 @@ const CreatePage = () => {
 
 
     const handleEditSlug = (value: string) => {
-        // Remove spaces, special characters, and convert to lowercase
         const cleanedValue = value
-            .toLowerCase()              // Convert to lowercase
-            .replace(/[^a-z0-9-]/g, '') // Remove any character that is not a lowercase letter, number, or hyphen
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, '') 
 
         setFormData({ ...formData, slug: cleanedValue });
     };
 
 
-    // Function to generate slug from title
     const generateSlug = (title: string) => {
         return title
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
-            .replace(/(^-|-$)+/g, '');     // Remove leading/trailing hyphens
+            .replace(/[^a-z0-9]+/g, '-')  
+            .replace(/(^-|-$)+/g, '');     
     };
 
-    // Automatically generate slug when title changes
     useEffect(() => {
         if (formData.title) {
             const generatedSlug = generateSlug(formData.title);
@@ -509,7 +506,6 @@ const CreatePage = () => {
             }));
         }
         else {
-            // If title is empty, clear the slug as well
             setFormData((prevData) => ({
                 ...prevData,
                 slug: '',

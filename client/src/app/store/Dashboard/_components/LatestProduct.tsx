@@ -2,10 +2,6 @@ import React from "react";
 
 import { getURL } from "@/utils/AWS_Config";
 
-
-
-
-
 const LatestProducts = ({data}: any) => {
 
   if(!data){
