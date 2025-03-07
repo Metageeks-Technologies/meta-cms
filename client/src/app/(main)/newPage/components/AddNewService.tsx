@@ -26,7 +26,6 @@ const AddNewService = ({fetchServices}: any) => {
         description: '',
     });
 
-
     const handleSubmit = async (e: any) => {
         e.stopPropagation();
         e.preventDefault();

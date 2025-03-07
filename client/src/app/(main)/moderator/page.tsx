@@ -46,8 +46,6 @@ import {
 import AddModerator from "./components/AddModerator"
 import { debounce } from "lodash"
 
-
-
 const columns = [
   {
     accessorKey: "name",
@@ -111,9 +109,7 @@ const columns = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-              {/* <DropdownMenuSeparator className="bg-gray-800" /> */}
-
+             
               {/* block /unblock options */}
               {user.block ? (
                 <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer px-3">
@@ -129,11 +125,6 @@ const columns = [
                     </AlertDialogTrigger>
                   </DropdownMenuItem>
 
-                  {/* <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                    <AlertDialogTrigger className="w-full text-left">
-                      Demote to Subscriber
-                    </AlertDialogTrigger>
-                  </DropdownMenuItem> */}
 
                   <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
                     <AlertDialogTrigger className="w-full text-left">
@@ -190,9 +181,6 @@ const columns = [
 
 function User() {
   const [sorting, setSorting] = useState<SortingState>([])
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
-  // const [rowSelection, setRowSelection] = React.useState({})
 
   const { user, moderators, fetchUsers, websiteKey, userPageNo, setUserPageNo } = useUserContext();
   const [searchQuery, setSearchQuery] = useState('');
@@ -223,18 +211,13 @@ function User() {
     data: moderators,
     columns,
     onSortingChange: setSorting,
-    // onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
-    // onRowSelectionChange: setRowSelection,
+ 
     state: {
       sorting,
-      // columnFilters,
-      // columnVisibility,
-      // rowSelection,
     },
   });
 

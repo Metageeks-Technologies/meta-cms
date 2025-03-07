@@ -8,6 +8,8 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { FaArrowLeft } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import Image from 'next/image';
+
 
 const page = () => {
     const { setLoading, user, websiteKey } = useUserContext();
@@ -73,7 +75,15 @@ const page = () => {
                         </p>
                     </div>
                     <div className='h-[250px] max-w-[40%]'>
-                        <img src={getURL(pageData?.content.heroSection?.imageKey)} className='w-full h-full object-contain' />
+                        <Image
+                            src={getURL(pageData?.content.heroSection?.imageKey)}
+                            alt="Hero image"
+                            width={1200}
+                            height={800}
+                            className="w-full h-full object-contain"
+                        />
+
+
                     </div>
                 </div>
 
@@ -92,7 +102,12 @@ const page = () => {
                         </p>
                     </div>
                     <div className='h-[250px] max-w-[40%]'>
-                        <img src={getURL(pageData?.content.solutionSection1?.imageKey)} className='w-full h-full object-contain' />
+                        <Image
+                            src={getURL(pageData?.content.solutionSection1?.imageKey)} alt="Hero image"
+                            width={1200}
+                            height={800}
+                            className="w-full h-full object-contain"
+                        />
                     </div>
                 </div>
 
@@ -122,7 +137,14 @@ const page = () => {
                                     </div>
 
                                     <div className='h-[100px] mx-auto'>
-                                        <img src={getURL(card?.imageKey)} className='w-full h-full object-contain' />
+                                        <Image
+                                            src={getURL(card?.imageKey)}
+                                            alt="card image"
+                                            width={1200}
+                                            height={800}
+                                            className="w-full h-full object-contain"
+                                        />
+
                                     </div>
                                 </div>
                             ))
@@ -174,7 +196,12 @@ const page = () => {
                         </p>
                     </div>
                     <div className='h-[250px] max-w-[40%]'>
-                        <img src={getURL(pageData?.content.solutionSection2?.imageKey)} className='w-full h-full object-contain' />
+                        <Image
+                            src={getURL(pageData?.content.solutionSection2?.imageKey)} alt="solutcion2 image"
+                            width={1200}
+                            height={800}
+                            className="w-full h-full object-contain"
+                        />
                     </div>
                 </div>
 
@@ -201,7 +228,13 @@ const page = () => {
                                     </div>
 
                                     <div className='h-[100px] mx-auto'>
-                                        <img src={getURL(card?.imageKey)} className='w-full h-full object-contain' />
+                                        <Image
+                                            src={getURL(card?.imageKey)}
+                                            alt="card image"
+                                            width={1200}
+                                            height={800}
+                                            className="w-full h-full object-contain"
+                                        />
                                     </div>
                                 </div>
                             ))
@@ -228,7 +261,13 @@ const page = () => {
                         </ul>
                     </div>
                     <div className='h-[250px] max-w-[40%]'>
-                        <img src={getURL(pageData?.content.marketForecastSection?.imageKey)} className='w-full h-full object-contain' />
+                        <Image
+                            src={getURL(pageData?.content.marketForecastSection?.imageKey)}
+                            alt="marketForecastSection"
+                            width={1200}
+                            height={800}
+                            className="w-full h-full object-contain"
+                        />
                     </div>
                 </div>
 

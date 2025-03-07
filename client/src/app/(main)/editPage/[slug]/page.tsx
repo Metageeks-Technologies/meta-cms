@@ -13,6 +13,8 @@ import { Card, Feature, PageContent } from '@/types';
 import AddNewService from './components/AddNewService';
 import AddNewSubService from './components/AddNewSubService';
 import { userRoles } from '@/constant/user';
+import Image from 'next/image';
+
 
 const EditPage = () => {
     const router = useRouter();
@@ -754,11 +756,14 @@ const EditPage = () => {
                                 htmlFor="imageInputHero"
                             >
                                 {formData.content.heroSection?.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.heroSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                  <Image
+                                  src={getURL(formData.content.heroSection.imageKey)}
+                                  alt="Preview"
+                                  layout="fill"
+                                  objectFit="contain"
+                                  className="rounded-lg"
+                                />
+                                
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -831,11 +836,14 @@ const EditPage = () => {
                                 htmlFor="imageInputSolution"
                             >
                                 {formData.content.solutionSection1?.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.solutionSection1?.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                   <Image
+                                   src={getURL(formData.content.solutionSection1?.imageKey)}
+                                   alt="Preview"
+                                   layout="fill"
+                                   objectFit="contain"
+                                   className="rounded-lg"
+                                 />
+                                 
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -932,11 +940,13 @@ const EditPage = () => {
                                         htmlFor={`imageInputCard-${index}`}
                                     >
                                         {card.imageKey ? (
-                                            <img
-                                                src={getURL(card.imageKey)}
-                                                alt="Card Preview"
-                                                className="object-contain w-full h-full rounded-lg"
-                                            />
+                                          <Image
+                                          src={getURL(card.imageKey)}
+                                          alt="Card Preview"
+                                          layout="fill"
+                                          objectFit="contain"
+                                          className="rounded-lg"
+                                        />
                                         ) : (
                                             <span className="text-white text-3xl">+</span>
                                         )}
@@ -1088,11 +1098,13 @@ const EditPage = () => {
                                 htmlFor="imageInputSolution2"
                             >
                                 {formData.content.solutionSection2?.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.solutionSection2?.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                   <Image
+                                   src={getURL(formData.content.solutionSection2?.imageKey)}
+                                   alt="Preview"
+                                   layout="fill"
+                                   objectFit="contain"
+                                   className="rounded-lg"
+                                 />
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}
@@ -1176,11 +1188,13 @@ const EditPage = () => {
                                         htmlFor={`imageInputFeature-${index}`}
                                     >
                                         {feature?.imageKey ? (
-                                            <img
-                                                src={getURL(feature.imageKey)}
-                                                alt="Feature Preview"
-                                                className="object-contain w-full h-full rounded-lg"
-                                            />
+                                          <Image
+                                          src={getURL(feature.imageKey)}
+                                          alt="Feature Preview"
+                                          layout="fill"
+                                          objectFit="contain"
+                                          className="rounded-lg"
+                                        />
                                         ) : (
                                             <span className="text-white text-3xl">+</span>
                                         )}
@@ -1251,11 +1265,14 @@ const EditPage = () => {
                                 htmlFor="imageInputMarket"
                             >
                                 {formData.content.marketForecastSection?.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.marketForecastSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                   <Image
+                                   src={getURL(formData.content.marketForecastSection.imageKey)}
+                                   alt="Preview"
+                                   layout="fill"
+                                   objectFit="contain"
+                                   className="rounded-lg"
+                                 />
+                                 
                                 ) : (
                                     <span className="text-white text-3xl">+</span>
                                 )}

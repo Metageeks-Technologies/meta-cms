@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { userRoles } from '@/constant/user'
-import { useUserContext } from '@/context/userContext' 
+import { useUserContext } from '@/context/userContext'
 import { getURL } from '@/utils/AWS_Config'
 import { IComment } from '@/types'
 import { FaClock } from "react-icons/fa6"
@@ -318,7 +318,7 @@ const page = () => {
 
                             {/* Post Content */}
                             <div
-                                className="prose prose-invert max-w-none mb-8"
+                                className="prose prose-invert max-w-none mb-8 break-words"
                                 dangerouslySetInnerHTML={{
                                     __html: post?.description,
                                 }}
@@ -334,7 +334,7 @@ const page = () => {
                                     user?.role !== userRoles.SUPERADMIN &&
                                     user?.role !== userRoles.ADMIN &&
                                     post?.author?.role === userRoles.SUPERADMIN
-                                )&& (!post?.isDeleted ) && (
+                                ) && (!post?.isDeleted) && (
                                     <div className="flex gap-4 mb-8">
                                         <button
                                             onClick={handleRejectPost}
@@ -412,28 +412,28 @@ const page = () => {
 
 
                                 {
-                                
-                                post.status === 'draft' || post.status==="rejected" && (
-                                    <Button
-                                        onClick={() => handlePublished(post._id)}
-                                        className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                                    >
-                                        Publish Post
-                                    </Button>
-                                )}
+
+                                    post.status === 'draft' && (
+                                        <Button
+                                            onClick={() => handlePublished(post._id)}
+                                            className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                                        >
+                                            Publish Post
+                                        </Button>
+                                    )}
 
                                 {
                                     (
                                         user.role === userRoles.SUPERADMIN ||
                                         user.role === userRoles.ADMIN) &&
-                                post.isDeleted && (
-                                    <Button
-                                        onClick={handleRecoverPost}
-                                        className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                                    >
-                                        Recover Post
-                                    </Button>
-                                )}
+                                    post.isDeleted && (
+                                        <Button
+                                            onClick={handleRecoverPost}
+                                            className="bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                                        >
+                                            Recover Post
+                                        </Button>
+                                    )}
                             </div>
 
                             {/* Tags */}
@@ -536,84 +536,111 @@ const page = () => {
                                         <h2 className="text-xl font-semibold mb-6">
                                             Comments ({comments.length})
                                         </h2>
-                                        <div className="space-y-6">
-                                            {comments.map(
-                                                (comment: IComment) => (
-                                                    <div
-                                                        key={comment._id}
-                                                        className="border-b border-gray-800 pb-6 last:border-0"
-                                                    >
-                                                        <div className="flex justify-between items-start mb-4">
-                                                            <div className="flex gap-3">
-                                                                <img
-                                                                    src={
-                                                                        user?.imageKey
-                                                                            ? getURL(
-                                                                                user?.imageKey,
-                                                                            )
-                                                                            : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`
-                                                                    }
-                                                                    alt={
-                                                                        comment
-                                                                            .userDetails
-                                                                            ?.name
-                                                                    }
-                                                                    className="w-10 h-10 rounded-full"
-                                                                />
-                                                                <div>
-                                                                    <p className="text-blue-400 font-medium">
-                                                                        {
+                                        <div
+                                            className="bg-gray-900 rounded-xl  p-6 max-h-[500px] border border-gray-700 overflow-y-auto styledScrollable"
+                                        >
+                                            <div className="space-y-6 border border-gray-800 p-3 rounded-2xl last:border-0">
+                                                {comments.map(
+                                                    (comment: IComment) => (
+                                                        <div
+                                                            key={comment._id}
+                                                            className="border border-gray-800 p-3 rounded-2xl last:border-0"
+                                                        >
+                                                            <div className="flex justify-between items-start mb-4">
+                                                                <div className="flex gap-3">
+                                                                    <img
+                                                                        src={
+                                                                            user?.imageKey
+                                                                                ? getURL(
+                                                                                    user?.imageKey,
+                                                                                )
+                                                                                : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=40`
+                                                                        }
+                                                                        alt={
                                                                             comment
                                                                                 .userDetails
                                                                                 ?.name
                                                                         }
-                                                                    </p>
-                                                                    <p className="text-gray-400 text-sm">
-                                                                        {handleDate(
-                                                                            comment.createdAt,
-                                                                        )}
-                                                                    </p>
+                                                                        className="w-10 h-10 rounded-full"
+                                                                    />
+                                                                    <div>
+                                                                        <p className="text-blue-400 font-medium">
+                                                                            {
+                                                                                comment
+                                                                                    .userDetails
+                                                                                    ?.name
+                                                                            }
+                                                                        </p>
+                                                                        <p className="text-gray-400 text-sm">
+                                                                            {handleDate(
+                                                                                comment.createdAt,
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
+                                                                {/* {(user?.id ===
+                                                                    comment
+                                                                        .userDetails
+                                                                        ?.id ||
+                                                                    user.role ===
+                                                                    userRoles.SUPERADMIN ||
+                                                                    user.role ===
+                                                                    userRoles.MODERATOR) && (
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                handleDeleteComment(
+                                                                                    comment._id,
+                                                                                )
+                                                                            }
+                                                                            className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                    )} */}
                                                             </div>
-                                                            {(user?.id ===
-                                                                comment
-                                                                    .userDetails
-                                                                    ?.id ||
-                                                                user.role ===
-                                                                userRoles.SUPERADMIN ||
-                                                                user.role ===
-                                                                userRoles.MODERATOR) && (
-                                                                    <button
-                                                                        onClick={() =>
-                                                                            handleDeleteComment(
-                                                                                comment._id,
-                                                                            )
-                                                                        }
-                                                                        className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
-                                                                    >
-                                                                        Delete
-                                                                    </button>
-                                                                )}
+                                                            <div className='border-t border-gray-800 rounded-lg p-4'>
+                                                            <p className="text-gray-300">
+                                                                {comment.message}
+                                                            </p>
+                                                            <div className='flex justify-end '>  {(user?.id ===
+                                                                    comment
+                                                                        .userDetails
+                                                                        ?.id ||
+                                                                    user.role ===
+                                                                    userRoles.SUPERADMIN ||
+                                                                    user.role ===
+                                                                    userRoles.MODERATOR) && (
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                handleDeleteComment(
+                                                                                    comment._id,
+                                                                                )
+                                                                            }
+                                                                            className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-lg"
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                    )}</div>
+                                                            </div>
+                                                          
+                                                            
                                                         </div>
-                                                        <p className="text-gray-300">
-                                                            {comment.message}
-                                                        </p>
-                                                    </div>
-                                                ),
-                                            )}
-                                            {hasMore && (
-                                                <button
-                                                    onClick={() =>
-                                                        fetchComments(
-                                                            post?._id,
-                                                            lastId,
-                                                        )
-                                                    }
-                                                    className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                                                >
-                                                    Load More Comments
-                                                </button>
-                                            )}
+                                                    ),
+                                                )}
+                                                {hasMore && (
+                                                    <button
+                                                        onClick={() =>
+                                                            fetchComments(
+                                                                post?._id,
+                                                                lastId,
+                                                            )
+                                                        }
+                                                        className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                                                    >
+                                                        Load More Comments
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 )}

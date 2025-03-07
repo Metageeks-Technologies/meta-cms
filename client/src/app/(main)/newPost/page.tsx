@@ -166,8 +166,7 @@ const App: React.FC = () => {
           keywords: []
         });
         setTagInput('');
-        //  editorRef.current?.setContent(''); // Reset TinyMCE editor content
-        fetchCategory(); // Re-fetch categories
+        fetchCategory(); 
       } else {
         toast.error(resp.data.message, { duration: 2000 });
       }
@@ -196,14 +195,12 @@ const App: React.FC = () => {
     });
   };
 
-  // Filter categories based on search query
   const filterCategory = (query: string) => {
     setFilteredCategoryArr(categoryArr.filter((category: any) =>
       category.name.toLowerCase().includes(query.toLowerCase())
     ));
   };
 
-  // Handle tag input change
   const handleTagAdd = () => {
     if (!tagInput.trim().length) return;
     setFormData({ ...formData, tags: [...formData.tags, tagInput.trim()] });
@@ -216,10 +213,9 @@ const App: React.FC = () => {
   };
 
   const handleEditSlug = (value: string) => {
-    // Remove spaces, special characters, and convert to lowercase
     const cleanedValue = value
-      .toLowerCase()              // Convert to lowercase
-      .replace(/[^a-z0-9-]/g, '') // Remove any character that is not a lowercase letter, number, or hyphen
+      .toLowerCase()              
+      .replace(/[^a-z0-9-]/g, '') 
 
     setFormData({ ...formData, slug: cleanedValue });
   };
@@ -229,11 +225,10 @@ const App: React.FC = () => {
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
-      .replace(/(^-|-$)+/g, '');     // Remove leading/trailing hyphens
+      .replace(/[^a-z0-9]+/g, '-')  
+      .replace(/(^-|-$)+/g, '');     
   };
 
-  // Automatically generate slug when title changes
   useEffect(() => {
     if (formData.postTitle) {
       const generatedSlug = generateSlug(formData.postTitle);
@@ -243,7 +238,6 @@ const App: React.FC = () => {
       }));
     }
     else {
-      // If title is empty, clear the slug as well
       setFormData((prevData) => ({
         ...prevData,
         slug: '',
@@ -438,21 +432,6 @@ const App: React.FC = () => {
             </div>
           }
 
-
-          {/* Slug */}
-          {/* <label className='w-full flex flex-col gap-2'>
-            <span>Create Slug</span>
-            <span className='text-xs italic text-gray-400 -mt-3'>(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
-            <input
-              type="text"
-              className='w-full bg-[#1A1A1A] px-4 py-2 rounded-lg outline-none border-none'
-              placeholder='Enter slug'
-              value={formData.slug}
-              onChange={(e) => handleEditSlug(e.target.value)}
-            />
-          </label> */}
-
-          {/* Category Selection */}
           <div className="space-y-2">
             <p>Category</p>
             <input type="text" onChange={(e) => filterCategory(e.target.value)} className='w-full bg-gray-800 p-2 rounded-lg border-gray-950 outline-none' placeholder='Search...' />
@@ -496,11 +475,6 @@ const App: React.FC = () => {
               )}
             </div>
           </div>
-
-
-
-
-
         </div>
       </div>
 

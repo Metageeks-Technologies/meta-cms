@@ -91,8 +91,9 @@ const page = () => {
                                     <Image
                                         src={getURL(media.key)}
                                         alt=""
-                                        width={500} // Specify a width for the image
-                                        height={500} // Specify a height for the image
+                                        layout="responsive"
+                                        width={500}
+                                        height={500}
                                         className="object-contain w-full h-full"
                                     />
                                 </div>

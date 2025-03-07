@@ -549,12 +549,11 @@ const EditCaseStudy = () => {
                             >
                                 {formData.content.heroSection?.imageKey ? (
                                    <Image
-                                   src={getURL(formData.content.heroSection?.imageKey)} // Dynamically load the image
+                                   src={getURL(formData.content.heroSection?.imageKey)} 
                                    alt="Preview"
-                                   className="object-contain rounded-lg" // Apply object-contain and rounded corners
-                                   layout="responsive" // Makes the image responsive
-                                   width={1200} // Replace with the actual width of the image
-                                   height={800} // Replace with the actual height of the image
+                                   className="w-full h-full object-cover rounded-lg"
+                                   width={1200} 
+                                   height={800}
                                  />
                                  
                                 ) : (
@@ -677,8 +676,8 @@ const EditCaseStudy = () => {
                                   <Image
                                   src={getURL(formData.content.uiSection?.imageKey)} 
                                   alt="Preview"
-                                  className="object-contain rounded-lg" 
-                                  layout="responsive" 
+                                  className="w-full h-full object-cover rounded-lg"
+
                                   width={1200} 
                                   height={800} 
                                 />
@@ -729,8 +728,7 @@ const EditCaseStudy = () => {
                                     <Image
                                     src={getURL(formData.content.serviceSection?.imageKey)}
                                     alt="Preview"
-                                    className="object-contain rounded-lg" 
-                                    layout="responsive" 
+                                    className="w-full h-full object-cover rounded-lg"
                                     width={1200} 
                                     height={800} 
                                   />

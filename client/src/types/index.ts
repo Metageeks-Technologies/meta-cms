@@ -34,7 +34,7 @@ export interface NewPostFormData {
 }
 
 export interface ProductAttribute {
-  [key: string]: string | number; // or any other specific structure you have
+  [key: string]: string | number; 
 }
 
 export interface ProductVariant {
@@ -43,10 +43,10 @@ export interface ProductVariant {
   price: number;
   discountedPrice: number;
   quantity: number;
-  size?: string | number; // Flexibility for size as string or number
-  color?: string; // Assuming color will always be a string
-  weight?: string | number; // Optional weight attribute
-  material?: string; // Optional material attribute
+  size?: string | number; 
+  color?: string; 
+  weight?: string | number; 
+  material?: string; 
   imageKeys: string[]; // Array of image keys
 }
 
