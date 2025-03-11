@@ -94,6 +94,7 @@ export interface IPage extends mongoose.Document {
     ogImageKey: string;
     isDeleted: boolean;
     isActive: boolean;
+    updatedAt: Date;
 }
 
 export const PageSchema = new mongoose.Schema<IPage>({

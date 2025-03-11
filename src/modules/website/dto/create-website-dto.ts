@@ -9,6 +9,10 @@ export class AddWebSiteDto {
     @IsString()
     name: string
 
+    @IsNotEmpty()
+    @IsString()
+    domain: string
+
     @IsArray()
     @ArrayNotEmpty() 
     @IsString({ each: true })

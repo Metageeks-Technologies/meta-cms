@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { PostSchema } from './schema/post.schema';
@@ -8,6 +8,7 @@ import { LikesModule } from '../likes/likes.module';
 import { BookmarksModule } from '../bookmarks/bookmarks.module';
 import { CommentModule } from '../comment/comment.module';
 import { WebsiteModule } from '../website/website.module';
+import { SiteMapModule } from '../siteMap/sitemap.module';
 
 @Module({
   imports: [ 
@@ -16,7 +17,8 @@ import { WebsiteModule } from '../website/website.module';
     LikesModule,
     BookmarksModule,
     CommentModule,
-    WebsiteModule
+    WebsiteModule,
+    forwardRef(() => SiteMapModule)
   ],
   controllers: [PostsController],
   providers: [PostsService],

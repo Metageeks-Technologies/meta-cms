@@ -1,20 +1,23 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { caseStudySchema } from "./schema/caseStudy.schema";
 import { CaseStudyService } from "./caseStudy.service";
 import { CaseStudyController } from "./caseStudy.controller";
 import { WebsiteModule } from "../website/website.module";
 import { UsersModule } from "../users/users.module";
+import { SiteMapModule } from "../siteMap/sitemap.module";
 
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: "CaseStudy", schema: caseStudySchema}]),
         UsersModule,
-        WebsiteModule
+        WebsiteModule,
+        forwardRef(() => SiteMapModule)
     ],
     providers: [CaseStudyService],
-    controllers: [CaseStudyController]
+    controllers: [CaseStudyController],
+    exports: [CaseStudyService]
 })
 
 export class CaseStudyModule { }

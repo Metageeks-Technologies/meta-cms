@@ -7,6 +7,10 @@ export class UpdateWebsiteDto {
     @IsString()
     name: string
 
+    @IsOptional()
+    @IsString()
+    domain: string
+
     @IsArray()
     @IsOptional()
     @IsString({ each: true })

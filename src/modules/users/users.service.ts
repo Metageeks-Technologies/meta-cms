@@ -45,6 +45,10 @@ export class UsersService {
       throw new BadRequestException("Website name must be required");
     }
 
+    if (newUserDetails.role === UserRoleEnum.ADMIN && !newUserDetails.domain) {
+      throw new BadRequestException("Website domain must be required");
+    }
+
     const userExist = await this.User.findOne({ email: newUserDetails.email });
     if (userExist) {
       throw new BadRequestException('Email alredy exists')
@@ -62,7 +66,7 @@ export class UsersService {
     let website: any;
     if (newUserDetails.role === UserRoleEnum.ADMIN) {
       try {
-        website = await this.websiteService.addWebsite(newUser, { name: newUserDetails.websiteName, permissions: newUserDetails.permissions });
+        website = await this.websiteService.addWebsite(newUser, { name: newUserDetails.websiteName, permissions: newUserDetails.permissions, domain: newUserDetails.domain });
       } catch (error) {
         throw new HttpException(error.message, 400);
       }

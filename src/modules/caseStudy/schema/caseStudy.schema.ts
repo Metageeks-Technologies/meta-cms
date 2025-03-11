@@ -53,6 +53,7 @@ export interface ICaseStudy extends mongoose.Document {
     ogDescription: string,
     ogImageKey: string,
     isDeleted: boolean;
+    updatedAt: Date;
 }
 
 

@@ -72,9 +72,14 @@ export class CreateUserDto {
     @IsString()
     websiteName?: string;
 
+    @IsOptional()
+    @IsString()
+    domain?: string;
+
     @IsArray()
     @ArrayNotEmpty()
     @IsString({ each: true })
     permissions: string[]
+
 }
 

@@ -43,6 +43,13 @@ const columns = [
     ),
   },
   {
+    accessorKey: "domain",
+    header: "Domain",
+    cell: ({row}: any) => (
+      <div>{row.getValue("domain")}</div>
+    )
+  },
+  {
     accessorKey: "isDeleted",
     header: "Status",
     cell: ({ row }: any) => {
@@ -80,7 +87,7 @@ const columns = [
         const { value, checked } = e.target;
         setWebsite((prevWebsite: any) => {
           const updatedPermissions = checked
-            ? [...prevWebsite.permissions, value] 
+            ? [...prevWebsite.permissions, value]
             : prevWebsite.permissions.filter((perm: string) => perm !== value);
           return { ...prevWebsite, permissions: updatedPermissions };
         });
@@ -171,7 +178,7 @@ const columns = [
             <DialogHeader>
               <DialogTitle className='text-2xl'>Update website</DialogTitle>
             </DialogHeader>
-            <form className="py-4" onSubmit={(e) => updateWebsite(e, website, setIsOpen)}>
+            <form className="py-4" onSubmit={(e) => updateWebsite(e, website, setIsOpen, )}>
               <div className="mb-4">
                 <Label htmlFor="name" className="text-right">
                   Name
@@ -184,25 +191,40 @@ const columns = [
                   onChange={(e) => setWebsite({ ...website, name: e.target.value })}
                   required
                 />
+
+                <div className="my-2"/>
+
+                <Label htmlFor="name" className="text-right">
+                  Domain
+                </Label>
+                <Input
+                  id="name"
+                  value={website.domain}
+                  placeholder='Enter Website Domain'
+                  className=""
+                  onChange={(e) => setWebsite({ ...website, domain: e.target.value })}
+                  required
+                />
+
                 <div className="mb-4 mt-3">
-                <Label className="text-right">Permissions</Label>
-                <div className="flex flex-wrap gap-4">
-                  {Object.values(PermissionEnum).map((permission) => (
-                    <div key={permission} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={permission}
-                        value={permission}
-                        checked={website.permissions.includes(permission)}
-                        onChange={handlePermissionChange}
-                        className="h-4 w-4"
-                      />
-                      <Label htmlFor={permission} className="text-right">
-                        {permission.charAt(0).toUpperCase() + permission.slice(1)}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+                  <Label className="text-right">Permissions</Label>
+                  <div className="flex flex-wrap gap-4">
+                    {Object.values(PermissionEnum).map((permission) => (
+                      <div key={permission} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={permission}
+                          value={permission}
+                          checked={website.permissions.includes(permission)}
+                          onChange={handlePermissionChange}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor={permission} className="text-right">
+                          {permission.charAt(0).toUpperCase() + permission.slice(1)}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

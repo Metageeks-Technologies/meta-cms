@@ -36,6 +36,7 @@ export interface IPost extends mongoose.Document {
     ogTitle: string;
     ogDescription: string;
     ogImageKey: string;
+    updatedAt: Date;
 };
 
 export const PostSchema = new mongoose.Schema({
