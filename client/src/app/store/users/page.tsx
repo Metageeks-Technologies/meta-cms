@@ -205,10 +205,6 @@ function User() {
   });
 
 
-  useEffect(() => {
-    if (user.storeRole) fetchStoreRole(StoreRole.USER);
-  }, [user]);
-
 
 
   return (
