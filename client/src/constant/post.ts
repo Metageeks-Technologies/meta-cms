@@ -60,7 +60,10 @@ export const defaultNewPostData: NewPostFormData = {
   previewImg: '',
   metaTitle: '',
   metaDescription: '',
-  keywords: []
+  keywords: [],
+  ogTitle: "",         
+  ogDescription: "",
+  ogImageKey: "",
 }
 
 export enum WebsiteEnum {

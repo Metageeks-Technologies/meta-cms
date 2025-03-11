@@ -11,7 +11,6 @@ import { useUserContext } from '@/context/userContext';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-
 const EditCaseStudy = () => {
     const [formData, setFormData] = useState<caseStudyContent>(
         INITIAL_CASESTUDY_CONTENT,
@@ -38,7 +37,6 @@ const EditCaseStudy = () => {
             }));
         }
     };
-
 
     const addCard = () => {
         const newCard: aboutCard = {
@@ -541,6 +539,37 @@ const EditCaseStudy = () => {
             setLoading(false);
         }
     };
+    const handleRemoveImage = (
+        section: 'heroSection' | 'uiSection' | 'serviceSection' | 'uiSection2',
+    ) => {
+        setFormData((prev) => {
+            const updatedContent = { ...prev.content };
+
+            if (section === 'heroSection') {
+                updatedContent.heroSection = {
+                    ...updatedContent.heroSection,
+                    imageKey: '',
+                };
+            } else if (section === 'uiSection') {
+                updatedContent.uiSection = {
+                    ...updatedContent.uiSection,
+                    imageKey: '',
+                };
+            } else if (section === 'serviceSection') {
+                updatedContent.serviceSection = {
+                    ...updatedContent.serviceSection,
+                    imageKey: '',
+                };
+            } else if (section === 'uiSection2') {
+                updatedContent.uiSection2 = {
+                    ...updatedContent.uiSection2,
+                    imageKey: '',
+                };
+            }
+
+            return { ...prev, content: updatedContent };
+        });
+    };
 
     const fetchCaseStudy = async () => {
         setLoading(true);
@@ -554,7 +583,7 @@ const EditCaseStudy = () => {
 
             if (resp.status === 200 || resp.status === 201) {
                 setFormData(resp?.data);
-                setKeywordValue(resp?.data?.keyword.join(", "))
+                setKeywordValue(resp?.data?.keyword.join(', '));
             } else {
                 toast.error(resp.data.message, {
                     duration: 2000,
@@ -630,20 +659,37 @@ const EditCaseStudy = () => {
                                 Upload Image
                             </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="mainImage"
                             >
                                 {formData.content.heroSection?.imageKey ? (
-                                    <Image
-                                        src={getURL(
-                                            formData.content.heroSection
-                                                ?.imageKey,
-                                        )}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover rounded-lg"
-                                        width={1200}
-                                        height={800}
-                                    />
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content.heroSection
+                                                        .imageKey,
+                                                )}
+                                                alt="Hero Section Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleRemoveImage(
+                                                    'heroSection',
+                                                );
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
                                     <span className="text-white text-3xl">
                                         +
@@ -805,20 +851,35 @@ const EditCaseStudy = () => {
                                 Upload Image
                             </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="contentImage"
                             >
                                 {formData.content.uiSection?.imageKey ? (
-                                    <Image
-                                        src={getURL(
-                                            formData.content.uiSection
-                                                ?.imageKey,
-                                        )}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover rounded-lg"
-                                        width={1200}
-                                        height={800}
-                                    />
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content.uiSection
+                                                        .imageKey,
+                                                )}
+                                                alt="UI Section Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleRemoveImage('uiSection');
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
                                     <span className="text-white text-3xl">
                                         +
@@ -872,20 +933,38 @@ const EditCaseStudy = () => {
                                 Upload Image
                             </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="contentImageSection"
                             >
                                 {formData.content.serviceSection?.imageKey ? (
-                                    <Image
-                                        src={getURL(
-                                            formData.content.serviceSection
-                                                ?.imageKey,
-                                        )}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover rounded-lg"
-                                        width={1200}
-                                        height={800}
-                                    />
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content
+                                                        .serviceSection
+                                                        .imageKey,
+                                                )}
+                                                alt="Service Section Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleRemoveImage(
+                                                    'serviceSection',
+                                                );
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
                                     <span className="text-white text-3xl">
                                         +
@@ -1083,23 +1162,35 @@ const EditCaseStudy = () => {
                                 Upload Image
                             </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="imageInputSolution2"
                             >
-                                {formData.content.serviceSection?.imageKey ? (
-                                    <img
-                                        src={
-                                            formData.content.uiSection2
-                                                ?.imageKey
-                                                ? getURL(
-                                                      formData.content
-                                                          .uiSection2?.imageKey,
-                                                  )
-                                                : undefined
-                                        }
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                {formData.content.uiSection2?.imageKey ? (
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content.uiSection2
+                                                        .imageKey,
+                                                )}
+                                                alt="UI Section 2 Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleRemoveImage('uiSection2');
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
                                     <span className="text-white text-3xl">
                                         +
