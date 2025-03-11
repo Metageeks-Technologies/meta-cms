@@ -74,16 +74,19 @@ const CaseStudyPage = () => {
                     <h2 className="text-3xl font-bold text-white p-6">
                         Hero Section
                     </h2>
-                    <Image
-                        src={getURL(
-                            caseStudyPage?.content?.heroSection?.imageKey,
-                        )}
-                        alt="Hero Section"
-                        className="w-full object-cover"
-                        layout="responsive"
-                        width={1200}
-                        height={320}
-                    />
+                    <div className="flex justify-center items-center  p-4">
+                        <div className="relative h-[220px] max-w-3xl w-full">
+                            <Image
+                                src={getURL(
+                                    caseStudyPage?.content?.heroSection?.imageKey,
+                                )}
+                                alt="Hero Section"
+                                className="object-contain"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 1200px"
+                            />
+                        </div>
+                    </div>
                 </section>
 
                 {/* About Section */}
@@ -136,16 +139,19 @@ const CaseStudyPage = () => {
                     <h2 className="text-3xl font-bold text-white p-6">
                         UI Section 1
                     </h2>
-                    <Image
-                        src={getURL(
-                            caseStudyPage?.content?.uiSection?.imageKey,
-                        )}
-                        alt="UI Section 1"
-                        className="w-full object-cover"
-                        layout="responsive"
-                        width={1200}
-                        height={320}
-                    />
+                    <div className="flex justify-center items-center  p-4">
+                        <div className="relative h-[220px] max-w-3xl w-full">
+                            <Image
+                                src={getURL(
+                                    caseStudyPage?.content?.uiSection?.imageKey,
+                                )}
+                                alt="UI Section 1"
+                                className="object-contain"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 1200px"
+                            />
+                        </div>
+                    </div>
                 </section>
 
                 {/* Service Section */}
@@ -160,16 +166,19 @@ const CaseStudyPage = () => {
                         {caseStudyPage?.content?.serviceSection?.description}
                     </p>
 
-                    <Image
-                        src={getURL(
-                            caseStudyPage?.content?.serviceSection?.imageKey,
-                        )}
-                        alt="Service Section"
-                        className="w-full object-cover"
-                        layout="responsive"
-                        width={1200}
-                        height={320}
-                    />
+                    <div className="flex justify-center items-center  p-4 rounded-lg">
+                        <div className="relative h-[220px] max-w-3xl w-full">
+                            <Image
+                                src={getURL(
+                                    caseStudyPage?.content?.serviceSection?.imageKey,
+                                )}
+                                alt="Service Section"
+                                className="object-contain"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 1200px"
+                            />
+                        </div>
+                    </div>
                 </section>
 
                 {/* Process Section */}
@@ -219,16 +228,19 @@ const CaseStudyPage = () => {
                     <h2 className="text-3xl font-bold text-white p-6">
                         UI Section 2
                     </h2>
-                    <Image
-                        src={getURL(
-                            caseStudyPage?.content?.uiSection2?.imageKey,
-                        )}
-                        alt="UI Section 2"
-                        className="w-full object-cover"
-                        layout="responsive"
-                        width={1200}
-                        height={320}
-                    />
+                    <div className="flex justify-center items-center  p-4">
+                        <div className="relative h-[220px] max-w-3xl w-full">
+                            <Image
+                                src={getURL(
+                                    caseStudyPage?.content?.uiSection2?.imageKey,
+                                )}
+                                alt="UI Section 2"
+                                className="object-contain"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 1200px"
+                            />
+                        </div>
+                    </div>
                 </section>
 
                 {/* Challenges Section */}
@@ -340,16 +352,18 @@ const CaseStudyPage = () => {
                                     <p className="font-bold text-white mb-2">
                                         OG Image:
                                     </p>
-                                    <div className="w-full max-w-md h-48 relative">
-                                        <Image
-                                            src={getURL(
-                                                caseStudyPage.ogImageKey,
-                                            )}
-                                            alt="Open Graph Preview"
-                                            layout="fill"
-                                            objectFit="contain"
-                                            className="rounded-lg"
-                                        />
+                                    <div className="flex justify-center items-center  p-4 rounded-lg max-w-md">
+                                        <div className="relative h-[160px] w-full">
+                                            <Image
+                                                src={getURL(
+                                                    caseStudyPage.ogImageKey,
+                                                )}
+                                                alt="Open Graph Preview"
+                                                fill
+                                                className="object-contain"
+                                                sizes="(max-width: 768px) 100vw, 400px"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             )}
