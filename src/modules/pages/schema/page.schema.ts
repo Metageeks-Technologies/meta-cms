@@ -89,8 +89,12 @@ export interface IPage extends mongoose.Document {
     metaTitle: string;
     metaDescription: string;
     keywords: string[];
+    ogTitle: string;
+    ogDescription: string;
+    ogImageKey: string;
     isDeleted: boolean;
     isActive: boolean;
+    updatedAt: Date;
 }
 
 export const PageSchema = new mongoose.Schema<IPage>({
@@ -183,6 +187,9 @@ export const PageSchema = new mongoose.Schema<IPage>({
     metaTitle: { type: String },
     metaDescription: { type: String },
     keywords: [{ type: String }],
+    ogTitle: {type: String},
+    ogDescription: {type: String},
+    ogImageKey: {type: String},
     isDeleted: {
         type: Boolean,
         required: true,

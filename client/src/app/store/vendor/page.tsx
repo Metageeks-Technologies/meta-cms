@@ -229,7 +229,7 @@ function Vendor() {
 
 
   useEffect(() => {
-    if (user.storeRole) fetchStoreRole(StoreRole.VENDOR);
+    // if (user.storeRole) fetchStoreRole(StoreRole.VENDOR);
   }, [user]);
 
 

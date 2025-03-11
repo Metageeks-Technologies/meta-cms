@@ -3,7 +3,7 @@ import axiosCall from "@/utils/ApiCall";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Check, MoreHorizontal } from "lucide-react";
+import { Check, MoreHorizontal, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getURL } from "@/utils/AWS_Config";
 import { OrderStatusEnum } from "@/constant/order";
@@ -19,6 +19,23 @@ const OrderTable = () => {
   const { websiteKey, setLoading } = useUserContext();
   const [orderPageNo, setOrderPageNo] = useState(1);
 
+  // Helper function to calculate order total
+  const calculateOrderTotal = (items: any[]) => {
+    if (!items) return 0;
+    return items.reduce((total, item) => {
+      const variant = item.product.variants.find(
+        (v: any) => v.variantId === item.variantId
+      );
+      const price = variant && variant.discountedPrice > 0
+        ? variant.discountedPrice
+        : variant?.price || 0;
+      return total + (price * (item.quantity || 0));
+    }, 0);
+  };
+  const calculateTotalQuantity = (items: any[]) => {
+    if (!items) return 0;
+    return items.reduce((total, item) => total + (item.quantity || 0), 0);
+  };
 
   const fetchOrderData = async (url: string) => {
     setLoading(true);
@@ -32,8 +49,7 @@ const OrderTable = () => {
     } catch (error) {
       console.error("Error fetching order data:", error);
       setOrders([]);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -41,7 +57,6 @@ const OrderTable = () => {
   useEffect(() => {
     setOrderPageNo(1);
   }, [isAllOrders, websiteKey])
-
 
   useEffect(() => {
     if (websiteKey) {
@@ -55,8 +70,6 @@ const OrderTable = () => {
     }
   }, [websiteKey, orderPageNo, isAllOrders]);
 
-
-
   const filteredOrders = Array.isArray(orders)
     ? orders.filter((order) => {
       const customerName = order.user.name.toLowerCase();
@@ -64,10 +77,16 @@ const OrderTable = () => {
     })
     : [];
 
-  const openPopup = (order: any) => {
-    setSelectedOrder(order);
-    setIsPopupVisible(true);
-  };
+    const openPopup = (order: any) => {
+      const calculatedTotal = calculateOrderTotal(order.items);
+      const calculatedQuantity = calculateTotalQuantity(order.items);
+      setSelectedOrder({
+        ...order,
+        calculatedTotal,
+        calculatedQuantity
+      });
+      setIsPopupVisible(true);
+    };
 
   const closePopup = () => {
     setIsPopupVisible(false);
@@ -86,6 +105,15 @@ const OrderTable = () => {
               : order
           )
         );
+
+        const param = new URLSearchParams();
+        param.append('page', orderPageNo.toString());
+        const url = isAllOrders
+          ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all?${param.toString()}`
+          : `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor?${param.toString()}`;
+  
+        fetchOrderData(url);
+
       }
     } catch (error) {
       console.error("Error cancelling order:", error);
@@ -107,6 +135,13 @@ const OrderTable = () => {
               : order
           )
         );
+        const param = new URLSearchParams();
+        param.append('page', orderPageNo.toString());
+        const url = isAllOrders
+          ? `${process.env.NEXT_PUBLIC_BASE_URL}/order/all?${param.toString()}`
+          : `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor?${param.toString()}`;
+  
+        fetchOrderData(url);
       } else {
         toast.error(resp?.data?.message, { duration: 2000 });
       }
@@ -129,23 +164,72 @@ const OrderTable = () => {
     {
       header: "Total Items",
       accessor: "totalItems",
-      cell: (row: any) => <div>{row.items.length}</div>,
+      cell: (row: any) => <div>{calculateTotalQuantity(row.items)}</div>,
     },
     {
       header: "Total Amount",
       accessor: "totalAmount",
-      cell: (row: any) => <div>{row.totalAmount}</div>,
+      cell: (row: any) => <div>₹{calculateOrderTotal(row.items).toFixed(2)}</div>,
     },
     {
       header: "Shipping Status",
       accessor: "shippingStatus",
-      cell: (row: any) => <div>{row.shippingStatus}</div>,
+      cell: (row: any) => {
+        const shippingStatus = row.shippingStatus;
+        let statusClass = '';
+    
+        switch (shippingStatus) {
+          case 'delivered':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'shipped':
+            statusClass = 'bg-blue-900/50 text-blue-400 text-center border border-blue-700';
+            break;
+          case 'cancelled':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          case 'confirm':
+            statusClass = 'bg-yellow-900/50 text-center text-yellow-400 border border-yellow-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700'; 
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {shippingStatus}
+          </div>
+        );
+      },
     },
     {
       header: "Payment Status",
       accessor: "paymentStatus",
-      cell: (row: any) => <div>{row.paymentStatus}</div>,
+      cell: (row: any) => {
+        const paymentStatus = row.paymentStatus;
+        let statusClass = '';
+    
+        switch (paymentStatus) {
+          case 'paid':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'unpaid':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700';
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {paymentStatus}
+          </div>
+        );
+      },
     },
+    
     {
       header: "Actions",
       accessor: "actions",
@@ -157,7 +241,7 @@ const OrderTable = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-black text-white border-gray-800">
@@ -165,17 +249,25 @@ const OrderTable = () => {
 
               {shippingStatus === OrderStatusEnum.PENDING && (
                 <>
-                  <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.CONFIRM)}>Confirm Order</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => cancelOrder(row._id)}>Cancel Order</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.CONFIRM)}>
+                    Confirm Order
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => cancelOrder(row._id)}>
+                    Cancel Order
+                  </DropdownMenuItem>
                 </>
               )}
 
               {shippingStatus === OrderStatusEnum.CONFIRM && (
-                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.SHIPPED)}>Mark as Shipped</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.SHIPPED)}>
+                  Mark as Shipped
+                </DropdownMenuItem>
               )}
 
               {shippingStatus === OrderStatusEnum.SHIPPED && (
-                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.DELIVERED)}>Mark as Delivered</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.DELIVERED)}>
+                  Mark as Delivered
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -210,7 +302,6 @@ const OrderTable = () => {
             <span>My Orders</span>
           </Button>
         </div>
-
       </div>
 
       <div className="rounded-md border-[1px] border-gray-800">
@@ -258,7 +349,6 @@ const OrderTable = () => {
         </Table>
       </div>
 
-
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="space-x-2 flex flex-row items-center gap-2">
           <Button
@@ -284,8 +374,9 @@ const OrderTable = () => {
       </div>
 
       {isPopupVisible && selectedOrder && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-800">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4" onClick={closePopup}>
+          <div className="bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-800" 
+               onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="p-6 border-b border-gray-800">
               <div className="flex justify-between items-center">
@@ -294,9 +385,7 @@ const OrderTable = () => {
                   onClick={closePopup}
                   className="text-gray-400 hover:text-gray-200 transition-colors"
                 >
-                  {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg> */}
+                  <X className="h-6 w-6" />
                 </button>
               </div>
             </div>
@@ -321,14 +410,17 @@ const OrderTable = () => {
                   <h3 className="text-sm font-medium text-gray-400">Payment Details</h3>
                   <div className="flex items-baseline justify-between">
                     <p className="text-gray-300">Total Amount</p>
-                    <p className="text-lg font-semibold text-blue-400">₹{selectedOrder.totalAmount}</p>
+                    <p className="text-lg font-semibold text-blue-400">
+                      ₹{selectedOrder.calculatedTotal.toFixed(2)}
+                    </p>
                   </div>
                   <div className="flex items-center justify-between">
                     <p className="text-gray-300">Status</p>
-                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${selectedOrder.paymentStatus === 'Paid'
-                      ? 'bg-green-900/50 text-green-400 border border-green-700'
-                      : 'bg-red-900/50 text-red-400 border border-red-700'
-                      }`}>
+                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${
+                      selectedOrder.paymentStatus === 'paid'
+                        ? 'bg-green-900/50 text-green-400 border border-green-700'
+                        : 'bg-red-900/50 text-red-400 border border-red-700'
+                    }`}>
                       {selectedOrder.paymentStatus}
                     </span>
                   </div>
@@ -339,14 +431,15 @@ const OrderTable = () => {
                   <h3 className="text-sm font-medium text-gray-400">Shipping Status</h3>
                   <div className="flex items-center justify-between">
                     <p className="text-gray-300">Current Status</p>
-                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${selectedOrder.shippingStatus === 'Delivered'
-                      ? 'bg-green-900/50 text-green-400 border border-green-700'
-                      : selectedOrder.shippingStatus === 'Shipped'
-                        ? 'bg-blue-900/50 text-blue-400 border border-blue-700'
-                        : selectedOrder.shippingStatus === 'Cancelled'
-                          ? 'bg-red-900/50 text-red-400 border border-red-700'
-                          : 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
-                      }`}>
+                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${
+                      selectedOrder.shippingStatus === 'delivered'
+                        ? 'bg-green-900/50 text-green-400 border border-green-700'
+                        : selectedOrder.shippingStatus === 'pending'
+                          ? 'bg-blue-900/50 text-blue-400 border border-blue-700'
+                          : selectedOrder.shippingStatus === 'cancelled'
+                            ? 'bg-red-900/50 text-red-400 border border-red-700'
+                            : 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
+                    }`}>
                       {selectedOrder.shippingStatus}
                     </span>
                   </div>
@@ -356,7 +449,7 @@ const OrderTable = () => {
               {/* Order Items Section */}
               <div className="bg-gray-900 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-100 mb-4">Ordered Items</h3>
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2 styledScrollable">
                   {selectedOrder.items.map((item: any, index: number) => {
                     const variant = item.product.variants.find(
                       (v: any) => v.variantId === item.variantId
@@ -377,9 +470,6 @@ const OrderTable = () => {
                             alt={item.product.title}
                             className="w-full h-full object-cover rounded-md border border-gray-700"
                           />
-                          {/* <div className="absolute -top-2 -right-2 bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium">
-                          {item.quantity}
-                        </div> */}
                         </div>
 
                         <div className="flex-grow min-w-0">
@@ -391,10 +481,12 @@ const OrderTable = () => {
                               <p className="text-sm text-gray-400 mt-1 line-clamp-2">
                                 {item.product.subDescription}
                               </p>
-                              <p className="text-sm text-white mt-1 flex items-center gap-2">Quantity:
-                                <span className=" text-white   flex items-center  text-sm font-medium">
+                              <p className="text-sm text-white mt-1 flex items-center gap-2">
+                                Quantity:
+                                <span className="text-white flex items-center text-sm font-medium">
                                   {item.quantity}
-                                </span></p>
+                                </span>
+                              </p>
                             </div>
                             <div className="text-right flex-shrink-0">
                               <p className="text-sm text-gray-400">Unit Price</p>
@@ -416,9 +508,9 @@ const OrderTable = () => {
             <div className="p-6 border-t border-gray-800 bg-gray-800">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-400">Total Items: {selectedOrder.items.length}</p>
+                  <p className="text-sm text-gray-400">Total Items: {selectedOrder.calculatedQuantity}</p>
                   <p className="text-lg font-semibold text-gray-100">
-                    Order Total: <span className="text-blue-400">₹{selectedOrder.totalAmount}</span>
+                    Order Total: <span className="text-blue-400">₹{selectedOrder.calculatedTotal.toFixed(2)}</span>
                   </p>
                 </div>
                 <button

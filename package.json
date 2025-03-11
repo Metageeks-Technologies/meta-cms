@@ -50,7 +50,8 @@
     "rxjs": "^7.8.1",
     "uuid": "^11.0.5",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -67,6 +68,7 @@
     "@types/otp-generator": "^4.0.2",
     "@types/react": "^19.0.10",
     "@types/supertest": "^6.0.0",
+    "@types/xml2js": "^0.4.14",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.0.0",

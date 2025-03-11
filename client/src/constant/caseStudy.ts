@@ -4,8 +4,12 @@ export const INITIAL_CASESTUDY_CONTENT: caseStudyContent = {
   title: '',
   slug: '',
   projectType: '',
-  // website: '',
-  // service: '',
+  metaTitle: '',
+  metaDescription: '',
+  keywords: [],
+  ogTitle: '',
+  ogDescription: '',
+  ogImageKey: '',
   content: {
     heroSection: {
       imageKey: null,

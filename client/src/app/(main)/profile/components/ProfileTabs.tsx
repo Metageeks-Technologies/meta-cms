@@ -13,7 +13,6 @@ const ProfileTabs = () => {
 
   const { loading, setLoading,websiteKey } = useUserContext();
   const [addresses, setAddresses] = useState([]);
-  const [orders, setOrders] = useState([]);
 
   const getUserAddresses = async () => {
     setLoading(true);
@@ -33,30 +32,11 @@ const ProfileTabs = () => {
     }
   }
 
-  const getUserOrders = async () => {
-    setLoading(true);
-    try {
-      const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/my`,undefined,{websiteKey})
-
-
-      if (resp.status === 200 || resp.status === 201) {
-        setOrders(resp?.data)
-      } else {
-        toast.error(resp?.data?.message, { duration: 2000 })
-      }
-    } catch (error) {
-      console.log("Error in fetching user orders : ", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
       
 
   useEffect(() => {
     if (websiteKey) {
       getUserAddresses();
-      getUserOrders();
     }
     
   }, [websiteKey]);
@@ -73,7 +53,7 @@ const ProfileTabs = () => {
         tab === 1 ?
           <Addresses addresses={addresses} getUserAddresses={getUserAddresses} />
           : tab === 2 ?
-            <Orders orders={orders} />
+            <Orders />
             : tab === 3 ?
               <Cart />
               : null

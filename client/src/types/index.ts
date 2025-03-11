@@ -2,198 +2,197 @@ import { LucideProps } from "lucide-react";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface LoginPayload {
-    email: string;
-    password: string
+  email: string;
+  password: string
 }
 
 export interface SignUpFormData {
-    fullName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export interface SignUpPayload {
-    name: string;
-    email: string;
-    password: string;
+  name: string;
+  email: string;
+  password: string;
 }
 
 export interface NewPostFormData {
-    postTitle: string;
-    postDescription: string;
-    postStatus: string;
-    slug: string;
-    category: string[];
-    tags: string[];
-    publishDate: Date | null;
-    previewImg: File | string |null;
-    metaTitle: string;
-    metaDescription: string;
-    keywords: string[];
-}
-  
-  export interface ProductAttribute {
-    [key: string]: string | number; // or any other specific structure you have
-  }
-  
-  export interface ProductVariant {
-    variantId: string;
-    sku: string;
-    price: number;
-    discountedPrice: number;
-    quantity: number;
-    size?: string | number; // Flexibility for size as string or number
-    color?: string; // Assuming color will always be a string
-    weight?: string | number; // Optional weight attribute
-    material?: string; // Optional material attribute
-    imageKeys: string[]; // Array of image keys
-  }
-  
-  export interface CreateProductFormData {
-    title: string;
-    subDescription: string;
-    description: string;
-    category: string ; // Can be an enum or union type depending on the use case
-    website: string;
-    brand: string;
-    status: string; // Status types are good
-    publishDate: Date | null;
-
-    attributes: ProductAttribute; // Dynamic attributes object that can hold strings or numbers
-    variants: ProductVariant[]; // Array of product variants
-  }
-  
-  export interface ProductTypes {
-    _id: string; 
-    title: string;
-    subDescription: string;
-    description: string; 
-    category: { 
-        _id: string; 
-        name: string; 
-  
-    };
-    brand: string; 
-    status: string;// Product status
-    attributes: { 
-        [key: string]: string | number;
-    };
-    variants: ProductVariant[]; 
-    isDeleted: boolean; 
- 
+  postTitle: string;
+  postDescription: string;
+  postStatus: string;
+  slug: string;
+  category: string[];
+  tags: string[];
+  publishDate: Date | null;
+  previewImg: File | string | null;
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string[];
+  ogTitle: string;
+  ogDescription: string;
+  ogImageKey: string;
 }
 
+export interface ProductAttribute {
+  [key: string]: string | number; 
+}
 
-  
+export interface ProductVariant {
+  variantId: string;
+  sku: string;
+  price: number;
+  discountedPrice: number;
+  quantity: number;
+  size?: string | number; 
+  color?: string; 
+  weight?: string | number; 
+  material?: string; 
+  imageKeys: string[]; // Array of image keys
+}
 
+export interface CreateProductFormData {
+  title: string;
+  subDescription: string;
+  description: string;
+  category: string; // Can be an enum or union type depending on the use case
+  website: string;
+  brand: string;
+  status: string; // Status types are good
+  publishDate: Date | null;
+
+  attributes: ProductAttribute; // Dynamic attributes object that can hold strings or numbers
+  variants: ProductVariant[]; // Array of product variants
+}
+
+export interface ProductTypes {
+  _id: string;
+  title: string;
+  subDescription: string;
+  description: string;
+  category: {
+    _id: string;
+    name: string;
+
+  };
+  brand: string;
+  status: string;// Product status
+  attributes: {
+    [key: string]: string | number;
+  };
+  variants: ProductVariant[];
+  isDeleted: boolean;
+
+}
 
 export interface PostTypes {
-    author: any;
-    _id: string;
-    title: string;
-    description: string;
-    previewImageKey: string;
-    tags: string[];
-    categories: {
-        _id: string,
-        name: string,
-    }[];
-    authorId: string;
-    likesCount: number;
-    status: string;
-    isDeleted: boolean;
-    slug: string;
-    publishedDate: string;
-    commentCount: number;
-    readTime?: string;
-    website?: string;
+  author: any;
+  _id: string;
+  title: string;
+  description: string;
+  previewImageKey: string;
+  tags: string[];
+  categories: {
+    _id: string,
+    name: string,
+  }[];
+  authorId: string;
+  likesCount: number;
+  status: string;
+  isDeleted: boolean;
+  slug: string;
+  publishedDate: string;
+  commentCount: number;
+  readTime?: string;
+  website?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImageKey?: string;
 }
 
 export interface IWebsite {
-  name: string; 
-  key: string; 
-  permissions: string[]; 
-  admin: string; 
-  isDeleted: boolean; 
+  name: string;
+  key: string;
+  permissions: string[];
+  admin: string;
+  isDeleted: boolean;
 }
 
 export interface UserProfile {
-    id?: string; 
-    name: string;
-    email: string;
-    phoneNo?: string;
-    bio?: string;
-    role: string;
-    storeRole: string;
-    imageKey?:string;
-    website?: IWebsite;
-    block?: boolean;
-    socialLinks?: {
-      linkedIn?: string;
-      instagram?: string;
-      facebook?: string;
-      twitter?: string;
-    };
+  id?: string;
+  name: string;
+  email: string;
+  phoneNo?: string;
+  bio?: string;
+  role: string;
+  imageKey?: string;
+  website?: IWebsite;
+  block?: boolean;
+  socialLinks?: {
+    linkedIn?: string;
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+  };
 }
-  
+
 
 export interface IComment {
-    _id: string; 
-    userDetails?: UserProfile;
-    postDetails: PostTypes; 
-    
-    message: string;
-    status: 'awaiting approval' | 'published' | 'rejected' |'deleted';
-    createdAt: string;
-    verify: boolean;
-    isDeleted: boolean;
+  _id: string;
+  userDetails?: UserProfile;
+  postDetails: PostTypes;
+
+  message: string;
+  status: 'awaiting approval' | 'published' | 'rejected' | 'deleted';
+  createdAt: string;
+  verify: boolean;
+  isDeleted: boolean;
 }
-
-
 
 export interface MenuItem {
-    title: string; // Title of the menu item
-    url?: string; // URL (optional for items with subMenu)
-    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | any; // Icon component
-    subMenu?: MenuItem[]; // Optional sub-menu items
-  }
-
-
-export interface MediaType {
-    _id: string;
-    fileName: string;
-    folderName: string;
-    key: string;
-    createdAt?: string;
-    updatedAt?: string;
-    __v?: string;
+  title: string; // Title of the menu item
+  url?: string; // URL (optional for items with subMenu)
+  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | any; // Icon component
+  subMenu?: MenuItem[]; // Optional sub-menu items
 }
 
-
+export interface MediaType {
+  _id: string;
+  fileName: string;
+  folderName: string;
+  key: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: string;
+}
 
 export interface PostContextType {
-    categories: any[];
-    productCategories:any[];
-    fetchCategories: () => Promise<void>;
-    // fetchProductCategories:()=> Promise<void>;
-    deleteCategory: (id: string) => Promise<void>;
-    // deleteProductCategory: (id: string) => Promise<void>;
-    fetchMedia: (lastId: string) => Promise<void>;
-    media: MediaType[];
-    setMedia: (arr: MediaType[]) => void,
-    hasMoreMedia: boolean;
-    isFetching: boolean;
-    filterBy: string;
-    setFilterBy: (filter: string) =>  void;
-    sortBy: string;
-    setSortBy: (sortBy: string) => void;
-    selectedCategory: string;
-    selectedProductCategory:string;
-    setSelectedCategory: (category: string) => void;
-    setSelectedProductCategory: (category: string) => void; 
-    categoryPageNo: number;
-    setCategoryPageNo: (num: number) => void
+  categories: any[];
+  productCategories: any[];
+  fetchCategories: () => Promise<void>;
+  // fetchProductCategories:()=> Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+  // deleteProductCategory: (id: string) => Promise<void>;
+  fetchMedia: (lastId: string) => Promise<void>;
+  media: MediaType[];
+  setMedia: (arr: MediaType[]) => void,
+  hasMoreMedia: boolean;
+  isFetching: boolean;
+  filterBy: string;
+  setFilterBy: (filter: string) => void;
+  sortBy: string;
+  setSortBy: (sortBy: string) => void;
+  selectedCategory: string;
+  selectedProductCategory: string;
+  setSelectedCategory: (category: string) => void;
+  setSelectedProductCategory: (category: string) => void;
+  categoryPageNo: number;
+  setCategoryPageNo: (num: number) => void
 }
 
 export type ProductContextType = {
@@ -215,31 +214,30 @@ export type ProductContextType = {
 
 
 export interface Address {
-    _id: string;
-    house: string;
-    street: string;
-    landmark: string;
-    postalCode: number;
-    city: string;
-    state: string;
-    instruction: string;
-    isDefault: boolean;
-    isDeleted: boolean;
-  }
-  export interface AddressType {
-    _id: string;
-    name: string;
-    phone: string;
-    email: string;
-    house: string;
-    street: string;
-    landmark: string;
-    postalCode: number | string;  // Changed to allow both number and string
-    city: string;
-    state: string;
-    instruction?: string;
+  _id: string;
+  house: string;
+  street: string;
+  landmark: string;
+  postalCode: number;
+  city: string;
+  state: string;
+  instruction: string;
+  isDefault: boolean;
+  isDeleted: boolean;
 }
-
+export interface AddressType {
+  _id: string;
+  name: string;
+  phone: string;
+  email: string;
+  house: string;
+  street: string;
+  landmark: string;
+  postalCode: number | string;  // Changed to allow both number and string
+  city: string;
+  state: string;
+  instruction?: string;
+}
 
 export type EditAddressProps = {
   editAddress: AddressType;
@@ -251,45 +249,41 @@ export type EditAddressProps = {
 export type PostOfficeData = {
   Status: string;
   PostOffice: Array<{
-      District: string;
-      State: string;
+    District: string;
+    State: string;
   }>;
 }
 
-
-  export interface Vendor {
-    name: string;
-    email: string;
-    phoneNo: string;
-    bio: string;
-    socialLinks: { [key: string]: string };
-    imageKey: string;
-  }
-
-
- export interface ProductDetails {
-    _id: string;
-    title: string;
-    subDescription: string;
-    description: string;
-    variants: ProductVariant[];
-    brand: string;
-    status: string;
-    attributes: { [key: string]: string };
-    vendor: Vendor;
-    category: {
-      name: string;
-      description: string;
-      code: string;
-      bannerImageKey: string;
-    };
-  }
-
-
- export interface ProductCardProps {
-    product: ProductDetails;
+export interface Vendor {
+  name: string;
+  email: string;
+  phoneNo: string;
+  bio: string;
+  socialLinks: { [key: string]: string };
+  imageKey: string;
 }
 
+export interface ProductDetails {
+  _id: string;
+  title: string;
+  subDescription: string;
+  description: string;
+  variants: ProductVariant[];
+  brand: string;
+  status: string;
+  attributes: { [key: string]: string };
+  vendor: Vendor;
+  category: {
+    name: string;
+    description: string;
+    code: string;
+    bannerImageKey: string;
+  };
+}
+
+export interface ProductCardProps {
+  product: ProductDetails;
+}
 
 export interface SectionContent {
   subHeading: string;
@@ -347,30 +341,35 @@ export interface PageContent {
   website: string;
   service: string;
   subService: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImageKey: string;
   content: {
-      heroSection: SectionContent;
-      solutionSection1: SectionContent;
-      servicesSection: ServicesSection;
-      processSection: ProcessSection;
-      solutionSection2: SectionContent;
-      featureSection: FeatureSection;
-      marketForecastSection: ForecastContent;
+    heroSection: SectionContent;
+    solutionSection1: SectionContent;
+    servicesSection: ServicesSection;
+    processSection: ProcessSection;
+    solutionSection2: SectionContent;
+    featureSection: FeatureSection;
+    marketForecastSection: ForecastContent;
+   
   };
+  
   metaTitle: string,
   metaDescription: string,
   keywords: string[],
 }
 
 
-export interface aboutCard{
+export interface aboutCard {
   heading: string;
   description: string;
 }
-export interface StudyAbout{
+export interface StudyAbout {
   heading: string;
   description: string;
   cards: aboutCard[];
-  
+
 }
 export interface Content {
   imageKey: string | null;
@@ -378,36 +377,36 @@ export interface Content {
   description: string;
 }
 
-export interface Item{
-  list:string
+export interface Item {
+  list: string
 }
 
-export interface StudyCard{
+export interface StudyCard {
   heading: string;
- list:string[]; 
+  list: string[];
 }
 
 export interface process {
- heading: string;
- cards:StudyCard[];
+  heading: string;
+  cards: StudyCard[];
 }
 
-export interface studyWebsite{
+export interface studyWebsite {
   heading: string;
   imageKey: string | null;
 }
 
-export interface studyChallange{
+export interface studyChallange {
   heading: string;
   description: string;
-  cards:aboutCard[]
+  cards: aboutCard[]
 
 }
 
-export interface heroSection{
+export interface heroSection {
   imageKey: string | null;
 }
-export interface uiSection{
+export interface uiSection {
   imageKey: string | null;
 }
 
@@ -421,33 +420,37 @@ export interface caseStudyContent {
   title: string;
   slug: string;
   projectType: string;
-  // website: string;
-  // service: string;
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string[];
+  ogTitle: string;
+  ogDescription: string;
+  ogImageKey: string;
 
   content: {
-    heroSection:heroSection;
-    aboutSection:StudyAbout;
+    heroSection: heroSection;
+    aboutSection: StudyAbout;
     uiSection: uiSection;
     serviceSection: ServiceSection;
-    processSection:process;
+    processSection: process;
     uiSection2: studyWebsite;
-    challengesSection:studyChallange;
+    challengesSection: studyChallange;
   };
 }
 
 
 export interface AddressType {
   _id: string;
-    name: string;
-    phone: string;
-    email: string;
-    house: string;
-    street: string;
-    landmark: string;
-    postalCode: number | string;  // Changed to allow both number and string
-    city: string;
-    state: string;
-    instruction?: string;
+  name: string;
+  phone: string;
+  email: string;
+  house: string;
+  street: string;
+  landmark: string;
+  postalCode: number | string;  // Changed to allow both number and string
+  city: string;
+  state: string;
+  instruction?: string;
 }
 
 export interface WebsiteContextTypes {
@@ -456,7 +459,7 @@ export interface WebsiteContextTypes {
   updateWebsite: (e: any, website: any, setIsOpen: any) => void,
   fetchWebsiteData: (searchQuery?: string) => void,
   websiteData: any[],
-  websitePageNo: number, 
+  websitePageNo: number,
   setWebsitePageNo: (num: number) => void,
 }
 
@@ -486,7 +489,7 @@ export interface PageContextType {
   setServicePageNo: (num: number) => void,
   subServicePageNo: number,
   setSubServicePageNo: (num: number) => void,
-  caseStudyPageNo: number, 
+  caseStudyPageNo: number,
   setCaseStudyPageNo: (num: number) => void,
 }
 
@@ -496,13 +499,10 @@ export interface UserContextType {
   subscribers: UserProfile[];
   contributors: UserProfile[];
   moderators: UserProfile[];
-
   adminData: UserProfile[];
-
   storeUser: UserProfile[];
   vendor: UserProfile[];
   storeModerator: UserProfile[];
-
   isAuthenticated: boolean;
   isLoading: boolean;
   fetchUsers: (role: string, searchQuery?: string) => Promise<void>;
@@ -523,6 +523,15 @@ export interface UserContextType {
   setWebsiteData: (data: any[]) => void;
   userPageNo: number;
   setUserPageNo: (num: number) => void;
-  adminPageNo: number; 
+  adminPageNo: number;
   setAdminPageNo: (num: number) => void;
 };
+
+
+
+
+export interface ChangePasswordFormType {
+  oldPass: string,
+  newPass: string,
+  confirmNewPass: string
+}

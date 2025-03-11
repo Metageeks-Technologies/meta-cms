@@ -7,6 +7,8 @@ import { useUserContext } from '@/context/userContext';
 import { usePostContext } from '@/context/postContext';
 import { getURL } from '@/utils/AWS_Config';
 import { debounce } from 'lodash';
+import Image from 'next/image';
+
 
 interface MediaPageProps {
   onSelectImage: (imageUrl: string) => void;
@@ -79,7 +81,7 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
   };
 
 
-  
+
   useEffect(() => {
     // Initial fetch when the component mounts
     fetchMoreMedia();
@@ -100,10 +102,10 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
   }, [media, hasMoreMedia, isFetching]);
 
   useEffect(() => {
-    if(websiteKey){
+    if (websiteKey) {
       setMedia([]);
       fetchMedia();
-    } 
+    }
   }, [websiteKey])
 
 
@@ -120,16 +122,27 @@ const MediaModal: React.FC<MediaPageProps> = ({ onSelectImage, setIsMediaModalOp
         </div>
       </div>
       <div className="flex flex-row flex-wrap justify-center gap-5">
-        {media?.map((media: any) => (
-
-          <div
-            key={media._id}
-            className="w-[220px] h-[150px] cursor-pointer"
-            onClick={() => onSelectImage(media.key)}
-          >
-            <img src={getURL(media.key)} alt="" className="w-full h-full object-cover rounded-md" />
-          </div>
-        ))}
+        {
+          media.length > 0 && !loading ?
+            media?.map((media: any) => (
+              <div
+                key={media._id}
+                className="w-[220px] h-[150px] cursor-pointer"
+                onClick={() => onSelectImage(media.key)}
+              >
+                <Image
+                  src={getURL(media.key)}
+                  alt=""
+                  width={1200}
+                  height={800}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+            ))
+            : <div className='w-full text-center mt-10'>
+              <p className='text-2xl font-bold'>No Media Found!</p>
+            </div>
+        }
       </div>
 
       {

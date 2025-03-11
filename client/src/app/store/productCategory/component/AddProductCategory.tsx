@@ -19,6 +19,8 @@ import { uploadToS3 } from '@/utils/helperFunction'
 import { getURL } from '@/utils/AWS_Config'
 import axios from 'axios'
 import { ImagePlus, Upload } from 'lucide-react'
+import Image from 'next/image';
+
 
 const AddProductCategory = ({ categoryToUpdate = null }: any) => {
     const [createForm, setCreateForm] = useState<any>({
@@ -178,18 +180,23 @@ const AddProductCategory = ({ categoryToUpdate = null }: any) => {
 
                         {createForm.bannerImageKey && (
                             <div className='w-full max-w-[200px] h-[150px] mx-auto mt-4 rounded-lg overflow-hidden shadow-sm'>
-                                <img 
-                                    src={getURL(createForm.bannerImageKey)} 
-                                    alt="Banner" 
-                                    className='w-full h-full object-cover' 
-                                />
+                               <Image
+  src={getURL(createForm.bannerImageKey)}
+  alt="Banner"
+  layout="responsive"
+  width={1200}
+  height={800}
+  className="w-full h-full object-cover"
+/>
+
+
                             </div>
                         )}
 
                         <DialogFooter className="mt-6">
                             <Button 
                                 type="submit" 
-                                className='bg-green-500 text-white font-bold text-base hover:bg-green-600 w-full'
+                                className='bg-green-500 text-white font-bold text-base hover:bg-green-600 '
                             >
                                 {categoryToUpdate ? 'Update' : 'Create'}
                             </Button>

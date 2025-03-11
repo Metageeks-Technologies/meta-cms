@@ -56,4 +56,16 @@ export class CreatePostDto {
     @ArrayNotEmpty()
     @IsString({ each: true })
     keywords: string[];
+
+    @IsString()
+    @IsOptional()
+    ogTitle: string;
+
+    @IsString()
+    @IsOptional()
+    ogDescription: string;
+
+    @IsString()
+    @IsOptional()
+    ogImageKey: string;
 }

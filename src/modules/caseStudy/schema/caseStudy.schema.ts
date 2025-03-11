@@ -46,7 +46,14 @@ export interface ICaseStudy extends mongoose.Document {
             }[]
         }
     };
+    metaTitle: string,
+    metaDescription: string,
+    keywords: string[],
+    ogTitle: string,
+    ogDescription: string,
+    ogImageKey: string,
     isDeleted: boolean;
+    updatedAt: Date;
 }
 
 
@@ -119,6 +126,12 @@ export const caseStudySchema = new mongoose.Schema<ICaseStudy>({
             ]
         }
     },
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    keywords: [{ type: String }],
+    ogTitle: {type: String},
+    ogDescription: {type: String},
+    ogImageKey: {type: String},
     isDeleted: {
         type: Boolean,
         required: true,

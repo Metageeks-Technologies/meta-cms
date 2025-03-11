@@ -403,39 +403,18 @@ const EditProduct: React.FC = () => {
                         <select
                             id="productStatus"
                             className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
-                            value={productStatus}
+                            value={formData.status}
                             onChange={(e) => {
                                 const newStatus = e.target.value;
-                                setProductStatus(newStatus); // update the status
-                                setFormData({ ...formData, status: newStatus }); // update formData status
+                                setProductStatus(newStatus); 
+                                setFormData({ ...formData, status: newStatus }); 
                             }}
                         >
                             <option value="draft">Draft</option>
                             <option value="published">Published</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label htmlFor="website" className="text-white">Website</label>
-                        <select
-                            id="website"
-                            className="px-4 py-2 rounded-md bg-[#1A1A1A] text-white w-full"
-                            value={formData.website}
-                            onChange={(e) => {
-                                setFormData({ ...formData, website: e.target.value }); // update formData status
-                            }}
-                            required
-                        >
-                            <option value="">--Select website--</option>
-                            {
-                                websiteArr.map((website: any, index: number) => (
-                                    <option key={index} value={website.key}>{website.name}</option>
-                                ))
-                            }
-                        </select>
-                    </div>
-
-                    
+       
                     <div>
                         <label htmlFor="brand" className="text-white block mb-2">Brand</label>
                         <input
@@ -466,7 +445,7 @@ const EditProduct: React.FC = () => {
                 </div>
             </div>
 
-            {/* Create Product Button */} 
+            {/* Edit Product Button */} 
             <div className="mt-4 flex justify-end">
                 <button
                     onClick={handleEditProduct}

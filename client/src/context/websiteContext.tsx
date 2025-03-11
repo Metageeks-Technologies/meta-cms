@@ -4,6 +4,7 @@ import { useUserContext } from "./userContext";
 import axiosCall from "@/utils/ApiCall";
 import toast from "react-hot-toast";
 import { WebsiteContextTypes } from "@/types";
+import { isValidUrl } from "@/utils/helperFunction";
 
 
 const WebsiteContext = createContext<WebsiteContextTypes | null>(null);
@@ -54,8 +55,16 @@ export const WebsiteProvider = ({ children }: any) => {
         e.preventDefault();
         setLoading(true);
         try {
+
+            if (!isValidUrl(website.domain)) {
+                toast.error("Add a valid Domain", { duration: 2000 })
+                return;
+            }
+
             const payload = {
-                name: website.name
+                name: website.name,
+                domain: website.domain,
+                permissions: website.permissions,
             }
             const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/website/${website._id}`, payload);
             if (resp.status === 200 || resp.status === 201) {

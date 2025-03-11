@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { PageSchema } from "./schema/page.schema";
 import { PagesService } from "./pages.service";
@@ -7,6 +7,7 @@ import { UsersModule } from "../users/users.module";
 import { WebsiteModule } from "../website/website.module";
 import { ServiceModule } from "../services/service.module";
 import { SubserviceModule } from "../subservices/subservice.module";
+import { SiteMapModule } from "../siteMap/sitemap.module";
 
 
 
@@ -16,10 +17,12 @@ import { SubserviceModule } from "../subservices/subservice.module";
     UsersModule,
     WebsiteModule,
     ServiceModule,
-    SubserviceModule
+    SubserviceModule,
+    forwardRef(() => SiteMapModule)
   ],
   controllers: [PagesController],
   providers: [PagesService],
+  exports: [PagesService]
 })
 
 export class PagesModule { }

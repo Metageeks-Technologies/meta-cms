@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { ICaseStudy } from "./schema/caseStudy.schema";
@@ -6,6 +6,7 @@ import { UserRoleEnum } from "../users/schema/user.schema";
 import { CreateCaseStudyDto } from "./dto/create-caseStudy-dto";
 import { WebsiteService } from "../website/website.service";
 import { UpdateCaseStudyDto } from "./dto/update-caseStudy.dto";
+import { SitemapService } from "../siteMap/sitemap.service";
 
 
 
@@ -15,7 +16,8 @@ export class CaseStudyService {
 
     constructor(
         @InjectModel('CaseStudy') private CaseStudy: Model<ICaseStudy>,
-        private readonly websiteService: WebsiteService
+        private readonly websiteService: WebsiteService,
+        @Inject(forwardRef(() => SitemapService)) private readonly sitemapService: SitemapService
     ) { }
 
 
@@ -32,6 +34,7 @@ export class CaseStudyService {
 
         const caseStudy = new this.CaseStudy({ ...newCaseStudy, websiteKey, authorId: userId });
         await caseStudy.save();
+        await this.sitemapService.createSitemap(websiteKey);
     }
 
     async update(websiteKey: string, caseStudyId: string, updatedDetails: UpdateCaseStudyDto) {
@@ -50,6 +53,7 @@ export class CaseStudyService {
         if (query.matchedCount === 0) {
             throw new NotFoundException('Case study not found')
         }
+        await this.sitemapService.createSitemap(websiteKey);
     }
 
     async delete(websiteKey: string, caseStudyId: string) {
@@ -63,6 +67,7 @@ export class CaseStudyService {
         if (query.matchedCount === 0) {
             throw new NotFoundException('Case study not found')
         }
+        await this.sitemapService.createSitemap(websiteKey);
     }
 
 
@@ -77,6 +82,7 @@ export class CaseStudyService {
         if (query.matchedCount === 0) {
             throw new NotFoundException('Case study not found')
         }
+        await this.sitemapService.createSitemap(websiteKey);
     }
 
     async getAll(websiteKey: string, pageNo: string, searchQuery: string, isDeleted?: boolean) {
@@ -124,7 +130,7 @@ export class CaseStudyService {
             throw new BadRequestException('Invalid website key')
         }
 
-        const caseStudies = await this.CaseStudy.find({ websiteKey, isDeleted: false }, { title: 1, slug: 1, "content.heroSection": 1 }).exec()
+        const caseStudies = await this.CaseStudy.find({ websiteKey, isDeleted: false }, { title: 1, slug: 1, projectType: 1, "content.heroSection": 1 }).exec()
         return caseStudies;
     }
 
@@ -141,6 +147,13 @@ export class CaseStudyService {
 
         const caseStudy = await this.CaseStudy.findOne(query).populate('authorId').exec();
         return caseStudy;
+    }
+
+
+    // this service use in sitemap service 
+    async getAllCaseStudyWithoutPagination(websiteKey: string) {
+        const allCaseStudy = await this.CaseStudy.find({ websiteKey, isDeleted: false });
+        return allCaseStudy;
     }
 
 }

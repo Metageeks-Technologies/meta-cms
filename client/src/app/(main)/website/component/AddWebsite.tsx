@@ -53,7 +53,7 @@ const AddWebsite = () => {
                 name: createForm.name,
                 key: createForm.key
             }
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/website`, payload);
+            const resp = await axiosCall('patch', `${process.env.NEXT_PUBLIC_BASE_URL}/website`, payload);
 
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp?.data?.message, {

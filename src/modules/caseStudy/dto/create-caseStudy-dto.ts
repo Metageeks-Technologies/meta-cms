@@ -6,6 +6,8 @@ import {
     MaxLength,
     ValidateNested,
     IsArray,
+    IsOptional,
+    ArrayNotEmpty,
 } from "class-validator";
 
 
@@ -169,4 +171,30 @@ export class CreateCaseStudyDto {
     @ValidateNested()
     @Type(() => CreateContentDto)
     content: CreateContentDto;
+
+    @IsString()
+    @IsOptional()
+    metaTitle: string;
+
+    @IsString()
+    @IsOptional()
+    metaDescription: string;
+
+    @IsArray()
+    @IsOptional()
+    @ArrayNotEmpty()
+    @IsString({ each: true })
+    keywords: string[];
+
+    @IsString()
+    @IsOptional()
+    ogTitle: string;
+
+    @IsString()
+    @IsOptional()
+    ogDescription: string;
+
+    @IsString()
+    @IsOptional()
+    ogImageKey: string;
 }

@@ -11,28 +11,27 @@ import { Card, Feature, PageContent } from '@/types';
 import { userRoles } from '@/constant/user';
 import AddNewService from './components/AddNewService';
 import AddNewSubService from './components/AddNewSubService';
-
+import Image from 'next/image';
 
 const CreatePage = () => {
     const { setLoading, websiteKey, user } = useUserContext();
     const [formData, setFormData] = useState<PageContent>(INITIAL_PAGE_CONTENT);
     const [keywordValue, setKeywordValue] = useState('');
     const [services, setServices] = useState([]);
-    const [subServices, setSubservices] = useState([]); 
+    const [subServices, setSubservices] = useState([]);
     const [selectedService, setSeletedSubService] = useState<any>('');
-
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
         if (id === 'slug') {
             // Remove spaces, special characters, and convert to lowercase
             const cleanedValue = value
-                .toLowerCase()              // Convert to lowercase
+                .toLowerCase() // Convert to lowercase
                 .replace(/[^a-z0-9-]/g, ''); // Remove any character that is not a lowercase letter, number, or hyphen
-            
+
             setFormData((prev) => ({
                 ...prev,
-                [id]: cleanedValue,  // Update slug with cleaned value
+                [id]: cleanedValue, // Update slug with cleaned value
             }));
         } else {
             // For other fields, update the state normally
@@ -41,13 +40,19 @@ const CreatePage = () => {
                 [id]: value,
             }));
         }
-    
     };
 
     const handleSectionChange = (
-        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'processSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection',
+        section:
+            | 'heroSection'
+            | 'solutionSection1'
+            | 'servicesSection'
+            | 'processSection'
+            | 'solutionSection2'
+            | 'featureSection'
+            | 'marketForecastSection',
         field: string,
-        value: string
+        value: string,
     ) => {
         setFormData((prev) => ({
             ...prev,
@@ -55,17 +60,29 @@ const CreatePage = () => {
                 ...prev.content,
                 [section]: {
                     ...prev.content[section],
-                    [field]: value
-                }
-            }
+                    [field]: value,
+                },
+            },
         }));
     };
 
     const handleCardChange = (
         index: number,
-        section: 'servicesSection' | 'processSection' | 'featureSection' | 'marketForecastSection' | 'whyChooseSection' | 'reviewsSection',
-        field: 'heading' | 'description' | 'point' | 'name' | 'company' | 'message',
-        value: string
+        section:
+            | 'servicesSection'
+            | 'processSection'
+            | 'featureSection'
+            | 'marketForecastSection'
+            | 'whyChooseSection'
+            | 'reviewsSection',
+        field:
+            | 'heading'
+            | 'description'
+            | 'point'
+            | 'name'
+            | 'company'
+            | 'message',
+        value: string,
     ) => {
         let updatedCards: any;
         let updatedFeatures: any;
@@ -74,7 +91,7 @@ const CreatePage = () => {
             updatedCards = [...formData.content.servicesSection.cards];
             updatedCards[index] = {
                 ...updatedCards[index],
-                [field]: value
+                [field]: value,
             };
             setFormData((prev) => ({
                 ...prev,
@@ -82,15 +99,15 @@ const CreatePage = () => {
                     ...prev.content,
                     servicesSection: {
                         ...prev.content.servicesSection,
-                        cards: updatedCards
-                    }
-                }
+                        cards: updatedCards,
+                    },
+                },
             }));
         } else if (section === 'processSection') {
             updatedCards = [...formData.content.processSection.cards];
             updatedCards[index] = {
                 ...updatedCards[index],
-                [field]: value
+                [field]: value,
             };
             setFormData((prev) => ({
                 ...prev,
@@ -98,15 +115,15 @@ const CreatePage = () => {
                     ...prev.content,
                     processSection: {
                         ...prev.content.processSection,
-                        cards: updatedCards
-                    }
-                }
+                        cards: updatedCards,
+                    },
+                },
             }));
         } else if (section === 'featureSection') {
             updatedFeatures = [...formData.content.featureSection.features];
             updatedFeatures[index] = {
                 ...updatedFeatures[index],
-                [field]: value
+                [field]: value,
             };
             setFormData((prev) => ({
                 ...prev,
@@ -114,15 +131,15 @@ const CreatePage = () => {
                     ...prev.content,
                     featureSection: {
                         ...prev.content.featureSection,
-                        features: updatedFeatures
-                    }
-                }
+                        features: updatedFeatures,
+                    },
+                },
             }));
         } else if (section === 'marketForecastSection') {
             updatedList = [...formData.content.marketForecastSection.list];
             updatedList[index] = {
                 ...updatedList[index],
-                [field]: value
+                [field]: value,
             };
             setFormData((prev) => ({
                 ...prev,
@@ -130,34 +147,48 @@ const CreatePage = () => {
                     ...prev.content,
                     marketForecastSection: {
                         ...prev.content.marketForecastSection,
-                        list: updatedList
-                    }
-                }
+                        list: updatedList,
+                    },
+                },
             }));
         }
     };
 
-
     // General handleImageChange function for all sections
     const handleImageChange = async (
         e: React.ChangeEvent<HTMLInputElement>,
-        section: 'heroSection' | 'solutionSection1' | 'servicesSection' | 'solutionSection2' | 'featureSection' | 'marketForecastSection',
-        index?: number
+        section:
+            | 'heroSection'
+            | 'solutionSection1'
+            | 'servicesSection'
+            | 'solutionSection2'
+            | 'featureSection'
+            | 'marketForecastSection',
+
+        index?: number,
     ) => {
-        if (!websiteKey) return toast.error("Website key required");
+        if (!websiteKey) return toast.error('Website key required');
 
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const payload = {
                 folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PAGES,
                 fileName: file.name,
-                contentType: file.type
+                contentType: file.type,
             };
 
             try {
-                const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`, payload, { websiteKey });
+                const resp = await axiosCall(
+                    'post',
+                    `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`,
+                    payload,
+                    { websiteKey },
+                );
                 if (resp.status === 200 || resp.status === 201) {
-                    const response = await axios.put(resp?.data?.uploadUrl, file);
+                    const response = await axios.put(
+                        resp?.data?.uploadUrl,
+                        file,
+                    );
                     if (response.status === 200 || response.status === 201) {
                         const imageKey = resp?.data?.key;
 
@@ -169,9 +200,9 @@ const CreatePage = () => {
                                     ...prev.content,
                                     heroSection: {
                                         ...prev.content.heroSection,
-                                        imageKey
-                                    }
-                                }
+                                        imageKey,
+                                    },
+                                },
                             }));
                         } else if (section === 'solutionSection1') {
                             setFormData((prev) => ({
@@ -180,15 +211,20 @@ const CreatePage = () => {
                                     ...prev.content,
                                     solutionSection1: {
                                         ...prev.content.solutionSection1,
-                                        imageKey
-                                    }
-                                }
+                                        imageKey,
+                                    },
+                                },
                             }));
-                        } else if (section === 'servicesSection' && index !== undefined) {
-                            const updatedCards = [...formData.content.servicesSection.cards];
+                        } else if (
+                            section === 'servicesSection' &&
+                            index !== undefined
+                        ) {
+                            const updatedCards = [
+                                ...formData.content.servicesSection.cards,
+                            ];
                             updatedCards[index] = {
                                 ...updatedCards[index],
-                                imageKey
+                                imageKey,
                             };
                             setFormData((prev) => ({
                                 ...prev,
@@ -196,9 +232,9 @@ const CreatePage = () => {
                                     ...prev.content,
                                     servicesSection: {
                                         ...prev.content.servicesSection,
-                                        cards: updatedCards
-                                    }
-                                }
+                                        cards: updatedCards,
+                                    },
+                                },
                             }));
                         } else if (section === 'solutionSection2') {
                             setFormData((prev) => ({
@@ -207,15 +243,20 @@ const CreatePage = () => {
                                     ...prev.content,
                                     solutionSection2: {
                                         ...prev.content.solutionSection2,
-                                        imageKey
-                                    }
-                                }
+                                        imageKey,
+                                    },
+                                },
                             }));
-                        } else if (section === 'featureSection' && index !== undefined) {
-                            const updatedFeatures = [...formData.content.featureSection.features];
+                        } else if (
+                            section === 'featureSection' &&
+                            index !== undefined
+                        ) {
+                            const updatedFeatures = [
+                                ...formData.content.featureSection.features,
+                            ];
                             updatedFeatures[index] = {
                                 ...updatedFeatures[index],
-                                imageKey
+                                imageKey,
                             };
                             setFormData((prev) => ({
                                 ...prev,
@@ -223,9 +264,9 @@ const CreatePage = () => {
                                     ...prev.content,
                                     featureSection: {
                                         ...prev.content.featureSection,
-                                        features: updatedFeatures
-                                    }
-                                }
+                                        features: updatedFeatures,
+                                    },
+                                },
                             }));
                         } else if (section === 'marketForecastSection') {
                             setFormData((prev) => ({
@@ -234,11 +275,50 @@ const CreatePage = () => {
                                     ...prev.content,
                                     marketForecastSection: {
                                         ...prev.content.marketForecastSection,
-                                        imageKey
-                                    }
-                                }
+                                        imageKey,
+                                    },
+                                },
                             }));
                         }
+                    }
+                } else {
+                    toast.error(resp?.data?.message, { duration: 2000 });
+                }
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to upload the image', { duration: 2000 });
+            }
+        }
+    };
+    const handleOgImageChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        if (!websiteKey) return toast.error('Website key required');
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const payload = {
+                folderName: process.env.NEXT_PUBLIC_AWS_FOLDER_PAGES,
+                fileName: file.name,
+                contentType: file.type,
+            };
+            try {
+                const resp = await axiosCall(
+                    'post',
+                    `${process.env.NEXT_PUBLIC_BASE_URL}/media/signed-upload-url`,
+                    payload,
+                    { websiteKey },
+                );
+                if (resp.status === 200 || resp.status === 201) {
+                    const response = await axios.put(
+                        resp?.data?.uploadUrl,
+                        file,
+                    );
+                    if (response.status === 200 || response.status === 201) {
+                        const imageKey = resp?.data?.key;
+                        setFormData((prev) => ({
+                            ...prev,
+                            ogImageKey: imageKey,
+                        }));
                     }
                 } else {
                     toast.error(resp?.data?.message, { duration: 2000 });
@@ -252,13 +332,17 @@ const CreatePage = () => {
 
     const removeCard = (
         index: number,
-        section: 'servicesSection' | 'processSection' | 'featureSection' | 'marketForecastSection'
+        section:
+            | 'servicesSection'
+            | 'processSection'
+            | 'featureSection'
+            | 'marketForecastSection',
     ) => {
         let updatedCards: any;
 
         if (section === 'servicesSection') {
             updatedCards = formData.content.servicesSection.cards.filter(
-                (_, i) => i !== index
+                (_, i) => i !== index,
             );
             setFormData((prev) => ({
                 ...prev,
@@ -272,7 +356,7 @@ const CreatePage = () => {
             }));
         } else if (section === 'processSection') {
             updatedCards = formData.content.processSection.cards.filter(
-                (_, i) => i !== index
+                (_, i) => i !== index,
             );
             setFormData((prev) => ({
                 ...prev,
@@ -286,7 +370,7 @@ const CreatePage = () => {
             }));
         } else if (section === 'featureSection') {
             updatedCards = formData.content.featureSection.features.filter(
-                (_, i) => i !== index
+                (_, i) => i !== index,
             );
             setFormData((prev) => ({
                 ...prev,
@@ -300,7 +384,7 @@ const CreatePage = () => {
             }));
         } else if (section === 'marketForecastSection') {
             updatedCards = formData.content.marketForecastSection.list.filter(
-                (_, i) => i !== index
+                (_, i) => i !== index,
             );
             setFormData((prev) => ({
                 ...prev,
@@ -315,12 +399,11 @@ const CreatePage = () => {
         }
     };
 
-
     const addCard = () => {
         const newCard: Card = {
             imageKey: '',
             heading: '',
-            description: ''
+            description: '',
         };
         setFormData((prev) => ({
             ...prev,
@@ -328,16 +411,16 @@ const CreatePage = () => {
                 ...prev.content,
                 servicesSection: {
                     ...prev.content.servicesSection,
-                    cards: [...prev.content.servicesSection.cards, newCard]
-                }
-            }
+                    cards: [...prev.content.servicesSection.cards, newCard],
+                },
+            },
         }));
     };
 
     const addProcessCard = () => {
         const newCard = {
             heading: '',
-            description: ''
+            description: '',
         };
         setFormData((prev) => ({
             ...prev,
@@ -345,9 +428,9 @@ const CreatePage = () => {
                 ...prev.content,
                 processSection: {
                     ...prev.content.processSection,
-                    cards: [...prev.content.processSection.cards, newCard]
-                }
-            }
+                    cards: [...prev.content.processSection.cards, newCard],
+                },
+            },
         }));
     };
 
@@ -355,7 +438,7 @@ const CreatePage = () => {
         const newFeature: Feature = {
             imageKey: '',
             heading: '',
-            description: ''
+            description: '',
         };
         setFormData((prev) => ({
             ...prev,
@@ -363,15 +446,18 @@ const CreatePage = () => {
                 ...prev.content,
                 featureSection: {
                     ...prev.content.featureSection,
-                    features: [...prev.content.featureSection.features, newFeature]
-                }
-            }
+                    features: [
+                        ...prev.content.featureSection.features,
+                        newFeature,
+                    ],
+                },
+            },
         }));
     };
 
     const addList = () => {
         const newList = {
-            point: ''
+            point: '',
         };
         setFormData((prev) => ({
             ...prev,
@@ -379,92 +465,119 @@ const CreatePage = () => {
                 ...prev.content,
                 marketForecastSection: {
                     ...prev.content.marketForecastSection,
-                    list: [...prev.content.marketForecastSection.list, newList]
-                }
-            }
+                    list: [...prev.content.marketForecastSection.list, newList],
+                },
+            },
         }));
     };
 
     const handleSelectService = (e: any) => {
         const { value } = e.target;
-        setFormData((prev) => ({...prev, service: value}));
-        
-        services.forEach((service: any) => {
-            if(service.key === value) setSeletedSubService(service)
-        })  
-    }
+        setFormData((prev) => ({ ...prev, service: value }));
 
+        services.forEach((service: any) => {
+            if (service.key === value) setSeletedSubService(service);
+        });
+    };
 
     const handleKeywordchange = (value: string) => {
         setKeywordValue(value);
-        const keywordArr = value.split(',').map((keyword: string) => keyword.trim()).filter((keyword) => keyword.length > 0);
-        setFormData(prev => ({ ...prev, keywords: keywordArr }));
-    }
-
+        const keywordArr = value
+            .split(',')
+            .map((keyword: string) => keyword.trim())
+            .filter((keyword) => keyword.length > 0);
+        setFormData((prev) => ({ ...prev, keywords: keywordArr }));
+    };
+    const handleOgChange = (field: string, value: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!websiteKey) return toast.error("Website key required", { duration: 2000 })
+        if (!websiteKey)
+            return toast.error('Website key required', { duration: 2000 });
 
         if (!formData.title) {
-            toast.error("Title is required", { duration: 2000 });
+            toast.error('Title is required', { duration: 2000 });
             return;
         }
 
         if (!formData.slug) {
-            toast.error("Slug is required", { duration: 2000 });
+            toast.error('Slug is required', { duration: 2000 });
             return;
         }
 
         if (formData.slug.trim().length < 3) {
-            toast.error('Slug should be at least 3 characters long.', { duration: 2000 });
+            toast.error('Slug should be at least 3 characters long.', {
+                duration: 2000,
+            });
             return;
         }
 
         if (!formData.content || Object.keys(formData.content).length === 0) {
-            toast.error("Content is required", { duration: 2000 });
+            toast.error('Content is required', { duration: 2000 });
             return;
         }
 
         if (!formData.content.heroSection?.imageKey) {
-            toast.error("Hero section image is required", { duration: 2000 });
+            toast.error('Hero section image is required', { duration: 2000 });
             return;
         }
         if (!formData.content.solutionSection1?.imageKey) {
-            toast.error(" solution section 1 image is required", { duration: 2000 });
+            toast.error(' solution section 1 image is required', {
+                duration: 2000,
+            });
             return;
         }
         if (!formData.content.solutionSection2?.imageKey) {
-            toast.error(" solution section 2 image is required", { duration: 2000 });
+            toast.error(' solution section 2 image is required', {
+                duration: 2000,
+            });
             return;
         }
         if (!formData.content.marketForecastSection?.imageKey) {
-            toast.error(" market section image is required", { duration: 2000 });
+            toast.error(' market section image is required', {
+                duration: 2000,
+            });
             return;
         }
 
-        const missingImageIndex = formData.content.servicesSection?.cards.findIndex(
-            (card: any) => !card.imageKey
-        );
+        const missingImageIndex =
+            formData.content.servicesSection?.cards.findIndex(
+                (card: any) => !card.imageKey,
+            );
 
         if (missingImageIndex !== -1) {
-            toast.error(` service section Card  image is required`, { duration: 2000 });
+            toast.error(` service section Card  image is required`, {
+                duration: 2000,
+            });
             return;
         }
 
-        const missing2ImageIndex = formData.content.featureSection?.features.findIndex(
-            (feature: any) => !feature.imageKey
-        );
+        const missing2ImageIndex =
+            formData.content.featureSection?.features.findIndex(
+                (feature: any) => !feature.imageKey,
+            );
 
         if (missing2ImageIndex !== -1) {
-            toast.error(`Feature section image image is required`, { duration: 2000 });
+            toast.error(`Feature section image image is required`, {
+                duration: 2000,
+            });
             return;
         }
 
         setLoading(true);
         try {
-            const resp = await axiosCall('post', `${process.env.NEXT_PUBLIC_BASE_URL}/pages`, formData, { websiteKey });
+            const resp = await axiosCall(
+                'post',
+                `${process.env.NEXT_PUBLIC_BASE_URL}/pages`,
+                formData,
+                { websiteKey },
+            );
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp.data.message, { duration: 2000 });
                 setFormData(INITIAL_PAGE_CONTENT);
@@ -478,35 +591,28 @@ const CreatePage = () => {
         }
     };
 
-
     const handleEditSlug = (value: string) => {
-        // Remove spaces, special characters, and convert to lowercase
-        const cleanedValue = value
-            .toLowerCase()              // Convert to lowercase
-            .replace(/[^a-z0-9-]/g, '') // Remove any character that is not a lowercase letter, number, or hyphen
+        const cleanedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
 
         setFormData({ ...formData, slug: cleanedValue });
     };
-
 
     // Function to generate slug from title
     const generateSlug = (title: string) => {
         return title
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric characters with hyphens
-            .replace(/(^-|-$)+/g, '');     // Remove leading/trailing hyphens
+            .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
+            .replace(/(^-|-$)+/g, ''); // Remove leading/trailing hyphens
     };
 
-    // Automatically generate slug when title changes
     useEffect(() => {
         if (formData.title) {
             const generatedSlug = generateSlug(formData.title);
             setFormData((prevData) => ({
                 ...prevData,
-                slug: generatedSlug
+                slug: generatedSlug,
             }));
-        }
-        else {
+        } else {
             // If title is empty, clear the slug as well
             setFormData((prevData) => ({
                 ...prevData,
@@ -515,52 +621,64 @@ const CreatePage = () => {
         }
     }, [formData.title]);
 
-
     useEffect(() => {
         setFormData((prev) => ({ ...prev, website: websiteKey }));
     }, [websiteKey]);
 
-
     const fetchServices = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/services`, undefined, { websiteKey: websiteKey });
+            const resp = await axiosCall(
+                'get',
+                `${process.env.NEXT_PUBLIC_BASE_URL}/services`,
+                undefined,
+                { websiteKey: websiteKey },
+            );
 
             if (resp?.status === 200 || resp?.status === 201) {
-               setServices(resp?.data);
+                setServices(resp?.data);
             } else {
-                toast.error(resp?.data?.message || 'Error in add new service', { duration: 2000 });
+                toast.error(resp?.data?.message || 'Error in add new service', {
+                    duration: 2000,
+                });
             }
         } catch (error) {
-            console.log("Error in fetching services");
+            console.log('Error in fetching services');
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const fetchSubServices = async () => {
         setLoading(true);
         try {
-            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/all/${selectedService._id}`, undefined, { websiteKey: websiteKey });
+            const resp = await axiosCall(
+                'get',
+                `${process.env.NEXT_PUBLIC_BASE_URL}/subservices/all/${selectedService._id}`,
+                undefined,
+                { websiteKey: websiteKey },
+            );
 
             if (resp?.status === 200 || resp?.status === 201) {
                 setSubservices(resp?.data);
             } else {
-                toast.error(resp?.data?.message || 'Error in add new service', { duration: 2000 });
+                toast.error(resp?.data?.message || 'Error in add new service', {
+                    duration: 2000,
+                });
             }
         } catch (error) {
-            console.log("Error in fetching subservice : ", error);
+            console.log('Error in fetching subservice : ', error);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
-        if(websiteKey) fetchServices();
+        if (websiteKey) fetchServices();
     }, [websiteKey]);
 
     useEffect(() => {
-        if(selectedService._id && websiteKey) fetchSubServices();
+        if (selectedService._id && websiteKey) fetchSubServices();
     }, [selectedService]);
 
     return (
@@ -583,7 +701,10 @@ const CreatePage = () => {
 
                 <label className="w-full flex flex-col gap-2 mb-5">
                     <span>Enter Slug</span>
-                    <span className="text-xs italic text-gray-400 -mt-3">(Contain only lowercase letters, numbers, hyphens, and underscores)</span>
+                    <span className="text-xs italic text-gray-400 -mt-3">
+                        (Contain only lowercase letters, numbers, hyphens, and
+                        underscores)
+                    </span>
                     <input
                         type="text"
                         id="slug"
@@ -595,59 +716,79 @@ const CreatePage = () => {
                     />
                 </label>
 
-
-                <div className='flex flex-row gap-5 items-center'>
-                    <div className='w-full flex flex-row gap-2 items-end mb-5'>
+                <div className="flex flex-row gap-5 items-center">
+                    <div className="w-full flex flex-row gap-2 items-end mb-5">
                         <label className="w-full flex flex-col gap-2">
                             <span>Service</span>
-                            <select onChange={handleSelectService} name="" id="" value={formData.service} className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none" required>
+                            <select
+                                onChange={handleSelectService}
+                                name=""
+                                id=""
+                                value={formData.service}
+                                className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none"
+                                required
+                            >
                                 <option value="">--Select service--</option>
-                                {
-                                    services.map((service: any, index: any) => (
-                                        <option key={index} value={service.key}>{service.name}</option>
-                                    ))
-                                }
+                                {services.map((service: any, index: any) => (
+                                    <option key={index} value={service.key}>
+                                        {service.name}
+                                    </option>
+                                ))}
                             </select>
                         </label>
-                        {
-                            (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) &&
-                            <AddNewService fetchServices={fetchServices}/>
-                        }
+                        {(user.role === userRoles.ADMIN ||
+                            user.role === userRoles.SUPERADMIN) && (
+                            <AddNewService fetchServices={fetchServices} />
+                        )}
                     </div>
 
-                    <div className='w-full flex flex-row gap-2 items-end mb-5'>
+                    <div className="w-full flex flex-row gap-2 items-end mb-5">
                         <label className="w-full flex flex-col gap-2">
                             <span>Sub Service</span>
                             <select
                                 name=""
                                 id="subService"
                                 value={formData.subService}
-                                onChange={(e) => setFormData((prev) => ({ ...prev, subService: e.target.value }))}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        subService: e.target.value,
+                                    }))
+                                }
                                 className="w-full py-3 bg-[#1A1A1A] px-4 rounded-lg outline-none border-none"
-                                disabled={formData.service === "" ? true : false}
+                                disabled={
+                                    formData.service === '' ? true : false
+                                }
                                 required
                             >
                                 <option value="">--Select sub service--</option>
-                                {
-                                    subServices.map((service: any, index: any) => (
-                                        <option key={index} value={service?.key}>{service?.name}</option>
-                                    ))
-                                }
+                                {subServices.map((service: any, index: any) => (
+                                    <option key={index} value={service?.key}>
+                                        {service?.name}
+                                    </option>
+                                ))}
                             </select>
                         </label>
-                        {
-                            (user.role === userRoles.ADMIN || user.role === userRoles.SUPERADMIN) && formData.service &&
-                            <AddNewSubService fetchSubServices={fetchSubServices} serviceId={selectedService?._id}/>
-                        }
+                        {(user.role === userRoles.ADMIN ||
+                            user.role === userRoles.SUPERADMIN) &&
+                            formData.service && (
+                                <AddNewSubService
+                                    fetchSubServices={fetchSubServices}
+                                    serviceId={selectedService?._id}
+                                />
+                            )}
                     </div>
                 </div>
 
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Hero Section</span>
+                    <span className="text-xl">Hero Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         {/* Hero Section Fields */}
                         <div className="mb-4">
-                            <label htmlFor="subHeading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="subHeading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Sub Heading
                             </label>
                             <input
@@ -656,13 +797,22 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Sub Heading"
                                 value={formData.content.heroSection.subHeading}
-                                onChange={(e) => handleSectionChange('heroSection', 'subHeading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'heroSection',
+                                        'subHeading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -671,13 +821,22 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
                                 value={formData.content.heroSection.heading}
-                                onChange={(e) => handleSectionChange('heroSection', 'heading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'heroSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="description"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Description
                             </label>
                             <textarea
@@ -685,7 +844,13 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
                                 value={formData.content.heroSection.description}
-                                onChange={(e) => handleSectionChange('heroSection', 'description', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'heroSection',
+                                        'description',
+                                        e.target.value,
+                                    )
+                                }
                                 rows={4}
                                 required
                             />
@@ -693,27 +858,62 @@ const CreatePage = () => {
 
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="imageInputHero"
                             >
                                 {formData.content.heroSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.heroSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content.heroSection
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        heroSection: {
+                                                            ...prev.content
+                                                                .heroSection,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="imageInputHero"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'heroSection')}
-
+                                onChange={(e) =>
+                                    handleImageChange(e, 'heroSection')
+                                }
                             />
                         </div>
                     </div>
@@ -721,10 +921,13 @@ const CreatePage = () => {
 
                 {/* Solution Section 1*/}
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Solution Section 1</span>
+                    <span className="text-xl">Solution Section 1</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="subHeading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="subHeading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Sub Heading
                             </label>
                             <input
@@ -732,14 +935,25 @@ const CreatePage = () => {
                                 id="subHeading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Sub Heading"
-                                value={formData.content.solutionSection1.subHeading}
-                                onChange={(e) => handleSectionChange('solutionSection1', 'subHeading', e.target.value)}
+                                value={
+                                    formData.content.solutionSection1.subHeading
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'solutionSection1',
+                                        'subHeading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -747,22 +961,42 @@ const CreatePage = () => {
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
-                                value={formData.content.solutionSection1.heading}
-                                onChange={(e) => handleSectionChange('solutionSection1', 'heading', e.target.value)}
+                                value={
+                                    formData.content.solutionSection1.heading
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'solutionSection1',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="description"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Description
                             </label>
                             <textarea
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.solutionSection1.description}
-                                onChange={(e) => handleSectionChange('solutionSection1', 'description', e.target.value)}
+                                value={
+                                    formData.content.solutionSection1
+                                        .description
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'solutionSection1',
+                                        'description',
+                                        e.target.value,
+                                    )
+                                }
                                 rows={4}
                                 required
                             />
@@ -770,27 +1004,63 @@ const CreatePage = () => {
 
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="imageInputSolution"
                             >
                                 {formData.content.solutionSection1.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.solutionSection1.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content
+                                                        .solutionSection1
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        solutionSection1: {
+                                                            ...prev.content
+                                                                .solutionSection1,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="imageInputSolution"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'solutionSection1')}
-
+                                onChange={(e) =>
+                                    handleImageChange(e, 'solutionSection1')
+                                }
                             />
                         </div>
                     </div>
@@ -798,10 +1068,13 @@ const CreatePage = () => {
 
                 {/* Service Section */}
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Service Section</span>
+                    <span className="text-xl">Service Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -810,93 +1083,196 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
                                 value={formData.content.servicesSection.heading}
-                                onChange={(e) => handleSectionChange('servicesSection', 'heading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'servicesSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
                         <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="description"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Description
                             </label>
                             <textarea
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.servicesSection.description}
-                                onChange={(e) => handleSectionChange('servicesSection', 'description', e.target.value)}
+                                value={
+                                    formData.content.servicesSection.description
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'servicesSection',
+                                        'description',
+                                        e.target.value,
+                                    )
+                                }
                                 rows={4}
                                 required
                             />
                         </div>
 
-
                         {/* Cards Section */}
-                        {formData.content.servicesSection.cards.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'servicesSection')}
+                        {formData.content.servicesSection.cards.map(
+                            (card, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-[#222222] p-4 rounded-lg mb-4 relative"
                                 >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
-                                </button>
-                                <div className="mb-4">
-                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
-                                    <label htmlFor={`service-card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Heading"
-                                        value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'servicesSection', 'heading', e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label htmlFor={`service-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        id={`card-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Description"
-                                        value={card.description}
-                                        onChange={(e) => handleCardChange(index, 'servicesSection', 'description', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="block text-gray-300 mb-2">Upload Image</label>
-                                    <label
-                                        className="relative w-full h-48 bg-[#333333] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
-                                        htmlFor={`imageInputCard-${index}`}
+                                    <button
+                                        type="button"
+                                        className="absolute top-2 right-2 text-red-500"
+                                        onClick={() =>
+                                            removeCard(index, 'servicesSection')
+                                        }
                                     >
-                                        {card.imageKey ? (
-                                            <img
-                                                src={getURL(card.imageKey)}
-                                                alt="Card Preview"
-                                                className="object-contain w-full h-full rounded-lg"
-                                            />
-                                        ) : (
-                                            <span className="text-white text-3xl">+</span>
-                                        )}
-                                    </label>
-                                    <input
-                                        type="file"
-                                        id={`imageInputCard-${index}`}
-                                        className="hidden"
-                                        onChange={(e) => handleImageChange(e, 'servicesSection', index)}
+                                        <span className="text-xl">×</span>{' '}
+                                        {/* "×" is the close icon */}
+                                    </button>
+                                    <div className="mb-4">
+                                        <p className="mb-2 text-lg">
+                                            Card-{index + 1}
+                                        </p>
+                                        <label
+                                            htmlFor={`service-card-heading-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Heading
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`card-heading-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Heading"
+                                            value={card.heading}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'servicesSection',
+                                                    'heading',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
 
-                                    />
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`service-card-description-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Description
+                                        </label>
+                                        <textarea
+                                            id={`card-description-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Description"
+                                            value={card.description}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'servicesSection',
+                                                    'description',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={3}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="block text-gray-300 mb-2">
+                                            Upload Image
+                                        </label>
+                                        <label
+                                            className="relative w-full h-48 bg-[#333333] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
+                                            htmlFor={`imageInputCard-${index}`}
+                                        >
+                                            {card.imageKey ? (
+                                                <div className="relative w-full h-full">
+                                                    <div className="absolute inset-0 overflow-hidden">
+                                                        <Image
+                                                            src={getURL(
+                                                                card.imageKey,
+                                                            )}
+                                                            alt="Card Preview"
+                                                            layout="fill"
+                                                            objectFit="contain"
+                                                            className="rounded-lg"
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            const updatedCards =
+                                                                [
+                                                                    ...formData
+                                                                        .content
+                                                                        .servicesSection
+                                                                        .cards,
+                                                                ];
+                                                            updatedCards[
+                                                                index
+                                                            ] = {
+                                                                ...updatedCards[
+                                                                    index
+                                                                ],
+                                                                imageKey: '',
+                                                            };
+                                                            setFormData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    content: {
+                                                                        ...prev.content,
+                                                                        servicesSection:
+                                                                            {
+                                                                                ...prev
+                                                                                    .content
+                                                                                    .servicesSection,
+                                                                                cards: updatedCards,
+                                                                            },
+                                                                    },
+                                                                }),
+                                                            );
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span className="text-white text-3xl">
+                                                    +
+                                                </span>
+                                            )}
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id={`imageInputCard-${index}`}
+                                            className="hidden"
+                                            onChange={(e) =>
+                                                handleImageChange(
+                                                    e,
+                                                    'servicesSection',
+                                                    index,
+                                                )
+                                            }
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ),
+                        )}
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -909,10 +1285,13 @@ const CreatePage = () => {
 
                 {/* Process Section */}
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Process Section</span>
+                    <span className="text-xl">Process Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="processSectionHeading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="processSectionHeading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -921,53 +1300,89 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
                                 value={formData.content.processSection.heading}
-                                onChange={(e) => handleSectionChange('processSection', 'heading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'processSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         {/* Cards Section */}
-                        {formData.content.processSection.cards.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'processSection')}
+                        {formData.content.processSection.cards.map(
+                            (card, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-[#222222] p-4 rounded-lg mb-4 relative"
                                 >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
-                                </button>
-                                <div className="mb-4">
-                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
-                                    <label htmlFor={`process-card-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`process-card-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Heading"
-                                        value={card.heading}
-                                        onChange={(e) => handleCardChange(index, 'processSection', 'heading', e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                    <button
+                                        type="button"
+                                        className="absolute top-2 right-2 text-red-500"
+                                        onClick={() =>
+                                            removeCard(index, 'processSection')
+                                        }
+                                    >
+                                        <span className="text-xl">×</span>{' '}
+                                        {/* "×" is the close icon */}
+                                    </button>
+                                    <div className="mb-4">
+                                        <p className="mb-2 text-lg">
+                                            Card-{index + 1}
+                                        </p>
+                                        <label
+                                            htmlFor={`process-card-heading-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Heading
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`process-card-heading-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Heading"
+                                            value={card.heading}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'processSection',
+                                                    'heading',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
 
-                                <div className="mb-4">
-                                    <label htmlFor={`process-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        id={`process-card-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Description"
-                                        value={card.description}
-                                        onChange={(e) => handleCardChange(index, 'processSection', 'description', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`process-card-description-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Description
+                                        </label>
+                                        <textarea
+                                            id={`process-card-description-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Description"
+                                            value={card.description}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'processSection',
+                                                    'description',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={3}
+                                            required
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ),
+                        )}
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -980,10 +1395,13 @@ const CreatePage = () => {
 
                 {/* Solution Section 2*/}
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Solution Section 2</span>
+                    <span className="text-xl">Solution Section 2</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="subHeading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="subHeading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Sub Heading
                             </label>
                             <input
@@ -991,14 +1409,25 @@ const CreatePage = () => {
                                 id="subHeading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Sub Heading"
-                                value={formData.content.solutionSection2.subHeading}
-                                onChange={(e) => handleSectionChange('solutionSection2', 'subHeading', e.target.value)}
+                                value={
+                                    formData.content.solutionSection2.subHeading
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'solutionSection2',
+                                        'subHeading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -1006,22 +1435,42 @@ const CreatePage = () => {
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
-                                value={formData.content.solutionSection2.heading}
-                                onChange={(e) => handleSectionChange('solutionSection2', 'heading', e.target.value)}
+                                value={
+                                    formData.content.solutionSection2.heading
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'solutionSection2',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="description" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="description"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Description
                             </label>
                             <textarea
                                 id="description"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
-                                value={formData.content.solutionSection2.description}
-                                onChange={(e) => handleSectionChange('solutionSection2', 'description', e.target.value)}
+                                value={
+                                    formData.content.solutionSection2
+                                        .description
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'solutionSection2',
+                                        'description',
+                                        e.target.value,
+                                    )
+                                }
                                 rows={4}
                                 required
                             />
@@ -1029,27 +1478,63 @@ const CreatePage = () => {
 
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="imageInputSolution2"
                             >
                                 {formData.content.solutionSection2.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.solutionSection2.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content
+                                                        .solutionSection2
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        solutionSection2: {
+                                                            ...prev.content
+                                                                .solutionSection2,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="imageInputSolution2"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'solutionSection2')}
-
+                                onChange={(e) =>
+                                    handleImageChange(e, 'solutionSection2')
+                                }
                             />
                         </div>
                     </div>
@@ -1057,10 +1542,13 @@ const CreatePage = () => {
 
                 {/* Feature Section */}
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Feature Section</span>
+                    <span className="text-xl">Feature Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -1069,80 +1557,172 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
                                 value={formData.content.featureSection.heading}
-                                onChange={(e) => handleSectionChange('featureSection', 'heading', e.target.value)}
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'featureSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
-
-
                         {/* Cards Section */}
-                        {formData.content.featureSection.features.map((feature, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'featureSection')}
+                        {formData.content.featureSection.features.map(
+                            (feature, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-[#222222] p-4 rounded-lg mb-4 relative"
                                 >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
-                                </button>
-                                <div className="mb-4">
-                                    <p className='mb-2 text-lg'>Card-{index + 1}</p>
-                                    <label htmlFor={`features-feature-heading-${index}`} className="block text-gray-300 mb-2">
-                                        Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id={`feature-heading-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Card Heading"
-                                        value={feature.heading}
-                                        onChange={(e) => handleCardChange(index, 'featureSection', 'heading', e.target.value)}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label htmlFor={`service-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        id={`feature-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter Card Description"
-                                        value={feature.description}
-                                        onChange={(e) => handleCardChange(index, 'featureSection', 'description', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="block text-gray-300 mb-2">Upload Image</label>
-                                    <label
-                                        className="relative w-full h-48 bg-[#333333] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
-                                        htmlFor={`imageInputFeature-${index}`}
+                                    <button
+                                        type="button"
+                                        className="absolute top-2 right-2 text-red-500"
+                                        onClick={() =>
+                                            removeCard(index, 'featureSection')
+                                        }
                                     >
-                                        {feature.imageKey ? (
-                                            <img
-                                                src={getURL(feature.imageKey)}
-                                                alt="Feature Preview"
-                                                className="object-contain w-full h-full rounded-lg"
-                                            />
-                                        ) : (
-                                            <span className="text-white text-3xl">+</span>
-                                        )}
-                                    </label>
-                                    <input
-                                        type="file"
-                                        id={`imageInputFeature-${index}`}
-                                        className="hidden"
-                                        onChange={(e) => handleImageChange(e, 'featureSection', index)}
+                                        <span className="text-xl">×</span>{' '}
+                                        {/* "×" is the close icon */}
+                                    </button>
+                                    <div className="mb-4">
+                                        <p className="mb-2 text-lg">
+                                            Card-{index + 1}
+                                        </p>
+                                        <label
+                                            htmlFor={`features-feature-heading-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Heading
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`feature-heading-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Card Heading"
+                                            value={feature.heading}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'featureSection',
+                                                    'heading',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </div>
 
-                                    />
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`service-card-description-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Description
+                                        </label>
+                                        <textarea
+                                            id={`feature-description-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter Card Description"
+                                            value={feature.description}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'featureSection',
+                                                    'description',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={3}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="block text-gray-300 mb-2">
+                                            Upload Image
+                                        </label>
+                                        <label
+                                            className="relative w-full h-48 bg-[#333333] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
+                                            htmlFor={`imageInputFeature-${index}`}
+                                        >
+                                            {feature.imageKey ? (
+                                                <div className="relative w-full h-full">
+                                                    <div className="absolute inset-0 overflow-hidden">
+                                                        <Image
+                                                            src={getURL(
+                                                                feature.imageKey,
+                                                            )}
+                                                            alt="Feature Preview"
+                                                            layout="fill"
+                                                            objectFit="contain"
+                                                            className="rounded-lg"
+                                                        />
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            const updatedFeatures =
+                                                                [
+                                                                    ...formData
+                                                                        .content
+                                                                        .featureSection
+                                                                        .features,
+                                                                ];
+                                                            updatedFeatures[
+                                                                index
+                                                            ] = {
+                                                                ...updatedFeatures[
+                                                                    index
+                                                                ],
+                                                                imageKey: '',
+                                                            };
+                                                            setFormData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    content: {
+                                                                        ...prev.content,
+                                                                        featureSection:
+                                                                            {
+                                                                                ...prev
+                                                                                    .content
+                                                                                    .featureSection,
+                                                                                features:
+                                                                                    updatedFeatures,
+                                                                            },
+                                                                    },
+                                                                }),
+                                                            );
+                                                        }}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span className="text-white text-3xl">
+                                                    +
+                                                </span>
+                                            )}
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id={`imageInputFeature-${index}`}
+                                            className="hidden"
+                                            onChange={(e) =>
+                                                handleImageChange(
+                                                    e,
+                                                    'featureSection',
+                                                    index,
+                                                )
+                                            }
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ),
+                        )}
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -1155,11 +1735,13 @@ const CreatePage = () => {
 
                 {/* market forecast Section  */}
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Market Forecast Section</span>
+                    <span className="text-xl">Market Forecast Section</span>
                     <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
-
                         <div className="mb-4">
-                            <label htmlFor="subHeading" className="block text-gray-300 mb-2">
+                            <label
+                                htmlFor="subHeading"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Sub Heading
                             </label>
                             <input
@@ -1167,14 +1749,26 @@ const CreatePage = () => {
                                 id="subHeading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Sub Heading"
-                                value={formData.content.marketForecastSection.subHeading}
-                                onChange={(e) => handleSectionChange('marketForecastSection', 'subHeading', e.target.value)}
+                                value={
+                                    formData.content.marketForecastSection
+                                        .subHeading
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'marketForecastSection',
+                                        'subHeading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="heading"
+                                className="block  text-gray-300 mb-2"
+                            >
                                 Heading
                             </label>
                             <input
@@ -1182,69 +1776,136 @@ const CreatePage = () => {
                                 id="heading"
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Heading"
-                                value={formData.content.marketForecastSection.heading}
-                                onChange={(e) => handleSectionChange('marketForecastSection', 'heading', e.target.value)}
+                                value={
+                                    formData.content.marketForecastSection
+                                        .heading
+                                }
+                                onChange={(e) =>
+                                    handleSectionChange(
+                                        'marketForecastSection',
+                                        'heading',
+                                        e.target.value,
+                                    )
+                                }
                                 required
                             />
                         </div>
 
-
-
                         {/* Image Upload */}
                         <div className="mb-6">
-                            <label className="block text-gray-300 mb-2">Upload Image</label>
+                            <label className="block text-gray-300 mb-2">
+                                Upload Image
+                            </label>
                             <label
-                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer"
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
                                 htmlFor="imageInputMarket"
                             >
-                                {formData.content.marketForecastSection.imageKey ? (
-                                    <img
-                                        src={getURL(formData.content.marketForecastSection.imageKey)}
-                                        alt="Preview"
-                                        className="object-contain w-full h-full rounded-lg"
-                                    />
+                                {formData.content.marketForecastSection
+                                    .imageKey ? (
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.content
+                                                        .marketForecastSection
+                                                        .imageKey,
+                                                )}
+                                                alt="Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    content: {
+                                                        ...prev.content,
+                                                        marketForecastSection: {
+                                                            ...prev.content
+                                                                .marketForecastSection,
+                                                            imageKey: '',
+                                                        },
+                                                    },
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ) : (
-                                    <span className="text-white text-3xl">+</span>
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
                                 )}
                             </label>
                             <input
                                 type="file"
                                 id="imageInputMarket"
                                 className="hidden"
-                                onChange={(e) => handleImageChange(e, 'marketForecastSection')}
-
+                                onChange={(e) =>
+                                    handleImageChange(
+                                        e,
+                                        'marketForecastSection',
+                                    )
+                                }
                             />
                         </div>
 
                         {/* Cards Section */}
-                        {formData.content.marketForecastSection.list.map((card, index) => (
-                            <div key={index} className="bg-[#222222] p-4 rounded-lg mb-4 relative">
-                                <button
-                                    type="button"
-                                    className="absolute top-2 right-2 text-red-500"
-                                    onClick={() => removeCard(index, 'marketForecastSection')}
+                        {formData.content.marketForecastSection.list.map(
+                            (card, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-[#222222] p-4 rounded-lg mb-4 relative"
                                 >
-                                    <span className="text-xl">×</span> {/* "×" is the close icon */}
-                                </button>
+                                    <button
+                                        type="button"
+                                        className="absolute top-2 right-2 text-red-500"
+                                        onClick={() =>
+                                            removeCard(
+                                                index,
+                                                'marketForecastSection',
+                                            )
+                                        }
+                                    >
+                                        <span className="text-xl">×</span>{' '}
+                                        {/* "×" is the close icon */}
+                                    </button>
 
-                                <div className="mb-4">
-                                    <label htmlFor={`market-card-description-${index}`} className="block text-gray-300 mb-2">
-                                        Point-{index + 1}
-                                    </label>
-                                    <textarea
-                                        id={`market-card-description-${index}`}
-                                        className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Enter the point"
-                                        value={card.point}
-                                        onChange={(e) => handleCardChange(index, 'marketForecastSection', 'point', e.target.value)}
-                                        rows={3}
-                                        required
-                                    />
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`market-card-description-${index}`}
+                                            className="block text-gray-300 mb-2"
+                                        >
+                                            Point-{index + 1}
+                                        </label>
+                                        <textarea
+                                            id={`market-card-description-${index}`}
+                                            className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#333333] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter the point"
+                                            value={card.point}
+                                            onChange={(e) =>
+                                                handleCardChange(
+                                                    index,
+                                                    'marketForecastSection',
+                                                    'point',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={3}
+                                            required
+                                        />
+                                    </div>
                                 </div>
+                            ),
+                        )}
 
-
-                            </div>
-                        ))}
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -1255,16 +1916,18 @@ const CreatePage = () => {
                     </div>
                 </label>
 
-
                 {/* meta data */}
 
                 <label className="block text-white mb-5">
-                    <span className='text-xl'>Meta Details</span>
+                    <span className="text-xl">Meta Details</span>
 
-                    <div className='bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2'>
-
+                    <div className="bg-[#1A1A1A] p-6 rounded-lg shadow-md mt-2">
+                        {/* Meta Title Section */}
                         <div className="mb-4">
-                            <label htmlFor="metaTitle" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="metaTitle"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Meta Title
                             </label>
                             <input
@@ -1273,12 +1936,21 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Title"
                                 value={formData.metaTitle}
-                                onChange={(e) => setFormData((prev => ({ ...prev, metaTitle: e.target.value })))}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        metaTitle: e.target.value,
+                                    }))
+                                }
                             />
                         </div>
 
+                        {/* Meta Description Section */}
                         <div className="mb-4">
-                            <label htmlFor="metaDescription" className="block  text-gray-300 mb-2">
+                            <label
+                                htmlFor="metaDescription"
+                                className="block text-gray-300 mb-2"
+                            >
                                 Meta Description
                             </label>
                             <textarea
@@ -1286,13 +1958,25 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Description"
                                 value={formData.metaDescription}
-                                onChange={(e) => setFormData(prev => ({ ...prev, metaDescription: e.target.value }))}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        metaDescription: e.target.value,
+                                    }))
+                                }
                             />
                         </div>
 
+                        {/* Keywords Section */}
                         <div className="mb-4">
-                            <label htmlFor="heading" className="block  text-gray-300 mb-2">
-                                Keywords <span className='text-sm italic text-gray-400'>(separated by commas)</span>
+                            <label
+                                htmlFor="heading"
+                                className="block text-gray-300 mb-2"
+                            >
+                                Keywords{' '}
+                                <span className="text-sm italic text-gray-400">
+                                    (separated by commas)
+                                </span>
                             </label>
                             <input
                                 type="text"
@@ -1300,12 +1984,109 @@ const CreatePage = () => {
                                 className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter Keywords"
                                 value={keywordValue}
-                                onChange={(e) => handleKeywordchange(e.target.value)}
+                                onChange={(e) =>
+                                    handleKeywordchange(e.target.value)
+                                }
+                            />
+                        </div>
+
+                        {/* Open Graph Title */}
+                        <div className="mb-4">
+                            <label
+                                htmlFor="ogTitle"
+                                className="block text-gray-300 mb-2"
+                            >
+                                Open Graph Title
+                            </label>
+                            <input
+                                type="text"
+                                id="ogTitle"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Open Graph Title"
+                                value={formData.ogTitle}
+                                onChange={(e) =>
+                                    handleOgChange('ogTitle', e.target.value)
+                                }
+                                required
+                            />
+                        </div>
+
+                        {/* Open Graph Description */}
+                        <div className="mb-4">
+                            <label
+                                htmlFor="ogDescription"
+                                className="block text-gray-300 mb-2"
+                            >
+                                Open Graph Description
+                            </label>
+                            <textarea
+                                id="ogDescription"
+                                className="w-full px-4 py-2 rounded-lg text-sm font-medium border border-gray-700 bg-[#222222] text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter Open Graph Description"
+                                value={formData.ogDescription}
+                                onChange={(e) =>
+                                    handleOgChange(
+                                        'ogDescription',
+                                        e.target.value,
+                                    )
+                                }
+                                rows={3}
+                                required
+                            />
+                        </div>
+
+                        {/* Image Upload */}
+                        <div className="mb-6">
+                            <label className="block text-gray-300 mb-2">
+                                Open Graph Image
+                            </label>
+                            <label
+                                className="relative w-full h-48 bg-[#222222] border-2 border-gray-600 rounded-lg flex justify-center items-center cursor-pointer overflow-hidden"
+                                htmlFor="imageInputOG"
+                            >
+                                {formData.ogImageKey ? (
+                                    <div className="relative w-full h-full">
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <Image
+                                                src={getURL(
+                                                    formData.ogImageKey,
+                                                )}
+                                                alt="Open Graph Preview"
+                                                layout="fill"
+                                                objectFit="contain"
+                                                className="rounded-lg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    ogImageKey: '',
+                                                }));
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <span className="text-white text-3xl">
+                                        +
+                                    </span>
+                                )}
+                            </label>
+                            <input
+                                type="file"
+                                id="imageInputOG"
+                                className="hidden"
+                                onChange={handleOgImageChange}
                             />
                         </div>
                     </div>
                 </label>
-
 
                 <button
                     type="submit"

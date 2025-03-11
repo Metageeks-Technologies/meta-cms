@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 import { SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table"
-import { MoreHorizontal, TriangleAlert } from "lucide-react"
+import { MoreHorizontal, TriangleAlert,Upload } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
@@ -22,6 +22,7 @@ import axiosCall from "@/utils/ApiCall"
 import { uploadToS3 } from "@/utils/helperFunction"
 import { MdOutlineUpdate } from "react-icons/md";
 import { debounce } from "lodash"
+import Image from "next/image"
 
 const columns = [
   {
@@ -40,12 +41,14 @@ const columns = [
       return (
         <div className="flex items-center justify-start">
           {imagekey ? (
-            <img
-              src={getURL(imagekey)}
-              // src="/blogImg.png"
-              alt="Category Image"
-              className="h-20 w-32 object-cover rounded-md"
-            />
+          <Image
+          src={getURL(imagekey)}  
+          alt="Category Image"
+          className="h-20 w-32 object-cover rounded-md"
+          width={128}
+          height={80} 
+        />
+        
           ) : (
             <span className="text-gray-500">No image</span>
           )}
@@ -222,7 +225,7 @@ const columns = [
 
           <DialogContent className="sm:max-w-[425px] bg-black border-gray-800 text-white">
             <DialogHeader>
-              <DialogTitle className='text-2xl'>Create Category</DialogTitle>
+              <DialogTitle className='text-2xl'>Update Category</DialogTitle>
             </DialogHeader>
             <form className="py-4" onSubmit={updateCategory}>
               <div className="mb-4">
@@ -252,28 +255,40 @@ const columns = [
                 />
               </div>
 
-              <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
-                <Label htmlFor="img" className="text-right w-full ">
-                  Select Image
-                </Label>
-                <input
-                  type="file"
-                  id="img"
-                  // value={createForm.bannerImageKey}
-                  onChange={(e: any) => uploadNewFile(e.target.files)}
-                  className='hidden'
-                />
-              </div>
+              <div>
+                            <Label className="mb-2 block">Select Image</Label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    id="img"
+                                    onChange={(e: any) => uploadNewFile(e.target.files)}
+                                    className='absolute inset-0 opacity-0 cursor-pointer z-10'
+                                />
+                                <div className="border-[1px] border-gray-200 px-4 py-3 rounded-md flex items-center justify-between">
+                                    <span className="text-gray-400">Choose file</span>
+                                    <Upload className="w-5 h-5 text-gray-400" />
+                                </div>
+                            </div>
+                        </div>
 
               {
                 category.bannerImageKey &&
                 <div className='w-[100px] h-[70px]'>
-                  <img src={getURL(category.bannerImageKey)} alt="" className='w-full h-full object-cover' />
+                  {/* <img src={getURL(category.bannerImageKey)} alt="" className='w-full h-full object-cover' /> */}
+                  <Image 
+  src={getURL(category.bannerImageKey)} 
+  alt="" 
+  layout="responsive" 
+  width={1200} 
+  height={500} 
+  objectFit="cover" 
+/>
+
                 </div>
               }
               <DialogFooter>
-                <Button type="button" onClick={handleCancel}>Cancel</Button>
-                <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Update</Button>
+                <Button type="button" className='mt-4'onClick={handleCancel}>Cancel</Button>
+                <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600 mt-4'>Update</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -289,9 +304,7 @@ const columns = [
 
 function Category() {
   const [sorting, setSorting] = useState<SortingState>([])
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  // const [columnVisibility, setColumnVisibility] =React.useState<VisibilityState>({})
-  // const [rowSelection, setRowSelection] = React.useState({})
+
 
   const [searchQuery, setSearchQuery] = useState('')
   const { categories, fetchCategories, categoryPageNo, setCategoryPageNo }: any = usePostContext()
@@ -317,13 +330,10 @@ function Category() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
-    // onRowSelectionChange: setRowSelection,
+   
     state: {
       sorting,
-      // columnFilters,
-      // columnVisibility,
-      // rowSelection,
+    
     },
   });
 

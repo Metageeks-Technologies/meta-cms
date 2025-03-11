@@ -67,25 +67,37 @@ export class WebsiteService {
         return website;
     }
 
+    async getWebsiteById(id: string) {
+        const website = await this.Website.findOne({ _id: id, isDeleted: false }).lean().exec()
+        return website;
+    }
+
     async deleteWebsite(websiteId: string) {
-        const query = await this.Website.updateOne({ _id: websiteId }, { isDeleted: true });
+        const query = await this.Website.updateOne({ _id: websiteId }, { $set: { isDeleted: true } });
         if (query.matchedCount == 0) {
             throw new BadRequestException('Not Found');
         }
     }
 
     async recoverWebsite(websiteId: string) {
-        const query = await this.Website.updateOne({ _id: websiteId }, { isDeleted: false })
+        const website = await this.Website.findOne({_id: websiteId});
+        if(website.permissions.length <= 0){
+            throw new BadRequestException('Add Permissions first')
+        }
+        const query = await this.Website.updateOne({ _id: websiteId }, { $set: { isDeleted: false } })
         if (query.matchedCount == 0) {
             throw new BadRequestException('Not Found');
         }
     }
 
     async updateWebsite(websiteId: string, websiteDetails: UpdateWebsiteDto) {
-        const query = await this.Website.updateOne({ _id: websiteId }, { $set: websiteDetails });
-        if (query.matchedCount == 0) {
-            throw new BadRequestException('Not Found');
+
+        const newDetails = { ...websiteDetails };
+
+        if (websiteDetails.permissions.length <= 0) {
+            newDetails['isDeleted'] = true
         }
+        await this.Website.findOneAndUpdate({ _id: websiteId }, { ...newDetails }, { new: true });
     }
 
 }

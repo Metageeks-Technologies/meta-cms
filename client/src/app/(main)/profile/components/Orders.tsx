@@ -1,23 +1,26 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { PaymentStatusEnum, PaymentTypeEnum } from '@/constant/user'
 import { getURL } from '@/utils/AWS_Config'
 import { Package, CreditCard, AlertCircle, CheckCircle, XCircle } from 'lucide-react'
+import { useUserContext } from '@/context/userContext'
+import axiosCall from '@/utils/ApiCall'
+import toast from 'react-hot-toast'
 
 const getStatusConfig = (status: string) => {
     switch (status) {
         case 'UNPAID':
             return {
-                color: 'bg-red-600 text-white border-red-700',
+                color: 'bg-red-500 text-white border-red-700',
                 icon: <AlertCircle className='w-5 h-5 text-white' />
             };
         case 'PAID':
             return {
-                color: 'bg-green-600 text-white border-green-700',
+                color: 'bg-green-500 text-white border-green-700',
                 icon: <CheckCircle className='w-5 h-5 text-white' />
             };
         default:
             return {
-                color: 'bg-gray-600 text-white border-gray-700',
+                color: 'bg-yellow-600 text-white border-yellow-700',
                 icon: <AlertCircle className='w-5 h-5 text-white' />
             };
     }
@@ -27,7 +30,7 @@ const OrderCard = ({ order }: { order: any }) => {
     const [showPriceDetails, setShowPriceDetails] = useState(false);
     const paymentStatus = PaymentStatusEnum[order?.paymentStatus as keyof typeof PaymentStatusEnum] || 'UNKNOWN';
     const statusConfig = getStatusConfig(paymentStatus);
-    
+
     // Safely handle price calculations
     const getItemPrice = (item: any) => {
         // Get price from variant
@@ -71,7 +74,12 @@ const OrderCard = ({ order }: { order: any }) => {
             </div>
 
             {/* Order Items */}
-            <div className="p-4">
+            <div
+                className={`p-4 ${order?.items?.length > 3
+                    ? 'overflow-y-auto max-h-96 styledScrollable'
+                    : ''
+                    }`}
+            >
                 {order?.items?.map((item: any, index: number) => {
                     const { price, quantity, subtotal } = getItemPrice(item);
                     return (
@@ -150,7 +158,45 @@ const OrderCard = ({ order }: { order: any }) => {
     );
 }
 
-const Orders = ({ orders }: { orders: any[] }) => {
+const Orders = () => {
+    const [orders, setOrders] = useState<any>([]);
+    const { setLoading, websiteKey } = useUserContext();
+    const [pageNo, setPageNo] = useState(1);
+
+    const divRef = useRef<HTMLDivElement>(null)
+
+    const getUserOrders = async () => {
+        setLoading(true);
+        try {
+            const param = new URLSearchParams()
+            param.append('page', pageNo.toString())
+            const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/order/my?${param.toString()}`, undefined, { websiteKey })
+
+            if (resp.status === 200 || resp.status === 201) {
+                setOrders(resp.data)
+            } else {
+                toast.error(resp?.data?.message, { duration: 2000 })
+            }
+        } catch (error) {
+            console.log("Error in fetching user orders : ", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (websiteKey) {
+            getUserOrders();
+        }
+    }, [websiteKey, pageNo]);
+
+    useEffect(() => {
+        if (divRef.current) {
+            divRef?.current?.scrollTo(0, 0)
+        }
+    }, [pageNo]);
+
+
     if (!orders || orders.length === 0) {
         return (
             <div className='w-full flex flex-col items-center justify-center p-10 bg-gray-900 rounded-lg'>
@@ -161,11 +207,43 @@ const Orders = ({ orders }: { orders: any[] }) => {
         )
     }
 
+    const decreasePageNumber = () => {
+        if (pageNo > 1) {
+            setPageNo((prev) => prev - 1);
+        }
+    }
+
+    const increasePageNumber = () => {
+        if (orders.length >= 10) {
+            setPageNo((prev) => prev + 1);
+        }
+    }
+
     return (
-        <div className='w-full max-w-4xl mx-auto space-y-4'>
-            {orders.map((order, index) => (
+        <div className='w-full max-w-4xl mx-auto space-y-4 max-h-[600px] overflow-y-auto styledScrollable p-1' ref={divRef}>
+            {orders?.map((order: any, index: number) => (
                 <OrderCard key={index} order={order} />
             ))}
+
+            <div className='flex flex-row items-center justify-center py-10'>
+                <div className='flex flex-row gap-5 items-center'>
+                    <button
+                        onClick={decreasePageNumber}
+                        disabled={pageNo <= 1}
+                        className={`px-2 py-2 rounded-lg bg-white text-black text-sm ${pageNo <= 1 ? "bg-slate-400" : ""}`}
+                    >
+                        Previous
+                    </button>
+                    <span className='border-[1px] px-[16px] py-[7px] rounded-lg'>{pageNo}</span>
+                    <button
+                        onClick={increasePageNumber}
+                        disabled={orders.length < 10}
+                        className={`px-2 py-2 border-[1px] rounded-lg bg-white text-black text-sm ${orders.length < 10 ? "bg-slate-400" : ""}`}
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }

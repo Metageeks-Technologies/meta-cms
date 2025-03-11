@@ -4,27 +4,45 @@ import axiosCall from "@/utils/ApiCall";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal } from "lucide-react";
+import { Check, MoreHorizontal, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getURL } from "@/utils/AWS_Config";
 import { OrderStatusEnum } from "@/constant/order";
 import { useUserContext } from "@/context/userContext";
+import toast from "react-hot-toast";
 
 const VendorOrder = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-  const { websiteKey, setLoading } = useUserContext()
+  const { websiteKey, setLoading } = useUserContext();
   const [orderPageNo, setOrderPageNo] = useState(1);
 
+  // Helper function to calculate order total
+  const calculateOrderTotal = (items: any[]) => {
+    if (!items) return 0;
+    return items.reduce((total, item) => {
+      const variant = item.product.variants.find(
+        (v: any) => v.variantId === item.variantId
+      );
+      const price = variant && variant.discountedPrice > 0
+        ? variant.discountedPrice
+        : variant?.price || 0;
+      return total + (price * (item.quantity || 0));
+    }, 0);
+  };
 
+  const calculateTotalQuantity = (items: any[]) => {
+    if (!items) return 0;
+    return items.reduce((total, item) => total + (item.quantity || 0), 0);
+  };
 
   const fetchOrderData = async () => {
     setLoading(true);
     try {
       const param = new URLSearchParams();
-      param.append('page', orderPageNo.toString())
+      param.append('page', orderPageNo.toString());
       const response = await axiosCall("get", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my?${param.toString()}`, undefined, { websiteKey });
 
       if (Array.isArray(response.data)) {
@@ -35,13 +53,10 @@ const VendorOrder = () => {
     } catch (error) {
       console.error("Error fetching order data:", error);
       setOrders([]);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
-
-
 
   useEffect(() => {
     if (websiteKey) {
@@ -54,9 +69,14 @@ const VendorOrder = () => {
     return customerName.includes(searchQuery.toLowerCase());
   }) : [];
 
-
   const openPopup = (order: any) => {
-    setSelectedOrder(order);
+    const calculatedTotal = calculateOrderTotal(order.items);
+    const calculatedQuantity = calculateTotalQuantity(order.items);
+    setSelectedOrder({
+      ...order,
+      calculatedTotal,
+      calculatedQuantity
+    });
     setIsPopupVisible(true);
   };
 
@@ -67,9 +87,10 @@ const VendorOrder = () => {
 
   const cancelOrder = async (orderId: string) => {
     try {
-      const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my/cancel/${orderId}`, undefined, { websiteKey });
+      const resp = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/my/cancel/${orderId}`, undefined, { websiteKey });
 
-      if (response.status === 200 || response.status === 201) {
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order._id === orderId
@@ -77,19 +98,24 @@ const VendorOrder = () => {
               : order
           )
         );
+        fetchOrderData();
+      } else {
+        toast.error(resp.data.message, { duration: 2000 });
       }
     } catch (error) {
       console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order", { duration: 2000 });
     }
   };
 
   const changeOrderStatus = async (orderId: string, newStatus: OrderStatusEnum) => {
     try {
-      const response = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, {
+      const resp = await axiosCall("patch", `${process.env.NEXT_PUBLIC_BASE_URL}/order/vendor/update-status/${orderId}`, {
         status: newStatus,
       }, { websiteKey });
 
-      if (response.status === 200 || response.status === 201) {
+      if (resp.status === 200 || resp.status === 201) {
+        toast.success(resp.data.message, { duration: 2000 });
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order._id === orderId
@@ -97,9 +123,13 @@ const VendorOrder = () => {
               : order
           )
         );
+        fetchOrderData();
+      } else {
+        toast.error(resp?.data?.message, { duration: 2000 });
       }
     } catch (error) {
       console.error("Error updating order status:", error);
+      toast.error("Failed to update order status", { duration: 2000 });
     }
   };
 
@@ -117,22 +147,70 @@ const VendorOrder = () => {
     {
       header: "Total Items",
       accessor: "totalItems",
-      cell: (row: any) => <div>{row.items.length}</div>,
+      cell: (row: any) => <div>{calculateTotalQuantity(row.items)}</div>,
     },
     {
       header: "Total Amount",
       accessor: "totalAmount",
-      cell: (row: any) => <div>{row.totalAmount}</div>,
+      cell: (row: any) => <div>₹{calculateOrderTotal(row.items).toFixed(2)}</div>,
     },
     {
       header: "Shipping Status",
       accessor: "shippingStatus",
-      cell: (row: any) => <div>{row.shippingStatus}</div>,
+      cell: (row: any) => {
+        const shippingStatus = row.shippingStatus;
+        let statusClass = '';
+    
+        switch (shippingStatus) {
+          case 'delivered':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'shipped':
+            statusClass = 'bg-blue-900/50 text-blue-400 text-center border border-blue-700';
+            break;
+          case 'cancelled':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          case 'confirm':
+            statusClass = 'bg-yellow-900/50 text-center text-yellow-400 border border-yellow-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700'; 
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {shippingStatus}
+          </div>
+        );
+      },
     },
     {
       header: "Payment Status",
       accessor: "paymentStatus",
-      cell: (row: any) => <div>{row.paymentStatus}</div>,
+      cell: (row: any) => {
+        const paymentStatus = row.paymentStatus;
+        let statusClass = '';
+    
+        switch (paymentStatus) {
+          case 'paid':
+            statusClass = 'bg-green-900/50 text-green-400 text-center border border-green-700';
+            break;
+          case 'unpaid':
+            statusClass = 'bg-red-900/50 text-red-400 text-center border border-red-700';
+            break;
+          default:
+            statusClass = 'bg-gray-900/50 text-center text-gray-400 border border-gray-700';
+            break;
+        }
+    
+        return (
+          <div className={`px-2 py-[1px] max-w-min rounded-xl text-xs font-medium ${statusClass}`}>
+            {paymentStatus}
+          </div>
+        );
+      },
     },
     {
       header: "Actions",
@@ -145,7 +223,7 @@ const VendorOrder = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-black text-white border-gray-800">
@@ -153,17 +231,25 @@ const VendorOrder = () => {
 
               {shippingStatus === OrderStatusEnum.PENDING && (
                 <>
-                  <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.CONFIRM)}>Confirm Order</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => cancelOrder(row._id)}>Cancel Order</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.CONFIRM)}>
+                    Confirm Order
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => cancelOrder(row._id)}>
+                    Cancel Order
+                  </DropdownMenuItem>
                 </>
               )}
 
               {shippingStatus === OrderStatusEnum.CONFIRM && (
-                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.SHIPPED)}>Mark as Shipped</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.SHIPPED)}>
+                  Mark as Shipped
+                </DropdownMenuItem>
               )}
 
               {shippingStatus === OrderStatusEnum.SHIPPED && (
-                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.DELIVERED)}>Mark as Delivered</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeOrderStatus(row._id, OrderStatusEnum.DELIVERED)}>
+                  Mark as Delivered
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -173,7 +259,7 @@ const VendorOrder = () => {
   ];
 
   return (
-    <div className="w-full container mx-auto px-4">
+    <div className="w-full container mx-auto px-4 overflow-hidden">
       <div className="flex justify-between items-center py-4">
         <Input
           className="w-1/3"
@@ -199,21 +285,28 @@ const VendorOrder = () => {
             </TableRow>
           </TableHeader>
 
-
           <TableBody>
             {filteredOrders.length ? (
               filteredOrders.map((order: any) => (
-                <TableRow key={order._id} className="border-gray-800 hover:bg-transparent">
+                <TableRow
+                  key={order._id}
+                  className="border-gray-800 hover:bg-transparent"
+                >
                   {columns.map((column) => (
                     <TableCell key={column.accessor}>
-                      {column.cell ? column.cell(order) : order[column.accessor]}
+                      {column.cell
+                        ? column.cell(order)
+                        : order[column.accessor]}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No orders found.
                 </TableCell>
               </TableRow>
@@ -221,7 +314,6 @@ const VendorOrder = () => {
           </TableBody>
         </Table>
       </div>
-
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="space-x-2 flex flex-row items-center gap-2">
@@ -247,57 +339,159 @@ const VendorOrder = () => {
         </div>
       </div>
 
-
-
       {isPopupVisible && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-gray-800 p-8 rounded-lg max-w-4xl w-full shadow-lg space-y-6">
-            <h2 className="text-3xl font-bold text-white mb-4">Order Details</h2>
-            <div className="grid grid-cols-2 gap-x-8 mb-6">
-              <div>
-                <p className="text-lg"><strong>Customer Name:</strong> {selectedOrder.user.name}</p>
-                <p className="text-lg"><strong>Email:</strong> {selectedOrder.user.email}</p>
-                <p className="text-lg"><strong>Order ID:</strong> <span className="font-semibold text-blue-800">{selectedOrder._id}</span></p>
-              </div>
-              <div>
-                <p className="text-lg"><strong>Total Amount:</strong> <span className="font-semibold text-green-600">₹{selectedOrder.totalAmount}</span></p>
-                <p className="text-lg"><strong>Payment Status:</strong> <span className={`font-semibold ${selectedOrder.paymentStatus === 'Paid' ? 'text-green-500' : 'text-red-500'}`}>{selectedOrder.paymentStatus}</span></p>
-                <p className="text-lg"><strong>Shipping Status:</strong> <span className={`font-semibold ${selectedOrder.shippingStatus === 'Shipped' ? 'text-blue-500' : 'text-yellow-500'}`}>{selectedOrder.shippingStatus}</span></p>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4" onClick={closePopup}>
+          <div className="bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-800" 
+               onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-800">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-100">Order Details</h2>
+                <button
+                  onClick={closePopup}
+                  className="text-gray-400 hover:text-gray-200 transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
               </div>
             </div>
 
-            <h3 className="text-2xl font-semibold text-gray-800">Items:</h3>
-            <div className="space-y-4">
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {selectedOrder.items.map((item: any, index: number) => (
-                  <div key={index} className="flex bg-gray-600 p-4 rounded-lg shadow-sm space-x-6">
-                    <img
-                      src={getURL(item.product.variants.find((variant: any) => variant.variantId === item.variantId)?.imageKeys[0])}
-                      alt={item.product.title}
-                      className="w-24 h-24 object-cover rounded-lg"
-                    />
-                    <div className="flex-grow">
-                      <p className="font-semibold text-xl">{item.product.title}</p>
-                      <p className="text-lg text-gray-800">{item.product.subDescription}</p>
-                      <p className="text-lg text-gray-800 mt-2"><strong>Price:</strong> ₹{item.product.variants.find((variant: any) => variant.variantId === item.variantId)?.discountedPrice}</p>
-                    </div>
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+              {/* Order Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                {/* Customer Info Card */}
+                <div className="bg-gray-800 p-4 rounded-lg space-y-2 border border-gray-700">
+                  <h3 className="text-sm font-medium text-gray-400">Customer Details</h3>
+                  <p className="text-gray-100 font-medium">{selectedOrder.user.name}</p>
+                  <p className="text-gray-300 text-sm">{selectedOrder.user.email}</p>
+                  <div className="mt-2 pt-2 border-t border-gray-700">
+                    <p className="text-xs text-gray-400">Order ID</p>
+                    <p className="font-mono text-sm text-blue-400">{selectedOrder._id}</p>
                   </div>
-                ))}
+                </div>
+
+                {/* Payment Info Card */}
+                <div className="bg-gray-800 p-4 rounded-lg space-y-2 border border-gray-700">
+                  <h3 className="text-sm font-medium text-gray-400">Payment Details</h3>
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-gray-300">Total Amount</p>
+                    <p className="text-lg font-semibold text-blue-400">
+                      ₹{selectedOrder.calculatedTotal.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-300">Status</p>
+                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${
+                      selectedOrder.paymentStatus === 'paid'
+                        ? 'bg-green-900/50 text-green-400 border border-green-700'
+                        : 'bg-red-900/50 text-red-400 border border-red-700'
+                    }`}>
+                      {selectedOrder.paymentStatus}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Shipping Info Card */}
+                <div className="bg-gray-800 p-4 rounded-lg space-y-2 border border-gray-700">
+                  <h3 className="text-sm font-medium text-gray-400">Shipping Status</h3>
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-300">Current Status</p>
+                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${
+                      selectedOrder.shippingStatus === 'delivered'
+                        ? 'bg-green-900/50 text-green-400 border border-green-700'
+                        : selectedOrder.shippingStatus === 'pending'
+                          ? 'bg-blue-900/50 text-blue-400 border border-blue-700'
+                          : selectedOrder.shippingStatus === 'cancelled'
+                            ? 'bg-red-900/50 text-red-400 border border-red-700'
+                            : 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
+                    }`}>
+                      {selectedOrder.shippingStatus}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items Section */}
+              <div className="bg-gray-900 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-100 mb-4">Ordered Items</h3>
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2 styledScrollable">
+                  {selectedOrder.items.map((item: any, index: number) => {
+                    const variant = item.product.variants.find(
+                      (v: any) => v.variantId === item.variantId
+                    );
+                    const price = variant && variant.discountedPrice > 0
+                      ? variant.discountedPrice
+                      : variant?.price;
+                    const totalPrice = price * item.quantity;
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-start gap-4 p-4 bg-gray-800 rounded-lg border border-gray-700"
+                      >
+                        <div className="relative w-24 h-24 flex-shrink-0">
+                          <img
+                            src={getURL(variant?.imageKeys[0])}
+                            alt={item.product.title}
+                            className="w-full h-full object-cover rounded-md border border-gray-700"
+                          />
+                        </div>
+
+                        <div className="flex-grow min-w-0">
+                          <div className="flex justify-between items-start gap-4">
+                            <div>
+                              <h4 className="font-medium text-gray-100 line-clamp-1">
+                                {item.product.title}
+                              </h4>
+                              <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                                {item.product.subDescription}
+                              </p>
+                              <p className="text-sm text-white mt-1 flex items-center gap-2">
+                                Quantity:
+                                <span className="text-white flex items-center text-sm font-medium">
+                                  {item.quantity}
+                                </span>
+                              </p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="text-sm text-gray-400">Unit Price</p>
+                              <p className="font-medium text-gray-100">₹{price?.toFixed(2)}</p>
+                              <p className="mt-1 text-sm font-medium text-blue-400">
+                                Total: ₹{totalPrice.toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
-            <button
-              onClick={closePopup}
-              className="mt-6 w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition duration-200"
-            >
-              Close
-            </button>
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-800 bg-gray-800">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-400">Total Items: {selectedOrder.calculatedQuantity}</p>
+                  <p className="text-lg font-semibold text-gray-100">
+                    Order Total: <span className="text-blue-400">₹{selectedOrder.calculatedTotal.toFixed(2)}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={closePopup}
+                  className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 };
-
 
 export default VendorOrder;

@@ -1,7 +1,7 @@
-import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose/dist/common';
 import { IUser, UserRoleEnum } from './schema/user.schema';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -9,11 +9,8 @@ import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { IOtp } from './schema/otp.schema';
 import { sendEmail } from 'src/utils/emailService';
-import { emailVerificationOtpTemplate, resetPasswordOtpTemplate } from 'src/utils/emailTemplates';
-import { CloudCog } from 'lucide-react';
+import { newUserWelcomeTemplate, resetPasswordOtpTemplate, userRoleChangeTemplate } from 'src/utils/emailTemplates';
 import { RedisService } from '../redis/redis.service';
-import { RedisKeys } from 'src/utils/constant';
-import { generateTempPassword } from 'src/utils/helperFunctions';
 import { WebsiteService } from '../website/website.service';
 const otpGenerator = require('otp-generator');
 
@@ -48,6 +45,10 @@ export class UsersService {
       throw new BadRequestException("Website name must be required");
     }
 
+    if (newUserDetails.role === UserRoleEnum.ADMIN && !newUserDetails.domain) {
+      throw new BadRequestException("Website domain must be required");
+    }
+
     const userExist = await this.User.findOne({ email: newUserDetails.email });
     if (userExist) {
       throw new BadRequestException('Email alredy exists')
@@ -65,7 +66,7 @@ export class UsersService {
     let website: any;
     if (newUserDetails.role === UserRoleEnum.ADMIN) {
       try {
-        website = await this.websiteService.addWebsite(newUser, { name: newUserDetails.websiteName, permissions: newUserDetails.permissions });
+        website = await this.websiteService.addWebsite(newUser, { name: newUserDetails.websiteName, permissions: newUserDetails.permissions, domain: newUserDetails.domain });
       } catch (error) {
         throw new HttpException(error.message, 400);
       }
@@ -80,9 +81,11 @@ export class UsersService {
 
     try {
       await newUser.save();
+      sendEmail(newUser.email, "🎉 Welcome to Meta CMS – Your Account Details Inside!", newUserWelcomeTemplate(newUser.name, newUser.email, newUserDetails.password, newUser.role))
     } catch (error) {
       if (error.code === 11000) {
-        // Duplicate key error
+        // Duplicate key error          text-transform: capitalize;
+
         throw new ConflictException('Email already exists');
       }
 
@@ -169,10 +172,14 @@ export class UsersService {
       throw new BadRequestException("Only Superadmin can chnage admin role")
     }
 
-    const query = await this.User.updateOne({ _id: _id, website: website._id }, { $set: { role: newRole } }).exec();
-    if (query.matchedCount == 0) {
-      throw new NotFoundException("User ID not found");
+    const user = await this.User.findOne({ _id: _id, website: website._id }).lean().exec()
+    if (!user) {
+      throw new BadRequestException('User not found')
     }
+
+    await this.User.updateOne({ _id: _id, website: website._id }, { $set: { role: newRole } }).exec();
+
+    sendEmail(user.email, "🚀 Your Role Has Been Updated in Meta CMS", userRoleChangeTemplate(user.name, newRole))
 
     // await this.redisService.deleteCache(`${RedisKeys.User}_${_id}`);
   }
@@ -398,30 +405,61 @@ export class UsersService {
   }
 
 
-  async blockUser(websiteKey: string, userId: string) {
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
-      throw new BadRequestException("Invalid website key");
+  async blockUser(websiteKey: string, userRole: UserRoleEnum, userId: string) {
+
+    if (userRole !== UserRoleEnum.SUPERADMIN) {
+      const website = await this.websiteService.getWebsiteByKey(websiteKey);
+      if (!website) {
+        throw new BadRequestException("Invalid website key");
+      }
     }
 
-    const user = await this.User.findByIdAndUpdate(userId, { block: true }, { new: true })
+    const user = await this.User.findByIdAndUpdate(userId, { block: true })
 
     if (!user.name) {
       throw new NotFoundException('User not found')
     }
-  }
 
-  async unBlockUser(websiteKey: string, userId: string) {
-    const website = await this.websiteService.getWebsiteByKey(websiteKey);
-    if (!website) {
-      throw new BadRequestException("Invalid website key");
+    if (user.role === UserRoleEnum.ADMIN) {
+      await this.websiteService.deleteWebsite(user.website)
     }
 
-    const user = await this.User.findByIdAndUpdate(userId, { block: false }, { new: true })
+  }
+
+  async unBlockUser(websiteKey: string, userRole: UserRoleEnum, userId: string) {
+    if (userRole !== UserRoleEnum.SUPERADMIN) {
+      const website = await this.websiteService.getWebsiteByKey(websiteKey);
+      if (!website) {
+        throw new BadRequestException("Invalid website key");
+      }
+    }
+
+    const user = await this.User.findByIdAndUpdate(userId, { block: false })
 
     if (!user.name) {
       throw new NotFoundException('User not found')
     }
+
+    if (user.role === UserRoleEnum.ADMIN) {
+      await this.websiteService.recoverWebsite(user.website)
+    }
   }
+
+
+  async changeUserPassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await this.User.findById(userId)
+    if (!user) {
+      throw new BadRequestException('User not found')
+    }
+
+    if (await bcrypt.compare(oldPassword, user.hash)) {
+      user.hash = await bcrypt.hash(newPassword, 10)
+      await user.save();
+    } else {
+      throw new ForbiddenException('Wrong password')
+    }
+  }
+
+  
 
 }

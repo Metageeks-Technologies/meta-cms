@@ -11,7 +11,8 @@ export interface IWebsite {
     _id: mongoose.Types.ObjectId,
     name: string,
     key: string,
-    premissions: PermissionEnum[],
+    domain: string,
+    permissions: PermissionEnum[],
     admin: mongoose.Types.ObjectId,
     isDeleted: boolean
 }
@@ -24,6 +25,10 @@ export const WebsiteSchema = new mongoose.Schema({
         unique: true,
     },
     key: {
+        type: String,
+        required: true,
+    },
+    domain: {
         type: String,
         required: true,
     },

@@ -51,7 +51,7 @@ const page = () => {
     return (
         <div className='w-full h-screen flex items-center justify-center'>
             <div className='w-full max-w-[600px] mx-2 h-auto bg-gray-900 p-2 sm:p-6 rounded-lg'>
-                <div className='my-2 sm:my-7 text-center'>
+                <div className='my-2 sm:my-7 text-center '>
                     <h1 className='text-4xl md:text-6xl font-bold my-2 sm:my-5 text-white'>CMS</h1>
                     <h2>WELCOME BACK EXCLUSIVE MEMBER</h2>
                     <p>LOG IN TO CONTINUE</p>
@@ -87,7 +87,7 @@ const page = () => {
                             </div>
                         </label>
                         <p onClick={() => router.push('/forgot-password')} className='flex justify-end underline text-blue-400 mt-[-17px] text-sm cursor-pointer'>Forgot Password?</p>
-                        <button type='submit' className='w-full text-center bg-gray-200 text-black hover:text-white rounded-lg p-2 text-xl my-2 font-bold hover:bg-transparent border-white border-2 duration-300'>Login</button>
+                        <button type='submit' className='w-full text-center bg-gray-200 text-black hover:text-white rounded-lg p-2 text-xl my-2 font-bold hover:bg-blue-600 border-white border-2 duration-300'>Login</button>
                         <p className='text-center my-3'>Don’t have an account? <span onClick={() => router.push('/signUp')} className='underline text-blue-500 cursor-pointer'>  Sign up</span></p>
                     </form>
                 </div>

@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { GetUserBookmarksQueryDto } from './dto/get-user-bookmarks.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserQueryDto } from './dto/get-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -70,7 +71,7 @@ export class UsersController {
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
   async getAllUser(
-    @Headers('websiteKey') websiteKey: string, 
+    @Headers('websiteKey') websiteKey: string,
     @Param('role') role: UserRoleEnum,
     @Query() query: UserQueryDto
   ) {
@@ -80,42 +81,42 @@ export class UsersController {
 
 
   // TODO: Remove this part when refactoring
-  @Get('all-moderator')
-  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, RolesGuard)
-  async getAllModerators(@Headers('websiteKey') websiteKey: string,) {
-    const users = await this.usersService.getAllModerator()
-    return {
-      message: "All moderators fetched successfully",
-      users
-    };
-  }
+  // @Get('all-moderator')
+  // @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  // @UseGuards(AuthGuard, RolesGuard)
+  // async getAllModerators(@Headers('websiteKey') websiteKey: string,) {
+  //   const users = await this.usersService.getAllModerator()
+  //   return {
+  //     message: "All moderators fetched successfully",
+  //     users
+  //   };
+  // }
 
 
   // TODO: Remove this part when refactoring
-  @Get('all-contributor')
-  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, RolesGuard)
-  async getAllContributor(@Headers('websiteKey') websiteKey: string,) {
-    const users = await this.usersService.getAllContributor()
-    return {
-      message: "All contributor fetched successfully",
-      users
-    };
-  }
+  // @Get('all-contributor')
+  // @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  // @UseGuards(AuthGuard, RolesGuard)
+  // async getAllContributor(@Headers('websiteKey') websiteKey: string,) {
+  //   const users = await this.usersService.getAllContributor()
+  //   return {
+  //     message: "All contributor fetched successfully",
+  //     users
+  //   };
+  // }
 
 
   // TODO: Remove this part when refactoring
-  @Get('all-subscriber')
-  @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
-  @UseGuards(AuthGuard, RolesGuard)
-  async getAllSubscribers(@Headers('websiteKey') websiteKey: string,) {
-    const users = await this.usersService.getAllSubscribers()
-    return {
-      message: "All subscribers fetched successfully",
-      users
-    };
-  }
+  // @Get('all-subscriber')
+  // @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
+  // @UseGuards(AuthGuard, RolesGuard)
+  // async getAllSubscribers(@Headers('websiteKey') websiteKey: string,) {
+  //   const users = await this.usersService.getAllSubscribers()
+  //   return {
+  //     message: "All subscribers fetched successfully",
+  //     users
+  //   };
+  // }
 
   // TODO: Remove this part when refactoring
   // @Get('all-store-user')
@@ -181,17 +182,39 @@ export class UsersController {
   @Patch('block/:id')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async blockUser(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) userId: string) {
-    await this.usersService.blockUser(websiteKey, userId)
+  async blockUser(
+    @Headers('websiteKey') websiteKey: string,
+    @Req() req: Request,
+    @Param('id', ValidateId) userId: string
+  ) {
+    const user = (req as any).user;
+    await this.usersService.blockUser(websiteKey, user.role, userId)
     return { message: "User block succesfully" }
   }
 
   @Patch('unBlock/:id')
   @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
   @UseGuards(AuthGuard, RolesGuard)
-  async unBlockUser(@Headers('websiteKey') websiteKey: string, @Param('id', ValidateId) userId: string) {
-    await this.usersService.unBlockUser(websiteKey, userId)
+  async unBlockUser(
+    @Headers('websiteKey') websiteKey: string,
+    @Req() req: Request,
+    @Param('id', ValidateId) userId: string
+  ) {
+    const user = (req as any).user;
+    await this.usersService.unBlockUser(websiteKey, user.role, userId)
     return { message: "User unblock succesfully" }
+  }
+
+
+  @Post('change-password')
+  @UseGuards(AuthGuard)
+  async changeUserPaswword(
+    @Req() req: Request,
+    @Body() newDeatils: ChangePasswordDto
+  ) {
+    const user = (req as any).user;
+    await this.usersService.changeUserPassword(user._id, newDeatils.oldPassword, newDeatils.newPassword)
+    return { message: "Password change successfully" }
   }
 
 }

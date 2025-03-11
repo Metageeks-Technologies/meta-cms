@@ -97,7 +97,7 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
 
         setLoading(true);
         try {
-            // Prepare the payload, ensuring all required fields are present
+            // Create a fresh copy of the address data to submit
             const payload: Partial<AddressType> = {
                 name: editAddress.name!.trim(),
                 phone: editAddress.phone!.trim(),
@@ -110,9 +110,23 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
                 city: editAddress.city!.trim(),
                 state: editAddress.state!.trim(),
                 ...(editAddress.landmark && { landmark: editAddress.landmark.trim() }),
-                ...(editAddress.instruction && { instruction: editAddress.instruction.trim() }),
+                ...(editAddress.instruction !== undefined && { instruction: editAddress.instruction.trim() }),
                 ...(editAddress._id && { _id: editAddress._id })
             };
+            
+            // Only if user has actually entered values for optional fields, use them
+            if (editAddress.landmark && editAddress.landmark.trim()) {
+                payload.landmark = editAddress.landmark.trim();
+            }
+            
+            if (editAddress.instruction && editAddress.instruction.trim()) {
+                payload.instruction = editAddress.instruction.trim();
+            }
+            
+            // Include ID for updates
+            if (editAddress._id) {
+                payload._id = editAddress._id;
+            }
             
             const method = isNewAddress ? 'post' : 'put';
             const endpoint = isNewAddress 
@@ -147,6 +161,15 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
                     status: detailedError.response?.status,
                 });
 
+                // Show the specific validation errors if possible
+                if (detailedError.response?.data?.message && Array.isArray(detailedError.response.data.message)) {
+                    const errorMessages = detailedError.response.data.message;
+                    if (errorMessages.length > 0) {
+                        toast.error(errorMessages[0]);
+                        return;
+                    }
+                }
+
                 toast.error(
                     detailedError.response?.data?.message || 
                     detailedError.message || 
@@ -160,63 +183,65 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
         }
     };
 
+    // Simple input handler with no inline validation for better user experience
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof AddressType): void => {
         const { value } = e.target;
-        let updatedValue: string | number = value;
-        let isValid = true;
-
-        switch (field) {
-            case 'name':
-                if (!/^[A-Za-z\s]*$/.test(value)) {
-                    isValid = false;
-                    toast.error("Name should contain only alphabets");
-                }
-                break;
-                
-            case 'phone':
-                if (!/^\d*$/.test(value) || value.length > 10) {
-                    isValid = false;
-                    toast.error("Phone number should be 10 digits");
-                }
-                break;
-
-            case 'postalCode':
-                // Allow only numbers
-                if (!/^\d*$/.test(value)) {
-                    isValid = false;
-                    toast.error("Postal code should contain only numbers");
-                    return;
-                }
-                
-                // Enforce max length of 6
-                if (value.length > 6) {
-                    isValid = false;
-                    return;
-                }
-
-                // Convert to number if valid
-                if (isValid) {
-                    updatedValue = value ? parseInt(value) : '';
-                    if (value.length === 6) {
-                        fetchAddressDetails(value);
-                    }
-                }
-                break;
-
-            case 'email':
-                if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                    isValid = false;
-                    toast.error("Please enter a valid email");
-                }
-                break;
-        }
-
-        if (isValid) {
+        
+        // Special handling for postalCode
+        if (field === 'postalCode') {
+            // Only allow digits
+            if (!/^\d*$/.test(value)) {
+                toast.error("Postal code should contain only numbers");
+                return;
+            }
+            
+            // Max length validation
+            if (value.length > 6) {
+                return;
+            }
+            
+            // Convert to number
+            const updatedValue = value ? parseInt(value) : '';
+            
+            // Auto-fetch city/state if 6 digits entered
+            if (value.length === 6) {
+                fetchAddressDetails(value);
+            }
+            
             setEditAddress(prev => ({ 
                 ...prev, 
                 [field]: updatedValue 
             } as AddressType));
+            
+            return;
         }
+        
+        // Special handling for phone numbers - only allow digits and limit length
+        if (field === 'phone') {
+            if (!/^\d*$/.test(value) || value.length > 10) {
+                if (value.length > 10) {
+                    toast.error("Phone number should be 10 digits max");
+                } else if (!/^\d*$/.test(value)) {
+                    toast.error("Phone number should contain only digits");
+                }
+                return;
+            }
+        }
+        
+        // Special handling for name - only allow letters and spaces
+        if (field === 'name') {
+            if (value && !/^[A-Za-z\s]*$/.test(value)) {
+                toast.error("Name should contain only alphabets and spaces");
+                return;
+            }
+        }
+        
+        // Update the state for all other fields without validation
+        // This allows free typing in the email field
+        setEditAddress(prev => ({ 
+            ...prev, 
+            [field]: value 
+        } as AddressType));
     };
 
     return (
@@ -295,13 +320,14 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
                         </div>
 
                         <div>
-                            <Label htmlFor="landmark">Landmark</Label>
+                            <Label htmlFor="landmark">Landmark <span className="text-red-500">*</span></Label>
                             <Input
                                 id="landmark"
                                 value={editAddress?.landmark || ''}
                                 placeholder="Enter landmark"
                                 className="mt-1"
                                 onChange={(e) => handleInputChange(e, 'landmark')}
+                                required
                                 maxLength={25}
                             />
                         </div>

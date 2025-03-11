@@ -43,7 +43,7 @@ export class ServiceService {
       throw new BadRequestException('Invalid website key')
     }
 
-    const service = await this.findSubserviceByName(websiteKey, serviceDetails.name);
+    const service = await this.findSubserviceByName(websiteKey, serviceDetails.name, serviceId);
     if (service) {
       throw new ConflictException('Service name already exists');
     }
@@ -146,8 +146,12 @@ export class ServiceService {
     return service;
   }
 
-  async findSubserviceByName(websiteKey: string, name: string) {
-    const service = this.Service.findOne({ websiteKey, name }).exec();
+  async findSubserviceByName(websiteKey: string, name: string, serviceId?: string) {
+    const query = { websiteKey, name }
+    if (serviceId) {
+      query['_id'] = { $ne: serviceId }
+    }
+    const service = this.Service.findOne(query).exec();
     return service;
   }
 

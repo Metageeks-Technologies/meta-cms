@@ -119,8 +119,7 @@ const columns = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
-              {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
-              {/* <DropdownMenuSeparator className="bg-gray-800" /> */}
+
 
               {/* Show options based on user's block status */}
               {user.block ? (
@@ -137,11 +136,7 @@ const columns = [
                     </AlertDialogTrigger>
                   </DropdownMenuItem>
 
-                  {/* <DropdownMenuItem onClick={() => setClickedItem(2)} className="hover:bg-gray-800 cursor-pointer px-3">
-                  <AlertDialogTrigger className="w-full text-left">
-                    Demote to Subscriber
-                  </AlertDialogTrigger>
-                </DropdownMenuItem> */}
+                 
 
                   <DropdownMenuItem onClick={() => setClickedItem(4)} className="hover:bg-gray-800 cursor-pointer px-3">
                     <AlertDialogTrigger className="w-full text-left">

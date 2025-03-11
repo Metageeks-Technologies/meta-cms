@@ -73,15 +73,16 @@ const AddressCard = ({
             </div>
 
             <div className="px-6 pb-6">
-                <div className="flex flex-wrap gap-3">
-                    <button
-                        onClick={() => onEdit(address)}
-                        className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors duration-200 text-sm"
-                    >
-                        <Edit2 className="w-4 h-4" />
-                        <span>Edit</span>
-                    </button>
+            <div className="flex flex-wrap gap-3">
+                <button 
+                    onClick={() => onEdit(address)}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors duration-200 text-sm"
+                >
+                    <Edit2 className="w-4 h-4" />
+                    <span>Edit</span>
+                </button>
 
+                {!address.isDefault && (
                     <AlertDialog>
                         <AlertDialogTrigger className="flex items-center gap-2 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded-lg transition-colors duration-200 text-sm">
                             <Trash2 className="w-4 h-4" />
@@ -91,20 +92,18 @@ const AddressCard = ({
                         <AlertDialogContent className="bg-gray-900 border-gray-800">
                             <AlertDialogHeader>
                                 <AlertDialogTitle></AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    <div className="flex flex-col items-center gap-4">
-                                        <TriangleAlert className="w-16 h-16 text-red-500" />
-                                        <h2 className="text-xl font-semibold text-gray-100">Delete Address</h2>
-                                        <p className="text-gray-400 text-center">
-                                            Are you sure you want to delete this address? This action cannot be undone.
-                                        </p>
-                                    </div>
-                                </AlertDialogDescription>
+                                <div className="flex flex-col items-center gap-4">
+                                    <TriangleAlert className="w-16 h-16 text-red-500" />
+                                    <h2 className="text-xl font-semibold text-gray-100">Delete Address</h2>
+                                    <AlertDialogDescription>
+                                        Are you sure you want to delete this address? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                </div>
                             </AlertDialogHeader>
 
                             <AlertDialogFooter>
                                 <AlertDialogCancel className="bg-gray-800 hover:bg-gray-700">Cancel</AlertDialogCancel>
-                                <AlertDialogAction
+                                <AlertDialogAction 
                                     onClick={() => onDelete(address._id)}
                                     className="bg-red-500 hover:bg-red-600"
                                 >
@@ -113,16 +112,17 @@ const AddressCard = ({
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+                )}
 
-                    {!address.isDefault && (
-                        <button
-                            onClick={() => onSetDefault(address._id)}
-                            className="flex items-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors duration-200 text-sm"
-                        >
-                            <Star className="w-4 h-4" />
-                            <span>Set Default</span>
-                        </button>
-                    )}
+                {!address.isDefault && (
+                    <button
+                        onClick={() => onSetDefault(address._id)}
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors duration-200 text-sm"
+                    >
+                        <Star className="w-4 h-4" />
+                        <span>Set Default</span>
+                    </button>
+                )}
                 </div>
             </div>
         </div>
@@ -227,16 +227,18 @@ const Addresses = ({ addresses, getUserAddresses }: any) => {
     return (
         <div className="relative min-h-screen pb-20">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4">
-                {addresses.map((address: any) => (
-                    <AddressCard
-                        key={address._id}
-                        address={address}
-                        onEdit={handleEditClick}
-                        onDelete={deleteAddress}
-                        onSetDefault={setDefault}
-                    />
-                ))}
-            </div>
+  {addresses
+    .sort((a: any, b: any) => (b.isDefault ? 1 : -1)) // Sort default address to top
+    .map((address: any) => (
+      <AddressCard
+        key={address._id}
+        address={address}
+        onEdit={handleEditClick}
+        onDelete={deleteAddress}
+        onSetDefault={setDefault}
+      />
+    ))}
+</div>
 
             <div className="flex justify-center mt-6">
                 <button

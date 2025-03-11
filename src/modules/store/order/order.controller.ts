@@ -45,7 +45,7 @@ export class OrderController {
         @Body() newOrder: CreateOrderDto
     ) {
         const user = (req as any).user;
-        await this.orderService.verifyAndCreateOrder(websiteKey, user._id, user.storeRole, newOrder)
+        await this.orderService.verifyAndCreateOrder(websiteKey, user._id, user.role, newOrder)
         return { message: "Order Placed" }
     }
 

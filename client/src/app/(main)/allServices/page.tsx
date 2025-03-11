@@ -74,6 +74,13 @@ const columns = [
     ),
   },
   {
+    accessorKey: "description",
+    header: "Description",
+    cell: ({ row }: any) => (
+      <div>{row.getValue("description")}</div>
+    ),
+  },
+  {
     accessorKey: "isDeleted",
     header: "Status",
     cell: ({ row }: any) => {

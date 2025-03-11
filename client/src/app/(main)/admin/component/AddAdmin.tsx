@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import axiosCall from '@/utils/ApiCall'
 import { useUserContext } from '@/context/userContext'
 import { PermissionEnum } from '@/constant/sidebar'
+import { isValidUrl } from '@/utils/helperFunction'
 
 const AddAdmin = () => {
 
@@ -23,12 +24,13 @@ const AddAdmin = () => {
         name: '',
         email: '',
         websiteName: '',
-        permissions: [],  
+        domain: '',
+        permissions: [],
         password: ''
     });
 
 
-    const { loading, setLoading, fetchAdmins  } = useUserContext();
+    const { loading, setLoading, fetchAdmins } = useUserContext();
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -37,13 +39,13 @@ const AddAdmin = () => {
         const { value, checked } = e.target;
         setCreateForm((prevForm: any) => {
             const updatedPermissions = checked
-                ? [...prevForm.permissions, value] 
-                : prevForm.permissions.filter((perm: string) => perm !== value); 
-            return { ...prevForm, permissions: updatedPermissions }; 
+                ? [...prevForm.permissions, value]
+                : prevForm.permissions.filter((perm: string) => perm !== value);
+            return { ...prevForm, permissions: updatedPermissions };
         });
     }
 
-   
+
 
     const handleCreateAdmin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,13 +71,19 @@ const AddAdmin = () => {
             return;
         }
 
+        if (!isValidUrl(createForm.domain)) {
+            toast.error('Enter a vaild Domain', { duration: 2000 });
+            return
+        }
+
         setLoading(true); // Show loading state
         try {
             const payload = {
                 name: createForm.name,
                 email: createForm.email,
                 websiteName: createForm.websiteName,
-                permissions: createForm.permissions,  
+                domain: createForm.domain,
+                permissions: createForm.permissions,
                 password: createForm.password
             }
 
@@ -87,7 +95,7 @@ const AddAdmin = () => {
                     name: '',
                     email: '',
                     websiteName: '',
-                    permissions: [], 
+                    permissions: [],
                     password: ''
                 });
                 fetchAdmins();
@@ -133,6 +141,7 @@ const AddAdmin = () => {
                             </Label>
                             <Input
                                 id="email"
+                                type='email'
                                 value={createForm.email}
                                 placeholder='Enter email'
                                 onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
@@ -141,13 +150,27 @@ const AddAdmin = () => {
                         </div>
                         <div className="mb-4">
                             <Label htmlFor="website" className="text-right">
-                                Website
+                                Website Name
                             </Label>
                             <Input
                                 id="website"
                                 value={createForm.websiteName}
-                                placeholder='Enter website'
+                                placeholder='Enter website name'
                                 onChange={(e) => setCreateForm({ ...createForm, websiteName: e.target.value })}
+                                required
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <Label htmlFor="website" className="text-right">
+                                Website Domain
+                            </Label>
+                            <Input
+                                id="website"
+                                value={createForm.domain}
+                                placeholder='Enter website domain'
+                                onChange={(e) => setCreateForm({ ...createForm, domain: e.target.value })}
+                                required
                             />
                         </div>
 
@@ -160,7 +183,7 @@ const AddAdmin = () => {
                                             type="checkbox"
                                             id={permission}
                                             value={permission}
-                                            checked={createForm.permissions.includes(permission)}  
+                                            checked={createForm.permissions.includes(permission)}
                                             onChange={handlePermissionChange}
                                             className="h-4 w-4"
                                         />

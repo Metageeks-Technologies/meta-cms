@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { CreatePageDto } from "./dto/create-page.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
@@ -7,6 +7,7 @@ import { UpdatePageDto } from "./dto/update-page.dto";
 import { WebsiteService } from "../website/website.service";
 import { ServiceService } from "../services/service.service";
 import { SubserviceService } from "../subservices/subservice.service";
+import { SitemapService } from "../siteMap/sitemap.service";
 
 
 
@@ -18,7 +19,8 @@ export class PagesService {
         @InjectModel('Page') private Page: Model<IPage>,
         private readonly websiteService: WebsiteService,
         private readonly serviceService: ServiceService,
-        private readonly subserviceService: SubserviceService
+        private readonly subserviceService: SubserviceService,
+        @Inject(forwardRef(() => SitemapService)) private readonly sitemapService: SitemapService,
     ) { }
 
 
@@ -50,6 +52,7 @@ export class PagesService {
 
         try {
             await newPage.save();
+            await this.sitemapService.createSitemap(websiteKey);
         } catch (error) {
             throw error;
         }
@@ -101,6 +104,7 @@ export class PagesService {
             throw new BadRequestException('Page already deleted');
         }
         await this.Page.updateOne({ _id: id }, { isDeleted: true }).exec();
+        await this.sitemapService.createSitemap(websiteKey);
     }
 
 
@@ -118,6 +122,7 @@ export class PagesService {
             throw new BadRequestException('Page not deleted yet');
         }
         await this.Page.updateOne({ _id: id }, { isDeleted: false }).exec();
+        await this.sitemapService.createSitemap(websiteKey);
     }
 
     async updatePage(websiteKey: string, id: string, updatePageDetails: UpdatePageDto) {
@@ -149,6 +154,7 @@ export class PagesService {
         }
 
         await this.Page.updateOne({ _id: id }, { $set: updatePageDetails }).exec();
+        await this.sitemapService.createSitemap(websiteKey);
     }
 
     async getAllPage(websiteKey: string, pageNo: string, searchQuery: string) {
@@ -206,6 +212,14 @@ export class PagesService {
         }
 
         return result;
+    }
+
+
+
+    // this service use in sitemap service
+    async getAllPageWithoutPagination(websiteKey: string) {
+        const allPage = await this.Page.find({ website: websiteKey, isActive: true, isDeleted: false });
+        return allPage;
     }
 
 }

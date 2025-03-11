@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, HttpException, Injectable, NotFoundException, ParseBoolPipe } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, forwardRef, HttpException, Inject, Injectable, NotFoundException, ParseBoolPipe } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IPost, PostStatusEnum, WebsiteEnum } from './schema/post.schema';
 import mongoose, { Model, mongo } from 'mongoose';
@@ -13,6 +13,8 @@ import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { postStatuEnum } from 'client/src/constant/post';
 import { CommentService } from '../comment/comment.service';
 import { WebsiteService } from '../website/website.service';
+import { SitemapService } from '../siteMap/sitemap.service';
+import { RSSService } from '../RSS/rss.service';
 const readingTime = require('reading-time');
 
 @Injectable()
@@ -70,7 +72,9 @@ export class PostsService {
     private likesService: LikesService,
     private bookmarksService: BookmarksService,
     private commentService: CommentService,
-    private websiteService: WebsiteService
+    private websiteService: WebsiteService,
+    @Inject(forwardRef(() => SitemapService)) private readonly sitemapService: SitemapService, 
+    @Inject(forwardRef(() =>  RSSService)) private readonly rssService: RSSService,
   ) { }
 
   async createUniqueSlugFromTitle(title: string) {
@@ -108,7 +112,8 @@ export class PostsService {
 
     try {
       await newPost.save();
-
+      await this.sitemapService.createSitemap(websiteKey);
+      await this.rssService.createRssFeed(websiteKey);
     } catch (error) {
       if (error.code === 11000) {
         // Duplicate key error
@@ -407,6 +412,9 @@ export class PostsService {
     if (query.matchedCount == 0) {
       throw new NotFoundException("Post not found");
     }
+
+    await this.sitemapService.createSitemap(websiteKey);
+    await this.rssService.createRssFeed(websiteKey);
   }
 
   async approvePost(websiteKey: string, _id: string) {
@@ -428,6 +436,8 @@ export class PostsService {
     }
 
     await this.changePostStatus(websiteKey, _id, newStatus);
+    await this.sitemapService.createSitemap(websiteKey);
+    await this.rssService.createRssFeed(websiteKey);
   }
 
   async updatePost(websiteKey: string, _id: string, updatedPost: UpdatePostDto, authorId: string, authorRole: UserRoleEnum) {
@@ -458,6 +468,8 @@ export class PostsService {
 
     const query = await this.Post.updateOne({ _id: _id }, { $set: { ...updatedPost, isDeleted: false } }).exec();
     // No need to check here if post exists or not. we already checked above
+    await this.sitemapService.createSitemap(websiteKey);
+    await this.rssService.createRssFeed(websiteKey);
   }
 
   async likePublicPost(websiteKey: string, postId: string, userId: string) {
@@ -568,6 +580,8 @@ export class PostsService {
     }
 
     const query = await this.Post.updateOne({ _id: _id }, { isDeleted: true }).exec();
+    await this.sitemapService.createSitemap(websiteKey);
+    await this.rssService.createRssFeed(websiteKey);
   }
 
   async recoverPost(websiteKey: string, _id: string) {
@@ -585,6 +599,8 @@ export class PostsService {
     if (query.modifiedCount == 0) {
       throw new BadRequestException('Post was not deleted');
     }
+    await this.sitemapService.createSitemap(websiteKey);
+    await this.rssService.createRssFeed(websiteKey);
   }
 
   async getPostsCount(websiteKey: string, userId: string, status: string) {
@@ -728,7 +744,7 @@ export class PostsService {
       throw new NotFoundException("Post Id not found");
     }
 
-    if(post.status !== postStatuEnum.PUBLISHED){
+    if (post.status !== postStatuEnum.PUBLISHED) {
       throw new BadRequestException('This post is not published')
     }
 
@@ -842,6 +858,12 @@ export class PostsService {
     }
 
     await this.commentService.recoverComment(websiteKey, commentId)
+  }
+
+
+  async getAllPostWithoutPagination(websiteKey: string) {
+    const allPosts = await this.Post.find({ website: websiteKey, status: postStatuEnum.PUBLISHED, isDeleted: false });
+    return allPosts;
   }
 
 }

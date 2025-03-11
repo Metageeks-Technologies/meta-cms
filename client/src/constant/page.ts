@@ -6,6 +6,10 @@ export const INITIAL_PAGE_CONTENT: PageContent = {
     website: '',
     service: '',
     subService: '',
+    // Add OG specific properties at the top level
+    ogTitle: '',
+    ogDescription: '',
+    ogImageKey: '',
     content: {
         heroSection: {
             subHeading: '',
@@ -61,84 +65,11 @@ export const INITIAL_PAGE_CONTENT: PageContent = {
                 point: '',
             }]
         },
+        // Keep this for backward compatibility if needed
+       
     },
     metaTitle: '',
     metaDescription: '',
     keywords: [],
     _id: ''
 };
-
-
-
-// export const PageService = [
-//     {
-//         key: "blockchain",
-//         title: "Blockchain"
-//     },
-//     {
-//         key: "ai",
-//         title: "AI"
-//     },
-//     {
-//         key: "gaming",
-//         title: "Gaming"
-//     },
-//     {
-//         key: "consulting",
-//         title: "Consulting"
-//     },
-//     {
-//         key: "industries",
-//         title: "Industries"
-//     },
-// ]
-
-// export const PageSubService = {
-//     blockchain: [
-//         {
-//             key: 'core_blockchain',
-//             title: 'Core Blockchain',
-//         },
-//         {
-//             key: 'crypto',
-//             title: "Crypto"
-//         },
-//         {
-//             key: 'dapps',
-//             title: "Dapps"
-//         }
-//     ],
-//     ai:[
-//         {
-//             key: 'ai_solutions',
-//             title: "AI Solutions"
-//         },
-//         {
-//             key: 'robotics',
-//             title: "Robotics"
-//         }
-//     ],
-//     gaming: [
-//         {
-//             key: 'gaming_tech',
-//             title: "Gaming Tech"
-//         },
-//         {
-//             key: 'esports',
-//             title: "Esports"
-//         }
-//     ],
-//     consulting: [
-//         {
-//             key: 'consulting',
-//             title: 'Consulting'
-//         },
-//     ],
-//     industries: [
-//         {
-//             key: 'industries',
-//             title: "Industries"
-//         }
-//     ]
-
-// }

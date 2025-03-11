@@ -18,6 +18,9 @@ import { useUserContext } from '@/context/userContext'
 import { uploadToS3 } from '@/utils/helperFunction'
 import { getURL } from '@/utils/AWS_Config'
 import axios from 'axios'
+import { Upload } from 'lucide-react'
+import Image from 'next/image';
+
 
 
 const AddCategory = () => {
@@ -174,27 +177,38 @@ const AddCategory = () => {
                             />
                         </div>
 
-                        <div className="w-full mb-4 border-[1px] border-gray-200 px-4 py-[5px] rounded-md">
-                            <Label htmlFor="img" className="text-right w-full ">
-                                Select Image
-                            </Label>
-                            <input
-                                type="file"
-                                id="img"
-                                // value={createForm.bannerImageKey}
-                                onChange={(e: any) => uploadNewFile(e.target.files)}
-                                className='hidden'
-                            />
+                        <div>
+                            <Label className="mb-2 block">Select Image</Label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    id="img"
+                                    onChange={(e: any) => uploadNewFile(e.target.files)}
+                                    className='absolute inset-0 opacity-0 cursor-pointer z-10'
+                                />
+                                <div className="border-[1px] border-gray-200 px-4 py-3 rounded-md flex items-center justify-between">
+                                    <span className="text-gray-400">Choose file</span>
+                                    <Upload className="w-5 h-5 text-gray-400" />
+                                </div>
+                            </div>
                         </div>
 
                         {
                             createForm.bannerImageKey &&
                             <div className='w-[100px] h-[70px]'>
-                                <img src={getURL(createForm.bannerImageKey)} alt="" className='w-full h-full object-cover' />
+                                <Image
+                                    src={getURL(createForm.bannerImageKey)}
+                                    alt=""
+                                    className="w-full h-full object-cover"
+                                    layout="responsive" 
+                                    width={1200} 
+                                    height={500} 
+                                />
+
                             </div>
                         }
                         <DialogFooter>
-                            <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600'>Create</Button>
+                            <Button type="submit" className='bg-green-500 text-white font-bold text-base hover:bg-green-600 mt-5 '>Create</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>

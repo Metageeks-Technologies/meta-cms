@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify';
 import { getURL } from '@/utils/AWS_Config';
 import { ArrowUpRight } from 'lucide-react';
+import Image from 'next/image';
+
 
 const Card = ({ post, index }: any) => {
     const router = useRouter();
@@ -75,27 +77,30 @@ const Card = ({ post, index }: any) => {
             '
         >
             {/* Image Section */}
-            <div className='relative h-56 overflow-hidden'>
-                <img 
-                    src={getURL(post.previewImageKey)} 
-                    alt="Blog Image" 
-                    className='
-                        w-full h-full object-cover 
-                        group-hover:scale-110 transition-transform 
-                        duration-300
-                    ' 
-                />
-                {post.isDeleted && (
-                    <div className='
-                        absolute top-2 right-2 bg-red-500/80 
-                        text-white px-2 py-1 rounded-full 
-                        text-xs font-bold
-                    '>
-                        Deleted
-                    </div>
-                )}
 
-            </div>
+<div className='relative h-56 overflow-hidden'>
+    <Image 
+        src={getURL(post.previewImageKey)} 
+        alt="Blog Image" 
+        className='
+            w-full h-full object-cover 
+            group-hover:scale-110 transition-transform 
+            duration-300
+        ' 
+        layout="fill" // This makes the image fill the parent div
+        objectFit="cover" // Ensures the image covers the space
+    />
+    {post.isDeleted && (
+        <div className='
+            absolute top-2 right-2 bg-red-500/80 
+            text-white px-2 py-1 rounded-full 
+            text-xs font-bold
+        '>
+            Deleted
+        </div>
+    )}
+</div>
+
 
             {/* Content Section */}
             <div className='p-4 flex flex-col space-y-3 flex-grow'>
@@ -109,6 +114,7 @@ const Card = ({ post, index }: any) => {
                     <span className={`
                         px-2 py-1 
                         rounded-md text-[10px] font-medium
+                        capitalize
                         ${getStatusColor(post.status)}
                     `}>
                         {post.status}
