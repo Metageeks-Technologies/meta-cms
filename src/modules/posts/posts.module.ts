@@ -9,6 +9,7 @@ import { BookmarksModule } from '../bookmarks/bookmarks.module';
 import { CommentModule } from '../comment/comment.module';
 import { WebsiteModule } from '../website/website.module';
 import { SiteMapModule } from '../siteMap/sitemap.module';
+import { RSSModule } from '../RSS/rss.module';
 
 @Module({
   imports: [ 
@@ -18,7 +19,8 @@ import { SiteMapModule } from '../siteMap/sitemap.module';
     BookmarksModule,
     CommentModule,
     WebsiteModule,
-    forwardRef(() => SiteMapModule)
+    forwardRef(() => SiteMapModule),
+    forwardRef(() => RSSModule)
   ],
   controllers: [PostsController],
   providers: [PostsService],

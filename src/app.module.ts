@@ -31,6 +31,7 @@ import { SubserviceModule } from './modules/subservices/subservice.module';
 import { PermissionModule } from './modules/permission/permission.module';
 import { CaseStudyModule } from './modules/caseStudy/caseStudy.module';
 import { SiteMapModule } from './modules/siteMap/sitemap.module';
+import { RSSModule } from './modules/RSS/rss.module';
 
 
 
@@ -65,7 +66,8 @@ import { SiteMapModule } from './modules/siteMap/sitemap.module';
     WebsiteModule,
     PermissionModule,
     CaseStudyModule,
-    SiteMapModule
+    SiteMapModule,
+    RSSModule
   ],
   controllers: [AppController],
   providers: [
