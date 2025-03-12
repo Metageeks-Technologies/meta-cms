@@ -265,7 +265,6 @@ function Category() {
 
   useEffect(() => {
     if (websitePageNo === 1) fetchWebsiteData(searchQuery)
-
     setWebsitePageNo(1)
   }, [searchQuery])
 

@@ -192,6 +192,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const fetchWebsite = async (key: string) => {
+        if(!key) return;
         setLoading(true);
         try {
             const resp = await axiosCall('get', `${process.env.NEXT_PUBLIC_BASE_URL}/website/any/${key}`)

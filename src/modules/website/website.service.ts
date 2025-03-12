@@ -38,12 +38,9 @@ export class WebsiteService {
     }
 
     async getWebsites(isDeleted: boolean, pageNo: string, searchQuery: string) {
-
-        const page = parseInt(pageNo) || 1;
-        const skip = (page - 1) * this.WEBSITE_PAGE_BATCH_LIMIT
-
         const query = {}
         let sortOption: any = { createdAt: -1 }
+
         if (isDeleted !== undefined) {
             query['isDeleted'] = isDeleted;
         }
@@ -53,12 +50,24 @@ export class WebsiteService {
             sortOption = { score: { $meta: "textScore" }, createdAt: -1 }
         }
 
+        if (pageNo) {
+            const page = parseInt(pageNo) || 1;
+            const skip = (page - 1) * this.WEBSITE_PAGE_BATCH_LIMIT
+
+            const websites = await this.Website.find(query)
+                .sort(sortOption)
+                .skip(skip)
+                .limit(this.WEBSITE_PAGE_BATCH_LIMIT)
+                .select(searchQuery && { score: { $meta: "textScore" } })
+                .lean().exec();
+            return websites;
+        }
+
         const websites = await this.Website.find(query)
-            .sort(sortOption)
-            .skip(skip)
-            .limit(this.WEBSITE_PAGE_BATCH_LIMIT)
+            .sort({ createdAt: -1 })
             .select(searchQuery && { score: { $meta: "textScore" } })
             .lean().exec();
+
         return websites;
     }
 
@@ -80,8 +89,8 @@ export class WebsiteService {
     }
 
     async recoverWebsite(websiteId: string) {
-        const website = await this.Website.findOne({_id: websiteId});
-        if(website.permissions.length <= 0){
+        const website = await this.Website.findOne({ _id: websiteId });
+        if (website.permissions.length <= 0) {
             throw new BadRequestException('Add Permissions first')
         }
         const query = await this.Website.updateOne({ _id: websiteId }, { $set: { isDeleted: false } })
