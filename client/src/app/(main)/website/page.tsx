@@ -215,7 +215,7 @@ const columns = [
                           type="checkbox"
                           id={permission}
                           value={permission}
-                          checked={website.permissions.includes(permission)}
+                          checked={website?.permissions?.includes(permission)}
                           onChange={handlePermissionChange}
                           className="h-4 w-4"
                         />
