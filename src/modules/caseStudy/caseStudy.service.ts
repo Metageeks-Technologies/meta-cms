@@ -7,6 +7,8 @@ import { CreateCaseStudyDto } from "./dto/create-caseStudy-dto";
 import { WebsiteService } from "../website/website.service";
 import { UpdateCaseStudyDto } from "./dto/update-caseStudy.dto";
 import { SitemapService } from "../siteMap/sitemap.service";
+import { generateJsonLdForCaseStudy } from "src/utils/pageSchema";
+import { RedisService } from "../redis/redis.service";
 
 
 
@@ -17,7 +19,8 @@ export class CaseStudyService {
     constructor(
         @InjectModel('CaseStudy') private CaseStudy: Model<ICaseStudy>,
         private readonly websiteService: WebsiteService,
-        @Inject(forwardRef(() => SitemapService)) private readonly sitemapService: SitemapService
+        @Inject(forwardRef(() => SitemapService)) private readonly sitemapService: SitemapService,
+        private readonly redisService: RedisService
     ) { }
 
 
@@ -146,7 +149,21 @@ export class CaseStudyService {
         }
 
         const caseStudy = await this.CaseStudy.findOne(query).populate('authorId').exec();
-        return caseStudy;
+
+        const jsonLdRedis = await this.redisService.getCache(`${website.domain}-${caseStudy.slug}-casestudy-jsonLd`);
+        if(jsonLdRedis){
+            return {
+                caseStudy,
+                jsonLd: jsonLdRedis
+            }
+        }
+
+        const jsonLd = generateJsonLdForCaseStudy(website, caseStudy);
+        await this.redisService.setCache(`${website.domain}-${caseStudy.slug}-casestudy-jsonLd`, jsonLd, 86400)
+        return {
+            caseStudy,
+            jsonLd
+        };
     }
 
 
