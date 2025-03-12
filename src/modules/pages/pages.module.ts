@@ -8,6 +8,7 @@ import { WebsiteModule } from "../website/website.module";
 import { ServiceModule } from "../services/service.module";
 import { SubserviceModule } from "../subservices/subservice.module";
 import { SiteMapModule } from "../siteMap/sitemap.module";
+import { RedisModule } from "../redis/redis.module";
 
 
 
@@ -18,7 +19,8 @@ import { SiteMapModule } from "../siteMap/sitemap.module";
     WebsiteModule,
     ServiceModule,
     SubserviceModule,
-    forwardRef(() => SiteMapModule)
+    forwardRef(() => SiteMapModule),
+    RedisModule
   ],
   controllers: [PagesController],
   providers: [PagesService],

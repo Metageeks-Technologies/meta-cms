@@ -26,7 +26,7 @@ export class PagesController {
 
     @Get('public/:slug')
     async getPublicPageBySlug(@Param('slug') slug: string, @Query() query: GetPageQueryDto) {
-        const page = await this.pagesService.getPageBySlug(query.website, slug, false);
+        const page = await this.pagesService.getPageBySlug(query.website, slug, true, false);
         return page;
     }
 
@@ -34,7 +34,7 @@ export class PagesController {
     @AllowedRoles(UserRoleEnum.ADMIN, UserRoleEnum.SUPERADMIN)
     @UseGuards(AuthGuard, RolesGuard)
     async getPageBySlug(@Headers('websiteKey') websiteKey: string, @Param('slug') slug: string) {
-        const page = await this.pagesService.getPageBySlug(websiteKey, slug);
+        const page = await this.pagesService.getPageBySlug(websiteKey, slug, false);
         return page;
     }
 

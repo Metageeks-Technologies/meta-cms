@@ -8,6 +8,8 @@ import { WebsiteService } from "../website/website.service";
 import { ServiceService } from "../services/service.service";
 import { SubserviceService } from "../subservices/subservice.service";
 import { SitemapService } from "../siteMap/sitemap.service";
+import { generateJsonLdForServicePage } from "src/utils/pageSchema";
+import { RedisService } from "../redis/redis.service";
 
 
 
@@ -21,6 +23,7 @@ export class PagesService {
         private readonly serviceService: ServiceService,
         private readonly subserviceService: SubserviceService,
         @Inject(forwardRef(() => SitemapService)) private readonly sitemapService: SitemapService,
+        private readonly redisService: RedisService
     ) { }
 
 
@@ -58,7 +61,7 @@ export class PagesService {
         }
     }
 
-    async getPageBySlug(websiteKey: string, slug: string, isDeleted?: boolean) {
+    async getPageBySlug(websiteKey: string, slug: string, includeJSONld: boolean, isDeleted?: boolean) {
 
         const website = await this.websiteService.getWebsiteByKey(websiteKey);
         if (!website) {
@@ -84,6 +87,25 @@ export class PagesService {
         if (!page) {
             throw new NotFoundException('Page Not Found')
         }
+
+
+        if(includeJSONld){
+            const jsonLdInRedis = await this.redisService.getCache(`${website.domain}-${page.slug}-jsonLd`)
+            if(jsonLdInRedis){
+                return {
+                    page,
+                    jsonLd: jsonLdInRedis
+                }
+            }
+
+            const jsonLd = generateJsonLdForServicePage(website, page)
+            await this.redisService.setCache(`${website.domain}-${page.slug}-jsonLd`, jsonLd, 86400)
+            return {
+                page,
+                jsonLd
+            };
+        }
+
         return page;
     }
 
