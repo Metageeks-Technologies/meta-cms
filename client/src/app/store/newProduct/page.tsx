@@ -85,7 +85,7 @@ const CreateProduct: React.FC = () => {
   useEffect(() => {
     if (user.role) {
       fetchCategory();
-      fetchWebsites();
+      // fetchWebsites();
     }
   }, [user]);
 

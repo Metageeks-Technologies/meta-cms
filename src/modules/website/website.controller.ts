@@ -27,7 +27,7 @@ export class WebsiteController {
     @Get()
     @UseGuards(AuthGuard)
     async getWebsites(@Query() query: WebsiteQueryDto) {
-        const websites = await this.websiteService.getWebsites(false, query.page, query.search)
+        const websites = await this.websiteService.getWebsites(false, undefined, query.search)
         return websites;
     }
 
