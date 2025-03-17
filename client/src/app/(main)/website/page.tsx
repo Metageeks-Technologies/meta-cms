@@ -85,10 +85,12 @@ const columns = [
 
       const handlePermissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = e.target;
+
+        console.log(value, "value", checked, "checked")
         setWebsite((prevWebsite: any) => {
           const updatedPermissions = checked
-            ? [...prevWebsite.permissions, value]
-            : prevWebsite.permissions.filter((perm: string) => perm !== value);
+            ? [...prevWebsite?.permissions, value]
+            : prevWebsite?.permissions?.filter((perm: string) => perm !== value);
           return { ...prevWebsite, permissions: updatedPermissions };
         });
       };
