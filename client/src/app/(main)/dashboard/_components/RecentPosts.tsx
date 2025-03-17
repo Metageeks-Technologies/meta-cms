@@ -82,7 +82,8 @@ const RecentPosts = () => {
                                     <Image
                                         src={getURL(post.previewImageKey)} // The dynamic URL or path
                                         alt=""
-                                        className="w-full h-full object-cover rounded-lg group-hover:scale-105"
+                                        className="w-full h-full object-cover rounded-lg transition-transform duration-300 delay-100 group-hover:scale-105"
+
                                         width={1200} // Replace with the actual width of the image
                                         height={800} // Replace with the actual height of the image
                                     />

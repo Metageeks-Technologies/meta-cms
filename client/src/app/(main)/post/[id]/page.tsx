@@ -276,6 +276,7 @@ const page = () => {
     useEffect(() => {
         setLastId(comments[comments.length - 1]?._id || '');
     }, [comments]);
+    
 
     useEffect(() => {
         const scripts = post?.description?.match(
@@ -325,8 +326,12 @@ const page = () => {
     {!isLoading ? (
         <div className="max-w-4xl mx-auto mt-8">
             {post?.title ? (
-                <>
-                {/* Author and Post Info with improved spacing */}
+                <>                
+                    {/* Title with subtle animation */}
+                    <h1 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+                        {post?.title}
+                    </h1>
+                    {/* Author and Post Info with improved spacing */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 space-y-4 md:space-y-0">
                         <div className="flex items-center gap-4">
                             <Avatar className="w-14 h-14 border-2 border-blue-500/20 ring-2 ring-blue-500/10">
@@ -361,10 +366,6 @@ const page = () => {
                             </div>
                         </div>
                     </div>
-                    {/* Title with subtle animation */}
-                    <h1 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
-                        {post?.title}
-                    </h1>
 
                     
 
@@ -557,41 +558,43 @@ const page = () => {
                                 post?.author?.role === userRoles.SUPERADMIN
                             ) && (
                                 <AlertDialog>
-                                    <AlertDialogTrigger className="flex items-center gap-2 px-5 py-3 bg-red-500/90 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 font-medium shadow-lg shadow-red-500/10">
-                                        <Trash2 className="w-5 h-5" />
-                                        <span>Delete</span>
-                                    </AlertDialogTrigger>
-
-                                    <AlertDialogContent className="bg-gray-900 border-gray-800 rounded-xl shadow-2xl">
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle></AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                <div className="flex flex-col items-center gap-6 py-4">
-                                                    <TriangleAlert className="w-20 h-20 text-red-500" />
-                                                    <h2 className="text-2xl font-semibold text-gray-100">
-                                                        Delete Post
-                                                    </h2>
-                                                    <p className="text-gray-300 text-center">
-                                                        Are you sure you want to delete this Post? 
-                                                        <br/>This action cannot be undone.
-                                                    </p>
-                                                </div>
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel className="bg-gray-800 hover:bg-gray-700 font-medium">
-                                                Cancel
-                                            </AlertDialogCancel>
-                                            <AlertDialogAction
-                                                onClick={handleDeletePost}
-                                                className="bg-red-500 text-white hover:bg-red-600 font-medium shadow-md"
-                                            >
+                                <AlertDialogTrigger className="flex items-center gap-2 px-5 py-3 bg-red-500/90 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 font-medium shadow-lg shadow-red-500/10">
+                                    <Trash2 className="w-5 h-5" />
+                                    <span>Delete</span>
+                                </AlertDialogTrigger>
+                    
+                                <AlertDialogContent className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle className="text-center">
+                                            <div className="flex flex-col items-center pt-4">
+                                                <TriangleAlert className="w-20 h-20 text-red-500 mb-6" />
+                                                <h2 className="text-2xl font-semibold text-gray-100">
+                                                    Delete Post
+                                                </h2>
+                                            </div>
+                                        </AlertDialogTitle>
+                                        
+                                        <AlertDialogDescription className="text-center pt-4">
+                                            Are you sure you want to delete this Post?
+                                            <br/>This action cannot be undone.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                    
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel className="bg-gray-800 text-white hover:bg-gray-700 font-medium">
+                                            Cancel
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction 
+                                            className="bg-red-500 text-white hover:bg-red-600 font-medium shadow-md"
+                                            asChild
+                                        >
+                                            <button onClick={handleDeletePost}>
                                                 Delete
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                                            </button>
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                             )}
 
                         {(user?.id === post?.authorId ||
@@ -616,30 +619,30 @@ const page = () => {
 
                         {post.status === 'draft' ||
                             (post.status === 'rejected' && (
-                                <Button
+                                <button
                                     onClick={() => handlePublished(post._id)}
-                                    className="flex items-center gap-2 px-5 py-3 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg transition-colors font-medium shadow-lg"
+                                    className="flex items-center gap-2 px-5 py-3 bg-green-500/90 hover:bg-green-600 text-white rounded-lg transition-colors font-medium shadow-lg shadow-green-500/10"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="m5 12 5 5L20 7"></path>
                                     </svg>
                                     <span>Publish Post</span>
-                                </Button>
+                                </button>
                             ))}
 
                         {(user.role === userRoles.SUPERADMIN ||
                             user.role === userRoles.ADMIN) &&
                             post.isDeleted && (
-                                <Button
+                                <button
                                     onClick={handleRecoverPost}
-                                    className="flex items-center gap-2 px-5 py-3 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg transition-colors font-medium shadow-lg"
+                                    className="flex items-center gap-2 px-5 py-3 bg-yellow-500/90 hover:bg-yellow-600 text-white rounded-lg transition-colors font-medium shadow-lg shadow-yellow-500/10"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M9 14 4 9l5-5"></path>
                                         <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H10"></path>
                                     </svg>
                                     <span>Recover Post</span>
-                                </Button>
+                                </button>
                             )}
                     </div>
                     <div className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-8 mb-10 border border-gray-800 shadow-lg">
@@ -707,83 +710,89 @@ const page = () => {
 
                     {/* Comments with improved styling */}
                     {post.status !== postStatuEnum.DRAFT &&
-                        post.status !== postStatuEnum.SCHEDULED &&
-                        comments.length > 0 && (
-                            <div className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-8 border border-gray-800 shadow-lg">
-                                <h2 className="text-2xl font-semibold mb-8 flex items-center gap-2">
-                                    <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
-                                    Comments ({comments.length})
-                                </h2>
-                                <div className="space-y-8">
-                                    {comments.map((comment: IComment) => (
-                                        <div
-                                            key={comment._id}
-                                            className="border-b border-gray-800 pb-8 last:border-0"
-                                        >
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="flex gap-4">
-                                                    <img
-                                                        src={
-                                                            user?.imageKey
-                                                                ? getURL(user?.imageKey)
-                                                                : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=48&background=334155&color=ffffff`
-                                                        }
-                                                        alt={comment.userDetails?.name}
-                                                        className="w-12 h-12 rounded-full ring-2 ring-gray-800"
-                                                    />
-                                                    <div>
-                                                        <p className="text-blue-400 font-medium">
-                                                            {comment.userDetails?.name}
-                                                        </p>
-                                                        <p className="text-gray-400 text-sm">
-                                                            {handleDate(comment.createdAt)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                {(user?.id === comment.userDetails?.id ||
-                                                    user.role === userRoles.SUPERADMIN ||
-                                                    user.role === userRoles.MODERATOR) && (
-                                                    <button
-                                                        onClick={() => handleDeleteComment(comment._id)}
-                                                        className="bg-red-500/80 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-600 hover:shadow-lg flex items-center gap-1.5"
-                                                    >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                            <path d="M3 6h18"></path>
-                                                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                                                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                                                        </svg>
-                                                        Delete
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <p className="text-gray-200 leading-relaxed pl-16">
-                                                {comment.message}
-                                            </p>
-                                        </div>
-                                    ))}
-                                    {hasMore && (
-                                        <button
-                                            onClick={() => fetchComments(post?._id, lastId)}
-                                            className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium mt-4"
-                                        >
-                                            Load More Comments
-                                        </button>
-                                    )}
+    post.status !== postStatuEnum.SCHEDULED &&
+    comments.length > 0 && (
+        <div className="bg-gray-900/70 backdrop-blur-sm rounded-xl p-8 border border-gray-800 shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
+                Comments 
+            </h2>
+            
+            {/* Scrollable comments container with fixed height */}
+            <div className="max-h-[400px] overflow-y-auto styledScrollable mb-4">
+                <div className="space-y-8 pr-2">
+                    {comments.map((comment: IComment) => (
+                        <div
+                            key={comment._id}
+                            className="border-b border-gray-800 pb-8 last:border-0"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="flex gap-4">
+                                    <img
+                                        src={
+                                            user?.imageKey
+                                                ? getURL(user?.imageKey)
+                                                : `https://ui-avatars.com/api/?name=${comment.userDetails?.name}&size=48&background=334155&color=ffffff`
+                                        }
+                                        alt={comment.userDetails?.name}
+                                        className="w-12 h-12 rounded-full ring-2 ring-gray-800"
+                                    />
+                                    <div>
+                                        <p className="text-blue-400 font-medium">
+                                            {comment.userDetails?.name}
+                                        </p>
+                                        <p className="text-gray-400 text-sm">
+                                            {handleDate(comment.createdAt)}
+                                        </p>
+                                    </div>
                                 </div>
+                                {(user?.id === comment.userDetails?.id ||
+                                    user.role === userRoles.SUPERADMIN ||
+                                    user.role === userRoles.MODERATOR) && (
+                                    <button
+                                        onClick={() => handleDeleteComment(comment._id)}
+                                        className="bg-red-500/80 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 hover:bg-red-600 hover:shadow-lg flex items-center gap-1.5"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M3 6h18"></path>
+                                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                )}
                             </div>
-                        )}
-                </>
-            ) : (
-                <p className="text-center text-xl text-gray-400">
-                            No post found
-                        </p>
-                    )}
+                            <p className="text-gray-200 leading-relaxed pl-16">
+                                {comment.message}
+                            </p>
+                        </div>
+                    ))}
                 </div>
-            ) : (
-                <div className="flex justify-center items-center min-h-[60vh]">
-                    <p className="text-xl text-gray-400">Loading...</p>
-                </div>
+            </div>
+            
+            {hasMore && (
+                <button
+                    onClick={() => fetchComments(post?._id, lastId)}
+                    className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium"
+                >
+                    Load More Comments
+                </button>
             )}
+        </div>
+    )
+}
+</>
+) : (
+    <p className="text-center text-xl text-gray-400">
+        No post found
+    </p>
+)}
+</div>
+) : (
+    <div className="flex justify-center items-center min-h-[60vh]">
+        <p className="text-xl text-gray-400">Loading...</p>
+    </div>
+)}
 </div>
     );
 };
