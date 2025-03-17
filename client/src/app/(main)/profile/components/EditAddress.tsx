@@ -4,6 +4,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogClose
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"; 
@@ -12,6 +13,7 @@ import { useUserContext } from '@/context/userContext';
 import axiosCall from '@/utils/ApiCall';
 import toast from 'react-hot-toast';
 import { AddressType, EditAddressProps, PostOfficeData } from '@/types';
+import { X } from 'lucide-react';
 
 const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, getUserAddresses, setIsOpen }) => {
     const { setLoading, websiteKey } = useUserContext();
@@ -245,14 +247,15 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
     };
 
     return (
-        <DialogContent className="sm:max-w-[600px] bg-gray-700 border-gray-800 text-white">
-            <DialogHeader>
+        <DialogContent className="sm:max-w-[600px] bg-gray-700 border-gray-800 text-white max-h-[90vh] flex flex-col">
+            <DialogHeader className="flex-shrink-0">
                 <DialogTitle className="text-2xl">
                     {isNewAddress ? "Add New Address" : "Edit Address"}
                 </DialogTitle>
             </DialogHeader>
-            <form className="py-4" onSubmit={handleSubmit}>
-                <div className="flex flex-col space-y-4">
+            
+            <div className="overflow-y-auto flex-grow styledScrollable">
+                <form className="py-4" id="addressForm" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
@@ -383,17 +386,18 @@ const EditAddress: React.FC<EditAddressProps> = ({ editAddress, setEditAddress, 
                             />
                         </div>
                     </div>
-                </div>
+                </form>
+            </div>
 
-                <DialogFooter className="mt-6">
-                    <Button 
-                        type="submit" 
-                        className="bg-green-500 text-white font-bold text-base hover:bg-green-600"
-                    >
-                        {isNewAddress ? "Add Address" : "Update Address"}
-                    </Button>
-                </DialogFooter>
-            </form>
+            <DialogFooter className="flex-shrink-0 mt-4 pt-4 border-t border-gray-600">
+                <Button 
+                    type="submit" 
+                    form="addressForm"
+                    className="bg-green-500 text-white font-bold text-base hover:bg-green-600 w-full"
+                >
+                    {isNewAddress ? "Add Address" : "Update Address"}
+                </Button>
+            </DialogFooter>
         </DialogContent>
     );
 };
