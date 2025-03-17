@@ -80,27 +80,24 @@ const StoreDashboard = () => {
                     totalPublishedProductCount={dashboardData?.totalPublishedProductCount}
                 />
             )}
-            <div className="flex w-[97%] mx-auto mt-5">
-                <div className="w-[65%] text-white p-6 rounded-lg border-[1px] border-gray-800">
-                    <LineChart data={dashboardData?.monthlyOrdersCount} />
-                </div>
-                <div className="w-[35%] text-white p-6 rounded-lg border-[1px] border-gray-800 ml-4">
-                    <PieChart data={dashboardData?.topSellingProduct} />
-                </div>
+         <div className="flex flex-col md:flex-row w-[97%] mx-auto mt-5">
+    <div className="w-full md:w-[65%] text-white p-6 rounded-lg border-[1px] border-gray-800 mb-4 md:mb-0">
+        <LineChart data={dashboardData?.monthlyOrdersCount} />
+    </div>
+    <div className="w-full md:w-[35%] text-white p-6 rounded-lg border-[1px] border-gray-800 md:ml-4">
+        <PieChart data={dashboardData?.topSellingProduct} />
+    </div>
+</div>
 
-            </div>
-            <div className="flex w-[97%] mx-auto mt-5">
+<div className="flex flex-col md:flex-row w-[97%] mx-auto mt-5">
+    <div className="w-full md:w-[65%] text-white p-6 rounded-lg border-[1px] border-gray-800 mb-4 md:mb-0">
+        <RecentOrders data={dashboardData?.recentOrder} />
+    </div>
+    <div className="w-full md:w-[35%] text-white p-6 rounded-lg border-[1px] border-gray-800 md:ml-4">
+        <LatestProducts data={dashboardData?.recentProduct} />
+    </div>
+</div>
 
-                <div className="w-[65%] text-white p-6 rounded-lg border-[1px] border-gray-800 ">
-                    <RecentOrders data={dashboardData?.recentOrder} />
-                </div>
-
-                <div className="w-[35%] text-white p-6 rounded-lg border-[1px] border-gray-800 ml-4 ">
-                    <LatestProducts data={dashboardData?.recentProduct} />
-                </div>
-            </div>
-            <div>
-            </div>
         </div>
     )
 }

@@ -155,6 +155,11 @@ const App: React.FC = () => {
             toast.error('Website key required', { duration: 2000 });
         }
 
+        if (!formData.keywords || formData.keywords.length === 0) {
+            toast.error('Add at least one keyword.', { duration: 2000 });
+            return;
+        }
+
         setLoading(true);
         try {
             const payload: PayloadType = {
@@ -204,6 +209,7 @@ const App: React.FC = () => {
                     ogImageKey: '',
                 });
                 setTagInput('');
+                setKeywordValue('');
                 fetchCategory();
             } else {
                 toast.error(resp.data.message, { duration: 2000 });

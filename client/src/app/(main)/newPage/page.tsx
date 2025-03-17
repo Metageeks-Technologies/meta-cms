@@ -581,6 +581,7 @@ const CreatePage = () => {
             if (resp?.status === 200 || resp?.status === 201) {
                 toast.success(resp.data.message, { duration: 2000 });
                 setFormData(INITIAL_PAGE_CONTENT);
+                setKeywordValue('');
             } else {
                 toast.error(resp?.data?.message, { duration: 2000 });
             }
