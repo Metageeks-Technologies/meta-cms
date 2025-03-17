@@ -90,7 +90,7 @@ export class PagesService {
 
 
         if(includeJSONld){
-            const jsonLdInRedis = await this.redisService.getCache(`${website.domain}-${page.slug}-jsonLd`)
+            const jsonLdInRedis = await this.redisService.getCache(`${website.domain}-${page.slug}-servicepage-jsonLd`)
             if(jsonLdInRedis){
                 return {
                     page,

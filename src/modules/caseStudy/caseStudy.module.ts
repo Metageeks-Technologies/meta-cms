@@ -6,6 +6,7 @@ import { CaseStudyController } from "./caseStudy.controller";
 import { WebsiteModule } from "../website/website.module";
 import { UsersModule } from "../users/users.module";
 import { SiteMapModule } from "../siteMap/sitemap.module";
+import { RedisModule } from "../redis/redis.module";
 
 
 @Module({
@@ -13,7 +14,8 @@ import { SiteMapModule } from "../siteMap/sitemap.module";
         MongooseModule.forFeature([{ name: "CaseStudy", schema: caseStudySchema}]),
         UsersModule,
         WebsiteModule,
-        forwardRef(() => SiteMapModule)
+        forwardRef(() => SiteMapModule),
+        RedisModule
     ],
     providers: [CaseStudyService],
     controllers: [CaseStudyController],

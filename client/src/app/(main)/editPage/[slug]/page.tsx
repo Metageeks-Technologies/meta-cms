@@ -1891,7 +1891,7 @@ const EditPage = () => {
                                 onChange={(e) =>
                                     handleOgChange('ogTitle', e.target.value)
                                 }
-                                required
+                                
                             />
                         </div>
 
@@ -1915,7 +1915,7 @@ const EditPage = () => {
                                     )
                                 }
                                 rows={3}
-                                required
+                                
                             />
                         </div>
 
