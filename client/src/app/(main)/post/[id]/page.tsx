@@ -563,7 +563,7 @@ const page = () => {
                                     <span>Delete</span>
                                 </AlertDialogTrigger>
                     
-                                <AlertDialogContent className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl">
+                                <AlertDialogContent className="bg-gray-900 border border-gray-800 w-[90vw] max-w-md mx-auto">
                                     <AlertDialogHeader>
                                         <AlertDialogTitle className="text-center">
                                             <div className="flex flex-col items-center pt-4">
@@ -574,7 +574,7 @@ const page = () => {
                                             </div>
                                         </AlertDialogTitle>
                                         
-                                        <AlertDialogDescription className="text-center pt-4">
+                                        <AlertDialogDescription className="flex flex-col items-center pt-4 font-medium">
                                             Are you sure you want to delete this Post?
                                             <br/>This action cannot be undone.
                                         </AlertDialogDescription>

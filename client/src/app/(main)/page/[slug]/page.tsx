@@ -58,7 +58,7 @@ const page = () => {
                 {(user.role === userRoles.SUPERADMIN ||
                     user.role === userRoles.ADMIN) && (
                     <button
-                        className="bg-white py-2 px-4 rounded-lg text-black font-bold flex flex-row items-center gap-2"
+                        className="bg-blue-600 py-2 px-4 rounded-lg text-white font-bold flex flex-row items-center gap-2"
                         onClick={() => router.push(`/editPage/${slug}`)}
                     >
                         <MdEdit /> Edit

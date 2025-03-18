@@ -118,7 +118,7 @@ const columns = [
                 <MoreHorizontal />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-white bg-black borrder-[1px] border-gray-800">
+            <DropdownMenuContent align="end" className="text-white bg-black border-[1px] border-gray-800 w-48 sm:w-auto">
 
 
               {/* Show options based on user's block status */}
@@ -149,20 +149,20 @@ const columns = [
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <AlertDialogContent className='bg-black border-gray-800'>
+          <AlertDialogContent className='bg-black border-gray-800 w-[90vw] max-w-md mx-auto'>
             <AlertDialogHeader>
               <AlertDialogTitle></AlertDialogTitle>
-              <AlertDialogDescription className='h-24' >
-                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+              <AlertDialogDescription className='h-16 sm:h-24' >
+                <TriangleAlert className='w-16 h-16 sm:w-24 sm:h-24 mx-auto text-red-500' />
               </AlertDialogDescription>
-              <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+              <AlertDialogDescription className='w-full h-auto py-4 text-center text-lg sm:text-2xl text-white'>
                 Are you sure ?
               </AlertDialogDescription>
             </AlertDialogHeader>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
+            <AlertDialogFooter className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-2">
+              <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+              <AlertDialogAction  className="w-full sm:w-auto"
                 onClick={
                   clickedItem === 1
                     ? () => changeUserRole(user._id, user.role, userRoles.MODERATOR)
@@ -242,7 +242,7 @@ function User() {
 
 
   return (
-    <div className="w-full container mx-auto px-4">
+    <div className="w-full container mx-auto px-4 ">
       <div className="flex flex-row items-center justify-between py-4">
         <Input
           placeholder="Search..."
@@ -309,8 +309,8 @@ function User() {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0 sm:space-x-2 py-4">
+    <div className="text-xs sm:text-sm text-muted-foreground">
           Total {!isLoading ? table.getFilteredRowModel().rows.length : 0} rows.
         </div>
         <div className="space-x-2 flex flex-row items-center gap-2">
@@ -319,17 +319,17 @@ function User() {
             size="sm"
             onClick={() => setUserPageNo(userPageNo - 1)}
             disabled={userPageNo <= 1}
-            className="text-black font-bold"
+            className="text-black font-bold text-xs sm:text-sm px-2 sm:px-4"
           >
             Previous
           </Button>
-          <div className="border-[1px] px-4 py-[4px] rounded-lg border-gray-400">{userPageNo}</div>
+          <div className="border-[1px] px-3 sm:px-4 py-[4px] rounded-lg border-gray-400 text-sm">{userPageNo}</div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setUserPageNo(userPageNo + 1)}
             disabled={contributors.length < 10}
-            className="text-black font-bold"
+            className="text-black font-bold text-xs sm:text-sm px-2 sm:px-4"
           >
             Next
           </Button>

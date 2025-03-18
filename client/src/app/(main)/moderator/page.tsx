@@ -139,20 +139,20 @@ const columns = [
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <AlertDialogContent className='bg-black border-gray-800'>
+          <AlertDialogContent className='bg-black border-gray-800 w-[90vw] max-w-md mx-auto'>
             <AlertDialogHeader>
               <AlertDialogTitle></AlertDialogTitle>
-              <AlertDialogDescription className='h-24' >
-                <TriangleAlert className='w-24 h-24 mx-auto text-red-500' />
+              <AlertDialogDescription className='h-16 sm:h-24' >
+                <TriangleAlert className='w-16 h-16 sm:w-24 sm:h-24 mx-auto text-red-500' />
               </AlertDialogDescription>
-              <AlertDialogDescription className='w-full h-20 text-center text-2xl text-white'>
+              <AlertDialogDescription className='w-full h-auto py-4 text-center text-lg sm:text-2xl text-white'>
                 Are you sure ?
               </AlertDialogDescription>
             </AlertDialogHeader>
 
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
+            <AlertDialogFooter className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-2">
+              <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+              <AlertDialogAction className="w-full sm:w-auto"
                 onClick={
                   clickedItem === 1 ?
                     () => changeUserRole(user._id, user.role, userRoles.CONTRIBUTOR)

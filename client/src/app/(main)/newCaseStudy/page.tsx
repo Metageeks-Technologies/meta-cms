@@ -51,6 +51,7 @@ const CreateCaseStudy = () => {
         }));
     };
 
+
     const addCardChallange = () => {
         const newCard: aboutCard = {
             heading: '',
@@ -84,7 +85,7 @@ const CreateCaseStudy = () => {
                     ...prev.content,
                     aboutSection: {
                         ...prev.content.aboutSection,
-                        cards: updatedCards, // Correctly update aboutCards
+                        cards: updatedCards, 
                     },
                 },
             }));
