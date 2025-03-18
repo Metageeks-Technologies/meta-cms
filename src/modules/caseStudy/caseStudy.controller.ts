@@ -43,10 +43,9 @@ export class CaseStudyController {
         @Headers('websiteKey') websiteKey: string,
         @Param('slug') slug: string
     ) {
-        const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug, false)
+        const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug, true, false)
         return caseStudy;
     }
-
 
     @Get()
     async getCaseStudy(
@@ -72,7 +71,7 @@ export class CaseStudyController {
         @Headers('websiteKey') websiteKey: string,
         @Param('slug') slug: string
     ) {
-        const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug)
+        const caseStudy = await this.caseStudyService.getBySlug(websiteKey, slug, false)
         return caseStudy;
     }
 

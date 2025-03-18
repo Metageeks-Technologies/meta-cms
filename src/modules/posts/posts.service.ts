@@ -259,7 +259,6 @@ export class PostsService {
 
 
 
-
   async searchPosts(websiteKey: string, { query, sortBy, lastId, lastScore }: SearchPostsQueryDto) {
 
     const website = await this.websiteService.getWebsiteByKey(websiteKey);

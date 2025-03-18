@@ -122,8 +122,7 @@ export class CaseStudyService {
         } else {
             const caseStudies = await this.CaseStudy.find(query).populate('authorId').exec()
             return caseStudies;
-        }
-
+        } 
     }
 
 
@@ -137,7 +136,7 @@ export class CaseStudyService {
         return caseStudies;
     }
 
-    async getBySlug(websiteKey: string, slug: string, isDeleted?: boolean) {
+    async getBySlug(websiteKey: string, slug: string, isJsonLd: Boolean, isDeleted?: boolean) {
         const website = await this.websiteService.getWebsiteByKey(websiteKey)
         if (!website) {
             throw new BadRequestException('Invalid website key')
@@ -150,20 +149,25 @@ export class CaseStudyService {
 
         const caseStudy = await this.CaseStudy.findOne(query).populate('authorId').exec();
 
-        const jsonLdRedis = await this.redisService.getCache(`${website.domain}-${caseStudy.slug}-casestudy-jsonLd`);
-        if(jsonLdRedis){
+
+        if(isJsonLd){
+            const jsonLdRedis = await this.redisService.getCache(`${website.domain}-${caseStudy.slug}-casestudy-jsonLd`);
+            if(jsonLdRedis){
+                return {
+                    caseStudy,
+                    jsonLd: jsonLdRedis
+                }
+            }
+            
+            const jsonLd = generateJsonLdForCaseStudy(website, caseStudy);
+            await this.redisService.setCache(`${website.domain}-${caseStudy.slug}-casestudy-jsonLd`, jsonLd, 86400)
             return {
                 caseStudy,
-                jsonLd: jsonLdRedis
-            }
+                jsonLd
+            };
         }
 
-        const jsonLd = generateJsonLdForCaseStudy(website, caseStudy);
-        await this.redisService.setCache(`${website.domain}-${caseStudy.slug}-casestudy-jsonLd`, jsonLd, 86400)
-        return {
-            caseStudy,
-            jsonLd
-        };
+        return caseStudy;
     }
 
 

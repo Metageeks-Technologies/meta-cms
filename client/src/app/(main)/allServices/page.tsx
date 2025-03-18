@@ -19,8 +19,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -54,8 +52,6 @@ import AddServices from "./comonent/AddServices"
 import axiosCall from "@/utils/ApiCall"
 import toast from "react-hot-toast"
 import { debounce } from "lodash"
-
-
 
 
 const columns = [
@@ -292,7 +288,6 @@ const page = () => {
 
   
 
-
   const table = useReactTable({
     data: services,
     columns,
@@ -395,6 +390,7 @@ const page = () => {
         </div>
       </div>
     </div>
+      
   )
 }
 

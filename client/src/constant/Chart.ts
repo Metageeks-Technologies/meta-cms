@@ -182,7 +182,7 @@ export const storePieChartData = (data: any) => {
         labels: [...data?.map((data: any) => data.product.title)],
         datasets: [
             {
-                label: `Top ${data.length} Products sagar`,
+                label: `Top ${data.length} Products`,
                 data: [...data?.map((data: any) => data.totalSoldQuantity)],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.8)',

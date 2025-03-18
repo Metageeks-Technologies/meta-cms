@@ -186,7 +186,6 @@ export class ProductService {
             case ProductSortByEnum.RECENT:
                 sortStage._id = -1;
                 break;
-
         }
 
         // If there's a search query, prioritize sorting by text score first
